@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use App\Models\Role;
 use App\Models\AttendanceLog;
+use App\Models\Rate;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -30,6 +31,11 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password',
     ];
+
+    public function rates()
+    {
+        return $this->hasMany(Rate::class, 'user_id', 'id');
+    }
 
     public function roles()
     {

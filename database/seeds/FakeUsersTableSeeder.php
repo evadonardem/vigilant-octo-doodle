@@ -2,6 +2,8 @@
 
 use Illuminate\Database\Seeder;
 use App\User;
+use App\Models\Rate;
+use App\Models\RateType;
 use Carbon\Carbon;
 
 class FakeUsersTableSeeder extends Seeder
@@ -21,6 +23,14 @@ class FakeUsersTableSeeder extends Seeder
                    'updated_at' => '1970-01-02'
                ]
             ]);
+            $perHourRateType = RateType::where('code', 'per_hour')->first();
+            $perDeliveryRateType = RateType::where('code', 'per_delivery')->first();
+            $user->rates()->saveMany(factory(Rate::class, 1)->make([
+                'rate_type_id' => $perHourRateType->id,
+            ]));
+            $user->rates()->saveMany(factory(Rate::class, 1)->make([
+                'rate_type_id' => $perDeliveryRateType->id,
+            ]));
         });
     }
 }

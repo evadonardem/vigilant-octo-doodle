@@ -4,6 +4,7 @@ use App\User;
 use Illuminate\Database\Seeder;
 use App\Models\Role;
 use App\Models\CommonTimeShift;
+use App\Models\RateType;
 use Carbon\Carbon;
 
 class GeneralDatabaseSeeder extends Seeder
@@ -52,6 +53,18 @@ class GeneralDatabaseSeeder extends Seeder
             CommonTimeShift::create([
               'expected_time_in' => '07:30',
               'expected_time_out' => '16:30'
+            ]);
+        }
+
+        $rateTypes = RateType::all();
+        if ($rateTypes->count() == 0) {
+            RateType::create([
+              'title' => 'Per Hour',
+              'code' => 'per_hour',
+            ]);
+            RateType::create([
+              'title' => 'Per Delivery',
+              'code' => 'per_delivery',
             ]);
         }
     }
