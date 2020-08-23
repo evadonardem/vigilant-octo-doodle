@@ -3,7 +3,7 @@ echo 'TAD Development Platform' ;
 while true; do
   echo 'List of actions';
   echo '[1] Start application';
-  echo '[2] Start application w/ database refresh';
+  echo '[2] Start application (clear volumes)';
   echo '[3] Seed fake data';
   echo '[4] Get into workspace';
   echo 'E[x]it';
@@ -11,13 +11,13 @@ while true; do
   case $option in
     1 )
       docker-compose down && docker-compose up -d
-      docker-compose exec workspace bash -c "php composer.phar update"
-      docker-compose exec workspace bash -c "php artisan migrate"
+      docker-compose exec workspace bash -c "php composer.phar install"
+      docker-compose exec workspace bash -c "vendor/bin/phing configure-environment"
       break;;
     2 )
       docker-compose down -v && docker-compose up -d
-      docker-compose exec workspace bash -c "php composer.phar update"
-      docker-compose exec workspace bash -c "php artisan migrate"
+      docker-compose exec workspace bash -c "php composer.phar install"
+      docker-compose exec workspace bash -c "vendor/bin/phing configure-environment"
       break;;
     3 )
       docker-compose exec workspace bash -c "php artisan db:seed --class='GeneralDatabaseSeeder'"

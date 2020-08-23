@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name = "TimeAndAttendance" default = "">
+    <!-- ============================================ -->
+    <!-- Build Composer Packages -->
+    <!-- ============================================ -->
+    <target name="build-composer-packages">
+        <echo msg="Build Composer Packages" />
+        <exec command="php composer.phar install" logoutput="true" checkreturn="true" />
+    </target>
+
+    <!-- ============================================ -->
+    <!-- Configure Environment -->
+    <!-- ============================================ -->
+    <target name="configure-environment">
+        <echo msg="Conigure Environment" />
+        <exec command="cp .env.example .env" logoutput="true" checkreturn="true" />
+        <exec command="sed -i 's/APP_NAME=/APP_NAME=&quot;Vigilant Octo Doodle&quot;/' .env" />
+        <exec command="sed -i 's/APP_ENV=/APP_ENV=local/' .env" />
+        <exec command="sed -i 's/APP_URL=/APP_URL=&quot;http:\/\/localhost:8085\/public\/index.php&quot;/' .env" />
+        <exec command="sed -i 's/DB_HOST=/DB_HOST=mysql/' .env" />
+        <exec command="sed -i 's/DB_DATABASE=/DB_DATABASE=vigilant_octo_doodle_db/' .env" />
+        <exec command="sed -i 's/DB_USERNAME=/DB_USERNAME=root/' .env" />
+        <exec command="sed -i 's/DB_PASSWORD=/DB_PASSWORD=root/' .env" />
+        <exec command="sed -i 's/API_SUBTYPE=/API_SUBTYPE=vigilant_octo_doodle/' .env" />
+        <exec command="sed -i 's/API_NAME=/API_NAME=vigilant_octo_doodle/' .env" />
+        <exec command="php artisan key:generate" logoutput="true" checkreturn="true" />
+        <exec command="php artisan jwt:secret -f" logoutput="true" checkreturn="true" />
+    </target>
+
+    <!-- ============================================ -->
+    <!-- Initialise Application -->
+    <!-- ============================================ -->
+    <target name="init">
+        <echo msg="Initialise Application" />
+        <echo>---------------------------------"</echo>        
+		<echo>1) Build Composer Packages</echo>
+        <echo>2) Configure Environment</echo>
+		<echo>3) All</echo>
+		<echo>x) Exit</echo>
+		<echo>---------------------------------</echo>
+        <input
+            propertyName="choice"
+            validargs="1,2,3,x"
+            defaultValue="x"
+            promptChar="?">
+            Choice
+        </input>
+        <if>
+            <equals arg1="${choice}" arg2="1" />
+			<then>
+                <echo msg="1. Build Composer Packages"/>
+                <phingcall target="build-composer-packages"/>
+            </then>
+			<elseif><equals arg1="${choice}" arg2="2" />
+                <then>
+                    <echo msg="2. Configure Environment"/>
+                    <phingcall target="configure-environment"/>
+                </then>
+			</elseif>
+			<elseif><equals arg1="${choice}" arg2="a" />
+				<then>
+					<phingcall target="init-all"/>
+				</then>
+			</elseif>
+		</if>
+    </target>
+</project>
