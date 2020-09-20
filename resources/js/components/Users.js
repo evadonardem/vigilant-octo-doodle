@@ -20,6 +20,8 @@ export default class Users extends Component {
             userBiometricId: null,
             userName: '',
             userRole: '',
+            perHourRateAmount: null,
+            perDeliveryRateAmount: null,
         };
 
         this.state = {
@@ -51,12 +53,14 @@ export default class Users extends Component {
             buttons: exportButtons,
             columns: [
                 { 'data': 'biometric_id' },
-                { 'data': 'role' },
                 { 'data': 'name' },
+                { 'data': 'role' },
+                { 'data': 'current_per_hour_rate_amount' },
+                { 'data': 'current_per_delivery_rate_amount' },
                 {
                     'data': null,
                     'render': function (data, type, row) {
-                        const editBtn = '<a href="#" class="edit btn btn-primary" data-toggle="modal" data-target="#addEditBiometricUserModal" data-user-id="' + row.id + '" data-biometric-id="' + row.biometric_id + '" data-name="' + row.name + '" data-role="' + row.role + '"><i class="fa fa-edit"></i></a>';
+                        const editBtn = '<a href="#" class="edit btn btn-primary" data-toggle="modal" data-target="#addEditBiometricUserModal" data-user-id="' + row.id + '" data-biometric-id="' + row.biometric_id + '" data-name="' + row.name + '" data-role="' + row.role + '" data-per-hour-rate-amount="' + row.current_per_hour_rate_amount + '" data-per-delivery-rate-amount="' + row.current_per_delivery_rate_amount + '"><i class="fa fa-edit"></i></a>';
                         const deleteBtn = '<a href="#" class="delete btn btn-warning" data-toggle="modal" data-target="#deleteModal" data-user-id="' + row.id + '" data-biometric-id="' + row.biometric_id + '" data-name="' + row.name + '"><i class="fa fa-trash"></i></a>';
 
                         return `${editBtn}&nbsp;${deleteBtn}`;
@@ -70,6 +74,8 @@ export default class Users extends Component {
             const userBiometricId = e.currentTarget.getAttribute('data-biometric-id');
             const userName = e.currentTarget.getAttribute('data-name');
             const userRole = e.currentTarget.getAttribute('data-role');
+            const perHourRateAmount = e.currentTarget.getAttribute('data-per-hour-rate-amount');
+            const perDeliveryRateAmount = e.currentTarget.getAttribute('data-per-delivery-rate-amount');
             self.setState({
                 showAddEditUserModal: true,
                 isEditUser: true,
@@ -77,6 +83,8 @@ export default class Users extends Component {
                 userBiometricId,
                 userName,
                 userRole,
+                perHourRateAmount,
+                perDeliveryRateAmount,
             });
         });
 
@@ -119,6 +127,8 @@ export default class Users extends Component {
             userBiometricId: null,
             userName: '',
             userRole: '',
+            perHourRateAmount: null,
+            perDeliveryRateAmount: null,
         });
     }
 
@@ -174,6 +184,8 @@ export default class Users extends Component {
             userBiometricId: null,
             userName: '',
             userRole: '',
+            perHourRateAmount: null,
+            perDeliveryRateAmount: null,
             showDeleteUserModal: false,
             isDeleteUserError: false,
             deleteUserErrorHeaderTitle: '',
@@ -208,6 +220,8 @@ export default class Users extends Component {
             userBiometricId,
             userName,
             userRole,
+            perHourRateAmount,
+            perDeliveryRateAmount,
         } = this.state;
 
         const {
@@ -249,8 +263,10 @@ export default class Users extends Component {
                                     <thead>
                                         <tr>
                                         <th scope="col">Biometric ID</th>
-                                        <th scope="col">Current Role</th>
                                         <th scope="col">Name</th>
+                                        <th scope="col">Current Role</th>
+                                        <th scope="col">Current Per Hour Rate</th>
+                                        <th scope="col">Current Per Delivery Rate</th>                            
                                         <th></th>
                                         </tr>
                                     </thead>
@@ -267,6 +283,8 @@ export default class Users extends Component {
                     userBiometricId={userBiometricId}
                     userName={userName}
                     userRole={userRole}
+                    perHourRateAmount={perHourRateAmount}
+                    perDeliveryRateAmount={perDeliveryRateAmount}
                     handleClose={this.handleCloseAddEditUserModal}
                     handleSubmit={this.handleSubmitAddEditUserModal}
                     isError={isErrorAddEditUser}

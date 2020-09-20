@@ -8,6 +8,8 @@ use App\Http\Requests\StoreUserRequest;
 use App\ZKLib\ZKLibrary;
 use App\User;
 use App\Models\AttendanceLog;
+use App\Models\Rate;
+use App\Models\RateType;
 use Illuminate\Support\Facades\Hash;
 
 class BiometricUsersController extends Controller
@@ -30,6 +32,38 @@ class BiometricUsersController extends Controller
                        ->id;
             } else {
                 $user->role = null;
+            }
+
+            if ($user->rates->count() > 0) {
+                $current_per_hour_rate = $user->rates()
+                    ->whereHas('type', function ($q) {
+                        $q->where('code', 'per_hour');
+                    })
+                    ->orderBy('rates.created_at', 'desc')
+                    ->first();
+                if ($current_per_hour_rate) {
+                    $user->current_per_hour_rate_amount = $current_per_hour_rate->amount;
+                } else {
+                    $user->current_per_hour_rate_amount = 'N/A';
+                }
+            } else {
+                $user->current_per_hour_rate_amount = 'N/A';
+            }
+
+            if ($user->rates->count() > 0) {
+                $current_per_delivery_rate = $user->rates()
+                    ->whereHas('type', function ($q) {
+                        $q->where('code', 'per_delivery');
+                    })
+                    ->orderBy('rates.created_at', 'desc')
+                    ->first();
+                if ($current_per_delivery_rate) {
+                    $user->current_per_delivery_rate_amount = $current_per_delivery_rate->amount;
+                } else {
+                    $user->current_per_delivery_rate_amount = 'N/A';
+                }
+            } else {
+                $user->current_per_delivery_rate_amount = 'N/A';
             }
         });
 
@@ -58,7 +92,9 @@ class BiometricUsersController extends Controller
         $attributes = $request->only([
             'biometric_id',
             'role',
-            'name'
+            'name',
+            'per_hour_rate_amount',
+            'per_delivery_rate_amount',
         ]);
 
         if (env('DEVICE_ENABLED')) {
@@ -92,6 +128,26 @@ class BiometricUsersController extends Controller
 
         $user->roles()->attach($attributes['role']);
 
+        if ($attributes['per_hour_rate_amount']) {
+            $perHourRateType = RateType::where('code', 'per_hour')->first();
+            $user->rates()->save(Rate::make([
+                'rate_type_id' => $perHourRateType->id,
+                'amount' => $attributes['per_hour_rate_amount'],
+                'created_at' => '1970-02-02',
+                'updated_at' => '1970-02-02',
+            ]));
+        }
+
+        if ($attributes['per_delivery_rate_amount']) {
+            $perDeliveryRateType = RateType::where('code', 'per_delivery')->first();
+            $user->rates()->save(Rate::make([
+                'rate_type_id' => $perDeliveryRateType->id,
+                'amount' => $attributes['per_delivery_rate_amount'],
+                'created_at' => '1970-02-02',
+                'updated_at' => '1970-02-02',
+            ]));
+        }
+
         return ($user)
           ? response()->noContent()
           : response()->json('Forbidden', 403);
@@ -104,7 +160,7 @@ class BiometricUsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(StoreUserRequest $request, $id)
     {
         $deviceUser = null;
         $storedUser = User::findOrFail($id);
@@ -112,6 +168,8 @@ class BiometricUsersController extends Controller
         $attributes = $request->only([
             'name',
             'role',
+            'per_hour_rate_amount',
+            'per_delivery_rate_amount',
         ]);
 
         if (env('DEVICE_ENABLED')) {
@@ -151,6 +209,32 @@ class BiometricUsersController extends Controller
 
         if ($currentRole->id !== $attributes['role']) {
             $storedUser->roles()->attach($attributes['role']);
+        }
+
+        if ($attributes['per_hour_rate_amount']) {
+            $perHourRateType = RateType::where('code', 'per_hour')->first();
+            $rateAttributes = [
+                'rate_type_id' => $perHourRateType->id,
+                'amount' => $attributes['per_hour_rate_amount'],
+            ];
+            if ($storedUser->rates->count() == 0) {
+                $rateAttributes['created_at'] = '1970-02-02';
+                $rateAttributes['updated_at'] = '1970-02-02';
+            }
+            $storedUser->rates()->save(Rate::make($rateAttributes));
+        }
+
+        if ($attributes['per_delivery_rate_amount']) {
+            $perDeliveryRateType = RateType::where('code', 'per_delivery')->first();
+            $rateAttributes = [
+                'rate_type_id' => $perDeliveryRateType->id,
+                'amount' => $attributes['per_delivery_rate_amount'],
+            ];
+            if ($storedUser->rates->count() == 0) {
+                $rateAttributes['created_at'] = '1970-02-02';
+                $rateAttributes['updated_at'] = '1970-02-02';
+            }
+            $storedUser->rates()->save(Rate::make($rateAttributes));
         }
 
         $storedUser->save();

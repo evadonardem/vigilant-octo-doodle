@@ -18,7 +18,7 @@ class FakeUsersTableSeeder extends Seeder
         $users = factory(User::class, 10)->create();
         $users->each(function ($user) {
             $user->roles()->sync([
-              'TEACHING' => [
+              'STAFF' => [
                    'created_at' => '1970-01-02',
                    'updated_at' => '1970-01-02'
                ]

@@ -25,10 +25,17 @@ class StoreUserRequest extends FormRequest
      */
     public function rules(Request $request)
     {
-        return [
-            'biometric_id' => 'required|string|max:8|unique:users,biometric_id',
+        $rules = [
             'name' => 'required|string|max:25',
             'role' => 'required|string',
+            'per_hour_rate_amount' => 'required',
+            'per_delivery_rate_amount' => 'required',
         ];
+
+        if (!$request->isMethod('patch')) {
+            $rules['biometric_id'] = 'required|string|max:8|unique:users,biometric_id';
+        }
+
+        return $rules;
     }
 }

@@ -17,10 +17,8 @@ class GeneralDatabaseSeeder extends Seeder
     public function run()
     {
         $roles = [
-          'TEACHING' => '',
-          'NON-TEACHING' => '',
-          'MAINTENANCE' => '',
-          'INTEGRATION FACILITATOR (PHOENIX)' => ''
+          'STAFF' => '',
+          'DRIVER' => '',
         ];
 
         foreach ($roles as $id => $description) {
@@ -37,24 +35,13 @@ class GeneralDatabaseSeeder extends Seeder
         $users->each(function ($user) {
             if ($user->roles->count() == 0) {
                 $user->roles()->sync([
-                  'TEACHING' => [
+                  'STAFF' => [
                     'created_at' => '1970-02-02',
                     'updated_at' => '1970-02-02'
                   ]
                 ]);
             }
         });
-
-        $commonTimeShift = CommonTimeShift::whereNull('role_id')
-            ->whereNull('effectivity_date')
-            ->first();
-
-        if (!$commonTimeShift) {
-            CommonTimeShift::create([
-              'expected_time_in' => '07:30',
-              'expected_time_out' => '16:30'
-            ]);
-        }
 
         $rateTypes = RateType::all();
         if ($rateTypes->count() == 0) {

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCommonTimeShiftsTable extends Migration
+class CreateUserTypesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,17 @@ class CreateCommonTimeShiftsTable extends Migration
      */
     public function up()
     {
-        Schema::create('common_time_shifts', function (Blueprint $table) {
+        Schema::create('user_roles', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->date('effectivity_date')->unique()->nullable();
-            $table->time('expected_time_in');
-            $table->time('expected_time_out');
+            $table->unsignedBigInteger('user_id');
+            $table->string('type');
             $table->timestamps();
+
+            $table->foreign('user_id')
+              ->references('id')
+              ->on('users')
+              ->onDelete('cascade')
+              ->onUpdate('cascade');
         });
     }
 
@@ -29,6 +34,6 @@ class CreateCommonTimeShiftsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('common_time_shifts');
+        Schema::dropIfExists('user_roles');
     }
 }

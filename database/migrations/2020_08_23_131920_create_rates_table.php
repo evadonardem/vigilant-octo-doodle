@@ -27,7 +27,7 @@ class CreateRatesTable extends Migration
               ->onUpdate('cascade');
             $table->foreign('rate_type_id')
               ->references('id')
-              ->on('rates')
+              ->on('rate_types')
               ->onDelete('cascade')
               ->onUpdate('cascade');
         });
