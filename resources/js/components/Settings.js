@@ -12,20 +12,6 @@ export default class Settings extends Component {
                     <div className="col-md-6">
                         <Jumbotron>
                             <h1 className="text-center">
-                                <i className="fa fa-clock-o"></i><br/>
-                                Common Time Shifts
-                            </h1>
-                            <hr className="my-4"/>
-                            <p className="lead text-center">
-                                <Link to={'settings-common-time-shifts'}>
-                                    <Button variant="primary" size="lg">Continue &raquo;</Button>
-                                </Link>
-                            </p>
-                        </Jumbotron>
-                    </div>
-                    <div className="col-md-6">
-                        <Jumbotron>
-                            <h1 className="text-center">
                                 <i className="fa fa-users"></i><br/>
                                 User Roles
                             </h1>

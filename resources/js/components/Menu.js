@@ -11,14 +11,9 @@ import {
 } from 'react-bootstrap';
 import Dashboard from './Dashboard';
 import AttendanceLogs from './AttendanceLogs';
-import Reports from './Reports';
 import Users from './Users';
 import Settings from './Settings';
-import SettingsCommonTimeShifts from './SettingsCommonTimeShifts';
 import SettingsUserRoles from './SettingsUserRoles';
-import ReportsLateUndertime from './ReportsLateUndertime';
-import ReportsAbsencesNoTimeInOut from './ReportsAbsencesNoTimeInOut';
-import AttendanceLogOverrides from './AttendanceLogOverrides';
 
 export default class Menu extends Component {
     constructor(props) {
@@ -114,12 +109,6 @@ export default class Menu extends Component {
                             case '/attendance-logs':
                                 routeToComponent = <AttendanceLogs />;
                                 break;
-                            case '/attendance-log-overrides':
-                                routeToComponent = <AttendanceLogOverrides />;
-                                break;
-                            case '/reports':
-                                routeToComponent = <Reports />;
-                                break;
                             case '/users':
                                 routeToComponent = <Users />;
                                 break;
@@ -132,10 +121,7 @@ export default class Menu extends Component {
                         
                         return (<Route key={'route-' + routeIndex++} path={link.to} component={() => routeToComponent}>
                         </Route>); }
-                    )}
-                    <Route key={'route-default'} path={'/reports-late-undertime'} component={ReportsLateUndertime}></Route>
-                    <Route key={'route-default'} path={'/reports-absences-no-time-in-out'} component={ReportsAbsencesNoTimeInOut}></Route>
-                    <Route key={'route-default'} path={'/settings-common-time-shifts'} component={SettingsCommonTimeShifts}></Route>
+                    )}                                
                     <Route key={'route-default'} path={'/settings-user-roles'} component={SettingsUserRoles}></Route>
                 </Switch>
             </div>

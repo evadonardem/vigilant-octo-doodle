@@ -20,21 +20,7 @@ export default class Dashboard extends Component {
                                 </Link>
                             </p>
                         </Jumbotron>
-                    </div>
-                    <div className="col-md-6">
-                        <Jumbotron>
-                            <h1 className="text-center">
-                                <i className="fa fa-files-o"></i><br/>
-                                Generate Reports
-                            </h1>
-                            <hr className="my-4"/>
-                            <p className="lead text-center">
-                                <Link to={'reports'}>
-                                    <Button variant="primary" size="lg">Continue &raquo;</Button>
-                                </Link>
-                            </p>
-                        </Jumbotron>
-                    </div>
+                    </div>                    
                     <div className="col-md-6">
                         <Jumbotron>
                             <h1 className="text-center">

@@ -248,7 +248,7 @@ export default class Users extends Component {
                 <div className="row">
                     <div className="col-md-12">
                         <Button variant='primary' onClick={this.handleShowAddEditUserModal}>
-                            <i className="fa fa-plus"></i> Add New User Role
+                            <i className="fa fa-plus"></i> Add New User
                         </Button>
                     </div>
                 </div>
