@@ -35,23 +35,11 @@ $api->version('v1', function ($api) {
     $api->group(['prefix' => 'biometric', 'middleware' => 'api.auth'], function ($api) {
         $api->get('info', 'App\Http\Controllers\Api\V1\BiometricInfoController@index');
         $api->resource('users', 'App\Http\Controllers\Api\V1\BiometricUsersController');
+        $api->get('users/{userId}/rates', 'App\Http\Controllers\Api\V1\RateController@index');
         $api->get('attendance-logs', 'App\Http\Controllers\Api\V1\BiometricAttendanceController@index');
     });
 
-    $api->group(['prefix' => 'override', 'middleware' => 'api.auth'], function ($api) {
-        $api->post('manual-attendance-logs', 'App\Http\Controllers\Api\V1\ManualAttendanceController@store');
-        $api->post('adjustment-late-undertime', 'App\Http\Controllers\Api\V1\AdjustmentLateUndertimeController@store');
-        $api->resource('attendance-logs', 'App\Http\Controllers\Api\V1\AttendanceLogOverrideController');
-    });
-
-    $api->group(['prefix' => 'reports', 'middleware' => 'api.auth'], function ($api) {
-        $api->get('late-undertime', 'App\Http\Controllers\Api\V1\ReportsController@lateUndertime');
-        $api->get('absences', 'App\Http\Controllers\Api\V1\ReportsController@absences');
-    });
-
     $api->group(['prefix' => 'settings', 'middleware' => 'api.auth'], function ($api) {
-        $api->resource('common-time-shifts', 'App\Http\Controllers\Api\V1\CommonTimeShiftsController');
-        $api->resource('individual-time-shifts', 'App\Http\Controllers\Api\V1\IndividualTimeShiftsController');
         $api->resource('roles', 'App\Http\Controllers\Api\V1\RolesController');
     });
 

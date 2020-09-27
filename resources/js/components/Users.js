@@ -8,12 +8,19 @@ export default class Users extends Component {
     constructor(props) {
         super(props);
 
+        this.handleShowRateHistoryModal = this.handleShowRateHistoryModal.bind(this);
+        this.handleCloseRateHistoryModal = this.handleCloseRateHistoryModal.bind(this);
+
         this.handleShowAddEditUserModal = this.handleShowAddEditUserModal.bind(this);
         this.handleCloseAddEditUserModal = this.handleCloseAddEditUserModal.bind(this);
         this.handleSubmitAddEditUserModal = this.handleSubmitAddEditUserModal.bind(this);
 
         this.handleCloseDeleteUserModal = this.handleCloseDeleteUserModal.bind(this);
         this.handleSubmitDeleteUserModal = this.handleSubmitDeleteUserModal.bind(this)
+
+        this.state = {
+            showRateHistoryModal: false,
+        };
 
         this.state = {
             userId: null,
@@ -27,14 +34,14 @@ export default class Users extends Component {
         this.state = {
             showAddEditUserModal: false,
             isEditUser: false,
-        }
+        };
 
         this.state = {
             showDeleteUserModal: false,
             isDeleteUserError: false,
             deleteUserErrorHeaderTitle: '',
             deleteUserErrorBodyText: '',
-        }
+        };
     }
 
     componentDidMount() {
@@ -60,13 +67,20 @@ export default class Users extends Component {
                 {
                     'data': null,
                     'render': function (data, type, row) {
+                        const historyBtn = '<a href="#" class="rate-history btn btn-secondary" data-user-id="' + row.id + '"><i class="fa fa-history"></i></a>';
                         const editBtn = '<a href="#" class="edit btn btn-primary" data-toggle="modal" data-target="#addEditBiometricUserModal" data-user-id="' + row.id + '" data-biometric-id="' + row.biometric_id + '" data-name="' + row.name + '" data-role="' + row.role + '" data-per-hour-rate-amount="' + row.current_per_hour_rate_amount + '" data-per-delivery-rate-amount="' + row.current_per_delivery_rate_amount + '"><i class="fa fa-edit"></i></a>';
                         const deleteBtn = '<a href="#" class="delete btn btn-warning" data-toggle="modal" data-target="#deleteModal" data-user-id="' + row.id + '" data-biometric-id="' + row.biometric_id + '" data-name="' + row.name + '"><i class="fa fa-trash"></i></a>';
 
-                        return `${editBtn}&nbsp;${deleteBtn}`;
+                        return `${historyBtn}&nbsp;${editBtn}&nbsp;${deleteBtn}`;
                     }
                 }
             ]
+        });
+
+        $(document).on('click', '.data-table-wrapper .rate-history', function(e) {
+            e.preventDefault();
+            const userId = e.currentTarget.getAttribute('data-user-id');
+            location.href = `${appBaseUrl}/#/user-rate-history/${userId}`;
         });
 
         $(document).on('click', '.data-table-wrapper .edit', function(e) {
@@ -109,6 +123,26 @@ export default class Users extends Component {
 
         $('.data-table-wrapper .edit').off();
         $('.data-table-wrapper .delete').off();
+    }
+
+    handleShowRateHistoryModal() {
+        const self = this;
+        self.setState({
+            showRateHistoryModal: true
+        });
+    }
+
+    handleCloseRateHistoryModal() {
+        const self = this;
+        self.setState({
+            showRateHistoryModal: false,
+            userId: null,
+            userBiometricId: null,
+            userName: '',
+            userRole: '',
+            perHourRateAmount: null,
+            perDeliveryRateAmount: null,
+        });
     }
 
     handleShowAddEditUserModal() {
@@ -216,6 +250,10 @@ export default class Users extends Component {
     }
 
     render() {
+        const {
+            showRateHistoryModal,
+        } = this.state;
+
         const {
             userBiometricId,
             userName,

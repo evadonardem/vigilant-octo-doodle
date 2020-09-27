@@ -14,6 +14,7 @@ import AttendanceLogs from './AttendanceLogs';
 import Users from './Users';
 import Settings from './Settings';
 import SettingsUserRoles from './SettingsUserRoles';
+import UserRateHistory from './UserRateHistory';
 
 export default class Menu extends Component {
     constructor(props) {
@@ -122,7 +123,8 @@ export default class Menu extends Component {
                         return (<Route key={'route-' + routeIndex++} path={link.to} component={() => routeToComponent}>
                         </Route>); }
                     )}                                
-                    <Route key={'route-default'} path={'/settings-user-roles'} component={SettingsUserRoles}></Route>
+                    <Route path={'/settings-user-roles'} component={SettingsUserRoles}></Route>
+                    <Route path={'/user-rate-history/:userId'} component={UserRateHistory}></Route>
                 </Switch>
             </div>
         );

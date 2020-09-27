@@ -82,6 +82,20 @@ class BiometricUsersController extends Controller
     }
 
     /**
+     * Show the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        return response()->json(['data' => $user]);
+    }
+
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -221,7 +235,17 @@ class BiometricUsersController extends Controller
                 $rateAttributes['created_at'] = '1970-02-02';
                 $rateAttributes['updated_at'] = '1970-02-02';
             }
-            $storedUser->rates()->save(Rate::make($rateAttributes));
+
+            $currentPerHourRate = $storedUser->rates()
+                ->whereHas('type', function ($q) {
+                    $q->where('code', 'per_hour');
+                })
+                ->orderBy('rates.created_at', 'desc')
+                ->first();
+            
+            if ($currentPerHourRate->amount != $rateAttributes['amount']) {
+                $storedUser->rates()->save(Rate::make($rateAttributes));
+            }            
         }
 
         if ($attributes['per_delivery_rate_amount']) {
@@ -234,7 +258,17 @@ class BiometricUsersController extends Controller
                 $rateAttributes['created_at'] = '1970-02-02';
                 $rateAttributes['updated_at'] = '1970-02-02';
             }
-            $storedUser->rates()->save(Rate::make($rateAttributes));
+
+            $currentPerDeliveryRate = $storedUser->rates()
+                ->whereHas('type', function ($q) {
+                    $q->where('code', 'per_delivery');
+                })
+                ->orderBy('rates.created_at', 'desc')
+                ->first();
+            
+            if ($currentPerDeliveryRate->amount != $rateAttributes['amount']) {
+                $storedUser->rates()->save(Rate::make($rateAttributes));
+            }
         }
 
         $storedUser->save();
