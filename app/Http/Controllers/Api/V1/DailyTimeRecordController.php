@@ -138,6 +138,7 @@ class DailyTimeRecordController extends Controller
                         $entryAmount = round($entryHours * $entry['per_hour_rate_amount'], 2);
                         $totalSeconds += $entrySeconds;
                         $totalAmount += $entryAmount;
+                        $totalAmount = round($totalAmount, 2);
                         $entry['hours'] = $entryHours;
                         $entry['amount'] = $entryAmount;
                     }
