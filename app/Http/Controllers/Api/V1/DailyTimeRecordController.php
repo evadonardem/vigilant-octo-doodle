@@ -161,7 +161,7 @@ class DailyTimeRecordController extends Controller
                 unset($logs);
             }
             $meta['duration_total_hours'] = round($meta['duration_total_hours'], 3);
-            $meta['duration_total_hours_amount'] = round($meta['duration_total_hours_amount'], 3);
+            $meta['duration_total_hours_amount'] = round($meta['duration_total_hours_amount'], 2);
             $details['logs'] = array_values($details['logs']);
             $details['meta'] = $meta;
             unset($details);
