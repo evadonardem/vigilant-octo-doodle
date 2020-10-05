@@ -87,6 +87,9 @@ class DailyTimeRecordController extends Controller
         foreach ($dailyTimeRecord as &$details) {
             $user = User::where('biometric_id', $details['biometric_id'])->first();
             $meta['duration_total_hours'] = 0;
+            $meta['duration_total_hours_amount'] = 0;
+            $meta['duration_total_deliveries'] = 0;
+            $meta['duration_total_deliveries_amount'] = 0;
             foreach ($details['logs'] as $key => &$logs) {
                 $date = Carbon::createFromFormat('Y-m-d', $key);
                 $entries = [];
@@ -143,6 +146,9 @@ class DailyTimeRecordController extends Controller
                 }
                 $totalInHours = round($totalSeconds / 60 / 60, 3);
                 $meta['duration_total_hours'] += $totalInHours;
+                $meta['duration_total_hours_amount'] += $totalAmount;
+                $meta['duration_total_deliveries'] = 0;
+                $meta['duration_total_deliveries_amount'] = 0;
                 
                 $logs = [                
                     'date' => !is_null($date) ? $date->format('D, M d, Y') : null,
@@ -155,6 +161,7 @@ class DailyTimeRecordController extends Controller
                 unset($logs);
             }
             $meta['duration_total_hours'] = round($meta['duration_total_hours'], 3);
+            $meta['duration_total_hours_amount'] = round($meta['duration_total_hours_amount'], 3);
             $details['logs'] = array_values($details['logs']);
             $details['meta'] = $meta;
             unset($details);

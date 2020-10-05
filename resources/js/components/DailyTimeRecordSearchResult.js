@@ -41,6 +41,18 @@ export default class DailyTimeRecordSearchResult extends Component {
                     className: 'text-right',
                     data: 'meta.duration_total_hours'
                 },
+                {
+                    className: 'text-right',
+                    data: 'meta.duration_total_hours_amount'
+                },
+                {
+                    className: 'text-right',
+                    data: 'meta.duration_total_deliveries'
+                },
+                {
+                    className: 'text-right',
+                    data: 'meta.duration_total_deliveries_amount'
+                },
             ],
         });
 
@@ -204,6 +216,9 @@ export default class DailyTimeRecordSearchResult extends Component {
                                     <th scope="col">Name</th>
                                     <th scope="col">Position</th>
                                     <th scope="col">Duration Total Hours</th>
+                                    <th scope="col">Duration Total Amount</th>
+                                    <th scope="col">Duration No. of Deliveries</th>
+                                    <th scope="col">Duration Deliveries Amount</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
