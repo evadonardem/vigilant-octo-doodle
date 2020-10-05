@@ -117,7 +117,7 @@ export default class Users extends Component {
 
     componentWillUnmount() {
         $('.data-table-wrapper')
-            .find('table')
+            .find('table.table-users')
             .DataTable()
             .destroy(true);
 
@@ -173,7 +173,7 @@ export default class Users extends Component {
         const token = cookie.load('token');
         const { userId } = self.state;
 
-        const table = $('.data-table-wrapper').find('table').DataTable();
+        const table = $('.data-table-wrapper').find('table.table-users').DataTable();
         const form = e.currentTarget;
         const data = $(form).serialize();
         const modal = $('#addEditUserModal');
@@ -231,7 +231,7 @@ export default class Users extends Component {
         const self = this;
         const token = cookie.load('token');
         const { userId, userBiometricId, userName } = self.state;
-        const table = $('.data-table-wrapper').find('table').DataTable();
+        const table = $('.data-table-wrapper').find('table.table-users').DataTable();
 
         axios.delete(apiBaseUrl + '/biometric/users/' + userId + '?token=' + token)
             .then((response) => {
@@ -297,7 +297,7 @@ export default class Users extends Component {
                     <div className="col-md-12">
                         <Card>
                             <Card.Body>
-                                <table ref="usersList" className="table table-striped" style={{width: 100+'%'}}>
+                                <table ref="usersList" className="table table-striped table-users" style={{width: 100+'%'}}>
                                     <thead>
                                         <tr>
                                         <th scope="col">Biometric ID</th>

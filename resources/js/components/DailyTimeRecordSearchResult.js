@@ -64,20 +64,23 @@ export default class DailyTimeRecordSearchResult extends Component {
                     <th>Day</th>
                     <th>Time-In/Out</th>
                     <th class="text-right">Total Hours</th>
+                    <th class="text-right">Total Amount</th>
                     <th class="text-right">No. of Deliveries</th>
                     <th>Remarks</th>
                 </thead>
                 <tbody>
                 ${d.logs.map((log)=>{
                     return `<tr>
-                        <td>${log.short_date}</td>
+                        <td>${log.date}</td>
                         <td>${log.time_in_out.map((entry) => {
-                            if (entry.length == 2) {
-                                return `(In: ${entry[0]} - Out: ${entry[1]})`;
+                            if (entry.hasOwnProperty('in') && entry.hasOwnProperty('out')) {
+                                return `(In: ${entry.in} - Out: ${entry.out}&nbsp;
+                                    (${entry.hours} Hrs. @ Php. ${entry.per_hour_rate_amount}/Hr. = Php. ${entry.amount}))`;
                             }
-                            return `(In: ${entry[0]} - Out: ?)`;
+                            return `(In: ${entry.in} - Out: ?)`;
                         }).join('<br>')}</td>
                         <td class="text-right">${log.total_hours}</td>
+                        <td class="text-right">${log.total_amount}</td>
                         <td class="text-right">${log.deliveries}</td>
                         <td></td>
                     </tr>`;

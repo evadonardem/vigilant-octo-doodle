@@ -87,7 +87,7 @@ export default class SettingsUserRoles extends Component {
 
     componentWillUnmount(){
         $('.data-table-wrapper')
-            .find('table')
+            .find('table.table-user-roles')
             .DataTable()
             .destroy(true);
 
@@ -117,7 +117,7 @@ export default class SettingsUserRoles extends Component {
         const self = this;
         const token = cookie.load('token');
 
-        const table = $('.data-table-wrapper').find('table').DataTable();
+        const table = $('.data-table-wrapper').find('table.table-user-roles').DataTable();
         const form = e.currentTarget;
         const data = $(form).serialize();
         const modal = $('#addEditUserRoleModal');
@@ -152,7 +152,7 @@ export default class SettingsUserRoles extends Component {
         const self = this;
         const token = cookie.load('token');
         const { deleteUserRoleId } = self.state;
-        const table = $('.data-table-wrapper').find('table').DataTable();
+        const table = $('.data-table-wrapper').find('table.table-user-roles').DataTable();
 
         axios.delete(apiBaseUrl + '/settings/roles/' + deleteUserRoleId + '?token=' + token)
             .then((response) => {
@@ -216,7 +216,7 @@ export default class SettingsUserRoles extends Component {
                     <div className="col-md-12">
                         <Card>
                             <Card.Body>
-                                <table ref="userRolesList" className="table table-striped">
+                                <table ref="userRolesList" className="table table-striped table-user-roles">
                                     <thead>
                                         <tr>
                                             <th scope="col">Role</th>

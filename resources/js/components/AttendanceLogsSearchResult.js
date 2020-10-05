@@ -41,7 +41,7 @@ export default class AttendanceLogsSearchResult extends Component {
 
     componentWillUnmount() {
         $('.data-table-wrapper')
-            .find('table')
+            .find('table.table-attendance-logs')
             .DataTable()
             .destroy(true);
     }
@@ -75,7 +75,7 @@ export default class AttendanceLogsSearchResult extends Component {
         } = this.props;
 
         const dataTable = $('.data-table-wrapper')
-            .find('table')
+            .find('table.table-attendance-logs')
             .DataTable();
 
         if (startDate && endDate) {
@@ -107,7 +107,7 @@ export default class AttendanceLogsSearchResult extends Component {
                         User: { biometricId ? `${biometricId} ${biometricName}` : 'All' } From: {startDate} To: {endDate}
                     </Card.Header>
                     <Card.Body>
-                        <table ref="attendanceLogsSearchResult" className="table table-striped" style={{width: 100+'%'}}>
+                        <table ref="attendanceLogsSearchResult" className="table table-striped table-attendance-logs" style={{width: 100+'%'}}>
                             <thead>
                                 <tr>
                                     <th scope="col">Biometric ID</th>

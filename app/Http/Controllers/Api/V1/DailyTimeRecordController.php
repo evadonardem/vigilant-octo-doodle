@@ -85,37 +85,70 @@ class DailyTimeRecordController extends Controller
 
         $dailyTimeRecord = array_values($dailyTimeRecord);
         foreach ($dailyTimeRecord as &$details) {
+            $user = User::where('biometric_id', $details['biometric_id'])->first();
             $meta['duration_total_hours'] = 0;
             foreach ($details['logs'] as $key => &$logs) {
                 $date = Carbon::createFromFormat('Y-m-d', $key);
                 $entries = [];
                 $timeInOut = [];
                 for ($i = 0; $i < count($logs); $i += 2, $timeInOut = []) {
-                    $timeInOut[] = Carbon::createFromFormat('Y-m-d H:i:s', $logs[$i])
+                    $timeInOut['in'] = Carbon::createFromFormat('Y-m-d H:i:s', $logs[$i])
                         ->format('h:i:s A');
+
+                    $timeInOut['per_hour_rate_amount'] = 0;
                     if (array_key_exists($i + 1, $logs)) {
-                        $timeInOut[] = Carbon::createFromFormat('Y-m-d H:i:s', $logs[$i + 1])
+                        $timeInOut['out'] = Carbon::createFromFormat('Y-m-d H:i:s', $logs[$i + 1])
                             ->format('h:i:s A');
+
+                        /*
+                         * Fetch in effect per hour rate amount based on log time-out date,
+                         * if did not matched any pick the first entry from rates.
+                         */
+                        $perHourRateAmount = $user->rates()
+                            ->where('created_at', '<=', $logs[$i + 1])
+                            ->orderBy('created_at', 'desc')
+                            ->first();
+                        if (!$perHourRateAmount) {
+                            $perHourRateAmount = $user->rates()
+                                ->orderBy('created_at', 'asc')
+                                ->first();
+                        }
+                        
+                        $timeInOut['per_hour_rate_amount'] = $perHourRateAmount->amount;
                     }
                     $entries[] = $timeInOut;
                 }
 
                 $totalSeconds = 0;
-                foreach ($entries as $entry) {
-                    if (count($entry) == 2) {
-                        $timeIn = Carbon::createFromFormat('h:i:s A', $entry[0]);
-                        $timeOut = Carbon::createFromFormat('h:i:s A', $entry[1]);
-                        $totalSeconds += $timeOut->diffInSeconds($timeIn);
+                $totalAmount = 0;
+                foreach ($entries as &$entry) {
+                    $entry['hours'] = 0;
+                    $entry['amount'] = 0;
+                    if (
+                        array_key_exists('in', $entry) &&
+                        array_key_exists('out', $entry)
+                    ) {
+                        $timeIn = Carbon::createFromFormat('h:i:s A', $entry['in']);
+                        $timeOut = Carbon::createFromFormat('h:i:s A', $entry['out']);
+                        $entrySeconds = $timeOut->diffInSeconds($timeIn);
+                        $entryHours = round($entrySeconds / 60 / 60, 3);
+                        $entryAmount = round($entryHours * $entry['per_hour_rate_amount'], 2);
+                        $totalSeconds += $entrySeconds;
+                        $totalAmount += $entryAmount;
+                        $entry['hours'] = $entryHours;
+                        $entry['amount'] = $entryAmount;
                     }
+
+                    unset($entry);
                 }
                 $totalInHours = round($totalSeconds / 60 / 60, 3);
                 $meta['duration_total_hours'] += $totalInHours;
                 
-                $logs = [
-                    'full_date' => !is_null($date) ? $date->format('Y-m-d') : null,
-                    'short_date' => !is_null($date) ? $date->format('d D') : null,
+                $logs = [                
+                    'date' => !is_null($date) ? $date->format('D, M d, Y') : null,
                     'time_in_out' => $entries,
                     'total_hours' => $totalInHours,
+                    'total_amount' => $totalAmount,
                     'deliveries' => 0,
                 ];
 
