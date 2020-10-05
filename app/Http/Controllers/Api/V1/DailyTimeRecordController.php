@@ -110,7 +110,7 @@ class DailyTimeRecordController extends Controller
                             ->first();
                         if (!$perHourRateAmount) {
                             $perHourRateAmount = $user->rates()
-                                ->orderBy('created_at', 'asc')
+                                ->orderBy('created_at', 'desc')
                                 ->first();
                         }
                         
