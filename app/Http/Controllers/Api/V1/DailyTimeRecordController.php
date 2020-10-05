@@ -114,7 +114,7 @@ class DailyTimeRecordController extends Controller
                                 ->first();
                         }
                         
-                        $timeInOut['per_hour_rate_amount'] = $perHourRateAmount->amount;
+                        $timeInOut['per_hour_rate_amount'] = $perHourRateAmount ? $perHourRateAmount->amount : 0;
                     }
                     $entries[] = $timeInOut;
                 }
