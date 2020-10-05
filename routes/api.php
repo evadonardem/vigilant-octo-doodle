@@ -31,6 +31,10 @@ $api->version('v1', function ($api) {
         $api->post('refresh', 'App\Http\Controllers\Api\V1\AuthController@refresh');
         $api->post('me', 'App\Http\Controllers\Api\V1\AuthController@me');
     });
+    
+    $api->group(['middleware' => 'api.auth'], function ($api) {
+        $api->get('daily-time-record', 'App\Http\Controllers\Api\V1\DailyTimeRecordController@index');
+    });
 
     $api->group(['prefix' => 'biometric', 'middleware' => 'api.auth'], function ($api) {
         $api->get('info', 'App\Http\Controllers\Api\V1\BiometricInfoController@index');

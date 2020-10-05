@@ -11,6 +11,7 @@ import {
 } from 'react-bootstrap';
 import Dashboard from './Dashboard';
 import AttendanceLogs from './AttendanceLogs';
+import DailyTimeRecord from './DailyTimeRecord';
 import Users from './Users';
 import Settings from './Settings';
 import SettingsUserRoles from './SettingsUserRoles';
@@ -109,6 +110,9 @@ export default class Menu extends Component {
                                 break;
                             case '/attendance-logs':
                                 routeToComponent = <AttendanceLogs />;
+                                break;
+                            case '/daily-time-record':
+                                routeToComponent = <DailyTimeRecord />;
                                 break;
                             case '/users':
                                 routeToComponent = <Users />;

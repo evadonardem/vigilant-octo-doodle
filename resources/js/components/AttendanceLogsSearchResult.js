@@ -3,7 +3,7 @@ import { Card, Jumbotron } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import sanitize from 'sanitize-filename';
 
-export default class CommonDeleteModal extends Component {
+export default class AttendanceLogsSearchResult extends Component {
     constructor(props) {
         super(props);
     }
