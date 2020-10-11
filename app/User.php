@@ -6,8 +6,9 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
-use App\Models\Role;
 use App\Models\AttendanceLog;
+use App\Models\Delivery;
+use App\Models\Role;
 use App\Models\Rate;
 
 class User extends Authenticatable implements JWTSubject
@@ -35,6 +36,11 @@ class User extends Authenticatable implements JWTSubject
     public function rates()
     {
         return $this->hasMany(Rate::class, 'user_id', 'id');
+    }
+
+    public function deliveries()
+    {
+        return $this->hasMany(Delivery::class, 'user_id', 'id');
     }
 
     public function roles()

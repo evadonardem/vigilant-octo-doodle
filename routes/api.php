@@ -33,6 +33,7 @@ $api->version('v1', function ($api) {
     });
     
     $api->group(['middleware' => 'api.auth'], function ($api) {
+        $api->post('manual-logs', 'App\Http\Controllers\Api\V1\ManualLogController@store');
         $api->get('daily-time-record', 'App\Http\Controllers\Api\V1\DailyTimeRecordController@index');
     });
 
@@ -40,6 +41,7 @@ $api->version('v1', function ($api) {
         $api->get('info', 'App\Http\Controllers\Api\V1\BiometricInfoController@index');
         $api->resource('users', 'App\Http\Controllers\Api\V1\BiometricUsersController');
         $api->get('users/{userId}/rates', 'App\Http\Controllers\Api\V1\RateController@index');
+        $api->post('users/{userId}/rates', 'App\Http\Controllers\Api\V1\RateController@store');
         $api->get('attendance-logs', 'App\Http\Controllers\Api\V1\BiometricAttendanceController@index');
     });
 

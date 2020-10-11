@@ -23,8 +23,6 @@ export default class AddEditUserModal extends Component {
             userBiometricId,
             userName,
             userRole,
-            perHourRateAmount,
-            perDeliveryRateAmount,
             handleClose,
             handleSubmit,
             isError,
@@ -64,17 +62,7 @@ export default class AddEditUserModal extends Component {
                                     <Form.Control type="text" name="name" maxLength="25" defaultValue={userName}></Form.Control>
                                     <div className="invalid-feedback"></div>
                                 </Form.Group>
-                                <CommonDropdownSelectSingleRoles name="role" selectedRole={currentSelectedRole} handleChange={this.handleChangeRole}/>
-                                <Form.Group>
-                                    <Form.Label>Per Hour Rate Amount:</Form.Label>
-                                    <Form.Control type="text" name="per_hour_rate_amount" maxLength="8" defaultValue={perHourRateAmount}></Form.Control>
-                                    <div className="invalid-feedback"></div>
-                                </Form.Group>
-                                <Form.Group>
-                                    <Form.Label>Per Delivery Rate Amount:</Form.Label>
-                                    <Form.Control type="text" name="per_delivery_rate_amount" maxLength="8" defaultValue={perDeliveryRateAmount}></Form.Control>
-                                    <div className="invalid-feedback"></div>
-                                </Form.Group>
+                                <CommonDropdownSelectSingleRoles name="role" selectedRole={currentSelectedRole} handleChange={this.handleChangeRole}/>                            
                             </div>
                         }
                         {

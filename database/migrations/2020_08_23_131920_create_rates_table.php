@@ -16,6 +16,7 @@ class CreateRatesTable extends Migration
         Schema::create('rates', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id');
+            $table->date('effectivity_date');
             $table->unsignedBigInteger('rate_type_id');
             $table->decimal('amount', 8, 2);
             $table->timestamps();
@@ -30,6 +31,11 @@ class CreateRatesTable extends Migration
               ->on('rate_types')
               ->onDelete('cascade')
               ->onUpdate('cascade');
+            $table->unique([
+                'user_id',
+                'effectivity_date',
+                'rate_type_id',
+            ]);
         });
     }
 

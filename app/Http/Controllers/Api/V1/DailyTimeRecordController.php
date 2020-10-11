@@ -108,12 +108,22 @@ class DailyTimeRecordController extends Controller
                          * if did not matched any pick the first entry from rates.
                          */
                         $perHourRateAmount = $user->rates()
-                            ->where('created_at', '<=', $logs[$i + 1])
-                            ->orderBy('created_at', 'desc')
+                            ->whereHas('type', function ($query) {
+                                $query->where('code', 'per_hour');
+                            })
+                            ->where(
+                                'effectivity_date',
+                                '<=',
+                                Carbon::createFromFormat('Y-m-d H:i:s', $logs[$i + 1])->format('Y-m-d')
+                            )
+                            ->orderBy('effectivity_date', 'desc')
                             ->first();
                         if (!$perHourRateAmount) {
                             $perHourRateAmount = $user->rates()
-                                ->orderBy('created_at', 'desc')
+                                ->whereHas('type', function ($query) {
+                                    $query->where('code', 'per_hour');
+                                })
+                                ->orderBy('effectivity_date', 'desc')
                                 ->first();
                         }
                         
@@ -146,17 +156,38 @@ class DailyTimeRecordController extends Controller
                     unset($entry);
                 }
                 $totalInHours = round($totalSeconds / 60 / 60, 3);
+                
+                $delivery = $user->deliveries()->where('delivery_date', $date->format('Y-m-d'))->first();
+                $perDeliveryRateAmount = $user->rates()
+                    ->whereHas('type', function ($query) { $query->where('code', 'per_delivery'); })
+                    ->where(
+                        'effectivity_date',
+                        '<=',
+                        $date->format('Y-m-d')
+                    )
+                    ->orderBy('effectivity_date', 'desc')
+                    ->first();
+                if (!$perDeliveryRateAmount) {
+                    $perDeliveryRateAmount = $user->rates()
+                        ->whereHas('type', function ($query) { $query->where('code', 'per_delivery'); })
+                        ->orderBy('effectivity_date', 'desc')
+                        ->first();
+                }
+                $totalDeliveries = $delivery ? $delivery->no_of_deliveries : 0;
+                $totalDeliveriesAmount  = $totalDeliveries * ($perDeliveryRateAmount ? $perDeliveryRateAmount->amount : 0);
+
                 $meta['duration_total_hours'] += $totalInHours;
                 $meta['duration_total_hours_amount'] += $totalAmount;
-                $meta['duration_total_deliveries'] = 0;
-                $meta['duration_total_deliveries_amount'] = 0;
-                
+                $meta['duration_total_deliveries'] += $totalDeliveries;
+                $meta['duration_total_deliveries_amount'] += $totalDeliveriesAmount;
                 $logs = [                
                     'date' => !is_null($date) ? $date->format('D, M d, Y') : null,
                     'time_in_out' => $entries,
                     'total_hours' => $totalInHours,
                     'total_amount' => $totalAmount,
-                    'deliveries' => 0,
+                    'total_deliveries' => $totalDeliveries,
+                    'total_deliveries_amount' => $totalDeliveriesAmount,
+                    'remarks' => $delivery ? $delivery->remarks : '',
                 ];
 
                 unset($logs);

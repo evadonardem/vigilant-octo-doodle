@@ -12,6 +12,7 @@ import {
 import Dashboard from './Dashboard';
 import AttendanceLogs from './AttendanceLogs';
 import DailyTimeRecord from './DailyTimeRecord';
+import ManualLogs from './ManualLogs';
 import Users from './Users';
 import Settings from './Settings';
 import SettingsUserRoles from './SettingsUserRoles';
@@ -110,6 +111,9 @@ export default class Menu extends Component {
                                 break;
                             case '/attendance-logs':
                                 routeToComponent = <AttendanceLogs />;
+                                break;
+                            case '/manual-logs':
+                                routeToComponent = <ManualLogs />;
                                 break;
                             case '/daily-time-record':
                                 routeToComponent = <DailyTimeRecord />;

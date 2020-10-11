@@ -39,7 +39,7 @@ class BiometricUsersController extends Controller
                     ->whereHas('type', function ($q) {
                         $q->where('code', 'per_hour');
                     })
-                    ->orderBy('rates.created_at', 'desc')
+                    ->orderBy('rates.effectivity_date', 'desc')
                     ->first();
                 if ($current_per_hour_rate) {
                     $user->current_per_hour_rate_amount = $current_per_hour_rate->amount;
@@ -107,8 +107,6 @@ class BiometricUsersController extends Controller
             'biometric_id',
             'role',
             'name',
-            'per_hour_rate_amount',
-            'per_delivery_rate_amount',
         ]);
 
         if (env('DEVICE_ENABLED')) {
@@ -142,26 +140,6 @@ class BiometricUsersController extends Controller
 
         $user->roles()->attach($attributes['role']);
 
-        if ($attributes['per_hour_rate_amount']) {
-            $perHourRateType = RateType::where('code', 'per_hour')->first();
-            $user->rates()->save(Rate::make([
-                'rate_type_id' => $perHourRateType->id,
-                'amount' => $attributes['per_hour_rate_amount'],
-                'created_at' => '1970-02-02',
-                'updated_at' => '1970-02-02',
-            ]));
-        }
-
-        if ($attributes['per_delivery_rate_amount']) {
-            $perDeliveryRateType = RateType::where('code', 'per_delivery')->first();
-            $user->rates()->save(Rate::make([
-                'rate_type_id' => $perDeliveryRateType->id,
-                'amount' => $attributes['per_delivery_rate_amount'],
-                'created_at' => '1970-02-02',
-                'updated_at' => '1970-02-02',
-            ]));
-        }
-
         return ($user)
           ? response()->noContent()
           : response()->json('Forbidden', 403);
@@ -182,8 +160,6 @@ class BiometricUsersController extends Controller
         $attributes = $request->only([
             'name',
             'role',
-            'per_hour_rate_amount',
-            'per_delivery_rate_amount',
         ]);
 
         if (env('DEVICE_ENABLED')) {
@@ -223,52 +199,6 @@ class BiometricUsersController extends Controller
 
         if ($currentRole->id !== $attributes['role']) {
             $storedUser->roles()->attach($attributes['role']);
-        }
-
-        if ($attributes['per_hour_rate_amount']) {
-            $perHourRateType = RateType::where('code', 'per_hour')->first();
-            $rateAttributes = [
-                'rate_type_id' => $perHourRateType->id,
-                'amount' => $attributes['per_hour_rate_amount'],
-            ];
-            if ($storedUser->rates->count() == 0) {
-                $rateAttributes['created_at'] = '1970-02-02';
-                $rateAttributes['updated_at'] = '1970-02-02';
-            }
-
-            $currentPerHourRate = $storedUser->rates()
-                ->whereHas('type', function ($q) {
-                    $q->where('code', 'per_hour');
-                })
-                ->orderBy('rates.created_at', 'desc')
-                ->first();
-            
-            if ($currentPerHourRate->amount != $rateAttributes['amount']) {
-                $storedUser->rates()->save(Rate::make($rateAttributes));
-            }            
-        }
-
-        if ($attributes['per_delivery_rate_amount']) {
-            $perDeliveryRateType = RateType::where('code', 'per_delivery')->first();
-            $rateAttributes = [
-                'rate_type_id' => $perDeliveryRateType->id,
-                'amount' => $attributes['per_delivery_rate_amount'],
-            ];
-            if ($storedUser->rates->count() == 0) {
-                $rateAttributes['created_at'] = '1970-02-02';
-                $rateAttributes['updated_at'] = '1970-02-02';
-            }
-
-            $currentPerDeliveryRate = $storedUser->rates()
-                ->whereHas('type', function ($q) {
-                    $q->where('code', 'per_delivery');
-                })
-                ->orderBy('rates.created_at', 'desc')
-                ->first();
-            
-            if ($currentPerDeliveryRate->amount != $rateAttributes['amount']) {
-                $storedUser->rates()->save(Rate::make($rateAttributes));
-            }
         }
 
         $storedUser->save();

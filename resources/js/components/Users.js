@@ -7,10 +7,7 @@ import AddEditUserModal from './AddEditUserModal';
 export default class Users extends Component {
     constructor(props) {
         super(props);
-
-        this.handleShowRateHistoryModal = this.handleShowRateHistoryModal.bind(this);
-        this.handleCloseRateHistoryModal = this.handleCloseRateHistoryModal.bind(this);
-
+        
         this.handleShowAddEditUserModal = this.handleShowAddEditUserModal.bind(this);
         this.handleCloseAddEditUserModal = this.handleCloseAddEditUserModal.bind(this);
         this.handleSubmitAddEditUserModal = this.handleSubmitAddEditUserModal.bind(this);
@@ -19,16 +16,10 @@ export default class Users extends Component {
         this.handleSubmitDeleteUserModal = this.handleSubmitDeleteUserModal.bind(this)
 
         this.state = {
-            showRateHistoryModal: false,
-        };
-
-        this.state = {
             userId: null,
             userBiometricId: null,
             userName: '',
             userRole: '',
-            perHourRateAmount: null,
-            perDeliveryRateAmount: null,
         };
 
         this.state = {
@@ -88,17 +79,13 @@ export default class Users extends Component {
             const userBiometricId = e.currentTarget.getAttribute('data-biometric-id');
             const userName = e.currentTarget.getAttribute('data-name');
             const userRole = e.currentTarget.getAttribute('data-role');
-            const perHourRateAmount = e.currentTarget.getAttribute('data-per-hour-rate-amount');
-            const perDeliveryRateAmount = e.currentTarget.getAttribute('data-per-delivery-rate-amount');
             self.setState({
                 showAddEditUserModal: true,
                 isEditUser: true,
                 userId,
                 userBiometricId,
                 userName,
-                userRole,
-                perHourRateAmount,
-                perDeliveryRateAmount,
+                userRole,                
             });
         });
 
@@ -125,26 +112,6 @@ export default class Users extends Component {
         $('.data-table-wrapper .delete').off();
     }
 
-    handleShowRateHistoryModal() {
-        const self = this;
-        self.setState({
-            showRateHistoryModal: true
-        });
-    }
-
-    handleCloseRateHistoryModal() {
-        const self = this;
-        self.setState({
-            showRateHistoryModal: false,
-            userId: null,
-            userBiometricId: null,
-            userName: '',
-            userRole: '',
-            perHourRateAmount: null,
-            perDeliveryRateAmount: null,
-        });
-    }
-
     handleShowAddEditUserModal() {
         const self = this;
         self.setState({
@@ -160,9 +127,7 @@ export default class Users extends Component {
             userId: null,
             userBiometricId: null,
             userName: '',
-            userRole: '',
-            perHourRateAmount: null,
-            perDeliveryRateAmount: null,
+            userRole: '',            
         });
     }
 
@@ -218,8 +183,6 @@ export default class Users extends Component {
             userBiometricId: null,
             userName: '',
             userRole: '',
-            perHourRateAmount: null,
-            perDeliveryRateAmount: null,
             showDeleteUserModal: false,
             isDeleteUserError: false,
             deleteUserErrorHeaderTitle: '',
@@ -251,15 +214,9 @@ export default class Users extends Component {
 
     render() {
         const {
-            showRateHistoryModal,
-        } = this.state;
-
-        const {
             userBiometricId,
             userName,
-            userRole,
-            perHourRateAmount,
-            perDeliveryRateAmount,
+            userRole,            
         } = this.state;
 
         const {
@@ -321,8 +278,6 @@ export default class Users extends Component {
                     userBiometricId={userBiometricId}
                     userName={userName}
                     userRole={userRole}
-                    perHourRateAmount={perHourRateAmount}
-                    perDeliveryRateAmount={perDeliveryRateAmount}
                     handleClose={this.handleCloseAddEditUserModal}
                     handleSubmit={this.handleSubmitAddEditUserModal}
                     isError={isErrorAddEditUser}

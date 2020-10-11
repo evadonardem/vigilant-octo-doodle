@@ -28,6 +28,11 @@ class NavigationMenuController extends Controller
                     'to' => '/attendance-logs'
                 ],
                 [
+                    'label' => 'Manual Logs',
+                    'icon' => 'fa fa-calendar-plus-o',
+                    'to' => '/manual-logs'
+                ],
+                [
                     'label' => 'Daily Time Record',
                     'icon' => 'fa fa-clock-o',
                     'to' => '/daily-time-record'

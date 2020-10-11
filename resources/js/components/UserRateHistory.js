@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import cookie from 'react-cookies';
-import { Card, Badge } from 'react-bootstrap';
+import { Button, Card, Badge, Form } from 'react-bootstrap';
 
 export default class UserRateHistory extends Component {
     constructor(props) {
         super(props);
-        
+        this.handleSubmitRate = this.handleSubmitRate.bind(this);
         this.state = {
             id: null,
             biometricId: null,
@@ -57,7 +57,7 @@ export default class UserRateHistory extends Component {
             buttons: exportButtons,
             columns: [                
                 { 'data': 'amount' },
-                { 'data': 'created_at' },
+                { 'data': 'effectivity_date' },
             ]
         });
 
@@ -84,7 +84,7 @@ export default class UserRateHistory extends Component {
             buttons: exportButtons,
             columns: [                
                 { 'data': 'amount' },
-                { 'data': 'created_at' },
+                { 'data': 'effectivity_date' },
             ]
         });
     }
@@ -94,6 +94,33 @@ export default class UserRateHistory extends Component {
             .find('table')
             .DataTable()
             .destroy(true);
+    }
+
+    handleSubmitRate(e) {
+        e.preventDefault();
+        const token = cookie.load('token');
+        const self = this;
+        const { params } = self.props.match;
+        const { userId } = params;
+        const form = $(e.target);
+        const formId = form.prop('id');
+        const data = form.serialize();
+        let table = null;
+        if (formId === 'perHourRateForm') {
+            table = $(self.refs.hourlyRateHistory).DataTable();
+        } else {
+            if (formId === 'perDeliveryRateForm') {
+                table = $(self.refs.deliveryRateHistory).DataTable();
+            }
+        }
+        axios.post(`${apiBaseUrl}/biometric/users/${userId}/rates?token=${token}`, data)
+            .then((response) => {
+                form[0].reset();
+                table.ajax.reload(null, false);
+            })
+            .catch((error) => {
+                
+            });
     }
 
     render() {
@@ -124,6 +151,23 @@ export default class UserRateHistory extends Component {
                                                     <h5>Hourly Rate</h5>
                                                 </Card.Title>
                                                 <hr/>
+                                                <Form id="perHourRateForm" onSubmit={this.handleSubmitRate}>
+                                                    <Form.Group>
+                                                        <Form.Label>Effectivity Date:</Form.Label>
+                                                        <Form.Control type="date" name="effectivity_date"></Form.Control>
+                                                        <div className="invalid-feedback"></div>
+                                                    </Form.Group>
+                                                    <Form.Group>
+                                                        <Form.Label>Amount:</Form.Label>
+                                                        <Form.Control type="text" name="amount"></Form.Control>
+                                                        <div className="invalid-feedback"></div>
+                                                    </Form.Group>
+                                                    <Form.Group>
+                                                        <Form.Control type="hidden" name="type" value="per_hour"></Form.Control>
+                                                        <Button type="submit">Create</Button>
+                                                    </Form.Group>
+                                                </Form>
+                                                <hr/>
                                                 <table ref="hourlyRateHistory" className="table table-striped" style={{width: 100+'%'}}>
                                                     <thead>
                                                         <tr>                                        
@@ -142,6 +186,23 @@ export default class UserRateHistory extends Component {
                                                 <Card.Title>
                                                     <h5>Delivery Rate</h5>
                                                 </Card.Title>
+                                                <hr/>
+                                                <Form id="perDeliveryRateForm" onSubmit={this.handleSubmitRate}>
+                                                    <Form.Group>
+                                                        <Form.Label>Effectivity Date:</Form.Label>
+                                                        <Form.Control type="date" name="effectivity_date"></Form.Control>
+                                                        <div className="invalid-feedback"></div>
+                                                    </Form.Group>
+                                                    <Form.Group>
+                                                        <Form.Label>Hourly Rate Amount:</Form.Label>
+                                                        <Form.Control type="text" name="amount"></Form.Control>
+                                                        <div className="invalid-feedback"></div>
+                                                    </Form.Group>
+                                                    <Form.Group>
+                                                        <Form.Control type="hidden" name="type" value="per_delivery"></Form.Control>
+                                                        <Button type="submit">Create</Button>
+                                                    </Form.Group>
+                                                </Form>
                                                 <hr/>
                                                 <table ref="deliveryRateHistory" className="table table-striped" style={{width: 100+'%'}}>
                                                     <thead>

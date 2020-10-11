@@ -78,6 +78,7 @@ export default class DailyTimeRecordSearchResult extends Component {
                     <th class="text-right">Total Hours</th>
                     <th class="text-right">Total Amount</th>
                     <th class="text-right">No. of Deliveries</th>
+                    <th class="text-right">Deliveries Amount</th>
                     <th>Remarks</th>
                 </thead>
                 <tbody>
@@ -93,8 +94,9 @@ export default class DailyTimeRecordSearchResult extends Component {
                         }).join('<br>')}</td>
                         <td class="text-right">${log.total_hours}</td>
                         <td class="text-right">${log.total_amount}</td>
-                        <td class="text-right">${log.deliveries}</td>
-                        <td></td>
+                        <td class="text-right">${log.total_deliveries}</td>
+                        <td class="text-right">${log.total_deliveries_amount}</td>
+                        <td>${log.remarks}</td>
                     </tr>`;
                 }).join('')}
                 </tbody>
