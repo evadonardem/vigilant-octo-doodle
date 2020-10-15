@@ -28,8 +28,6 @@ class StoreUserRequest extends FormRequest
         $rules = [
             'name' => 'required|string|max:25',
             'role' => 'required|string',
-            'per_hour_rate_amount' => 'required',
-            'per_delivery_rate_amount' => 'required',
         ];
 
         if (!$request->isMethod('patch')) {
