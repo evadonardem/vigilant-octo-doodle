@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use App\Models\AttendanceLog;
 use App\Models\Delivery;
+use App\Models\PayPeriodDeduction;
 use App\Models\Role;
 use App\Models\Rate;
 
@@ -56,6 +57,11 @@ class User extends Authenticatable implements JWTSubject
     public function attendanceLogs()
     {
         return $this->hasMany(AttendanceLog::class, 'biometric_id', 'biometric_id');
+    }
+
+    public function payPeriodDeductions()
+    {
+        return $this->hasMany(PayPeriodDeduction::class, 'user_id', 'id');
     }
 
     /**

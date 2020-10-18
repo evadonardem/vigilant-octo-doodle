@@ -20,7 +20,6 @@ class CreateRatesTable extends Migration
             $table->unsignedBigInteger('rate_type_id');
             $table->decimal('amount', 8, 2);
             $table->timestamps();
-
             $table->foreign('user_id')
               ->references('id')
               ->on('users')

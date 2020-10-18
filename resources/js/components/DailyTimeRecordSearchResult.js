@@ -109,6 +109,15 @@ export default class DailyTimeRecordSearchResult extends Component {
                     ${d.position}
                 </div>
                 <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button class="btn btn-primary pull-right">
+                                <i class="fa fa-print"></i>
+                                Print DTR
+                            </button>
+                        </div>                        
+                    </div>
+                    <hr/>
                     ${entries}
                 </div>
             </div>`;

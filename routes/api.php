@@ -35,6 +35,13 @@ $api->version('v1', function ($api) {
     $api->group(['middleware' => 'api.auth'], function ($api) {
         $api->post('manual-logs', 'App\Http\Controllers\Api\V1\ManualLogController@store');
         $api->get('daily-time-record', 'App\Http\Controllers\Api\V1\DailyTimeRecordController@index');
+        $api->get('pay-periods', 'App\Http\Controllers\Api\V1\PayPeriodController@index');
+        $api->post('pay-periods', 'App\Http\Controllers\Api\V1\PayPeriodController@store');
+        $api->get('pay-periods/{payPeriodId}', 'App\Http\Controllers\Api\V1\PayPeriodController@show');
+        $api->get('pay-periods/{payPeriodId}/details', 'App\Http\Controllers\Api\V1\PayPeriodController@showPayPeriodDetails');
+        $api->delete('pay-periods/{payPeriodId}', 'App\Http\Controllers\Api\V1\PayPeriodController@destroy');
+        $api->post('pay-periods/{payPeriodId}/common-deductions', 'App\Http\Controllers\Api\V1\PayPeriodController@storeCommonDeductions');
+        $api->post('update-user-pay-period-deductions', 'App\Http\Controllers\Api\V1\PayPeriodController@updateUserPayPeriodDeductions');
     });
 
     $api->group(['prefix' => 'biometric', 'middleware' => 'api.auth'], function ($api) {
@@ -47,6 +54,7 @@ $api->version('v1', function ($api) {
 
     $api->group(['prefix' => 'settings', 'middleware' => 'api.auth'], function ($api) {
         $api->resource('roles', 'App\Http\Controllers\Api\V1\RolesController');
+        $api->resource('deduction-types', 'App\Http\Controllers\Api\V1\DeductionTypesController');
     });
 
     // Utilities

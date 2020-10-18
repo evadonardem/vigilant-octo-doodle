@@ -65,7 +65,47 @@ class DailyTimeRecordController extends Controller
                         $dailyTimeRecord[$user->biometric_id]['logs'][$logDate->format('Y-m-d')]
                             = [$log['biometric_timestamp']];
                     }
-                } else {
+                } else {                
+                    $perHourRateAmount = $user->rates()
+                        ->whereHas('type', function ($query) {
+                            $query->where('code', 'per_hour');
+                        })
+                        ->where(
+                            'effectivity_date',
+                            '<=',
+                            $endDate->format('Y-m-d')
+                        )
+                        ->orderBy('effectivity_date', 'desc')
+                        ->first();
+                    if (!$perHourRateAmount) {
+                        $perHourRateAmount = $user->rates()
+                            ->whereHas('type', function ($query) {
+                                $query->where('code', 'per_hour');
+                            })
+                            ->orderBy('effectivity_date', 'desc')
+                            ->first();
+                    }
+
+                    $perDeliveryRateAmount = $user->rates()
+                        ->whereHas('type', function ($query) {
+                            $query->where('code', 'per_delivery');
+                        })
+                        ->where(
+                            'effectivity_date',
+                            '<=',
+                            $endDate->format('Y-m-d')
+                        )
+                        ->orderBy('effectivity_date', 'desc')
+                        ->first();
+                    if (!$perDeliveryRateAmount) {
+                        $perDeliveryRateAmount = $user->rates()
+                            ->whereHas('type', function ($query) {
+                                $query->where('code', 'per_delivery');
+                            })
+                            ->orderBy('effectivity_date', 'desc')
+                            ->first();
+                    }
+
                     $dailyTimeRecord[$log['biometric_id']] = [
                         'biometric_id' => $user->biometric_id,
                         'biometric_name' => $user->name,
@@ -73,6 +113,10 @@ class DailyTimeRecordController extends Controller
                             ->orderBy('created_at', 'desc')
                             ->first()
                             ->id,
+                        'effective_per_hour_rate' => $perHourRateAmount
+                            ? $perHourRateAmount->amount : 0,
+                        'effective_per_delivery_rate' => $perDeliveryRateAmount
+                            ? $perDeliveryRateAmount->amount : 0,
                         'logs' => [
                             $logDate->format('Y-m-d') => [$log['biometric_timestamp']],
                         ],

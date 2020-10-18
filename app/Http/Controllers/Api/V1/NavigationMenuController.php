@@ -36,6 +36,11 @@ class NavigationMenuController extends Controller
                     'label' => 'Daily Time Record',
                     'icon' => 'fa fa-clock-o',
                     'to' => '/daily-time-record'
+                ],
+                [
+                    'label' => 'Pay Periods',
+                    'icon' => 'fa fa-address-card',
+                    'to' => '/pay-periods'
                 ],                
                 [
                     'label' => 'Users',

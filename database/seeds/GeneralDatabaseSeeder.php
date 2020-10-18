@@ -2,9 +2,10 @@
 
 use App\User;
 use Illuminate\Database\Seeder;
-use App\Models\Role;
 use App\Models\CommonTimeShift;
+use App\Models\DeductionType;
 use App\Models\RateType;
+use App\Models\Role;
 use Carbon\Carbon;
 
 class GeneralDatabaseSeeder extends Seeder
@@ -52,6 +53,30 @@ class GeneralDatabaseSeeder extends Seeder
             RateType::create([
               'title' => 'Per Delivery',
               'code' => 'per_delivery',
+            ]);
+        }
+
+        $deductionTypes = DeductionType::all();
+        if ($deductionTypes->count() == 0) {
+            DeductionType::create([
+                'title' => 'SSS',
+                'code' => 'sss'
+            ]);
+            DeductionType::create([
+              'title' => 'PHILHEALTH',
+              'code' => 'philhealth'
+            ]);
+            DeductionType::create([
+              'title' => 'Paluwagan',
+              'code' => 'paluwagan'
+            ]);
+            DeductionType::create([
+              'title' => 'Cash Advance',
+              'code' => 'cash_advance'
+            ]);
+            DeductionType::create([
+              'title' => 'Others',
+              'code' => 'others'
             ]);
         }
     }

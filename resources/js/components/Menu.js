@@ -17,6 +17,8 @@ import Users from './Users';
 import Settings from './Settings';
 import SettingsUserRoles from './SettingsUserRoles';
 import UserRateHistory from './UserRateHistory';
+import PayPeriods from './PayPeriods';
+import PayPeriodDetails from './PayPeriodDetails';
 
 export default class Menu extends Component {
     constructor(props) {
@@ -118,6 +120,9 @@ export default class Menu extends Component {
                             case '/daily-time-record':
                                 routeToComponent = <DailyTimeRecord />;
                                 break;
+                            case '/pay-periods':
+                                routeToComponent = <PayPeriods />;
+                                break;
                             case '/users':
                                 routeToComponent = <Users />;
                                 break;
@@ -133,6 +138,7 @@ export default class Menu extends Component {
                     )}                                
                     <Route path={'/settings-user-roles'} component={SettingsUserRoles}></Route>
                     <Route path={'/user-rate-history/:userId'} component={UserRateHistory}></Route>
+                    <Route path={'/pay-period-details/:payPeriodId'} component={PayPeriodDetails}></Route>
                 </Switch>
             </div>
         );
