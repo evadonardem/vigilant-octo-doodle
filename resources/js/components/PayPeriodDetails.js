@@ -118,15 +118,88 @@ export default class PayPeriodDetails extends Component {
                     ${d.position}
                 </div>
                 <div class="card-body">
-                    <form type="post" class="pay-period-update-deductions">
-                        ${deductions}
-                        <hr/>
-                        <input type="hidden" name="biometric_id" value="${d.biometric_id}">
-                        <input type="hidden" name="pay_period_id" value="${payPeriodId}">
-                        <button
-                            type="submit"
-                            class="form-control btn-primary">Update Deductions</button>
-                    </form>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Compensations</div>
+                                <div class="card-body">
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend w-50">
+                                            <span class="input-group-text" style="width: 100%;">Total Hours / Amount</span>
+                                        </div>
+                                        <input
+                                            type="number"
+                                            disabled
+                                            class="form-control text-right"
+                                            placeholder="Amount"
+                                            value="${+d.meta.duration_total_hours}">
+                                        <input
+                                            type="number"
+                                            disabled
+                                            class="form-control text-right"
+                                            placeholder="Amount"
+                                            value="${+d.meta.duration_total_hours_amount}">
+                                    </div>
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend w-50">
+                                            <span class="input-group-text" style="width: 100%;">No. of Deliveries / Amount</span>
+                                        </div>
+                                        <input
+                                            type="number"
+                                            disabled
+                                            class="form-control text-right"                                        
+                                            value="${+d.meta.duration_total_deliveries}">
+                                        <input
+                                            type="number"
+                                            disabled
+                                            class="form-control text-right"                                            
+                                            value="${+d.meta.duration_total_deliveries_amount}">
+                                    </div>
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend w-50">
+                                            <span class="input-group-text" style="width: 100%;">TOTAL</span>
+                                        </div>
+                                        <input
+                                            type="number"
+                                            disabled
+                                            class="form-control text-right"
+                                            value="-">
+                                        <input
+                                            type="number"
+                                            disabled
+                                            class="form-control text-right"                                
+                                            value="${+d.meta.duration_total_gross_amount}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Deductions</div>
+                                <div class="card-body">
+                                    <form type="post" class="pay-period-update-deductions">
+                                        ${deductions}
+                                        <hr/>
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text" style="width: 100%;">TOTAL</span>
+                                            </div>
+                                            <input
+                                                type="number"
+                                                disabled
+                                                class="form-control text-right"                                
+                                                value="${+d.meta.duration_total_deductions_amount}">
+                                        </div>                                        
+                                        <input type="hidden" name="biometric_id" value="${d.biometric_id}">
+                                        <input type="hidden" name="pay_period_id" value="${payPeriodId}">
+                                        <button
+                                            type="submit"
+                                            class="form-control btn-primary">Update Deductions</button>
+                                    </form>
+                                </div>
+                            </div>                            
+                        </div>
+                    </div>                    
                 </div>
             </div>`;
         };
@@ -277,14 +350,14 @@ export default class PayPeriodDetails extends Component {
                                 <th scope="col">Biometric ID</th>
                                 <th scope="col">Name</th>
                                 <th scope="col">Position</th>
-                                <th scope="col">Pay Period Effective Per Hour Rate</th>
-                                <th scope="col">Pay Period Effective Delivery Rate</th>
-                                <th scope="col">Pay Period Total Hours</th>
-                                <th scope="col">Pay Period Total Amount (Hours)</th>
-                                <th scope="col">Pay Period Total No. of Deliveries</th>
-                                <th scope="col">Pay Period Total Amount (Deliveries)</th>
+                                <th scope="col">Effective Per Hour Rate</th>
+                                <th scope="col">Effective Delivery Rate</th>
+                                <th scope="col">Total Hours</th>
+                                <th scope="col">Total Amount (Hours)</th>
+                                <th scope="col">Total No. of Deliveries</th>
+                                <th scope="col">Total Amount (Deliveries)</th>
                                 <th scope="col">Gross Amount</th>
-                                <th scope="col">Pay Period Total Deductions Amount</th>
+                                <th scope="col">Total Deductions Amount</th>
                                 <th scope="col">Net Amount</th>
                                 </tr>
                             </thead>
