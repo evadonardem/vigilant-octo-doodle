@@ -29,7 +29,7 @@ class DailyTimeRecordController extends Controller
         $biometricId = $request->input('biometric_id');
         $startDate = Carbon::createFromFormat('Y-m-d', $request->input('start_date'));
         $endDate = Carbon::createFromFormat('Y-m-d', $request->input('end_date'));
-        
+
         $meta = [
             'from' => $startDate->format('d M Y'),
             'to' => $endDate->format('d M Y'),
@@ -47,7 +47,7 @@ class DailyTimeRecordController extends Controller
 
             foreach ($data as $log) {
                 $user = User::where('biometric_id', $log['biometric_id'])->first();
-                
+
                 if (!$user) {
                     continue;
                 }
@@ -66,7 +66,7 @@ class DailyTimeRecordController extends Controller
                         $dailyTimeRecord[$user->biometric_id]['logs'][$logDate->format('Y-m-d')]
                             = [$log['biometric_timestamp']];
                     }
-                } else {                
+                } else {
                     $perHourRateAmount = $user->rates()
                         ->whereHas('type', function ($query) {
                             $query->where('code', 'per_hour');
@@ -130,13 +130,31 @@ class DailyTimeRecordController extends Controller
 
         // Create placeholders for DTRs having deliveries ONLY
         $startDate = Carbon::createFromFormat('Y-m-d', $request->input('start_date'));
-        $deliveries = Delivery::whereBetween(
-            'delivery_date',
-            [
-                $startDate->format('Y-m-d'),
-                $endDate->format('Y-m-d')
-            ]
-        )->get();
+        if ($biometricId) {
+            $deliveries = Delivery::
+                whereHas('user', function ($query) use ($biometricId) {
+                    $query->where('biometric_id', $biometricId);
+                })
+                ->whereBetween(
+                    'delivery_date',
+                    [
+                        $startDate->format('Y-m-d'),
+                        $endDate->format('Y-m-d')
+                    ]
+                )
+                ->get();
+        } else {
+            $deliveries = Delivery::
+                whereBetween(
+                    'delivery_date',
+                    [
+                        $startDate->format('Y-m-d'),
+                        $endDate->format('Y-m-d')
+                    ]
+                )
+                ->get();
+        }
+
         foreach ($deliveries as $delivery) {
             if (!array_key_exists($delivery->user->biometric_id, $dailyTimeRecord)) {
                 $perDeliveryRateAmount = $delivery->user->rates()
@@ -219,7 +237,7 @@ class DailyTimeRecordController extends Controller
                                 ->orderBy('effectivity_date', 'desc')
                                 ->first();
                         }
-                        
+
                         $timeInOut['per_hour_rate_amount'] = $perHourRateAmount ? $perHourRateAmount->amount : 0;
                     }
                     $entries[] = $timeInOut;
@@ -249,7 +267,7 @@ class DailyTimeRecordController extends Controller
                     unset($entry);
                 }
                 $totalInHours = round($totalSeconds / 60 / 60, 3);
-                
+
                 $delivery = $user->deliveries()->where('delivery_date', $date->format('Y-m-d'))->first();
                 $perDeliveryRateAmount = $user->rates()
                     ->whereHas('type', function ($query) { $query->where('code', 'per_delivery'); })
@@ -273,7 +291,7 @@ class DailyTimeRecordController extends Controller
                 $meta['duration_total_hours_amount'] += $totalAmount;
                 $meta['duration_total_deliveries'] += $totalDeliveries;
                 $meta['duration_total_deliveries_amount'] += $totalDeliveriesAmount;
-                $logs = [                
+                $logs = [
                     'date' => !is_null($date) ? $date->format('D, M d, Y') : null,
                     'time_in_out' => $entries,
                     'total_hours' => $totalInHours,
