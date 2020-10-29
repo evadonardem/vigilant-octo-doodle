@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Dingo\Api\Routing\Helpers;
 use App\User;
+use App\Models\Delivery;
 
 class DailyTimeRecordController extends Controller
 {
@@ -125,6 +126,54 @@ class DailyTimeRecordController extends Controller
             }
 
             $startDate->addDay();
+        }
+
+        // Create placeholders for DTRs having deliveries ONLY
+        $startDate = Carbon::createFromFormat('Y-m-d', $request->input('start_date'));
+        $deliveries = Delivery::whereBetween(
+            'delivery_date',
+            [
+                $startDate->format('Y-m-d'),
+                $endDate->format('Y-m-d')
+            ]
+        )->get();
+        foreach ($deliveries as $delivery) {
+            if (!array_key_exists($delivery->user->biometric_id, $dailyTimeRecord)) {
+                $perDeliveryRateAmount = $delivery->user->rates()
+                    ->whereHas('type', function ($query) {
+                        $query->where('code', 'per_delivery');
+                    })
+                    ->where(
+                        'effectivity_date',
+                        '<=',
+                        $delivery->delivery_date
+                    )
+                    ->orderBy('effectivity_date', 'desc')
+                    ->first();
+                if (!$perDeliveryRateAmount) {
+                    $perDeliveryRateAmount = $delivery->user->rates()
+                        ->whereHas('type', function ($query) {
+                            $query->where('code', 'per_delivery');
+                        })
+                        ->orderBy('effectivity_date', 'desc')
+                        ->first();
+                }
+
+                $dailyTimeRecord[$delivery->user->biometric_id] = [
+                    'biometric_id' => $delivery->user->biometric_id,
+                    'biometric_name' => $delivery->user->name,
+                    'position' => $delivery->user->roles()
+                        ->orderBy('created_at', 'desc')
+                        ->first()
+                        ->id,
+                    'effective_per_hour_rate' => 0,
+                    'effective_per_delivery_rate' => $perDeliveryRateAmount
+                        ? $perDeliveryRateAmount->amount : 0,
+                    'logs' => [
+                        $delivery->delivery_date => []
+                    ],
+                ];
+            }
         }
 
         $dailyTimeRecord = array_values($dailyTimeRecord);
