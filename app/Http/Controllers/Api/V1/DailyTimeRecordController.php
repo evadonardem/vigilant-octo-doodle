@@ -74,7 +74,7 @@ class DailyTimeRecordController extends Controller
                         ->where(
                             'effectivity_date',
                             '<=',
-                            $endDate->format('Y-m-d')
+                            $startDate->format('Y-m-d')
                         )
                         ->orderBy('effectivity_date', 'desc')
                         ->first();
@@ -94,7 +94,7 @@ class DailyTimeRecordController extends Controller
                         ->where(
                             'effectivity_date',
                             '<=',
-                            $endDate->format('Y-m-d')
+                            $startDate->format('Y-m-d')
                         )
                         ->orderBy('effectivity_date', 'desc')
                         ->first();
@@ -176,7 +176,6 @@ class DailyTimeRecordController extends Controller
                         ->orderBy('effectivity_date', 'desc')
                         ->first();
                 }
-
                 $dailyTimeRecord[$delivery->user->biometric_id] = [
                     'biometric_id' => $delivery->user->biometric_id,
                     'biometric_name' => $delivery->user->name,
@@ -191,6 +190,15 @@ class DailyTimeRecordController extends Controller
                         $delivery->delivery_date => []
                     ],
                 ];
+            } else {
+                if (
+                    !array_key_exists(
+                        $delivery->delivery_date,
+                        $dailyTimeRecord[$delivery->user->biometric_id]['logs']
+                    )
+                ) {
+                    $dailyTimeRecord[$delivery->user->biometric_id]['logs'][$delivery->delivery_date] = [];
+                }
             }
         }
 
