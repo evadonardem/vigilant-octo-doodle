@@ -203,12 +203,16 @@ class DailyTimeRecordController extends Controller
         }
 
         $dailyTimeRecord = array_values($dailyTimeRecord);
+
         foreach ($dailyTimeRecord as &$details) {
             $user = User::where('biometric_id', $details['biometric_id'])->first();
             $meta['duration_total_hours'] = 0;
             $meta['duration_total_hours_amount'] = 0;
             $meta['duration_total_deliveries'] = 0;
             $meta['duration_total_deliveries_amount'] = 0;
+
+            ksort($details['logs']);
+
             foreach ($details['logs'] as $key => &$logs) {
                 $date = Carbon::createFromFormat('Y-m-d', $key);
                 $entries = [];

@@ -352,13 +352,14 @@ export default class PayPeriodDetails extends Component {
         const { params } = self.props.match;
         const { payPeriodId } = params;
 
+        $('[type="submit"]', form).prop('disabled', true);
         axios.post(`${apiBaseUrl}/pay-periods/${payPeriodId}/common-deductions?token=${token}`, data)
             .then((response) => {
                 form[0].reset();
                 window.location.reload();
             })
             .catch((error) => {
-
+                window.location.reload();
             });
     }
 
