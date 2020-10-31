@@ -31,9 +31,10 @@ $api->version('v1', function ($api) {
         $api->post('refresh', 'App\Http\Controllers\Api\V1\AuthController@refresh');
         $api->post('me', 'App\Http\Controllers\Api\V1\AuthController@me');
     });
-    
+
     $api->group(['middleware' => 'api.auth'], function ($api) {
         $api->post('manual-logs', 'App\Http\Controllers\Api\V1\ManualLogController@store');
+        $api->resource('deliveries', 'App\Http\Controllers\Api\V1\DeliveryController');
         $api->get('daily-time-record', 'App\Http\Controllers\Api\V1\DailyTimeRecordController@index');
         $api->get('pay-periods', 'App\Http\Controllers\Api\V1\PayPeriodController@index');
         $api->post('pay-periods', 'App\Http\Controllers\Api\V1\PayPeriodController@store');

@@ -62,7 +62,7 @@ export default class DailyTimeRecordSearchResult extends Component {
                     '<td>ID:</td>'+
                     '<td>'+d.biometric_id+'</td>'+
                     '<td>NAME:</td>'+
-                    '<td>'+d.biometric_name+'</td>'+                
+                    '<td>'+d.biometric_name+'</td>'+
                 '</tr>'+
                 '<tr>'+
                     '<td>POSITION:</td>'+
@@ -109,15 +109,6 @@ export default class DailyTimeRecordSearchResult extends Component {
                     ${d.position}
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <button class="btn btn-primary pull-right">
-                                <i class="fa fa-print"></i>
-                                Print DTR
-                            </button>
-                        </div>                        
-                    </div>
-                    <hr/>
                     ${entries}
                 </div>
             </div>`;
@@ -130,7 +121,7 @@ export default class DailyTimeRecordSearchResult extends Component {
                 .DataTable();
             var tr = $(this).closest('tr');
             var row = refDataTable.row( tr );
-    
+
             if ( row.child.isShown() ) {
                 $(this).find('i').removeClass('fa-chevron-circle-up');
                 $(this).find('i').addClass('fa-chevron-circle-down');
@@ -166,7 +157,7 @@ export default class DailyTimeRecordSearchResult extends Component {
 
         const user = `User: ${ biometricId ? `${biometricId} ${biometricName}` : 'All' }`;
         const label = `${user}${user ? ' ' : ''}From: ${startDate} To: ${endDate}`;
-        
+
         return `Attendance Logs ${label}`;
     }
 

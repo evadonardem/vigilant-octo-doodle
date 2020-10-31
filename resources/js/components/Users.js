@@ -7,7 +7,7 @@ import AddEditUserModal from './AddEditUserModal';
 export default class Users extends Component {
     constructor(props) {
         super(props);
-        
+
         this.handleShowAddEditUserModal = this.handleShowAddEditUserModal.bind(this);
         this.handleCloseAddEditUserModal = this.handleCloseAddEditUserModal.bind(this);
         this.handleSubmitAddEditUserModal = this.handleSubmitAddEditUserModal.bind(this);
@@ -85,7 +85,7 @@ export default class Users extends Component {
                 userId,
                 userBiometricId,
                 userName,
-                userRole,                
+                userRole,
             });
         });
 
@@ -127,7 +127,7 @@ export default class Users extends Component {
             userId: null,
             userBiometricId: null,
             userName: '',
-            userRole: '',            
+            userRole: '',
         });
     }
 
@@ -216,7 +216,7 @@ export default class Users extends Component {
         const {
             userBiometricId,
             userName,
-            userRole,            
+            userRole,
         } = this.state;
 
         const {
@@ -261,7 +261,7 @@ export default class Users extends Component {
                                         <th scope="col">Name</th>
                                         <th scope="col">Current Role</th>
                                         <th scope="col">Current Per Hour Rate</th>
-                                        <th scope="col">Current Per Delivery Rate</th>                            
+                                        <th scope="col">Current Per Delivery Rate</th>
                                         <th></th>
                                         </tr>
                                     </thead>

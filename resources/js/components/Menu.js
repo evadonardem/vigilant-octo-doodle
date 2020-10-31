@@ -11,6 +11,7 @@ import {
 } from 'react-bootstrap';
 import Dashboard from './Dashboard';
 import AttendanceLogs from './AttendanceLogs';
+import Deliveries from './Deliveries';
 import DailyTimeRecord from './DailyTimeRecord';
 import ManualLogs from './ManualLogs';
 import Users from './Users';
@@ -38,7 +39,7 @@ export default class Menu extends Component {
             .then((response) => {
                 const { data } = response.data;
                 const { brand, links } = data;
-                
+
                 self.setState({ brand, links });
             }).catch((error) => {
                 location.href = appBaseUrl + '/login';
@@ -117,6 +118,9 @@ export default class Menu extends Component {
                             case '/manual-logs':
                                 routeToComponent = <ManualLogs />;
                                 break;
+                            case '/deliveries':
+                                routeToComponent = <Deliveries />;
+                                break;
                             case '/daily-time-record':
                                 routeToComponent = <DailyTimeRecord />;
                                 break;
@@ -132,10 +136,10 @@ export default class Menu extends Component {
                             default:
                                 routeToComponent = <Dashboard />
                         }
-                        
+
                         return (<Route key={'route-' + routeIndex++} path={link.to} component={() => routeToComponent}>
                         </Route>); }
-                    )}                                
+                    )}
                     <Route path={'/settings-user-roles'} component={SettingsUserRoles}></Route>
                     <Route path={'/user-rate-history/:userId'} component={UserRateHistory}></Route>
                     <Route path={'/pay-period-details/:payPeriodId'} component={PayPeriodDetails}></Route>

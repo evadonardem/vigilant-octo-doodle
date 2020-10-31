@@ -121,9 +121,9 @@ export default class PayPeriodDetails extends Component {
                         0
                     );
 
-                $(api.column(10).footer()).html(totalGrossAmount);
-                $(api.column(11).footer()).html(totalDeductions);
-                $(api.column(12).footer()).html(totalNetAmount);
+                $(api.column(10).footer()).html(totalGrossAmount.toFixed(2));
+                $(api.column(11).footer()).html(totalDeductions.toFixed(2));
+                $(api.column(12).footer()).html(totalNetAmount.toFixed(2));
             }
         });
 

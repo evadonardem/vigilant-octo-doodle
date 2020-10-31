@@ -19,7 +19,7 @@ class NavigationMenuController extends Controller
             'links' => [
                 [
                     'label' => 'Dashboard',
-                    'icon' => 'fa fa-dashboard',                    
+                    'icon' => 'fa fa-dashboard',
                     'to' => '/dashboard'
                 ],
                 [
@@ -33,6 +33,11 @@ class NavigationMenuController extends Controller
                     'to' => '/manual-logs'
                 ],
                 [
+                    'label' => 'Deliveries',
+                    'icon' => 'fa fa-truck',
+                    'to' => '/deliveries'
+                ],
+                [
                     'label' => 'Daily Time Record',
                     'icon' => 'fa fa-clock-o',
                     'to' => '/daily-time-record'
@@ -41,7 +46,7 @@ class NavigationMenuController extends Controller
                     'label' => 'Pay Periods',
                     'icon' => 'fa fa-address-card',
                     'to' => '/pay-periods'
-                ],                
+                ],
                 [
                     'label' => 'Users',
                     'icon' => 'fa fa-users',
@@ -54,7 +59,7 @@ class NavigationMenuController extends Controller
                 ],
             ]
         ];
-        
+
         return response()->json(['data' => $menu]);
     }
 }
