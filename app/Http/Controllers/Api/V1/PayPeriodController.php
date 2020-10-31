@@ -85,15 +85,15 @@ class PayPeriodController extends Controller
                 $deduction->deductionType;
                 $r['meta']['duration_total_deductions_amount'] += $deduction->amount;
             }
-            $r['meta']['duration_total_deductions_amount'] = round($r['meta']['duration_total_deductions_amount'], 2);
-            $r['meta']['duration_total_net_amount'] = round(
+            $r['meta']['duration_total_deductions_amount'] = number_format(round($r['meta']['duration_total_deductions_amount'], 2), 2, '.', '');
+            $r['meta']['duration_total_net_amount'] = number_format(round(
                 $r['meta']['duration_total_gross_amount'] - $r['meta']['duration_total_deductions_amount'],
                 2
-            );
+            ), 2, '.', '');
             unset($r);
         }
 
-        
+
 
         return response()->json(['data' => $data]);
     }
@@ -164,7 +164,7 @@ class PayPeriodController extends Controller
                 ]));
             }
         }
-        
+
         return response()->noContent();
     }
 
@@ -182,7 +182,7 @@ class PayPeriodController extends Controller
         $payPeriodDeductions = $user->payPeriodDeductions()
             ->where('pay_period_id', $attributes['pay_period_id'])
             ->get();
-        
+
         $onlyAttributes = [];
         foreach ($payPeriodDeductions as $payPeriodDeduction) {
             $onlyAttributes[] = 'amount_' . $payPeriodDeduction->id;

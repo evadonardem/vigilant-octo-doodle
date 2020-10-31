@@ -115,9 +115,9 @@ class DailyTimeRecordController extends Controller
                             ->first()
                             ->id,
                         'effective_per_hour_rate' => $perHourRateAmount
-                            ? $perHourRateAmount->amount : 0,
+                            ? $perHourRateAmount->amount : '0.00',
                         'effective_per_delivery_rate' => $perDeliveryRateAmount
-                            ? $perDeliveryRateAmount->amount : 0,
+                            ? $perDeliveryRateAmount->amount : '0.00',
                         'logs' => [
                             $logDate->format('Y-m-d') => [$log['biometric_timestamp']],
                         ],
@@ -267,18 +267,18 @@ class DailyTimeRecordController extends Controller
                         $timeIn = Carbon::createFromFormat('h:i:s A', $entry['in']);
                         $timeOut = Carbon::createFromFormat('h:i:s A', $entry['out']);
                         $entrySeconds = $timeOut->diffInSeconds($timeIn);
-                        $entryHours = round($entrySeconds / 60 / 60, 3);
-                        $entryAmount = round($entryHours * $entry['per_hour_rate_amount'], 2);
+                        $entryHours = number_format(round($entrySeconds / 60 / 60, 3), 3, '.', '');
+                        $entryAmount = number_format(round($entryHours * $entry['per_hour_rate_amount'], 2), 2, '.', '');
                         $totalSeconds += $entrySeconds;
                         $totalAmount += $entryAmount;
-                        $totalAmount = round($totalAmount, 2);
+                        $totalAmount = number_format(round($totalAmount, 2), 2, '.', '');
                         $entry['hours'] = $entryHours;
                         $entry['amount'] = $entryAmount;
                     }
 
                     unset($entry);
                 }
-                $totalInHours = round($totalSeconds / 60 / 60, 3);
+                $totalInHours = number_format(round($totalSeconds / 60 / 60, 3), 3, '.', '');
 
                 $delivery = $user->deliveries()->where('delivery_date', $date->format('Y-m-d'))->first();
                 $perDeliveryRateAmount = $user->rates()
@@ -315,8 +315,9 @@ class DailyTimeRecordController extends Controller
 
                 unset($logs);
             }
-            $meta['duration_total_hours'] = round($meta['duration_total_hours'], 3);
-            $meta['duration_total_hours_amount'] = round($meta['duration_total_hours_amount'], 2);
+            $meta['duration_total_deliveries_amount'] = number_format($meta['duration_total_deliveries_amount'], 2, '.', '');
+            $meta['duration_total_hours'] = number_format(round($meta['duration_total_hours'], 3), 3, '.', '');
+            $meta['duration_total_hours_amount'] = number_format(round($meta['duration_total_hours_amount'], 2), 2, '.', '');
             $details['logs'] = array_values($details['logs']);
             $details['meta'] = $meta;
             unset($details);
