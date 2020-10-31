@@ -2,8 +2,10 @@ import React, { Component } from 'react';
 import { Jumbotron, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
+import { Document, Page } from '@react-pdf/renderer';
+
 export default class Settings extends Component {
-    render() {    
+    render() {
         return (
             <div className="container-fluid my-4">
                 <h1><i className="fa fa-cogs"></i> Settings</h1>

@@ -30,11 +30,13 @@ try {
     window.exportButtonsBase = [
         {
             extend: 'csvHtml5',
+            footer: true,
         },
         {
             extend: 'pdfHtml5',
             pageSize: 'legal',
-            customize : window.pdfExportCommonSettings
+            customize : window.pdfExportCommonSettings,
+            footer: true,
         }
     ];
 

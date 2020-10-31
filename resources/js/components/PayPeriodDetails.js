@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import { Badge, Button, Card, Form, FormControl, InputGroup } from 'react-bootstrap';
 import cookie from 'react-cookies';
 
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import PaySlipsPdfDocument from './PaySlipsPdfDocument';
+
 export default class PayPeriodDetails extends Component {
     constructor(props) {
         super(props);
@@ -13,6 +16,7 @@ export default class PayPeriodDetails extends Component {
             to: null,
             commonDeductions: [],
             deductionTypes: [],
+            payPeriod: [],
         };
     }
 
@@ -33,7 +37,7 @@ export default class PayPeriodDetails extends Component {
             ajax: `${apiBaseUrl}/pay-periods/${payPeriodId}/details?token=${token}`,
             buttons: exportButtons,
             searching: true,
-            ordering: false,
+            ordering: true,
             columns: [
                 {
                     className: 'details-control text-center',
@@ -74,6 +78,53 @@ export default class PayPeriodDetails extends Component {
                     data: 'meta.duration_total_net_amount'
                 },
             ],
+            columnDefs: [
+                { orderable: false, targets: [0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] }
+            ],
+            order: [[2, 'asc']],
+            footerCallback: function (row, data, start, end, display) {
+                const api = this.api();
+
+                const intVal = function ( i ) {
+                    return typeof i === 'string'
+                        ? i.replace(/[\$,]/g, '')*1
+                        : typeof i === 'number' ? i : 0;
+                };
+
+                const totalGrossAmount = api
+                    .column(10)
+                    .data()
+                    .reduce(
+                        function (a, b) {
+                            return intVal(a) + intVal(b);
+                        },
+                        0
+                    );
+
+                const totalDeductions = api
+                    .column(11)
+                    .data()
+                    .reduce(
+                        function (a, b) {
+                            return intVal(a) + intVal(b);
+                        },
+                        0
+                    );
+
+                const totalNetAmount = api
+                    .column(12)
+                    .data()
+                    .reduce(
+                        function (a, b) {
+                            return intVal(a) + intVal(b);
+                        },
+                        0
+                    );
+
+                $(api.column(10).footer()).html(totalGrossAmount);
+                $(api.column(11).footer()).html(totalDeductions);
+                $(api.column(12).footer()).html(totalNetAmount);
+            }
         });
 
         const format = (d) => {
@@ -82,7 +133,7 @@ export default class PayPeriodDetails extends Component {
                     '<td>ID:</td>'+
                     '<td>'+d.biometric_id+'</td>'+
                     '<td>NAME:</td>'+
-                    '<td>'+d.biometric_name+'</td>'+                
+                    '<td>'+d.biometric_name+'</td>'+
                 '</tr>'+
                 '<tr>'+
                     '<td>POSITION:</td>'+
@@ -91,7 +142,7 @@ export default class PayPeriodDetails extends Component {
                     '<td>'+d.meta.from+' - '+d.meta.to+'</td>'+
                 '</tr>'+
             '</table>';
-            
+
             let payPeriodId = null;
             const deductions = d.deductions.map((deduction) => {
                 const deductionType = deduction.deduction_type;
@@ -99,13 +150,13 @@ export default class PayPeriodDetails extends Component {
                     ? deduction.pay_period_id
                     : payPeriodId;
                 return `<div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text">${deductionType.title}</span>
+                    <div class="input-group-prepend w-50">
+                        <span class="input-group-text" style="width: 100%;">${deductionType.title}</span>
                     </div>
                     <input
                         type="number"
                         name="amount_${deduction.id}"
-                        class="form-control"
+                        class="form-control text-right"
                         placeholder="Amount"
                         value="${+deduction.amount}">
                 </div>`;
@@ -147,12 +198,12 @@ export default class PayPeriodDetails extends Component {
                                         <input
                                             type="number"
                                             disabled
-                                            class="form-control text-right"                                        
+                                            class="form-control text-right"
                                             value="${+d.meta.duration_total_deliveries}">
                                         <input
                                             type="number"
                                             disabled
-                                            class="form-control text-right"                                            
+                                            class="form-control text-right"
                                             value="${+d.meta.duration_total_deliveries_amount}">
                                     </div>
                                     <div class="input-group mb-3">
@@ -167,7 +218,7 @@ export default class PayPeriodDetails extends Component {
                                         <input
                                             type="number"
                                             disabled
-                                            class="form-control text-right"                                
+                                            class="form-control text-right"
                                             value="${+d.meta.duration_total_gross_amount}">
                                     </div>
                                 </div>
@@ -187,9 +238,9 @@ export default class PayPeriodDetails extends Component {
                                             <input
                                                 type="number"
                                                 disabled
-                                                class="form-control text-right"                                
+                                                class="form-control text-right"
                                                 value="${+d.meta.duration_total_deductions_amount}">
-                                        </div>                                        
+                                        </div>
                                         <input type="hidden" name="biometric_id" value="${d.biometric_id}">
                                         <input type="hidden" name="pay_period_id" value="${payPeriodId}">
                                         <button
@@ -197,9 +248,9 @@ export default class PayPeriodDetails extends Component {
                                             class="form-control btn-primary">Update Deductions</button>
                                     </form>
                                 </div>
-                            </div>                            
+                            </div>
                         </div>
-                    </div>                    
+                    </div>
                 </div>
             </div>`;
         };
@@ -211,7 +262,7 @@ export default class PayPeriodDetails extends Component {
                 .DataTable();
             var tr = $(this).closest('tr');
             var row = refDataTable.row( tr );
-    
+
             if ( row.child.isShown() ) {
                 $(this).find('i').removeClass('fa-chevron-circle-up');
                 $(this).find('i').addClass('fa-chevron-circle-down');
@@ -237,12 +288,22 @@ export default class PayPeriodDetails extends Component {
                 .catch(() => {
                     location.href = `${appBaseUrl}`;
                 });
+
+            self.setState({ payPeriod: [] })
+            axios.get(`${apiBaseUrl}/pay-periods/${payPeriodId}/details?token=${token}`)
+                .then((response) => {
+                    const { data: payPeriod } = response.data;
+                    self.setState({ payPeriod });
+                })
+                .catch(() => {
+                    location.href = `${appBaseUrl}`;
+                });
         });
 
         axios.get(`${apiBaseUrl}/pay-periods/${payPeriodId}?token=${token}`)
             .then((response) => {
                 const { data: payPeriod } = response.data;
-                this.setState({
+                self.setState({
                     id: payPeriod.id,
                     from: payPeriod.from,
                     to: payPeriod.to,
@@ -252,11 +313,20 @@ export default class PayPeriodDetails extends Component {
             .catch(() => {
                 location.href = `${appBaseUrl}`;
             });
-        
+
         axios.get(`${apiBaseUrl}/settings/deduction-types?token=${token}`)
             .then((response) => {
                 const { data: deductionTypes } = response.data;
-                this.setState({ deductionTypes });
+                self.setState({ deductionTypes });
+            })
+            .catch(() => {
+                location.href = `${appBaseUrl}`;
+            });
+
+        axios.get(`${apiBaseUrl}/pay-periods/${payPeriodId}/details?token=${token}`)
+            .then((response) => {
+                const { data: payPeriod } = response.data;
+                self.setState({ payPeriod });
             })
             .catch(() => {
                 location.href = `${appBaseUrl}`;
@@ -288,7 +358,7 @@ export default class PayPeriodDetails extends Component {
                 window.location.reload();
             })
             .catch((error) => {
-                
+
             });
     }
 
@@ -299,6 +369,7 @@ export default class PayPeriodDetails extends Component {
             to,
             commonDeductions,
             deductionTypes,
+            payPeriod,
         } = this.state;
 
         const deductionTypeOptions = deductionTypes.map((type) => {
@@ -321,7 +392,7 @@ export default class PayPeriodDetails extends Component {
                     <Badge variant="secondary">From: {from}</Badge>&nbsp;
                     <Badge variant="secondary">To: {to}</Badge>
                 </p>
-                <hr className="my-4"/>                
+                <hr className="my-4"/>
                 {
                     commonDeductions.length === 0 &&
                     <Card>
@@ -335,11 +406,21 @@ export default class PayPeriodDetails extends Component {
                                 <hr/>
                                 <Button type="submit" className="pull-right">Next &gt;&gt;</Button>
                             </Form>
-                        </Card.Body>                        
+                        </Card.Body>
                     </Card>
                 }
                 <Card className={commonDeductions.length > 0 ? 'visible' : 'invisible'}>
                     <Card.Body>
+                        <div className="row">
+                            <div className="col-md-12">
+                                { payPeriod.length > 0 &&
+                                    <PDFDownloadLink document={<PaySlipsPdfDocument payPeriod={payPeriod} />} fileName={`payslips-${id}.pdf`} className="btn btn-primary pull-right">
+                                        {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Download Payslips')}
+                                    </PDFDownloadLink>
+                                }
+                            </div>
+                        </div>
+                        <hr className="my-4"/>
                         <table
                             ref="payPeriodSummary"
                             className="table table-striped table-pay-period-summary"
@@ -362,6 +443,15 @@ export default class PayPeriodDetails extends Component {
                                 </tr>
                             </thead>
                             <tbody></tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colSpan="9"></th>
+                                    <th>Total:</th>
+                                    <th>0.00</th>
+                                    <th>0.00</th>
+                                    <th>0.00</th>
+                                </tr>
+                            </tfoot>
                         </table>
                     </Card.Body>
                 </Card>
