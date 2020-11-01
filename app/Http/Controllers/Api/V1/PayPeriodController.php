@@ -83,8 +83,10 @@ class PayPeriodController extends Controller
             $r['meta']['duration_total_deductions_amount'] = 0;
             foreach ($r['deductions'] as $deduction) {
                 $deduction->deductionType;
+                $deduction->amount = number_format(round($deduction->amount, 2), 2, '.', '');
                 $r['meta']['duration_total_deductions_amount'] += $deduction->amount;
             }
+            $r['meta']['duration_total_gross_amount'] = number_format($r['meta']['duration_total_gross_amount'], 2, '.', '');
             $r['meta']['duration_total_deductions_amount'] = number_format(round($r['meta']['duration_total_deductions_amount'], 2), 2, '.', '');
             $r['meta']['duration_total_net_amount'] = number_format(round(
                 $r['meta']['duration_total_gross_amount'] - $r['meta']['duration_total_deductions_amount'],
@@ -92,8 +94,6 @@ class PayPeriodController extends Controller
             ), 2, '.', '');
             unset($r);
         }
-
-
 
         return response()->json(['data' => $data]);
     }

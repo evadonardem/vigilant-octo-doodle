@@ -6,33 +6,27 @@ const styles = StyleSheet.create({
     page: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        fontSize: '8pt',
+        fontSize: '10pt',
+        margin: 0,
+        padding: 10,
     },
-    section: {
+    payslip: {
         flexGrow: 1,
-        margin: 5,
-        padding: 5,
+        padding: 15,
+        width: '40%',
     },
     payslipHeading: {
-        borderBottomColor: 'black',
-        borderBottomStyle: 'solid',
-        borderBottomWidth: '2px',
         fontWeight: 'bold',
-        margin: 5,
-        padding: 5,
+        marginBottom: 10,
         textAlign: 'center',
-        width: '100%',
     },
     payslipSection: {
-        flexGrow: 1,
-        margin: 5,
-        padding: 5,
-        width: '50%',
+        marginTop: 5,
     },
     payslipSectionDetail: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        marginLeft: 5,
+        marginLeft: 10,
     },
 });
 
@@ -43,91 +37,107 @@ export default class PaySlipsPdfDocument extends Component {
         } = this.props;
 
         const payslips = payPeriod.map((details) => {
-            return <Page key={`payslip${details.biometric_id}`} size={[306, 396]} style={styles.page}>
-                    <View style={styles.payslipHeading}>
-                        <Text>GIFT OF GRACE FOOD MANUFACTURING</Text>
-                        <Text>Payslip</Text>
+            return <View key={`paylip${details.biometric_id}`} style={styles.payslip}>
+                <View style={styles.payslipHeading}>
+                    <Text>GIFT OF GRACE FOOD MANUFACTURING</Text>
+                    <Text>Payslip</Text>
+                </View>
+                <View>
+                    <Text>ID NO: {details.biometric_id}</Text>
+                    <Text>NAME: {details.biometric_name}</Text>
+                    <Text>POSITION: {details.position}</Text>
+                </View>
+                <View style={{marginTop: 5}}>
+                    <Text>RATE/HR: {details.effective_per_hour_rate}</Text>
+                    <Text>RATE/DELIVERY: {details.effective_per_delivery_rate}</Text>
+                </View>
+                <View style={{marginTop: 5}}>
+                    <Text>PAY PERIOD: {details.meta.from} - {details.meta.to}</Text>
+                </View>
+                <View style={styles.payslipSection}>
+                    <Text>COMPENSATION</Text>
+                    <View style={styles.payslipSectionDetail}>
+                        <Text style={{flexGrow: 1, width: '40%'}}>TOTAL HOURS</Text>
+                        <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}>{details.meta.duration_total_hours}</Text>
+                        <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}>{details.meta.duration_total_hours_amount}</Text>
                     </View>
-                    <View style={styles.section}>
-                        <Text>ID NO: {details.biometric_id}</Text>
-                        <Text>NAME: {details.biometric_name}</Text>
-                        <Text>POSITION: {details.position}</Text>
+                    <View style={styles.payslipSectionDetail}>
+                        <Text style={{flexGrow: 1, width: '40%'}}># OF DELIVERIES</Text>
+                        <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}>{details.meta.duration_total_deliveries}</Text>
+                        <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}>{details.meta.duration_total_deliveries_amount}</Text>
                     </View>
-                    <View style={styles.section}>
-                        <Text>RATE/HR: {details.effective_per_hour_rate}</Text>
-                        <Text>RATE/DELIVERY: {details.effective_per_delivery_rate}</Text>
+                    <View style={styles.payslipSectionDetail}>
+                        <Text style={{flexGrow: 1, width: '40%'}}>TOTAL</Text>
+                        <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}></Text>
+                        <Text style={
+                            {
+                                flexGrow: 1,
+                                width: '30%',
+                                textAlign: 'right',
+                                borderTop: '1pt solid black;'
+                            }
+                        }>{details.meta.duration_total_gross_amount}</Text>
                     </View>
-                    <View style={styles.section}>
-                        <Text>PAY PERIOD: {details.meta.from} - {details.meta.to}</Text>
+                </View>
+                <View style={styles.payslipSection}>
+                    <Text>DEDUCTIONS</Text>
+                    {
+                        details.deductions.map((deduction) => {
+                            return <View key={`deduction${deduction.id}`} style={styles.payslipSectionDetail}>
+                                <Text style={{flexGrow: 1, width: '40%'}}>{deduction.deduction_type.title}</Text>
+                                <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}></Text>
+                                <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}>{deduction.amount}</Text>
+                            </View>;
+                        })
+                    }
+                    <View style={styles.payslipSectionDetail}>
+                        <Text style={{flexGrow: 1, width: '40%'}}>TOTAL</Text>
+                        <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}></Text>
+                        <Text style={
+                            {
+                                flexGrow: 1,
+                                width: '30%',
+                                textAlign: 'right',
+                                borderTop: '1pt solid black;'
+                            }
+                        }>{details.meta.duration_total_deductions_amount}</Text>
                     </View>
-                    <View style={styles.payslipSection}>
-                        <Text>COMPENSATION</Text>
-                        <View style={styles.payslipSectionDetail}>
-                            <Text style={{flexGrow: 1, width: '50%'}}>TOTAL HOURS</Text>
-                            <Text style={{flexGrow: 1, width: '25%', textAlign: 'right'}}>{details.meta.duration_total_hours}</Text>
-                            <Text style={{flexGrow: 1, width: '25%', textAlign: 'right'}}>{details.meta.duration_total_hours_amount}</Text>
-                        </View>
-                        <View style={styles.payslipSectionDetail}>
-                            <Text style={{flexGrow: 1, width: '50%'}}># OF DELIVERIES</Text>
-                            <Text style={{flexGrow: 1, width: '25%', textAlign: 'right'}}>{details.meta.duration_total_deliveries}</Text>
-                            <Text style={{flexGrow: 1, width: '25%', textAlign: 'right'}}>{details.meta.duration_total_deliveries_amount}</Text>
-                        </View>
-                        <View style={styles.payslipSectionDetail}>
-                            <Text style={{flexGrow: 1, width: '50%'}}>TOTAL</Text>
-                            <Text style={{flexGrow: 1, width: '25%', textAlign: 'right'}}></Text>
-                            <Text style={
-                                {
-                                    flexGrow: 1,
-                                    width: '25%',
-                                    textAlign: 'right',
-                                    borderTop: '1pt solid black;'
-                                }
-                            }>{details.meta.duration_total_gross_amount}</Text>
-                        </View>
+                </View>
+                <View style={styles.payslipSection}>
+                    <View style={styles.payslipSectionDetail}>
+                        <Text style={{flexGrow: 1, width: '40%'}}>NET SALARY</Text>
+                        <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}></Text>
+                        <Text style={
+                            {
+                                flexGrow: 1,
+                                width: '30%',
+                                textAlign: 'right',
+                            }
+                        }>{details.meta.duration_total_net_amount}</Text>
                     </View>
-                    <View style={styles.payslipSection}>
-                        <Text>DEDUCTIONS</Text>
-                        {
-                            details.deductions.map((deduction) => {
-                                return <View key={`deduction${deduction.id}`} style={styles.payslipSectionDetail}>
-                                    <Text style={{flexGrow: 1, width: '50%'}}>{deduction.deduction_type.title}</Text>
-                                    <Text style={{flexGrow: 1, width: '25%', textAlign: 'right'}}></Text>
-                                    <Text style={{flexGrow: 1, width: '25%', textAlign: 'right'}}>{+deduction.amount}</Text>
-                                </View>;
-                            })
-                        }
-                        <View style={styles.payslipSectionDetail}>
-                            <Text style={{flexGrow: 1, width: '50%'}}>TOTAL</Text>
-                            <Text style={{flexGrow: 1, width: '25%', textAlign: 'right'}}></Text>
-                            <Text style={
-                                {
-                                    flexGrow: 1,
-                                    width: '25%',
-                                    textAlign: 'right',
-                                    borderTop: '1pt solid black;'
-                                }
-                            }>{details.meta.duration_total_deductions_amount}</Text>
-                        </View>
-                    </View>
-                    <View style={styles.payslipSection}>
-                        <View style={styles.payslipSectionDetail}>
-                            <Text style={{flexGrow: 1, width: '50%'}}>NET SALARY</Text>
-                            <Text style={{flexGrow: 1, width: '25%', textAlign: 'right'}}></Text>
-                            <Text style={
-                                {
-                                    flexGrow: 1,
-                                    width: '25%',
-                                    textAlign: 'right',
-                                }
-                            }>{details.meta.duration_total_net_amount}</Text>
-                        </View>
-                    </View>
-                </Page>;
+                </View>
+            </View>;
         });
+
+        const perPage = 6;
+        const totalPages = Math.ceil(payslips.length / perPage);
+        let pages = [];
+        for (let i = 0; i < totalPages; i++) {
+            pages[i] = [];
+        }
+
+        for (let i = 0; i < payslips.length; i++) {
+            const pageIndex = Math.floor(i / perPage);
+            pages[pageIndex].push(payslips[i]);
+        }
 
         return (
             <Document>
-                {payslips}
+                {pages.map((payslips, index) => {
+                    return <Page key={`page${index}`} size="LEGAL" style={styles.page}>
+                        {payslips}
+                    </Page>;
+                })}
             </Document>
         );
     }
