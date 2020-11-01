@@ -11,9 +11,10 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     payslip: {
-        flexGrow: 1,
-        padding: 15,
-        width: '40%',
+        border: '1pt solid black',
+        float: 'left',
+        padding: 10,
+        width: '50%',
     },
     payslipHeading: {
         fontWeight: 'bold',
