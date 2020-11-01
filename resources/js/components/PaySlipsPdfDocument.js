@@ -11,7 +11,6 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     payslip: {
-        border: '1pt solid black',
         float: 'left',
         padding: 10,
         width: '50%',
