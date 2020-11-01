@@ -11,6 +11,7 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     payslip: {
+        border: '1pt solid black',
         float: 'left',
         padding: 10,
         width: '50%',
@@ -36,8 +37,8 @@ export default class PaySlipsPdfDocument extends Component {
             payPeriod,
         } = this.props;
 
-        const payslips = payPeriod.map((details) => {
-            return <View key={`paylip${details.biometric_id}`} style={styles.payslip}>
+        const payslips = payPeriod.map((details, index) => {
+            return <View key={`paylip${details.biometric_id}`} style={styles.payslip} wrap={false}>
                 <View style={styles.payslipHeading}>
                     <Text>GIFT OF GRACE FOOD MANUFACTURING</Text>
                     <Text>Payslip</Text>
@@ -119,25 +120,11 @@ export default class PaySlipsPdfDocument extends Component {
             </View>;
         });
 
-        const perPage = 6;
-        const totalPages = Math.ceil(payslips.length / perPage);
-        let pages = [];
-        for (let i = 0; i < totalPages; i++) {
-            pages[i] = [];
-        }
-
-        for (let i = 0; i < payslips.length; i++) {
-            const pageIndex = Math.floor(i / perPage);
-            pages[pageIndex].push(payslips[i]);
-        }
-
         return (
             <Document>
-                {pages.map((payslips, index) => {
-                    return <Page key={`page${index}`} size="LEGAL" style={styles.page}>
-                        {payslips}
-                    </Page>;
-                })}
+                <Page size="LEGAL" style={styles.page}>
+                    {payslips}
+                </Page>
             </Document>
         );
     }
