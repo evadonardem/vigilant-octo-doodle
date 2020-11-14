@@ -41,6 +41,8 @@ export default class PaySlipsPdfDocument extends Component {
             return <View key={`paylip${details.biometric_id}`} style={styles.payslip} wrap={false}>
                 <View style={styles.payslipHeading}>
                     <Text>GIFT OF GRACE FOOD MANUFACTURING</Text>
+                    <Text>#5 Purok 6 Pinsao Pilot, Baguio City</Text>
+                    <Text>Tel. No: 074-661-3554</Text>
                     <Text>Payslip</Text>
                 </View>
                 <View>
@@ -116,6 +118,10 @@ export default class PaySlipsPdfDocument extends Component {
                             }
                         }>{details.meta.duration_total_net_amount}</Text>
                     </View>
+                </View>
+                <View style={{marginTop: 22}}>
+                    <Text>PREPARED BY:</Text>
+                    <Text style={{borderBottom: '1pt solid black', marginTop: 22, width: '50%'}}></Text>
                 </View>
             </View>;
         });
