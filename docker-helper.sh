@@ -32,7 +32,7 @@ while true; do
       winpty docker-compose exec workspace bash -c "php artisan db:seed --class='FakeDatabaseSeeder'"
       break;;
     4 )
-      docker-compose exec workspace bash
+      winpty docker-compose exec workspace bash
       break;;
     [Xx] )
       exit;;
