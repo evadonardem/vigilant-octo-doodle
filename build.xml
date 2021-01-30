@@ -16,7 +16,7 @@
         <exec command="cp .env.example .env" logoutput="true" checkreturn="true" />
         <exec command="sed -i 's/APP_NAME=/APP_NAME=&quot;Vigilant Octo Doodle&quot;/' .env" />
         <exec command="sed -i 's/APP_ENV=/APP_ENV=local/' .env" />
-        <exec command="sed -i 's/APP_URL=/APP_URL=&quot;http:\/\/localhost:8085\/public\/index.php&quot;/' .env" />
+        <exec command="sed -i 's/APP_URL=/APP_URL=&quot;http:\/\/localhost:8080\/public\/index.php&quot;/' .env" />
         <exec command="sed -i 's/DB_HOST=/DB_HOST=mysql/' .env" />
         <exec command="sed -i 's/DB_DATABASE=/DB_DATABASE=vigilant_octo_doodle_db/' .env" />
         <exec command="sed -i 's/DB_USERNAME=/DB_USERNAME=root/' .env" />
