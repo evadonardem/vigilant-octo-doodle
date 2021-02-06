@@ -59,6 +59,18 @@ export default class PayPeriodDetails extends Component {
                 },
                 {
                     className: 'text-right',
+                    data: 'meta.duration_total_hours_overtime'
+                },
+                {
+                    className: 'text-right',
+                    data: 'meta.duration_total_hours_amount_overtime'
+                },
+                {
+                    className: 'text-right',
+                    data: 'meta.duration_total_hours_amount_with_overtime'
+                },
+                {
+                    className: 'text-right',
                     data: 'meta.duration_total_deliveries'
                 },
                 {
@@ -79,7 +91,7 @@ export default class PayPeriodDetails extends Component {
                 },
             ],
             columnDefs: [
-                { orderable: false, targets: [0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] }
+                { orderable: false, targets: [0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] }
             ],
             order: [[2, 'asc']],
             footerCallback: function (row, data, start, end, display) {
@@ -92,7 +104,7 @@ export default class PayPeriodDetails extends Component {
                 };
 
                 const totalGrossAmount = api
-                    .column(10)
+                    .column(13)
                     .data()
                     .reduce(
                         function (a, b) {
@@ -102,7 +114,7 @@ export default class PayPeriodDetails extends Component {
                     );
 
                 const totalDeductions = api
-                    .column(11)
+                    .column(14)
                     .data()
                     .reduce(
                         function (a, b) {
@@ -112,7 +124,7 @@ export default class PayPeriodDetails extends Component {
                     );
 
                 const totalNetAmount = api
-                    .column(12)
+                    .column(15)
                     .data()
                     .reduce(
                         function (a, b) {
@@ -121,9 +133,9 @@ export default class PayPeriodDetails extends Component {
                         0
                     );
 
-                $(api.column(10).footer()).html(totalGrossAmount.toFixed(2));
-                $(api.column(11).footer()).html(totalDeductions.toFixed(2));
-                $(api.column(12).footer()).html(totalNetAmount.toFixed(2));
+                $(api.column(13).footer()).html(totalGrossAmount.toFixed(2));
+                $(api.column(14).footer()).html(totalDeductions.toFixed(2));
+                $(api.column(15).footer()).html(totalNetAmount.toFixed(2));
             }
         });
 
@@ -158,7 +170,7 @@ export default class PayPeriodDetails extends Component {
                         name="amount_${deduction.id}"
                         class="form-control text-right"
                         placeholder="Amount"
-                        value="${+deduction.amount}">
+                        value="${parseFloat(+deduction.amount).toFixed(2)}">
                 </div>`;
             }).join('');
 
@@ -176,20 +188,37 @@ export default class PayPeriodDetails extends Component {
                                 <div class="card-body">
                                     <div class="input-group mb-3">
                                         <div class="input-group-prepend w-50">
-                                            <span class="input-group-text" style="width: 100%;">Total Hours / Amount</span>
+                                            <span class="input-group-text" style="width: 100%;">Total Hrs. / Amt. (Reg.)</span>
                                         </div>
                                         <input
                                             type="number"
                                             disabled
                                             class="form-control text-right"
-                                            placeholder="Amount"
-                                            value="${+d.meta.duration_total_hours}">
+                                            placeholder="Total Hrs. (Reg.)"
+                                            value="${parseFloat(+d.meta.duration_total_hours).toFixed(3)}">
                                         <input
                                             type="number"
                                             disabled
                                             class="form-control text-right"
-                                            placeholder="Amount"
-                                            value="${+d.meta.duration_total_hours_amount}">
+                                            placeholder="Total Amt. (Reg.)"
+                                            value="${parseFloat(+d.meta.duration_total_hours_amount).toFixed(2)}">
+                                    </div>
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend w-50">
+                                            <span class="input-group-text" style="width: 100%;">Total Hrs. / Amt. (OT)</span>
+                                        </div>
+                                        <input
+                                            type="number"
+                                            disabled
+                                            class="form-control text-right"
+                                            placeholder="Total Hrs. (OT)"
+                                            value="${parseFloat(+d.meta.duration_total_hours_overtime).toFixed(3)}">
+                                        <input
+                                            type="number"
+                                            disabled
+                                            class="form-control text-right"
+                                            placeholder="Total Amt. (OT)"
+                                            value="${parseFloat(+d.meta.duration_total_hours_amount_overtime).toFixed(2)}">
                                     </div>
                                     <div class="input-group mb-3">
                                         <div class="input-group-prepend w-50">
@@ -204,7 +233,7 @@ export default class PayPeriodDetails extends Component {
                                             type="number"
                                             disabled
                                             class="form-control text-right"
-                                            value="${+d.meta.duration_total_deliveries_amount}">
+                                            value="${parseFloat(+d.meta.duration_total_deliveries_amount).toFixed(2)}">
                                     </div>
                                     <div class="input-group mb-3">
                                         <div class="input-group-prepend w-50">
@@ -219,7 +248,7 @@ export default class PayPeriodDetails extends Component {
                                             type="number"
                                             disabled
                                             class="form-control text-right"
-                                            value="${+d.meta.duration_total_gross_amount}">
+                                            value="${parseFloat(+d.meta.duration_total_gross_amount).toFixed(2)}">
                                     </div>
                                 </div>
                             </div>
@@ -239,7 +268,7 @@ export default class PayPeriodDetails extends Component {
                                                 type="number"
                                                 disabled
                                                 class="form-control text-right"
-                                                value="${+d.meta.duration_total_deductions_amount}">
+                                                value="${parseFloat(+d.meta.duration_total_deductions_amount).toFixed(2)}">
                                         </div>
                                         <input type="hidden" name="biometric_id" value="${d.biometric_id}">
                                         <input type="hidden" name="pay_period_id" value="${payPeriodId}">
@@ -432,21 +461,24 @@ export default class PayPeriodDetails extends Component {
                                 <th scope="col">Biometric ID</th>
                                 <th scope="col">Name</th>
                                 <th scope="col">Position</th>
-                                <th scope="col">Effective Per Hour Rate</th>
-                                <th scope="col">Effective Delivery Rate</th>
-                                <th scope="col">Total Hours</th>
-                                <th scope="col">Total Amount (Hours)</th>
+                                <th scope="col">Effective Rate/Hr.</th>
+                                <th scope="col">Effective Rate/Delivery</th>
+                                <th scope="col">Total Hrs. (Reg.)</th>
+                                <th scope="col">Total Amt. (Reg.)</th>
+                                <th scope="col">Total Hrs. (OT)</th>
+                                <th scope="col">Total Amt. (OT)</th>
+                                <th scope="col">Total Amt. (Reg. + OT)</th>
                                 <th scope="col">Total No. of Deliveries</th>
-                                <th scope="col">Total Amount (Deliveries)</th>
-                                <th scope="col">Gross Amount</th>
-                                <th scope="col">Total Deductions Amount</th>
-                                <th scope="col">Net Amount</th>
+                                <th scope="col">Total Amt.</th>
+                                <th scope="col">Gross Amt.</th>
+                                <th scope="col">Total Deductions Amt.</th>
+                                <th scope="col">Net Amt.</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
                             <tfoot>
                                 <tr>
-                                    <th colSpan="9"></th>
+                                    <th colSpan="12"></th>
                                     <th>Total:</th>
                                     <th>0.00</th>
                                     <th>0.00</th>

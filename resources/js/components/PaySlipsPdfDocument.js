@@ -60,9 +60,14 @@ export default class PaySlipsPdfDocument extends Component {
                 <View style={styles.payslipSection}>
                     <Text>COMPENSATION</Text>
                     <View style={styles.payslipSectionDetail}>
-                        <Text style={{flexGrow: 1, width: '40%'}}>TOTAL HOURS</Text>
+                        <Text style={{flexGrow: 1, width: '40%'}}>TOTAL HOURS (REG)</Text>
                         <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}>{details.meta.duration_total_hours}</Text>
                         <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}>{details.meta.duration_total_hours_amount}</Text>
+                    </View>
+                    <View style={styles.payslipSectionDetail}>
+                        <Text style={{flexGrow: 1, width: '40%'}}>TOTAL HOURS (OT)</Text>
+                        <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}>{details.meta.duration_total_hours_overtime}</Text>
+                        <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}>{details.meta.duration_total_hours_amount_overtime}</Text>
                     </View>
                     <View style={styles.payslipSectionDetail}>
                         <Text style={{flexGrow: 1, width: '40%'}}># OF DELIVERIES</Text>

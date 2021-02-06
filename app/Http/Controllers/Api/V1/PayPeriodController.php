@@ -75,7 +75,7 @@ class PayPeriodController extends Controller
 
         foreach ($data as &$r) {
             $user = User::where('biometric_id', $r['biometric_id'])->first();
-            $r['meta']['duration_total_gross_amount'] = $r['meta']['duration_total_hours_amount'] +
+            $r['meta']['duration_total_gross_amount'] = $r['meta']['duration_total_hours_amount_with_overtime'] +
                 $r['meta']['duration_total_deliveries_amount'];
             $r['deductions'] = $user->payPeriodDeductions()
                 ->where('pay_period_id', $payPeriod->id)

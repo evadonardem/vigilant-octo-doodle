@@ -207,7 +207,10 @@ class DailyTimeRecordController extends Controller
         foreach ($dailyTimeRecord as &$details) {
             $user = User::where('biometric_id', $details['biometric_id'])->first();
             $meta['duration_total_hours'] = 0;
+            $meta['duration_total_hours_overtime'] = 0;
             $meta['duration_total_hours_amount'] = 0;
+            $meta['duration_total_hours_amount_overtime'] = 0;
+            $meta['duration_total_hours_amount_with_overtime'] = 0;
             $meta['duration_total_deliveries'] = 0;
             $meta['duration_total_deliveries_amount'] = 0;
 
@@ -251,15 +254,22 @@ class DailyTimeRecordController extends Controller
                         }
 
                         $timeInOut['per_hour_rate_amount'] = $perHourRateAmount ? $perHourRateAmount->amount : 0;
+                        $timeInOut['per_hour_rate_amount_overtime'] = $perHourRateAmount ? $perHourRateAmount->amount * 1.20 : 0;
                     }
                     $entries[] = $timeInOut;
                 }
 
                 $totalSeconds = 0;
+                $totalSecondsOvertime = 0;
+
                 $totalAmount = 0;
+                $totalAmountOvertime = 0;
+
                 foreach ($entries as &$entry) {
                     $entry['hours'] = 0;
+                    $entry['hours_overtime'] = 0;
                     $entry['amount'] = 0;
+                    $netry['amount_overtime'] = 0;
                     if (
                         array_key_exists('in', $entry) &&
                         array_key_exists('out', $entry)
@@ -267,18 +277,58 @@ class DailyTimeRecordController extends Controller
                         $timeIn = Carbon::createFromFormat('h:i:s A', $entry['in']);
                         $timeOut = Carbon::createFromFormat('h:i:s A', $entry['out']);
                         $entrySeconds = $timeOut->diffInSeconds($timeIn);
+
+                        $isOvertime = false;
+                        $entrySecondsOvertimeInitial = 0;
+                        if (
+                            $totalSeconds < 28800 &&
+                            $totalSecondsOvertime == 0 &&
+                            $totalSeconds + $entrySeconds > 28800
+                        ) {
+                            $entrySecondsOvertimeInitial = $totalSeconds + $entrySeconds - 28800;
+                            $entrySeconds -= $entrySecondsOvertimeInitial;
+                            $totalSeconds += $entrySeconds;
+
+                            $totalSecondsOvertime += $entrySecondsOvertimeInitial;
+                            $entryHoursOvertimeInitial = number_format(round($entrySecondsOvertimeInitial / 60 / 60, 3), 3, '.', '');
+                            $entryAmountOvertimeInitial = number_format(round($entryHoursOvertimeInitial * $entry['per_hour_rate_amount_overtime'], 2), 2, '.', '');
+
+                            $entry['hours_overtime'] = $entryHoursOvertimeInitial;
+                            $entry['amount_overtime'] = $entryAmountOvertimeInitial;
+
+                            $totalAmountOvertime += $entryAmountOvertimeInitial;
+                        } else {
+                           $isOvertime = ($totalSecondsOvertime > 0);
+                           if ($isOvertime) {
+                               $totalSecondsOvertime += $entrySeconds;
+                           } else {
+                               $totalSeconds += $entrySeconds;
+                           }
+                        }
+
+                        $appliedPerHourRateAmount = $isOvertime
+                            ? $entry['per_hour_rate_amount_overtime']
+                            : $entry['per_hour_rate_amount'];
+
                         $entryHours = number_format(round($entrySeconds / 60 / 60, 3), 3, '.', '');
-                        $entryAmount = number_format(round($entryHours * $entry['per_hour_rate_amount'], 2), 2, '.', '');
-                        $totalSeconds += $entrySeconds;
-                        $totalAmount += $entryAmount;
-                        $totalAmount = number_format(round($totalAmount, 2), 2, '.', '');
-                        $entry['hours'] = $entryHours;
-                        $entry['amount'] = $entryAmount;
+                        $entryAmount = number_format(round($entryHours * $appliedPerHourRateAmount, 2), 2, '.', '');
+
+                        $entry[$isOvertime ? 'hours_overtime' : 'hours'] = $entryHours;
+                        $entry[$isOvertime ? 'amount_overtime' : 'amount'] = $entryAmount;
+
+                        if ($isOvertime) {
+                            $totalAmountOvertime += $entryAmount;
+                            $totalAmountOvertime = number_format(round($totalAmountOvertime, 2), 2, '.', '');
+                        } else {
+                            $totalAmount += $entryAmount;
+                            $totalAmount = number_format(round($totalAmount, 2), 2, '.', '');
+                        }
                     }
 
                     unset($entry);
                 }
                 $totalInHours = number_format(round($totalSeconds / 60 / 60, 3), 3, '.', '');
+                $totalInHoursOvetime = number_format(round($totalSecondsOvertime / 60 / 60, 3), 3, '.', '');
 
                 $delivery = $user->deliveries()->where('delivery_date', $date->format('Y-m-d'))->first();
                 $perDeliveryRateAmount = $user->rates()
@@ -300,14 +350,19 @@ class DailyTimeRecordController extends Controller
                 $totalDeliveriesAmount  = $totalDeliveries * ($perDeliveryRateAmount ? $perDeliveryRateAmount->amount : 0);
 
                 $meta['duration_total_hours'] += $totalInHours;
+                $meta['duration_total_hours_overtime'] += $totalInHoursOvetime;
                 $meta['duration_total_hours_amount'] += $totalAmount;
+                $meta['duration_total_hours_amount_overtime'] += $totalAmountOvertime;
+                $meta['duration_total_hours_amount_with_overtime'] += $totalAmount + $totalAmountOvertime;
                 $meta['duration_total_deliveries'] += $totalDeliveries;
                 $meta['duration_total_deliveries_amount'] += $totalDeliveriesAmount;
                 $logs = [
                     'date' => !is_null($date) ? $date->format('D, M d, Y') : null,
                     'time_in_out' => $entries,
                     'total_hours' => $totalInHours,
+                    'total_hours_overtime' => $totalInHoursOvetime,
                     'total_amount' => $totalAmount,
+                    'total_amount_overtime' => $totalAmountOvertime,
                     'total_deliveries' => $totalDeliveries,
                     'total_deliveries_amount' => $totalDeliveriesAmount,
                     'remarks' => $delivery ? $delivery->remarks : '',
@@ -318,6 +373,9 @@ class DailyTimeRecordController extends Controller
             $meta['duration_total_deliveries_amount'] = number_format($meta['duration_total_deliveries_amount'], 2, '.', '');
             $meta['duration_total_hours'] = number_format(round($meta['duration_total_hours'], 3), 3, '.', '');
             $meta['duration_total_hours_amount'] = number_format(round($meta['duration_total_hours_amount'], 2), 2, '.', '');
+            $meta['duration_total_hours_overtime'] = number_format(round($meta['duration_total_hours_overtime'], 3), 3, '.', '');
+            $meta['duration_total_hours_amount_overtime'] = number_format(round($meta['duration_total_hours_amount_overtime'], 2), 2, '.', '');
+            $meta['duration_total_hours_amount_with_overtime'] = number_format(round($meta['duration_total_hours_amount_with_overtime'], 2), 2, '.', '');
             $details['logs'] = array_values($details['logs']);
             $details['meta'] = $meta;
             unset($details);

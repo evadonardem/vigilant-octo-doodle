@@ -47,6 +47,18 @@ export default class DailyTimeRecordSearchResult extends Component {
                 },
                 {
                     className: 'text-right',
+                    data: 'meta.duration_total_hours_overtime'
+                },
+                {
+                    className: 'text-right',
+                    data: 'meta.duration_total_hours_amount_overtime'
+                },
+                {
+                    className: 'text-right',
+                    data: 'meta.duration_total_hours_amount_with_overtime'
+                },
+                {
+                    className: 'text-right',
                     data: 'meta.duration_total_deliveries'
                 },
                 {
@@ -75,25 +87,39 @@ export default class DailyTimeRecordSearchResult extends Component {
                 <thead>
                     <th>Day</th>
                     <th>Time-In/Out</th>
-                    <th class="text-right">Total Hours</th>
-                    <th class="text-right">Total Amount</th>
+                    <th class="text-right">Total Hrs. (Reg.)</th>
+                    <th class="text-right">Total Amt. (Reg.)</th>
+                    <th class="text-right">Total Hrs. (OT)</th>
+                    <th class="text-right">Total Amt. (OT)</th>
+                    <th class="text-right">Total Amt. (Reg. + OT)</th>
                     <th class="text-right">No. of Deliveries</th>
-                    <th class="text-right">Deliveries Amount</th>
+                    <th class="text-right">Deliveries Amt.</th>
                     <th>Remarks</th>
                 </thead>
                 <tbody>
                 ${d.logs.map((log)=>{
+                    const logTotalAmount = parseFloat(+log.total_amount + +log.total_amount_overtime).toFixed(2);
                     return `<tr>
                         <td>${log.date}</td>
                         <td>${log.time_in_out.map((entry) => {
                             if (entry.hasOwnProperty('in') && entry.hasOwnProperty('out')) {
-                                return `(In: ${entry.in} - Out: ${entry.out}&nbsp;
-                                    (${entry.hours} Hrs. @ Php. ${entry.per_hour_rate_amount}/Hr. = Php. ${entry.amount}))`;
+                                let detail = `<em>In: ${entry.in}<br/>Out: ${entry.out}</em><br/>`;
+                                detail += '<ul>';
+                                if (+entry.amount > 0) {
+                                    detail += `<li>${entry.hours} Hrs. @ Php. ${entry.per_hour_rate_amount}/Hr. = Php. ${entry.amount}</li>`;
+                                }
+                                if (+entry.amount_overtime > 0) {
+                                    detail += `<li>(OT) ${entry.hours_overtime} Hrs. @ Php. ${entry.per_hour_rate_amount_overtime}/Hr. = Php. ${entry.amount_overtime}</li>`;
+                                }
+                                return detail += '</ul>';
                             }
-                            return `(In: ${entry.in} - Out: ?)`;
+                            return `<em>In: ${entry.in}<br/>Out: ?</em><br/>`;
                         }).join('<br>')}</td>
                         <td class="text-right">${log.total_hours}</td>
                         <td class="text-right">${log.total_amount}</td>
+                        <td class="text-right">${log.total_hours_overtime}</td>
+                        <td class="text-right">${log.total_amount_overtime}</td>
+                        <td class="text-right">${logTotalAmount}</td>
                         <td class="text-right">${log.total_deliveries}</td>
                         <td class="text-right">${log.total_deliveries_amount}</td>
                         <td>${log.remarks}</td>
@@ -217,10 +243,13 @@ export default class DailyTimeRecordSearchResult extends Component {
                                     <th scope="col">Biometric ID</th>
                                     <th scope="col">Name</th>
                                     <th scope="col">Position</th>
-                                    <th scope="col">Duration Total Hours</th>
-                                    <th scope="col">Duration Total Amount</th>
-                                    <th scope="col">Duration No. of Deliveries</th>
-                                    <th scope="col">Duration Deliveries Amount</th>
+                                    <th scope="col">Total Hrs. (Reg.)</th>
+                                    <th scope="col">Total Amt. (Reg.)</th>
+                                    <th scope="col">Total Hrs. (OT)</th>
+                                    <th scope="col">Total Amt. (OT)</th>
+                                    <th scope="col">Total Amt. (Reg. + OT)</th>
+                                    <th scope="col">No. of Deliveries</th>
+                                    <th scope="col">Deliveries Amt.</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
