@@ -53,9 +53,11 @@ $api->version('v1', function ($api) {
         $api->get('attendance-logs', 'App\Http\Controllers\Api\V1\BiometricAttendanceController@index');
     });
 
-    $api->group(['prefix' => 'settings', 'middleware' => 'api.auth'], function ($api) {
+    $api->group(['prefix' => 'settings', 'middleware' =>['api.auth', 'bindings']], function ($api) {
         $api->resource('roles', 'App\Http\Controllers\Api\V1\RolesController');
         $api->resource('deduction-types', 'App\Http\Controllers\Api\V1\DeductionTypesController');
+        $api->resource('overtime-rates', 'App\Http\Controllers\Api\V1\OvertimeRateController');
+        $api->get('overtime-rate-types', 'App\Http\Controllers\Api\V1\OvertimeRateTypeController@index');
     });
 
     // Utilities

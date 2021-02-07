@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Dingo\Api\Routing\Helpers;
 use App\User;
 use App\Models\Delivery;
+use App\Models\OvertimeRate;
 
 class DailyTimeRecordController extends Controller
 {
@@ -254,7 +255,23 @@ class DailyTimeRecordController extends Controller
                         }
 
                         $timeInOut['per_hour_rate_amount'] = $perHourRateAmount ? $perHourRateAmount->amount : 0;
-                        $timeInOut['per_hour_rate_amount_overtime'] = $perHourRateAmount ? $perHourRateAmount->amount * 1.20 : 0;
+
+                        $timeInOut['per_hour_rate_amount_overtime'] = 0;
+                        if ($perHourRateAmount) {
+                            $overtimeRate = OvertimeRate::whereHas('type', function ($query) {
+                                $query->where('code', 'normal_day');
+                            })
+                            ->where(
+                                'effectivity_date',
+                                '<=',
+                                Carbon::createFromFormat('Y-m-d H:i:s', $logs[$i + 1])->format('Y-m-d')
+                            )
+                            ->orderBy('effectivity_date', 'desc')
+                            ->first();
+                            $timeInOut['per_hour_rate_amount_overtime'] = $overtimeRate
+                                ? $perHourRateAmount->amount * $overtimeRate->non_night_shift
+                                : $perHourRateAmount->amount;
+                        }
                     }
                     $entries[] = $timeInOut;
                 }

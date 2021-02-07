@@ -3,29 +3,37 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreOvertimeRateRequest;
 use App\Models\OvertimeRate;
+use Dingo\Api\Routing\Helpers;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 
 class OvertimeRateController extends Controller
 {
+    use Helpers;
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-    }
+        $start = $request->input('start') ?? 0;
+        $perPage = $request->input('length') ?? 10;
+        $page = ($start/$perPage) + 1;
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        Paginator::currentPageResolver(function () use ($page) {
+            return $page;
+        });
+
+        $overtimeRates = OvertimeRate::orderBy('effectivity_date', 'desc')->paginate($perPage);
+        $overtimeRates->each(function ($overtimeRate) {
+            $overtimeRate->type;
+        });
+
+        return response()->json($overtimeRates);
     }
 
     /**
@@ -34,43 +42,20 @@ class OvertimeRateController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreOvertimeRateRequest $request)
     {
-        //
-    }
+        $attributes = $request->only([
+            'effectivity_date',
+            'overtime_rate_type_id',
+            'non_night_shift',
+            'night_shift'
+        ]);
+        $attributes['non_night_shift'] /= 100;
+        $attributes['night_shift'] /= 100;
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\OvertimeRate  $overtimeRate
-     * @return \Illuminate\Http\Response
-     */
-    public function show(OvertimeRate $overtimeRate)
-    {
-        //
-    }
+        OvertimeRate::create($attributes);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\OvertimeRate  $overtimeRate
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(OvertimeRate $overtimeRate)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\OvertimeRate  $overtimeRate
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, OvertimeRate $overtimeRate)
-    {
-        //
+        return response()->noContent();
     }
 
     /**
@@ -81,6 +66,8 @@ class OvertimeRateController extends Controller
      */
     public function destroy(OvertimeRate $overtimeRate)
     {
-        //
+        $overtimeRate->delete();
+
+        return response()->noContent();
     }
 }
