@@ -43,6 +43,12 @@ $api->version('v1', function ($api) {
         $api->delete('pay-periods/{payPeriodId}', 'App\Http\Controllers\Api\V1\PayPeriodController@destroy');
         $api->post('pay-periods/{payPeriodId}/common-deductions', 'App\Http\Controllers\Api\V1\PayPeriodController@storeCommonDeductions');
         $api->post('update-user-pay-period-deductions', 'App\Http\Controllers\Api\V1\PayPeriodController@updateUserPayPeriodDeductions');
+
+        $api->get('thirteenth-month-pay-periods', 'App\Http\Controllers\Api\V1\ThirteenthMonthController@index');
+        $api->post('thirteenth-month-pay-periods', 'App\Http\Controllers\Api\V1\ThirteenthMonthController@store');
+        $api->get('thirteenth-month-pay-periods/{id}', 'App\Http\Controllers\Api\V1\ThirteenthMonthController@show');
+        $api->delete('thirteenth-month-pay-periods/{id}', 'App\Http\Controllers\Api\V1\ThirteenthMonthController@destroy');
+        $api->get('thirteenth-month-pay-periods/{id}/details', 'App\Http\Controllers\Api\V1\ThirteenthMonthController@showThirteenthMonthPayPeriodDetails');
     });
 
     $api->group(['prefix' => 'biometric', 'middleware' => 'api.auth'], function ($api) {

@@ -13,11 +13,15 @@ import Dashboard from './Dashboard';
 import AttendanceLogs from './AttendanceLogs';
 import Deliveries from './Deliveries';
 import DailyTimeRecord from './DailyTimeRecord';
+import CompensationAndBenefits from './CompensationAndBenefits';
+import Logs from './Logs';
 import ManualLogs from './ManualLogs';
 import Users from './Users';
 import Settings from './Settings';
 import SettingsUserRoles from './SettingsUserRoles';
 import SettingsOvertimeRates from './SettingsOvertimeRates';
+import ThirteenthMonthPayPeriods from './ThirteenthMonthPayPeriods';
+import ThirteenthMonthPayPeriodDetails from './ThirteenthMonthPayPeriodDetails';
 import UserRateHistory from './UserRateHistory';
 import PayPeriods from './PayPeriods';
 import PayPeriodDetails from './PayPeriodDetails';
@@ -113,20 +117,11 @@ export default class Menu extends Component {
                             case '/dashboard':
                                 routeToComponent = <Dashboard />;
                                 break;
-                            case '/attendance-logs':
-                                routeToComponent = <AttendanceLogs />;
+                            case '/logs':
+                                routeToComponent = <Logs />;
                                 break;
-                            case '/manual-logs':
-                                routeToComponent = <ManualLogs />;
-                                break;
-                            case '/deliveries':
-                                routeToComponent = <Deliveries />;
-                                break;
-                            case '/daily-time-record':
-                                routeToComponent = <DailyTimeRecord />;
-                                break;
-                            case '/pay-periods':
-                                routeToComponent = <PayPeriods />;
+                            case '/compensation-and-benefits':
+                                routeToComponent = <CompensationAndBenefits />;
                                 break;
                             case '/users':
                                 routeToComponent = <Users />;
@@ -141,10 +136,19 @@ export default class Menu extends Component {
                         return (<Route key={'route-' + routeIndex++} path={link.to} component={() => routeToComponent}>
                         </Route>); }
                     )}
+                    <Route path={'/daily-time-record'} component={DailyTimeRecord}></Route>
+                    <Route path={'/attendance-logs'} component={AttendanceLogs}></Route>
+                    <Route path={'/manual-logs'} component={ManualLogs}></Route>
+                    <Route path={'/deliveries'} component={Deliveries}></Route>
+
+                    <Route path={'/pay-periods'} component={PayPeriods}></Route>
+                    <Route path={'/pay-period-details/:payPeriodId'} component={PayPeriodDetails}></Route>
+                    <Route path={'/thirteenth-month-pay-periods'} component={ThirteenthMonthPayPeriods}></Route>
+                    <Route path={'/thirteenth-month-pay-period-details/:thirteenthMonthPayPeriodId'} component={ThirteenthMonthPayPeriodDetails}></Route>
+
                     <Route path={'/settings-user-roles'} component={SettingsUserRoles}></Route>
                     <Route path={'/settings-overtime-rates'} component={SettingsOvertimeRates}></Route>
                     <Route path={'/user-rate-history/:userId'} component={UserRateHistory}></Route>
-                    <Route path={'/pay-period-details/:payPeriodId'} component={PayPeriodDetails}></Route>
                 </Switch>
             </div>
         );

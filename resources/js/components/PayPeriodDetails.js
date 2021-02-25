@@ -103,6 +103,76 @@ export default class PayPeriodDetails extends Component {
                         : typeof i === 'number' ? i : 0;
                 };
 
+                const totalHoursRegular = api
+                    .column(6)
+                    .data()
+                    .reduce(
+                        function (a, b) {
+                            return intVal(a) + intVal(b);
+                        },
+                        0
+                    );
+
+                const totalAmountRegular = api
+                    .column(7)
+                    .data()
+                    .reduce(
+                        function (a, b) {
+                            return intVal(a) + intVal(b);
+                        },
+                        0
+                    );
+
+                const totalHoursOvertime = api
+                    .column(8)
+                    .data()
+                    .reduce(
+                        function (a, b) {
+                            return intVal(a) + intVal(b);
+                        },
+                        0
+                    );
+
+                const totalAmountOvertime = api
+                    .column(9)
+                    .data()
+                    .reduce(
+                        function (a, b) {
+                            return intVal(a) + intVal(b);
+                        },
+                        0
+                    );
+
+                const totalAmountRegularAndOvertime = api
+                    .column(10)
+                    .data()
+                    .reduce(
+                        function (a, b) {
+                            return intVal(a) + intVal(b);
+                        },
+                        0
+                    );
+
+                const totalDeliveries = api
+                    .column(11)
+                    .data()
+                    .reduce(
+                        function (a, b) {
+                            return intVal(a) + intVal(b);
+                        },
+                        0
+                    );
+
+                const totalDeliveriesAmount = api
+                    .column(12)
+                    .data()
+                    .reduce(
+                        function (a, b) {
+                            return intVal(a) + intVal(b);
+                        },
+                        0
+                    );
+
                 const totalGrossAmount = api
                     .column(13)
                     .data()
@@ -133,6 +203,13 @@ export default class PayPeriodDetails extends Component {
                         0
                     );
 
+                $(api.column(6).footer()).html(totalHoursRegular.toFixed(3));
+                $(api.column(7).footer()).html(totalAmountRegular.toFixed(2));
+                $(api.column(8).footer()).html(totalHoursOvertime.toFixed(3));
+                $(api.column(9).footer()).html(totalAmountOvertime.toFixed(2));
+                $(api.column(10).footer()).html(totalAmountRegularAndOvertime.toFixed(2));
+                $(api.column(11).footer()).html(totalDeliveries.toFixed(0));
+                $(api.column(12).footer()).html(totalDeliveriesAmount.toFixed(2));
                 $(api.column(13).footer()).html(totalGrossAmount.toFixed(2));
                 $(api.column(14).footer()).html(totalDeductions.toFixed(2));
                 $(api.column(15).footer()).html(totalNetAmount.toFixed(2));
@@ -478,8 +555,15 @@ export default class PayPeriodDetails extends Component {
                             <tbody></tbody>
                             <tfoot>
                                 <tr>
-                                    <th colSpan="12"></th>
+                                    <th colSpan="5"></th>
                                     <th>Total:</th>
+                                    <th>0.000</th>
+                                    <th>0.00</th>
+                                    <th>0.000</th>
+                                    <th>0.00</th>
+                                    <th>0.00</th>
+                                    <th>0</th>
+                                    <th>0.00</th>
                                     <th>0.00</th>
                                     <th>0.00</th>
                                     <th>0.00</th>

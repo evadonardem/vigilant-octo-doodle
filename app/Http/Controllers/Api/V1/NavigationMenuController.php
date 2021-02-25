@@ -23,29 +23,14 @@ class NavigationMenuController extends Controller
                     'to' => '/dashboard'
                 ],
                 [
-                    'label' => 'Attendance Logs',
+                    'label' => 'Logs',
                     'icon' => 'fa fa-calendar',
-                    'to' => '/attendance-logs'
+                    'to' => '/logs'
                 ],
                 [
-                    'label' => 'Manual Logs',
-                    'icon' => 'fa fa-calendar-plus-o',
-                    'to' => '/manual-logs'
-                ],
-                [
-                    'label' => 'Deliveries',
-                    'icon' => 'fa fa-truck',
-                    'to' => '/deliveries'
-                ],
-                [
-                    'label' => 'Daily Time Record',
-                    'icon' => 'fa fa-clock-o',
-                    'to' => '/daily-time-record'
-                ],
-                [
-                    'label' => 'Pay Periods',
-                    'icon' => 'fa fa-address-card',
-                    'to' => '/pay-periods'
+                    'label' => 'Compensation and Benefits',
+                    'icon' => 'fa fa-gift',
+                    'to' => '/compensation-and-benefits'
                 ],
                 [
                     'label' => 'Users',

@@ -34,6 +34,7 @@ try {
         },
         {
             extend: 'pdfHtml5',
+            orientation: 'landscape',
             pageSize: 'legal',
             customize : window.pdfExportCommonSettings,
             footer: true,
