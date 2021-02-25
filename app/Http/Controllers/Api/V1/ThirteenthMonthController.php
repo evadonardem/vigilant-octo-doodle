@@ -117,6 +117,8 @@ class ThirteenthMonthController extends Controller
      */
     public function showThirteenthMonthPayPeriodDetails(Request $request, $payPeriodId)
     {
+        set_time_limit(0);
+
         $payPeriod = ThirteenthMonth::findOrFail($payPeriodId);
 
         $startDate = Carbon::createFromFormat('Y-m-d', $payPeriod->from);
