@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use App\Http\Controllers\Controller;
-use App\User;
+use App\Models\User;
 use App\Models\AttendanceLog;
 use App\Models\Delivery;
 use App\Models\Rate;

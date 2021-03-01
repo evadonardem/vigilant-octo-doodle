@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Dingo\Api\Routing\Helpers;
-use App\User;
+use App\Models\User;
 use App\Models\Delivery;
 use App\Models\OvertimeRate;
 

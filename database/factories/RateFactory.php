@@ -1,12 +1,31 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+namespace Database\Factories;
 
 use App\Models\Rate;
-use Faker\Generator as Faker;
+use App\Models\RateType;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-$factory->define(Rate::class, function (Faker $faker) {
-    return [
-        'amount' => $faker->randomFloat(2, 0, 999),
-    ];
-});
+class RateFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = Rate::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
+        return [
+            'effectivity_date' => $this->faker->date('Y-m-d'),
+            'rate_type_id' => RateType::findOrFail(1)->id,
+            'amount' => $this->faker->randomFloat(2, 0, 999),
+        ];
+    }
+}

@@ -1,12 +1,28 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+namespace Database\Factories;
 
-use App\OvertimeRate;
-use Faker\Generator as Faker;
+use App\Models\OvertimeRate;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-$factory->define(OvertimeRate::class, function (Faker $faker) {
-    return [
-        //
-    ];
-});
+class OvertimeRateFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = OvertimeRate::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
+        return [
+            //
+        ];
+    }
+}

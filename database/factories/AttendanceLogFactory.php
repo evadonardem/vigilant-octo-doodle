@@ -1,17 +1,33 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+namespace Database\Factories;
 
 use App\Models\AttendanceLog;
-use Faker\Generator as Faker;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-$factory->define(AttendanceLog::class, function (Faker $faker) {
-    return [
-      'biometric_timestamp' => $faker->unique()
-          ->dateTimeBetween(
-              $startDate = '-12 month',
-              $endDate = 'now',
-              $timezone = null
-          )
-    ];
-});
+class AttendanceLogFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = AttendanceLog::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array
+     */
+    public function definition()
+    {
+        return [
+            'biometric_timestamp' => $this->faker->unique()
+                ->dateTimeBetween(
+                    '-12 month',
+                    'now',
+                    null
+                )
+        ];
+    }
+}

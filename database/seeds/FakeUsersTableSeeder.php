@@ -1,10 +1,9 @@
 <?php
 
+namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
-use App\User;
-use App\Models\Rate;
-use App\Models\RateType;
-use Carbon\Carbon;
+use App\Models\User;
 
 class FakeUsersTableSeeder extends Seeder
 {
@@ -15,7 +14,7 @@ class FakeUsersTableSeeder extends Seeder
      */
     public function run()
     {
-        $users = factory(User::class, 10)->create();
+        $users = User::factory()->hasRates(5)->count(10)->create();
         $users->each(function ($user) {
             $user->roles()->sync([
               'STAFF' => [

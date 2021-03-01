@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
 use App\ZKLib\ZKLibrary;
-use App\User;
+use App\Models\User;
 use App\Models\AttendanceLog;
 use App\Models\Rate;
 use App\Models\RateType;
@@ -76,7 +76,7 @@ class BiometricUsersController extends Controller
                 });
             }
         }
-        
+
         $users = array_values($users->toArray());
         return response()->json(['data' => $users]);
     }
