@@ -3,8 +3,6 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\User;
-use App\Models\AttendanceLog;
 
 class FakeDatabaseSeeder extends Seeder
 {
