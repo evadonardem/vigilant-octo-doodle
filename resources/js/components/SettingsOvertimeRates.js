@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Card, Form } from 'react-bootstrap';
+import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import { v4 as uuidv4 } from 'uuid';
 import cookie from 'react-cookies';
 import CommonDeleteModal from './CommonDeleteModal';
@@ -174,59 +174,56 @@ export default class SettingsOvertimeRates extends Component {
 
         return (
             <div className="container-fluid my-4">
-                <h1><i className="fa fa-address-card-o"></i> Overtime Rates</h1>
-
-                <hr className="my-4"/>
+                <Breadcrumb>
+                    <Breadcrumb.Item href="#/settings"><i className="fa fa-cogs"></i> Settings</Breadcrumb.Item>
+                    <Breadcrumb.Item active>Overtime Rates</Breadcrumb.Item>
+                </Breadcrumb>
 
                 <div className="row">
-                    <div className="col-md-12">
+                    <div className="col-md-9">
                         <Card>
                             <Card.Body>
-                                <div className="row">
-                                    <div className="col-md-3">
-                                        <Card>
-                                            <Card.Header>Create New Overtime Rate</Card.Header>
-                                            <Card.Body>
-                                                <Form onSubmit={this.handleSubmitNewOvertimeRate}>
-                                                    <Form.Group>
-                                                        <Form.Label>Effectivity:</Form.Label>
-                                                        <Form.Control type="date" name="effectivity_date"></Form.Control>
-                                                        <div className="invalid-feedback"></div>
-                                                    </Form.Group>
-                                                    <CommonDropdownSelectSingleOvertimeRateTypes
-                                                        key={uuidv4()}
-                                                        name="overtime_rate_type_id"/>
-                                                    <Form.Group>
-                                                        <Form.Label>Non-night Shift %Rate:</Form.Label>
-                                                        <Form.Control type="number" name="non_night_shift" step="any"></Form.Control>
-                                                        <div className="invalid-feedback"></div>
-                                                    </Form.Group>
-                                                    <Form.Group>
-                                                        <Form.Label>Night Shift %Rate:</Form.Label>
-                                                        <Form.Control type="number" name="night_shift" step="any"></Form.Control>
-                                                        <div className="invalid-feedback"></div>
-                                                    </Form.Group>
-                                                    <hr/>
-                                                    <Button type="submit" block>Create</Button>
-                                                </Form>
-                                            </Card.Body>
-                                        </Card>
-                                    </div>
-                                    <div className="col-md-9">
-                                        <table ref="overtimeRatesList" className="table table-striped table-overtime-rates" style={{width: 100+'%'}}>
-                                            <thead>
-                                                <tr>
-                                                <th scope="col">Effectivity Date</th>
-                                                <th scope="col">Type</th>
-                                                <th scope="col">Non-night Shift</th>
-                                                <th scope="col">Night Shift</th>
-                                                <th scope="col"></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody></tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                                <table ref="overtimeRatesList" className="table table-striped table-overtime-rates" style={{width: 100+'%'}}>
+                                    <thead>
+                                        <tr>
+                                        <th scope="col">Effectivity Date</th>
+                                        <th scope="col">Type</th>
+                                        <th scope="col">Non-night Shift</th>
+                                        <th scope="col">Night Shift</th>
+                                        <th scope="col"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </Card.Body>
+                        </Card>
+                    </div>
+                    <div className="col-md-3">
+                        <Card bg="dark" text="white">
+                            <Card.Header>Create New Overtime Rate</Card.Header>
+                            <Card.Body>
+                                <Form onSubmit={this.handleSubmitNewOvertimeRate}>
+                                    <Form.Group>
+                                        <Form.Label>Effectivity:</Form.Label>
+                                        <Form.Control type="date" name="effectivity_date"></Form.Control>
+                                        <div className="invalid-feedback"></div>
+                                    </Form.Group>
+                                    <CommonDropdownSelectSingleOvertimeRateTypes
+                                        key={uuidv4()}
+                                        name="overtime_rate_type_id"/>
+                                    <Form.Group>
+                                        <Form.Label>Non-night Shift %Rate:</Form.Label>
+                                        <Form.Control type="number" name="non_night_shift" step="any"></Form.Control>
+                                        <div className="invalid-feedback"></div>
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Night Shift %Rate:</Form.Label>
+                                        <Form.Control type="number" name="night_shift" step="any"></Form.Control>
+                                        <div className="invalid-feedback"></div>
+                                    </Form.Group>
+                                    <hr/>
+                                    <Button type="submit" block>Create</Button>
+                                </Form>
                             </Card.Body>
                         </Card>
                     </div>

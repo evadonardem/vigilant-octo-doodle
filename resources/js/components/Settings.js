@@ -10,7 +10,7 @@ export default class Settings extends Component {
             <div className="container-fluid my-4">
                 <div className="row">
                     <div className="col-md-6">
-                        <Jumbotron>
+                        <Jumbotron className="bg-primary text-white">
                             <h1 className="text-center">
                                 <i className="fa fa-users"></i><br/>
                                 User Roles
@@ -24,7 +24,7 @@ export default class Settings extends Component {
                         </Jumbotron>
                     </div>
                     <div className="col-md-6">
-                        <Jumbotron>
+                        <Jumbotron className="bg-primary text-white">
                             <h1 className="text-center">
                                 <i className="fa fa-calendar"></i><br/>
                                 Overtime Rates
@@ -38,7 +38,7 @@ export default class Settings extends Component {
                         </Jumbotron>
                     </div>
                     <div className="col-md-6">
-                        <Jumbotron>
+                        <Jumbotron className="bg-primary text-white">
                             <h1 className="text-center">
                                 <i className="fa fa-list"></i><br/>
                                 Items Registry
@@ -52,7 +52,7 @@ export default class Settings extends Component {
                         </Jumbotron>
                     </div>
                     <div className="col-md-6">
-                        <Jumbotron>
+                        <Jumbotron className="bg-primary text-white">
                             <h1 className="text-center">
                                 <i className="fa fa-shopping-basket"></i><br/>
                                 Stores Registry

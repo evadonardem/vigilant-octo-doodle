@@ -27,6 +27,7 @@ import PayPeriods from './PayPeriods';
 import PayPeriodDetails from './PayPeriodDetails';
 import SettingsStores from './SettingsStores';
 import SettingsItems from './SettingsItems';
+import SettingStoreDetails from './SettingsStoreDetails';
 
 export default class Menu extends Component {
     constructor(props) {
@@ -153,6 +154,7 @@ export default class Menu extends Component {
                     <Route path={'/user-rate-history/:userId'} component={UserRateHistory}></Route>
                     <Route path={'/settings-items'} component={SettingsItems}></Route>
                     <Route path={'/settings-stores'} component={SettingsStores}></Route>
+                    <Route path={'/settings-store-details/:storeId'} component={SettingStoreDetails}></Route>
                 </Switch>
             </div>
         );

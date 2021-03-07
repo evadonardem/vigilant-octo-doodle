@@ -73,7 +73,7 @@ class StoreController extends Controller
      */
     public function show(Store $store)
     {
-        //
+        return response()->json(['data' => $store]);
     }
 
     /**

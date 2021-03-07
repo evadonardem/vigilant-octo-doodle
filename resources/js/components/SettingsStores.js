@@ -24,7 +24,7 @@ export default class SettingsStores extends Component {
         const self = this;
         const exportButtons = window.exportButtonsBase;
         const exportFilename = 'Stores';
-        const exportTitle = 'Pay Periods';
+        const exportTitle = 'Stores';
         exportButtons[0].filename = exportFilename;
         exportButtons[1].filename = exportFilename;
         exportButtons[1].title = exportTitle;
@@ -69,7 +69,7 @@ export default class SettingsStores extends Component {
         $(document).on('click', '.data-table-wrapper .open', function(e) {
             e.preventDefault();
             const storeId = e.currentTarget.getAttribute('data-store-id');
-            location.href = `${appBaseUrl}/#/pay-period-details/${storeId}`;
+            location.href = `${appBaseUrl}/#/settings-store-details/${storeId}`;
         });
 
         $(document).on('click', '.data-table-wrapper .delete', function(e) {
@@ -84,7 +84,7 @@ export default class SettingsStores extends Component {
     handleSubmitNewStore(e) {
         e.preventDefault();
         const token = cookie.load('token');
-        const table = $('.data-table-wrapper').find('table.table-pay-periods').DataTable();
+        const table = $('.data-table-wrapper').find('table.table-stores').DataTable();
         const form = $(e.target);
         const data = $(form).serialize();
         const actionEndPoint = `${apiBaseUrl}/settings/stores?token=${token}`;
@@ -129,7 +129,7 @@ export default class SettingsStores extends Component {
         const self = this;
         const token = cookie.load('token');
         const { storeId } = self.state;
-        const table = $('.data-table-wrapper').find('table.table-pay-periods').DataTable();
+        const table = $('.data-table-wrapper').find('table.table-stores').DataTable();
 
         axios.delete(`${apiBaseUrl}/settings/stores/${storeId}?token=${token}`)
             .then(() => {
@@ -145,8 +145,8 @@ export default class SettingsStores extends Component {
             .catch((error) => {
                 self.setState({
                     isDeleteStoreError: true,
-                    deleteStoreErrorHeaderTitle: 'Oh snap! Pay period cannot be deleted!',
-                    deleteStoreErrorBodyText: `Pay period ${storeId} has active slips processed.`,
+                    deleteStoreErrorHeaderTitle: 'Oh snap! Store cannot be deleted!',
+                    deleteStoreErrorBodyText: `Store ${storeId} has active slips processed.`,
                 });
             });
     }
@@ -171,7 +171,7 @@ export default class SettingsStores extends Component {
                     <div className="col-md-9">
                         <Card>
                             <Card.Body>
-                                <table ref="storesList" className="table table-striped table-pay-periods" style={{width: 100+'%'}}>
+                                <table ref="storesList" className="table table-striped table-stores" style={{width: 100+'%'}}>
                                     <thead>
                                         <tr>
                                         <th scope="col">Code</th>
@@ -215,7 +215,7 @@ export default class SettingsStores extends Component {
 
                 <CommonDeleteModal
                     isShow={showDeleteStoreModal}
-                    headerTitle="Delete Pay Period"
+                    headerTitle="Delete Store"
                     bodyText={`Are you sure to delete this pay period?`}
                     handleClose={this.handleCloseDeleteStoreModal}
                     handleSubmit={this.handleSubmitDeleteStoreModal}
