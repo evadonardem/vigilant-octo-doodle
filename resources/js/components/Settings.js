@@ -8,8 +8,6 @@ export default class Settings extends Component {
     render() {
         return (
             <div className="container-fluid my-4">
-                <h1><i className="fa fa-cogs"></i> Settings</h1>
-                <hr className="my-4"/>
                 <div className="row">
                     <div className="col-md-6">
                         <Jumbotron>
@@ -34,6 +32,34 @@ export default class Settings extends Component {
                             <hr className="my-4"/>
                             <p className="lead text-center">
                                 <Link to={'settings-overtime-rates'}>
+                                    <Button variant="primary" size="lg">Continue &raquo;</Button>
+                                </Link>
+                            </p>
+                        </Jumbotron>
+                    </div>
+                    <div className="col-md-6">
+                        <Jumbotron>
+                            <h1 className="text-center">
+                                <i className="fa fa-list"></i><br/>
+                                Items Registry
+                            </h1>
+                            <hr className="my-4"/>
+                            <p className="lead text-center">
+                                <Link to={'settings-items'}>
+                                    <Button variant="primary" size="lg">Continue &raquo;</Button>
+                                </Link>
+                            </p>
+                        </Jumbotron>
+                    </div>
+                    <div className="col-md-6">
+                        <Jumbotron>
+                            <h1 className="text-center">
+                                <i className="fa fa-shopping-basket"></i><br/>
+                                Stores Registry
+                            </h1>
+                            <hr className="my-4"/>
+                            <p className="lead text-center">
+                                <Link to={'settings-stores'}>
                                     <Button variant="primary" size="lg">Continue &raquo;</Button>
                                 </Link>
                             </p>

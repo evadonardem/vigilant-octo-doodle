@@ -25,6 +25,8 @@ import ThirteenthMonthPayPeriodDetails from './ThirteenthMonthPayPeriodDetails';
 import UserRateHistory from './UserRateHistory';
 import PayPeriods from './PayPeriods';
 import PayPeriodDetails from './PayPeriodDetails';
+import SettingsStores from './SettingsStores';
+import SettingsItems from './SettingsItems';
 
 export default class Menu extends Component {
     constructor(props) {
@@ -149,6 +151,8 @@ export default class Menu extends Component {
                     <Route path={'/settings-user-roles'} component={SettingsUserRoles}></Route>
                     <Route path={'/settings-overtime-rates'} component={SettingsOvertimeRates}></Route>
                     <Route path={'/user-rate-history/:userId'} component={UserRateHistory}></Route>
+                    <Route path={'/settings-items'} component={SettingsItems}></Route>
+                    <Route path={'/settings-stores'} component={SettingsStores}></Route>
                 </Switch>
             </div>
         );

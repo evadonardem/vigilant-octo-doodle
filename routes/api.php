@@ -64,6 +64,8 @@ $api->version('v1', function ($api) {
         $api->resource('deduction-types', 'App\Http\Controllers\Api\V1\DeductionTypesController');
         $api->resource('overtime-rates', 'App\Http\Controllers\Api\V1\OvertimeRateController');
         $api->get('overtime-rate-types', 'App\Http\Controllers\Api\V1\OvertimeRateTypeController@index');
+        $api->resource('items', 'App\Http\Controllers\Api\V1\ItemController');
+        $api->resource('stores', 'App\Http\Controllers\Api\V1\StoreController');
     });
 
     // Utilities
