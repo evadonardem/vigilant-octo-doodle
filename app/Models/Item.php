@@ -15,6 +15,8 @@ class Item extends Model
     ];
 
     public function stores() {
-        return $this->belongsToMany(Store::class, 'store_item_prices');
+        return $this->belongsToMany(Store::class, 'store_item_prices')
+            ->withPivot('effectivity_date', 'amount')
+            ->withTimestamps();
     }
 }

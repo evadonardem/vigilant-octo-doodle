@@ -21,7 +21,7 @@ export default class CommonSearchFilters extends Component {
             biometricName: '',
             selectedUser: null,
             selectedRole: e,
-        });      
+        });
     }
 
     handleChangeSelectSingleUsers(e) {
@@ -62,7 +62,7 @@ export default class CommonSearchFilters extends Component {
                                     name="role_id"
                                     selectedRole={selectedRole}
                                     handleChange={this.handleChangeSelectSingleRoles}/>
-                            }                            
+                            }
                             <CommonDropdownSelectSingleUsers
                                 key={uuidv4()}
                                 name="biometric_id"

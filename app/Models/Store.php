@@ -15,9 +15,15 @@ class Store extends Model
         'address_line',
     ];
 
+    public function promodisers()
+    {
+        return $this->hasMany(Promodiser::class);
+    }
+
     public function items()
     {
         return $this->belongsToMany(Item::class, 'store_item_prices')
-            ->withPivot('effectivity_date', 'amount');
+            ->withPivot('effectivity_date', 'amount')
+            ->withTimestamps();
     }
 }
