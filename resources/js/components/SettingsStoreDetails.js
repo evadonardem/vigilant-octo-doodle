@@ -115,7 +115,6 @@ export default class SettingStoreDetails extends Component {
             });
         });
 
-
         $('.table-store-items').DataTable({
             ajax: {
                 type: 'get',
@@ -138,6 +137,11 @@ export default class SettingStoreDetails extends Component {
             processing: true,
             serverSide: true,
             columns: [
+                {
+                    className: 'details-control text-center',
+                    data: null,
+                    defaultContent: '<i class="fa fa-lg fa-chevron-circle-down"></i>'
+                },
                 { 'data': 'code' },
                 { 'data': 'name' },
                 { 'data': 'latest_effectivity_date' },
@@ -145,6 +149,77 @@ export default class SettingStoreDetails extends Component {
             ]
         });
 
+        const format = (d) => {
+            return `<div class="card">
+                <div class="card-header">
+                    (${d.code})&nbsp;${d.name}<br/>
+                    <span class="badge badge-secondary">Pricing History</span>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped table-store-item-pricing-history" style="width: 100%">
+                        <thead>
+                            <tr>
+                            <th scope="col">Effectivity Date</th>
+                            <th scope="col">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>`;
+        };
+
+        // Add event listener for opening and closing details
+        $('tbody', $('.table-store-items')).on('click', 'td.details-control', function () {
+            var refDataTable = $('.data-table-wrapper')
+                .find('table.table-store-items')
+                .DataTable();
+            var tr = $(this).closest('tr');
+            var row = refDataTable.row( tr );
+
+            if ( row.child.isShown() ) {
+                $(this).find('i').removeClass('fa-chevron-circle-up');
+                $(this).find('i').addClass('fa-chevron-circle-down');
+                row.child.hide();
+                tr.removeClass('shown');
+            }
+            else {
+                $(this).find('i').removeClass('fa-chevron-circle-down');
+                $(this).find('i').addClass('fa-chevron-circle-up');
+                row.child( format(row.data()) ).show();
+                tr.addClass('shown');
+
+                if ( row.child.isShown() ) {
+                    tr.next().find('table.table-store-item-pricing-history').DataTable({
+                        ajax: {
+                            type: 'get',
+                            url: `${apiBaseUrl}/settings/stores/${row.data().store_id}/items/${row.data().id}?token=${token}`,
+                            dataFilter: (data) => {
+                                let json = jQuery.parseJSON(data);
+                                json.recordsTotal = json.total;
+                                json.recordsFiltered = json.total;
+
+                                return JSON.stringify(json);
+                            },
+                            dataSrc: (response) => {
+                                const { data } = response;
+
+                                return data;
+                            },
+                        },
+                        buttons: exportButtons,
+                        ordering: false,
+                        searching: false,
+                        processing: true,
+                        serverSide: true,
+                        columns: [
+                            { 'data': 'effectivity_date' },
+                            { 'data': 'amount' },
+                        ]
+                    });
+                }
+            }
+        });
 
         axios.get(`${apiBaseUrl}/settings/stores/${storeId}?token=${token}`)
             .then((response) => {
@@ -387,15 +462,16 @@ export default class SettingStoreDetails extends Component {
                                 </table>
 
                                 <hr className="my-4"/>
-                                <h4>Current Pricing</h4>
+                                <h4>Item Pricing</h4>
 
                                 <table className="table table-striped table-store-items" style={{width: 100+'%'}}>
                                     <thead>
                                         <tr>
+                                        <th></th>
                                         <th scope="col">Code</th>
                                         <th scope="col">Name</th>
-                                        <th scope="col">Effectivity Date</th>
-                                        <th scope="col">Amount</th>
+                                        <th scope="col">Latest Effectivity Date</th>
+                                        <th scope="col">Latest Amount</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -408,7 +484,7 @@ export default class SettingStoreDetails extends Component {
                         <Card bg="dark" text="white" className="mb-3">
                             <Card.Header>Add New Promodiser</Card.Header>
                             <Card.Body>
-                            <Form onSubmit={this.handleSubmitNewPromodiser}>
+                                <Form onSubmit={this.handleSubmitNewPromodiser}>
                                     <Form.Group>
                                         <Form.Label>Name:</Form.Label>
                                         <Form.Control type="text" name="name"></Form.Control>

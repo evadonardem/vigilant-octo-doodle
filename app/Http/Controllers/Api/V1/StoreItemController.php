@@ -46,10 +46,11 @@ class StoreItemController extends Controller
             ->where('store_id', '=', $store->id)
             ->whereIn('item_id', $items->pluck('id'))
             ->get();
-        $items->each(function ($item) use ($latestStoreItemsPrice) {
+        $items->each(function ($item) use ($latestStoreItemsPrice, $store) {
             $latestStoreItemPrice = $latestStoreItemsPrice->where('item_id', $item->id)->first();
             $item->latest_effectivity_date = $latestStoreItemPrice->effectivity_date;
             $item->latest_amount = $latestStoreItemPrice->amount;
+            $item->store_id = $store->id;
         });
 
         return response()->json($items);
@@ -78,9 +79,25 @@ class StoreItemController extends Controller
      * @param  \App\Models\Store  $store
      * @return \Illuminate\Http\Response
      */
-    public function show(Store $store, Promodiser $promodiser)
+    public function show(Request $request, Store $store, Item $item)
     {
+        $start = $request->input('start') ?? 0;
+        $perPage = $request->input('length') ?? 10;
+        $page = ($start/$perPage) + 1;
+        $search = $request->input('search') ?? [];
 
+        Paginator::currentPageResolver(function () use ($page) {
+            return $page;
+        });
+
+        $storeItemPricing = StoreItemPrice::orderBy('effectivity_date', 'desc')
+            ->where([
+                'store_id' => $store->id,
+                'item_id' => $item->id,
+            ])
+            ->paginate($perPage);
+
+        return response()->json($storeItemPricing);
     }
 
     /**
