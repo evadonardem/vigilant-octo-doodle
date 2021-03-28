@@ -32,7 +32,7 @@ $api->version('v1', function ($api) {
         $api->post('me', 'App\Http\Controllers\Api\V1\AuthController@me');
     });
 
-    $api->group(['middleware' => 'api.auth'], function ($api) {
+    $api->group(['middleware' => ['api.auth', 'bindings']], function ($api) {
         $api->post('manual-logs', 'App\Http\Controllers\Api\V1\ManualLogController@store');
         $api->resource('deliveries', 'App\Http\Controllers\Api\V1\DeliveryController');
         $api->get('daily-time-record', 'App\Http\Controllers\Api\V1\DailyTimeRecordController@index');
@@ -49,6 +49,12 @@ $api->version('v1', function ($api) {
         $api->get('thirteenth-month-pay-periods/{id}', 'App\Http\Controllers\Api\V1\ThirteenthMonthController@show');
         $api->delete('thirteenth-month-pay-periods/{id}', 'App\Http\Controllers\Api\V1\ThirteenthMonthController@destroy');
         $api->get('thirteenth-month-pay-periods/{id}/details', 'App\Http\Controllers\Api\V1\ThirteenthMonthController@showThirteenthMonthPayPeriodDetails');
+
+        $api->resource('purchase-orders', 'App\Http\Controllers\Api\V1\PurchaseOrderController');
+        $api->get('purchase-orders/{purchaseOrder}/stores', 'App\Http\Controllers\Api\V1\PurchaseOrderController@indexPurchaseOrderStores');
+        $api->delete('purchase-orders/{purchaseOrder}/stores/{store}', 'App\Http\Controllers\Api\V1\PurchaseOrderController@destroyPurchaseOrderStore');
+        $api->post('purchase-orders/{purchaseOrder}/items', 'App\Http\Controllers\Api\V1\PurchaseOrderController@storePurchaseOrderItems');
+        $api->resource('purchase-orders/{purchaseOrder}/stores/{store}/items', 'App\Http\Controllers\Api\V1\PurchaseOrderStoreItemController');
     });
 
     $api->group(['prefix' => 'biometric', 'middleware' => 'api.auth'], function ($api) {

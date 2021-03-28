@@ -9,25 +9,27 @@ import {
     Navbar,
     NavDropdown
 } from 'react-bootstrap';
-import Dashboard from './Dashboard';
 import AttendanceLogs from './AttendanceLogs';
-import Deliveries from './Deliveries';
-import DailyTimeRecord from './DailyTimeRecord';
 import CompensationAndBenefits from './CompensationAndBenefits';
+import Dashboard from './Dashboard';
+import DailyTimeRecord from './DailyTimeRecord';
+import Deliveries from './Deliveries';
 import Logs from './Logs';
 import ManualLogs from './ManualLogs';
-import Users from './Users';
+import PayPeriodDetails from './PayPeriodDetails';
+import PayPeriods from './PayPeriods';
+import PurchaseOrders from './PurchaseOrders';
 import Settings from './Settings';
-import SettingsUserRoles from './SettingsUserRoles';
+import SettingsItems from './SettingsItems';
 import SettingsOvertimeRates from './SettingsOvertimeRates';
+import SettingsStores from './SettingsStores';
+import SettingStoreDetails from './SettingsStoreDetails';
+import SettingsUserRoles from './SettingsUserRoles';
 import ThirteenthMonthPayPeriods from './ThirteenthMonthPayPeriods';
 import ThirteenthMonthPayPeriodDetails from './ThirteenthMonthPayPeriodDetails';
 import UserRateHistory from './UserRateHistory';
-import PayPeriods from './PayPeriods';
-import PayPeriodDetails from './PayPeriodDetails';
-import SettingsStores from './SettingsStores';
-import SettingsItems from './SettingsItems';
-import SettingStoreDetails from './SettingsStoreDetails';
+import Users from './Users';
+import PurchaseOrderDetails from './PurchaseOrderDetails';
 
 export default class Menu extends Component {
     constructor(props) {
@@ -126,6 +128,9 @@ export default class Menu extends Component {
                             case '/compensation-and-benefits':
                                 routeToComponent = <CompensationAndBenefits />;
                                 break;
+                            case '/purchase-orders':
+                                routeToComponent = <PurchaseOrders />;
+                                break;
                             case '/users':
                                 routeToComponent = <Users />;
                                 break;
@@ -148,6 +153,7 @@ export default class Menu extends Component {
                     <Route path={'/pay-period-details/:payPeriodId'} component={PayPeriodDetails}></Route>
                     <Route path={'/thirteenth-month-pay-periods'} component={ThirteenthMonthPayPeriods}></Route>
                     <Route path={'/thirteenth-month-pay-period-details/:thirteenthMonthPayPeriodId'} component={ThirteenthMonthPayPeriodDetails}></Route>
+                    <Route path={'/purchase-order-details/:purchaseOrderId'} component={PurchaseOrderDetails}></Route>
 
                     <Route path={'/settings-user-roles'} component={SettingsUserRoles}></Route>
                     <Route path={'/settings-overtime-rates'} component={SettingsOvertimeRates}></Route>

@@ -7,6 +7,7 @@ use Illuminate\Database\Seeder;
 use App\Models\DeductionType;
 use App\Models\OvertimeRate;
 use App\Models\OvertimeRateType;
+use App\Models\PurchaseOrderStatus;
 use App\Models\RateType;
 use App\Models\Role;
 
@@ -154,6 +155,31 @@ class GeneralDatabaseSeeder extends Seeder
                 'non_night_shift' => 3.38,
                 'night_shift' => 3.718,
             ]);
+        }
+
+        $purchaseOrderStatuses = [
+            [
+                'code' => 'pending',
+                'name' => 'Pending',
+                'description' => 'Pending purchase order.',
+            ],
+            [
+                'code' => 'approved',
+                'name' => 'Approved',
+                'description' => 'Approved purchase order.',
+            ],
+            [
+                'code' => 'closed',
+                'name' => 'Closed',
+                'description' => 'Closed purchase order.',
+            ],
+        ];
+
+        foreach ($purchaseOrderStatuses as $purchaseOrderStatus) {
+            $existingPurchaseOrderStatus = PurchaseOrderStatus::where('code', '=', $purchaseOrderStatus['code'])->first();
+            if (!$existingPurchaseOrderStatus) {
+                PurchaseOrderStatus::create($purchaseOrderStatus);
+            }
         }
     }
 }

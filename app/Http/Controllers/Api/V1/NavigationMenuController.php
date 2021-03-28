@@ -33,6 +33,11 @@ class NavigationMenuController extends Controller
                     'to' => '/compensation-and-benefits'
                 ],
                 [
+                    'label' => 'Purchase Orders',
+                    'icon' => 'fa fa-file',
+                    'to' => '/purchase-orders'
+                ],
+                [
                     'label' => 'Users',
                     'icon' => 'fa fa-users',
                     'to' => '/users'
