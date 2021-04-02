@@ -41,6 +41,7 @@ class PurchaseOrder extends Model
         return $this
             ->belongsToMany(Item::class, 'purchase_order_store_items')
             ->withPivot([
+                'id',
                 'store_id',
                 'quantity_original',
                 'quantity_actual',

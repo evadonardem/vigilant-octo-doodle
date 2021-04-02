@@ -59,7 +59,22 @@ export default class PurchaseOrders extends Component {
                 { 'data': 'from' },
                 { 'data': 'to' },
                 { 'data': 'days' },
-                { 'data': 'status.name' },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        let purchaseOrderStatusVariant = null;
+                        if (+data.status.id === 1) {
+                            purchaseOrderStatusVariant = 'warning';
+                        } else if (+data.status.id === 2) {
+                            purchaseOrderStatusVariant = 'success';
+                        } else {
+                            if (+data.status.id === 3) {
+                                purchaseOrderStatusVariant = 'danger';
+                            }
+                        }
+                        return `<p class="alert alert-${purchaseOrderStatusVariant}">${data.status.name}</p>`;
+                    }
+                },
                 {
                     'data': null,
                     'render': function (data, type, row) {

@@ -9,6 +9,7 @@ use App\Models\PurchaseOrderStoreItem;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Log;
 
 class PurchaseOrderStoreItemController extends Controller
 {
@@ -36,6 +37,10 @@ class PurchaseOrderStoreItemController extends Controller
             ->where('store_id', '=', $store->id)
             ->paginate($perPage);
 
+        $items->each(function ($item) use ($purchaseOrder) {
+            $item->purchase_order_status = $purchaseOrder->status;
+        });
+
         return response()->json($items);
     }
 
@@ -62,6 +67,17 @@ class PurchaseOrderStoreItemController extends Controller
     {
         $attributes = $request->except('token');
 
+        if (
+            $purchaseOrder->status()->where('code', '=', 'approved')->count() > 0 &&
+            array_key_exists('quantity_original', $attributes)
+        ) {
+            abort(422, 'Cannot update original quantity for purchase order under ' . $purchaseOrder->status->name . ' status.');
+        }
+
+        if ($purchaseOrder->status()->where('code', '=', 'closed')->count() > 0) {
+            abort(422, 'Cannot update details for purchase order under ' . $purchaseOrder->status->name . ' status.');
+        }
+
         $item = $purchaseOrder
             ->items()
             ->where([
@@ -70,8 +86,10 @@ class PurchaseOrderStoreItemController extends Controller
             ])
             ->first();
 
-        $item->pivot->fill($attributes);
-        $item->pivot->save();
+        $purchaseOrderItem = PurchaseOrderStoreItem::findOrFail($item->pivot->id);
+        $purchaseOrderItem
+            ->fill($attributes)
+            ->save();
 
         return response()->noContent();
     }
@@ -84,6 +102,10 @@ class PurchaseOrderStoreItemController extends Controller
      */
     public function destroy(Request $request, PurchaseOrder $purchaseOrder, Store $store, Item $item)
     {
+        if ($purchaseOrder->status()->whereIn('code', ['approved', 'closed'])->count() > 0) {
+            abort(422, 'Cannot delete item for purchase order under ' . $purchaseOrder->status->name . ' status.');
+        }
+
         $purchaseOrder
             ->items()
             ->where([

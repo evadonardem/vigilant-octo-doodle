@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\Item;
 use App\Models\PurchaseOrder;
 use App\Models\Store;
 use Illuminate\Http\Request;
@@ -39,13 +40,52 @@ class PurchaseOrderController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function indexPurchaseOrderStores(PurchaseOrder $purchaseOrder)
+    public function indexPurchaseOrderStores(Request $request, PurchaseOrder $purchaseOrder)
     {
         $stores = $purchaseOrder
             ->stores()
             ->orderBy('name', 'asc')
             ->orderBy('address_line', 'asc')
             ->get();
+
+        $include = $request->input('include');
+
+        $stores->each(function ($store) use ($purchaseOrder, $include) {
+            $store->purchase_order_status = $purchaseOrder->status;
+            if ($include === 'items') {
+                $items = Item::
+                    select([
+                        'items.*',
+                        'purchase_order_store_items.quantity_original',
+                        'purchase_order_store_items.quantity_actual',
+                        'purchase_order_store_items.quantity_bad_orders',
+                        'purchase_order_store_items.quantity_returns',
+                    ])
+                    ->join(
+                        'purchase_order_store_items',
+                        function ($join) use ($purchaseOrder, $store) {
+                            $join
+                                ->on(
+                                    'items.id',
+                                    '=',
+                                    'purchase_order_store_items.item_id'
+                                )
+                                ->where(
+                                    'purchase_order_store_items.purchase_order_id',
+                                    '=',
+                                    $purchaseOrder->id
+                                )
+                                ->where(
+                                    'purchase_order_store_items.store_id',
+                                    '=',
+                                    $store->id
+                                );
+                        }
+                    )
+                    ->get();
+                $store->items = $items;
+            }
+        });
 
         return response()->json(['data' => $stores]);
     }
@@ -131,7 +171,13 @@ class PurchaseOrderController extends Controller
      */
     public function update(Request $request, PurchaseOrder $purchaseOrder)
     {
-        //
+        $purchaseOrder
+            ->fill($request->all())
+            ->save();
+
+        $purchaseOrder->status;
+
+        return response()->json(['data' => $purchaseOrder]);
     }
 
     /**
