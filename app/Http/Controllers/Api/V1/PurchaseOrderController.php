@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Item;
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderStoreItem;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
@@ -60,6 +61,9 @@ class PurchaseOrderController extends Controller
                         'purchase_order_store_items.quantity_actual',
                         'purchase_order_store_items.quantity_bad_orders',
                         'purchase_order_store_items.quantity_returns',
+                        'purchase_order_store_items.delivery_receipt_no',
+                        'purchase_order_store_items.booklet_no',
+                        'purchase_order_store_items.remarks',
                     ])
                     ->join(
                         'purchase_order_store_items',
@@ -171,8 +175,34 @@ class PurchaseOrderController extends Controller
      */
     public function update(Request $request, PurchaseOrder $purchaseOrder)
     {
+        $attributes = $request->all();
+
+        if (array_key_exists('purchase_order_status_id', $attributes)) {
+            if ($attributes['purchase_order_status_id'] == 3) {
+                $purchaseOrderStoreItems = PurchaseOrderStoreItem::where('purchase_order_id', $purchaseOrder->id)
+                    ->where(function ($query) {
+                        $query
+                            ->orWhere('quantity_actual', '<=', 0)
+                            ->orWhereNull('quantity_actual')
+                            ->orWhere('delivery_receipt_no', '=', '')
+                            ->orWhereNull('delivery_receipt_no')
+                            ->orWhere('booklet_no', '=', '')
+                            ->orWhereNull('booklet_no');
+                    })
+                    ->get();
+                if ($purchaseOrderStoreItems->count() > 0) {
+                    abort(422, 'Cannot close purchase order. Kindly update required details.');
+                }
+            } else {
+                $purchaseOrderStoreItems = PurchaseOrderStoreItem::where('purchase_order_id', $purchaseOrder->id)->get();
+                if ($purchaseOrderStoreItems->count() == 0) {
+                    abort(422, 'Cannot approve purchase order. Kindly add store request items.');
+                }
+            }
+        }
+
         $purchaseOrder
-            ->fill($request->all())
+            ->fill($attributes)
             ->save();
 
         $purchaseOrder->status;

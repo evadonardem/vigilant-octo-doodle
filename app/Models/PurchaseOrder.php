@@ -47,7 +47,23 @@ class PurchaseOrder extends Model
                 'quantity_actual',
                 'quantity_bad_orders',
                 'quantity_returns',
+                'delivery_receipt_no',
+                'booklet_no',
+                'remarks',
             ])
             ->distinct();
+    }
+
+    public function assignedStaff() {
+        return $this
+            ->belongsToMany(User::class, 'purchase_order_assigned_staff')
+            ->withPivot([
+                'id',
+            ])
+            ->distinct();
+    }
+
+    public function expenses() {
+        return $this->hasMany(PurchaseOrderExpense::class, 'purchase_order_id', 'id');
     }
 }

@@ -55,6 +55,15 @@ $api->version('v1', function ($api) {
         $api->delete('purchase-orders/{purchaseOrder}/stores/{store}', 'App\Http\Controllers\Api\V1\PurchaseOrderController@destroyPurchaseOrderStore');
         $api->post('purchase-orders/{purchaseOrder}/items', 'App\Http\Controllers\Api\V1\PurchaseOrderController@storePurchaseOrderItems');
         $api->resource('purchase-orders/{purchaseOrder}/stores/{store}/items', 'App\Http\Controllers\Api\V1\PurchaseOrderStoreItemController');
+
+        $api->get('purchase-orders/{purchaseOrder}/assigned-staff', 'App\Http\Controllers\Api\V1\PurchaseOrderAssignedStaffController@index');
+        $api->post('purchase-orders/{purchaseOrder}/assigned-staff', 'App\Http\Controllers\Api\V1\PurchaseOrderAssignedStaffController@store');
+        $api->delete('purchase-orders/{purchaseOrder}/assigned-staff/{purchaseOrderAssignedStaff}', 'App\Http\Controllers\Api\V1\PurchaseOrderAssignedStaffController@destroy');
+
+        $api->get('purchase-order-expense-types', 'App\Http\Controllers\Api\V1\PurchaseOrderExpenseController@indexPurchaseOrderExpenseTypes');
+        $api->get('purchase-orders/{purchaseOrder}/expenses', 'App\Http\Controllers\Api\V1\PurchaseOrderExpenseController@index');
+        $api->post('purchase-orders/{purchaseOrder}/expenses', 'App\Http\Controllers\Api\V1\PurchaseOrderExpenseController@store');
+        $api->delete('purchase-orders/{purchaseOrder}/expenses/{purchaseOrderExpense}', 'App\Http\Controllers\Api\V1\PurchaseOrderExpenseController@destroy');
     });
 
     $api->group(['prefix' => 'biometric', 'middleware' => 'api.auth'], function ($api) {

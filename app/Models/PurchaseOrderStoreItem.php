@@ -14,5 +14,8 @@ class PurchaseOrderStoreItem extends Model
         'quantity_actual',
         'quantity_bad_orders',
         'quantity_returns',
+        'delivery_receipt_no',
+        'booklet_no',
+        'remarks',
     ];
 }

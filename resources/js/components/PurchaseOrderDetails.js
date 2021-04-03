@@ -1,16 +1,20 @@
 import React, { Component } from 'react';
-import { Alert, Badge, Breadcrumb, Button, Card, Form } from 'react-bootstrap';
+import { Alert, Badge, Breadcrumb, Button, Card, Form, Modal } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import { v4 as uuidv4 } from 'uuid';
 import CommonDeleteModal from './CommonDeleteModal';
 import CommonDropdownSelectSingleItem from './CommonDropdownSelectSingleItem';
 import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
+import CommonDropdownSelectSingleUsers from './CommonDropdownSelectSingleUsers';
+import CommonDropdownSelectSingleExpenseCode from './CommonDropdownSelectSingleExpenseCode';
 
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import PurchaseOrderDetailsPdfDocument from './PurchaseOrderDetailsPdfDocument';
 
 const PO_STORES_DT = 'table-purchase-order-stores';
 const PO_STORE_ITEMS_DT = 'table-purchase-order-store-items';
+const PO_ASSIGNED_STAFF_DT = 'table-purchase-order-assigned-staff';
+const PO_EXPENSES_DT = 'table-purchase-order-expenses';
 const END_POINT = `${apiBaseUrl}/purchase-orders`;
 
 export default class PurchaseOrderDetails extends Component {
@@ -21,6 +25,13 @@ export default class PurchaseOrderDetails extends Component {
         this.handleChangeSelectSingleStore = this.handleChangeSelectSingleStore.bind(this);
         this.handleSubmitStoreItemRequest = this.handleSubmitStoreItemRequest.bind(this);
 
+        this.handleChangeSelectSingleUser = this.handleChangeSelectSingleUser.bind(this);
+        this.handleSubmitAssignStaff = this.handleSubmitAssignStaff.bind(this);
+
+        this.handleChangeExpenseCode = this.handleChangeExpenseCode.bind(this);
+        this.handleInputChangeExpenseCode = this.handleInputChangeExpenseCode.bind(this);
+        this.handleSubmitExpense = this.handleSubmitExpense.bind(this);
+
         this.handleCloseDeleteModal = this.handleCloseDeleteModal.bind(this);
         this.handleSubmitDeleteModal = this.handleSubmitDeleteModal.bind(this);
 
@@ -29,8 +40,11 @@ export default class PurchaseOrderDetails extends Component {
         this.state = {
             purchaseOrder: null,
             purchaseOrderStores: null,
+            purchaseOrderAssignedStaff: null,
+            purchaseOrderExpenses: null,
             selectedStore: null,
             selectedItem: null,
+            selectedUser: null,
             error: {},
             deleteModal: {
                 show: false,
@@ -55,11 +69,9 @@ export default class PurchaseOrderDetails extends Component {
                     if (code === 'Unauthorized') {
                         location.reload();
                     }
-                    dataTable.clear().draw();
                 }
             },
             buttons: [],
-            ordering: false,
             columns: [
                 {
                     className: 'details-control text-center',
@@ -89,7 +101,10 @@ export default class PurchaseOrderDetails extends Component {
                         return null;
                     }
                 },
-            ]
+            ],
+            ordering: false,
+            paging: false,
+            searching: false,
         });
 
         $(document).on('click', '.data-table-wrapper .delete-po-store', function (e) {
@@ -124,10 +139,13 @@ export default class PurchaseOrderDetails extends Component {
                             <tr>
                             <th scope="col">Code</th>
                             <th scope="col">Name</th>
-                            <th scope="col">Oty. (Original)</th>
-                            <th scope="col">Oty. (Actual)</th>
-                            <th scope="col">Oty. (Bad Orders)</th>
-                            <th scope="col">Oty. (Returns)</th>
+                            <th scope="col">Qty. (Original)</th>
+                            <th scope="col">Qty. (Actual)</th>
+                            <th scope="col">Qty. (Bad Orders)</th>
+                            <th scope="col">Qty. (Returns)</th>
+                            <th scope="col">Delivery Receipt No.</th>
+                            <th scope="col">Booklet No.</th>
+                            <th scope="col">Remarks</th>
                             <th scope="col"></th>
                             </tr>
                         </thead>
@@ -189,7 +207,7 @@ export default class PurchaseOrderDetails extends Component {
                                     if (+data.purchase_order_status.id === 1) {
                                         const input = `<input
                                             type="number"
-                                            class="update-po-store-item-qty form-control"
+                                            class="update-po-store-item form-control"
                                             data-purchase-order-id=${data.pivot.purchase_order_id}
                                             data-store-id=${data.pivot.store_id}
                                             data-item-id=${data.id}
@@ -208,7 +226,7 @@ export default class PurchaseOrderDetails extends Component {
                                     if (+data.purchase_order_status.id === 2) {
                                         const input = `<input
                                             type="number"
-                                            class="update-po-store-item-qty form-control"
+                                            class="update-po-store-item form-control"
                                             data-purchase-order-id=${data.pivot.purchase_order_id}
                                             data-store-id=${data.pivot.store_id}
                                             data-item-id=${data.id}
@@ -227,7 +245,7 @@ export default class PurchaseOrderDetails extends Component {
                                     if (+data.purchase_order_status.id === 2) {
                                         const input = `<input
                                             type="number"
-                                            class="update-po-store-item-qty form-control"
+                                            class="update-po-store-item form-control"
                                             data-purchase-order-id=${data.pivot.purchase_order_id}
                                             data-store-id=${data.pivot.store_id}
                                             data-item-id=${data.id}
@@ -246,7 +264,7 @@ export default class PurchaseOrderDetails extends Component {
                                     if (+data.purchase_order_status.id === 2) {
                                         const input = `<input
                                             type="number"
-                                            class="update-po-store-item-qty form-control"
+                                            class="update-po-store-item form-control"
                                             data-purchase-order-id=${data.pivot.purchase_order_id}
                                             data-store-id=${data.pivot.store_id}
                                             data-item-id=${data.id}
@@ -257,6 +275,63 @@ export default class PurchaseOrderDetails extends Component {
                                     }
 
                                     return data.pivot.quantity_returns;
+                                }
+                            },
+                            {
+                                'data': null,
+                                'render': function (data, type, row) {
+                                    if (+data.purchase_order_status.id === 2) {
+                                        const input = `<input
+                                            type="text"
+                                            class="update-po-store-item form-control"
+                                            data-purchase-order-id=${data.pivot.purchase_order_id}
+                                            data-store-id=${data.pivot.store_id}
+                                            data-item-id=${data.id}
+                                            data-type="delivery_receipt_no"
+                                            value="${data.pivot.delivery_receipt_no}"/>`;
+
+                                        return `${input}`;
+                                    }
+
+                                    return data.pivot.delivery_receipt_no;
+                                }
+                            },
+                            {
+                                'data': null,
+                                'render': function (data, type, row) {
+                                    if (+data.purchase_order_status.id === 2) {
+                                        const input = `<input
+                                            type="text"
+                                            class="update-po-store-item form-control"
+                                            data-purchase-order-id=${data.pivot.purchase_order_id}
+                                            data-store-id=${data.pivot.store_id}
+                                            data-item-id=${data.id}
+                                            data-type="booklet_no"
+                                            value="${data.pivot.booklet_no}"/>`;
+
+                                        return `${input}`;
+                                    }
+
+                                    return data.pivot.booklet_no;
+                                }
+                            },
+                            {
+                                'data': null,
+                                'render': function (data, type, row) {
+                                    if (+data.purchase_order_status.id === 2) {
+                                        const input = `<input
+                                            type="text"
+                                            class="update-po-store-item form-control"
+                                            data-purchase-order-id=${data.pivot.purchase_order_id}
+                                            data-store-id=${data.pivot.store_id}
+                                            data-item-id=${data.id}
+                                            data-type="remarks"
+                                            value="${data.pivot.remarks}"/>`;
+
+                                        return `${input}`;
+                                    }
+
+                                    return data.pivot.remarks;
                                 }
                             },
                             {
@@ -283,7 +358,7 @@ export default class PurchaseOrderDetails extends Component {
                         ]
                     });
 
-                    $(document).on('change', '.data-table-wrapper .update-po-store-item-qty', function(e) {
+                    $(document).on('change', '.data-table-wrapper .update-po-store-item', function(e) {
                         const purchaseOrderId = $(this).data('purchase-order-id');
                         const storeId = $(this).data('store-id');
                         const itemId = $(this).data('item-id');
@@ -294,7 +369,17 @@ export default class PurchaseOrderDetails extends Component {
 
                         axios.patch(`${END_POINT}/${purchaseOrderId}/stores/${storeId}/items/${itemId}?token=${token}`, postData)
                             .then(() => {
-                                self.updatePurchaseOrderPdf();
+                                axios.get(`${END_POINT}/${purchaseOrderId}/stores?include=items&token=${token}`)
+                                    .then((response) => {
+                                        const { data: purchaseOrderStores } = response.data;
+                                        self.setState({
+                                            ...self.state,
+                                            purchaseOrderStores,
+                                        });
+                                    })
+                                    .catch(() => {
+                                        location.href = `${appBaseUrl}`;
+                                    });
                             })
                             .catch(() => {
                                 location.href = `${appBaseUrl}`;
@@ -325,6 +410,118 @@ export default class PurchaseOrderDetails extends Component {
             }
         });
 
+
+        $(`.${PO_ASSIGNED_STAFF_DT}`).DataTable({
+            ajax: {
+                type: 'get',
+                url: `${END_POINT}/${purchaseOrderId}/assigned-staff?token=${token}`,
+                error: function (xhr, error, code) {
+                    if (code === 'Unauthorized') {
+                        location.reload();
+                    }
+                }
+            },
+            buttons: [],
+            columns: [
+                { 'data': 'biometric_id' },
+                { 'data': 'name' },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        const deleteBtn = `<a
+                            href="#"
+                            data-purchase-order-id=${purchaseOrderId}
+                            data-purchase-order-assigned-staff-id=${data.pivot.id}
+                            data-biometric-id=${data.id}
+                            data-staff-name=${data.name}
+                            class="delete-po-assigned-staff btn btn-warning">
+                                <i class="fa fa-trash"></i>
+                        </a>`;
+
+                        return `${deleteBtn}`;
+                    }
+                },
+            ],
+            ordering: false,
+            paging: false,
+            searching: false,
+        });
+
+        $(document).on('click', '.data-table-wrapper .delete-po-assigned-staff', function (e) {
+            e.preventDefault();
+
+            const purchaseOrderId = $(this).data('purchase-order-id');
+            const purchaseOrderAssignedStaffId = $(this).data('purchase-order-assigned-staff-id');
+            const biometricId = $(this).data('biometric-id');
+            const staffName = $(this).data('staff-name');
+
+            self.setState({
+                ...self.state,
+                deleteModal: {
+                    ...self.state.deleteModal,
+                    show: true,
+                    headerTitle: 'Delete Assigned Staff',
+                    bodyText: `Delete assigned staff ${biometricId} - ${staffName}.`,
+                    endPoint: `${END_POINT}/${purchaseOrderId}/assigned-staff/${purchaseOrderAssignedStaffId}?token=${token}`
+                }
+            })
+        });
+
+        $(`.${PO_EXPENSES_DT}`).DataTable({
+            ajax: {
+                type: 'get',
+                url: `${END_POINT}/${purchaseOrderId}/expenses?token=${token}`,
+                error: function (xhr, error, code) {
+                    if (code === 'Unauthorized') {
+                        location.reload();
+                    }
+                }
+            },
+            buttons: [],
+            columns: [
+                { 'data': 'name' },
+                { 'data': 'amount_original' },
+                { 'data': 'amount_actual' },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        const deleteBtn = `<a
+                            href="#"
+                            data-purchase-order-id=${purchaseOrderId}
+                            data-purchase-order-expense-id=${data.id}
+                            data-expense-name=${data.name}
+                            class="delete-po-expense btn btn-warning">
+                                <i class="fa fa-trash"></i>
+                        </a>`;
+
+                        return `${deleteBtn}`;
+                    }
+                },
+            ],
+            ordering: false,
+            paging: false,
+            searching: false,
+        });
+
+        $(document).on('click', '.data-table-wrapper .delete-po-expense', function (e) {
+            e.preventDefault();
+
+            const purchaseOrderId = $(this).data('purchase-order-id');
+            const purchaseOrderExpenseId = $(this).data('purchase-order-expense-id');
+            const expenseName = $(this).data('expense-name');
+
+            self.setState({
+                ...self.state,
+                deleteModal: {
+                    ...self.state.deleteModal,
+                    show: true,
+                    headerTitle: 'Delete Allocated Expense',
+                    bodyText: `Delete allocated expense ${expenseName}.`,
+                    endPoint: `${END_POINT}/${purchaseOrderId}/expenses/${purchaseOrderExpenseId}?token=${token}`
+                }
+            })
+        });
+
         axios.get(`${END_POINT}/${purchaseOrderId}?token=${token}`)
             .then((response) => {
                 const { data: purchaseOrder } = response.data;
@@ -343,6 +540,30 @@ export default class PurchaseOrderDetails extends Component {
                 self.setState({
                     ...self.state,
                     purchaseOrderStores,
+                });
+            })
+            .catch(() => {
+                location.href = `${appBaseUrl}`;
+            });
+
+        axios.get(`${END_POINT}/${purchaseOrderId}/assigned-staff?token=${token}`)
+            .then((response) => {
+                const { data: purchaseOrderAssignedStaff } = response.data;
+                self.setState({
+                    ...self.state,
+                    purchaseOrderAssignedStaff,
+                });
+            })
+            .catch(() => {
+                location.href = `${appBaseUrl}`;
+            });
+
+        axios.get(`${END_POINT}/${purchaseOrderId}/expenses?token=${token}`)
+            .then((response) => {
+                const { data: purchaseOrderExpenses } = response.data;
+                self.setState({
+                    ...self.state,
+                    purchaseOrderExpenses,
                 });
             })
             .catch(() => {
@@ -394,6 +615,18 @@ export default class PurchaseOrderDetails extends Component {
                 table.ajax.reload(null, false);
                 $('.form-control', form).removeClass('is-invalid');
                 form[0].reset();
+
+                axios.get(`${END_POINT}/${purchaseOrder.id}/stores?include=items&token=${token}`)
+                    .then((response) => {
+                        const { data: purchaseOrderStores } = response.data;
+                        self.setState({
+                            ...self.state,
+                            purchaseOrderStores,
+                        });
+                    })
+                    .catch(() => {
+                        location.href = `${appBaseUrl}`;
+                    });
             })
             .catch((error) => {
                 const {
@@ -413,8 +646,136 @@ export default class PurchaseOrderDetails extends Component {
                         error: { generalMessage },
                     });
                 }
+            });
+    }
 
-                // location.href = `${appBaseUrl}`;
+    handleChangeSelectSingleUser(e) {
+        this.setState({
+            ...this.state,
+            selectedUser: e
+        });
+    }
+
+    handleSubmitAssignStaff(e) {
+        e.preventDefault();
+        const token = cookie.load('token');
+        const self = this;
+        const { purchaseOrder } = self.state;
+        const form = $(e.currentTarget);
+        const data = form.serialize();
+        const table = $('.data-table-wrapper').find(`table.${PO_ASSIGNED_STAFF_DT}`).DataTable();
+
+        axios.post(
+                `${apiBaseUrl}/purchase-orders/${purchaseOrder.id}/assigned-staff?token=${token}`,
+                data
+            )
+            .then(() => {
+                self.setState({
+                    ...self.state,
+                    selectedUser: null,
+                    error: {},
+                });
+
+                table.ajax.reload(null, false);
+                $('.form-control', form).removeClass('is-invalid');
+                form[0].reset();
+
+                /**
+                 * Re-fetch purchase order assigned staff for PDF export.
+                 */
+                axios.get(`${END_POINT}/${purchaseOrder.id}/assigned-staff?token=${token}`)
+                    .then((response) => {
+                        const { data: purchaseOrderAssignedStaff } = response.data;
+                        self.setState({
+                            ...self.state,
+                            purchaseOrderAssignedStaff,
+                        });
+                    })
+                    .catch(() => {
+                        location.href = `${appBaseUrl}`;
+                    });
+            })
+            .catch((error) => {
+                const {
+                    data,
+                    status,
+                } = error.response;
+
+                $('.form-control', form).removeClass('is-invalid');
+                form[0].reset();
+
+                if (+status === 422) {
+                    const { message: generalMessage } = data;
+                    self.setState({
+                        ...self.state,
+                        selectedUser: null,
+                        error: { generalMessage },
+                    });
+                }
+            });
+    }
+
+    handleChangeExpenseCode(e) {
+        window.console.log(e);
+    }
+
+    handleInputChangeExpenseCode(e) {
+        window.console.log(e);
+    }
+
+    handleSubmitExpense(e) {
+        e.preventDefault();
+        const token = cookie.load('token');
+        const self = this;
+        const { purchaseOrder } = self.state;
+        const form = $(e.currentTarget);
+        const data = form.serialize();
+        const table = $('.data-table-wrapper').find(`table.${PO_EXPENSES_DT}`).DataTable();
+
+        axios.post(
+                `${apiBaseUrl}/purchase-orders/${purchaseOrder.id}/expenses?token=${token}`,
+                data
+            )
+            .then(() => {
+                self.setState({
+                    ...self.state,
+                    error: {},
+                });
+                table.ajax.reload(null, false);
+                $('.form-control', form).removeClass('is-invalid');
+                form[0].reset();
+
+                /**
+                 * Re-fetch purchase order expenses for PDF export.
+                 */
+                axios.get(`${END_POINT}/${purchaseOrder.id}/expenses?token=${token}`)
+                    .then((response) => {
+                        const { data: purchaseOrderExpenses } = response.data;
+                        self.setState({
+                            ...self.state,
+                            purchaseOrderExpenses,
+                        });
+                    })
+                    .catch(() => {
+                        location.href = `${appBaseUrl}`;
+                    });
+            })
+            .catch((error) => {
+                const {
+                    data,
+                    status,
+                } = error.response;
+
+                $('.form-control', form).removeClass('is-invalid');
+                form[0].reset();
+
+                if (+status === 422) {
+                    const { message: generalMessage } = data;
+                    self.setState({
+                        ...self.state,
+                        error: { generalMessage },
+                    });
+                }
             });
     }
 
@@ -440,6 +801,8 @@ export default class PurchaseOrderDetails extends Component {
         const { endPoint } = deleteModal;
         const tableStores = $('.data-table-wrapper').find(`table.${PO_STORES_DT}`).DataTable();
         const tableStoreItems = $('.data-table-wrapper').find(`table.${PO_STORE_ITEMS_DT}`).DataTable();
+        const tableAssignedStaff = $('.data-table-wrapper').find(`table.${PO_ASSIGNED_STAFF_DT}`).DataTable();
+        const tableExpenses = $('.data-table-wrapper').find(`table.${PO_EXPENSES_DT}`).DataTable();
 
         axios.delete(endPoint)
             .then((response) => {
@@ -461,6 +824,9 @@ export default class PurchaseOrderDetails extends Component {
                 } else {
                     tableStoreItems.ajax.reload(null, false);
                 }
+
+                tableAssignedStaff.ajax.reload(null, false);
+                tableExpenses.ajax.reload(null, false);
             })
             .catch((error) => {
 
@@ -490,34 +856,29 @@ export default class PurchaseOrderDetails extends Component {
                 table.ajax.reload(null, false);
             })
             .catch((error) => {
-
-            });
-    }
-
-    updatePurchaseOrderPdf() {
-        const self = this;
-        const {
-            purchaseOrder
-        } = self.state;
-
-        axios.get(`${END_POINT}/${purchaseOrder.id}/stores?include=items&token=${token}`)
-            .then((response) => {
-                const { data: purchaseOrderStores } = response.data;
-                self.setState({
-                    ...self.state,
-                    purchaseOrderStores,
-                });
-            })
-            .catch(() => {
-                location.href = `${appBaseUrl}`;
+                const {
+                    data,
+                    status,
+                } = error.response;
+                if (+status === 422) {
+                    const { message: generalMessage } = data;
+                    self.setState({
+                        ...self.state,
+                        error: { generalMessage },
+                    });
+                }
             });
     }
 
     render() {
         const {
             purchaseOrder,
+            purchaseOrderStores,
+            purchaseOrderAssignedStaff,
+            purchaseOrderExpenses,
             selectedStore,
             selectedItem,
+            selectedUser,
             error,
             deleteModal,
         } = this.state;
@@ -560,54 +921,146 @@ export default class PurchaseOrderDetails extends Component {
                         <Card>
                             <Card.Body>
                                 <Card.Title>
-                                {
-                                    purchaseOrder &&
-                                    <Alert variant={currentStatusVariant}>
-                                        <Badge variant="primary">{purchaseOrder.code}</Badge>&nbsp;
-                                        <Badge variant={currentStatusVariant}>{purchaseOrder.status ? purchaseOrder.status.name : ''}</Badge>
-                                        <br/><br/>
-                                        Location: <em>{purchaseOrder.location}</em>&nbsp;
-                                        From: <em>{purchaseOrder.from}</em>&nbsp;
-                                        To: <em>{purchaseOrder.to} ({purchaseOrder.days} day{ +purchaseOrder.days > 1 ? 's' : ''})</em>
-                                    </Alert>
-                                }
+                                    {
+                                        purchaseOrder &&
+                                        <Alert variant={currentStatusVariant}>
+                                            <Badge variant="primary">{purchaseOrder.code}</Badge>&nbsp;
+                                            <Badge variant={currentStatusVariant}>{purchaseOrder.status ? purchaseOrder.status.name : ''}</Badge>
+                                            <br/><br/>
+                                            Location: <em>{purchaseOrder.location}</em>&nbsp;
+                                            From: <em>{purchaseOrder.from}</em>&nbsp;
+                                            To: <em>{purchaseOrder.to} ({purchaseOrder.days} day{ +purchaseOrder.days > 1 ? 's' : ''})</em>
+                                            {
+                                                purchaseOrderStores &&
+                                                purchaseOrderStores.length > 0 &&
+                                                purchaseOrderAssignedStaff &&
+                                                purchaseOrderAssignedStaff.length > 0 &&
+                                                purchaseOrderExpenses &&
+                                                purchaseOrderExpenses.length > 0 &&
+                                                <div className="row">
+                                                    <div className="col-md-12">
+                                                        <PDFDownloadLink
+                                                            key={uuidv4()}
+                                                            document={<PurchaseOrderDetailsPdfDocument
+                                                                purchaseOrder={purchaseOrder}
+                                                                purchaseOrderStores={purchaseOrderStores}
+                                                                purchaseOrderAssignedStaff={purchaseOrderAssignedStaff}
+                                                                purchaseOrderExpenses={purchaseOrderExpenses}/>}
+                                                            fileName={`PO-${purchaseOrder.code}.pdf`}
+                                                            className="btn btn-primary pull-right">
+                                                            {({ blob, url, loading, error }) => (
+                                                                loading
+                                                                    ? "Loading document..."
+                                                                    : <span><i className="fa fa-file"></i> Download PO</span>
+                                                            )}
+                                                        </PDFDownloadLink>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </Alert>
+                                    }
                                 </Card.Title>
 
-                                <hr className="my-4"/>
+                                <div style={!purchaseOrder ? {display: "none"} : null}>
+                                    <Card className="my-4">
+                                        <Card.Header><i className="fa fa-shopping-cart"></i> Stores</Card.Header>
+                                        <Card.Body>
+                                            <table className={`table table-striped ${PO_STORES_DT}`} style={{width: 100+'%'}}>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col"></th>
+                                                        <th scope="col">Code</th>
+                                                        <th scope="col">Name</th>
+                                                        <th scope="col">Address</th>
+                                                        <th scope="col"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </Card.Body>
+                                    </Card>
+                                </div>
 
-                                {
-                                    purchaseOrder &&
+                                <div style={(!purchaseOrder || +purchaseOrder.status.id === 1) ? {display: "none"} : null}>
                                     <div className="row">
-                                        <div className="col-md-12">
-                                            <PDFDownloadLink document={<PurchaseOrderDetailsPdfDocument purchaseOrder={purchaseOrder} />} fileName={`PO-${purchaseOrder.code}.pdf`} className="btn btn-primary pull-right">
-                                                {({ blob, url, loading, error }) => (loading ? "Loading document..." : "Download PO for Delivery")}
-                                            </PDFDownloadLink>
+                                        <div className="col-md-6">
+                                            <Card>
+                                                <Card.Header><i className="fa fa-users"></i> Assigned Staff</Card.Header>
+                                                <Card.Body>
+                                                    <table className={`table table-striped ${PO_ASSIGNED_STAFF_DT}`} style={{width: 100+'%'}}>
+                                                        <thead>
+                                                            <tr>
+                                                                <th scope="col">ID</th>
+                                                                <th scope="col">Name</th>
+                                                                <th scope="col"></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody></tbody>
+                                                    </table>
+                                                    <hr className="my-4"/>
+                                                    <Card>
+                                                        <Card.Body>
+                                                            <Form onSubmit={this.handleSubmitAssignStaff}>
+                                                                <CommonDropdownSelectSingleUsers
+                                                                    key={uuidv4()}
+                                                                    label="Staff:"
+                                                                    name="biometric_id"
+                                                                    selectedUser={selectedUser}
+                                                                    handleChange={this.handleChangeSelectSingleUser}/>
+                                                                <hr/>
+                                                                <Button type="submit" block>Assign Staff</Button>
+                                                            </Form>
+                                                        </Card.Body>
+                                                    </Card>
+                                                </Card.Body>
+                                            </Card>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <Card>
+                                                <Card.Header><i className="fa fa-money"></i> Allocated Expenses</Card.Header>
+                                                <Card.Body>
+                                                    <table className={`table table-striped ${PO_EXPENSES_DT}`} style={{width: 100+'%'}}>
+                                                        <thead>
+                                                            <tr>
+                                                                <th scope="col">Name</th>
+                                                                <th scope="col">Amount (Original)</th>
+                                                                <th scope="col">Amount (Actual)</th>
+                                                                <th scope="col"></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody></tbody>
+                                                    </table>
+                                                    <hr className="my-4"/>
+                                                    <Card>
+                                                        <Card.Body>
+                                                            <Form onSubmit={this.handleSubmitExpense}>
+                                                                <CommonDropdownSelectSingleExpenseCode
+                                                                    key={uuidv4()}
+                                                                    label="Expense Type:"
+                                                                    name="name"
+                                                                    handleChange={this.handleChangeExpenseCode}
+                                                                    handleInputChange={this.handleInputChangeExpenseCode}/>
+                                                                <Form.Group>
+                                                                    <Form.Label>Amount (Original):</Form.Label>
+                                                                    <Form.Control type="text" name="amount_original"></Form.Control>
+                                                                    <div className="invalid-feedback"></div>
+                                                                </Form.Group>
+                                                                <hr/>
+                                                                <Button type="submit" block>Allocate Expense</Button>
+                                                            </Form>
+                                                        </Card.Body>
+                                                    </Card>
+                                                </Card.Body>
+                                            </Card>
                                         </div>
                                     </div>
-                                }
+                                </div>
 
-                                <hr className="my-4"/>
-
-                                <h4>Stores</h4>
-
-                                <table className={`table table-striped ${PO_STORES_DT}`} style={{width: 100+'%'}}>
-                                    <thead>
-                                        <tr>
-                                            <th scope="col"></th>
-                                            <th scope="col">Code</th>
-                                            <th scope="col">Name</th>
-                                            <th scope="col">Address</th>
-                                            <th scope="col"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
                             </Card.Body>
                             {
                                 purchaseOrder && +purchaseOrder.status.id !== 3 &&
                                 <Card.Footer>
                                     <div className="pull-right">
-                                        <em>Next Action &raquo;</em>&nbsp;
                                         <Button
                                             key={`${purchaseOrder.id}-${nextStatusId}`}
                                             onClick={this.handleClickUpdatePurchaseOrderStatus}
@@ -623,36 +1076,33 @@ export default class PurchaseOrderDetails extends Component {
                     </div>
                     { purchaseOrder && +purchaseOrder.status.id === 1 &&
                         <div className="col-md-3">
-                            <Card>
-                                <Card.Header>Add Store Item Request</Card.Header>
-                                <Card.Body>
-                                    <Form onSubmit={this.handleSubmitStoreItemRequest}>
-                                        <CommonDropdownSelectSingleStore
-                                            key={uuidv4()}
-                                            name="store_id"
-                                            selectedItem={selectedStore}
-                                            handleChange={this.handleChangeSelectSingleStore}/>
-                                        <CommonDropdownSelectSingleItem
-                                            key={uuidv4()}
-                                            name="item_id"
-                                            selectedItem={selectedItem}
-                                            handleChange={this.handleChangeSelectSingleItem}/>
-                                        <Form.Group>
-                                            <Form.Label>Qty. (Original):</Form.Label>
-                                            <Form.Control type="number" name="quantity_original"></Form.Control>
-                                            <div className="invalid-feedback"></div>
-                                        </Form.Group>
-                                        {
-                                            generalMessage &&
-                                            <Alert variant="warning">
-                                                <i className="fa fa-warning"></i> {generalMessage}
-                                            </Alert>
-                                        }
-                                        <hr/>
-                                        <Button type="submit" block>Add</Button>
-                                    </Form>
-                                </Card.Body>
-                            </Card>
+                            {
+                                +purchaseOrder.status.id === 1 &&
+                                <Card>
+                                    <Card.Header>Add Store Item Request</Card.Header>
+                                    <Card.Body>
+                                        <Form onSubmit={this.handleSubmitStoreItemRequest}>
+                                            <CommonDropdownSelectSingleStore
+                                                key={uuidv4()}
+                                                name="store_id"
+                                                selectedItem={selectedStore}
+                                                handleChange={this.handleChangeSelectSingleStore}/>
+                                            <CommonDropdownSelectSingleItem
+                                                key={uuidv4()}
+                                                name="item_id"
+                                                selectedItem={selectedItem}
+                                                handleChange={this.handleChangeSelectSingleItem}/>
+                                            <Form.Group>
+                                                <Form.Label>Qty. (Original):</Form.Label>
+                                                <Form.Control type="number" name="quantity_original"></Form.Control>
+                                                <div className="invalid-feedback"></div>
+                                            </Form.Group>
+                                            <hr/>
+                                            <Button type="submit" block>Add</Button>
+                                        </Form>
+                                    </Card.Body>
+                                </Card>
+                            }
                         </div>
                     }
                 </div>
@@ -662,6 +1112,20 @@ export default class PurchaseOrderDetails extends Component {
                     bodyText={deleteModal.bodyText}
                     handleClose={this.handleCloseDeleteModal}
                     handleSubmit={this.handleSubmitDeleteModal}/>
+
+                <Modal
+                    show={generalMessage !== undefined}
+                    onHide={() => { this.setState({...this.state, error: {}})}}
+                    backdrop="static"
+                    keyboard={false}
+                    centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Oops! Something went wrong.</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body closeButton>
+                        <Alert variant="warning">{generalMessage}</Alert>
+                    </Modal.Body>
+                </Modal>
             </div>
         );
     }
