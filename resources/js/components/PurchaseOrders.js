@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { Button, Card, Form } from 'react-bootstrap';
 import cookie from 'react-cookies';
+import { v4 as uuidv4 } from 'uuid';
 import CommonDeleteModal from './CommonDeleteModal';
+import CommonDropdownSelectSingleLocation from './CommonDropdownSelectSingleLocation';
 
 const END_POINT = `${apiBaseUrl}/purchase-orders`;
 const PURCHASE_ORDERS_TABLE = 'table-purchase-orders';
@@ -19,6 +21,7 @@ export default class PurchaseOrders extends Component {
             isDeletePurchaseOrderError: false,
             deletePurchaseOrderErrorHeaderTitle: '',
             deletePurchaseOrderErrorBodyText: '',
+            updateAvailableLocations: uuidv4(),
         };
     }
 
@@ -104,6 +107,7 @@ export default class PurchaseOrders extends Component {
 
     handleSubmitNewPurchaseOrder(e) {
         e.preventDefault();
+        const self = this;
         const token = cookie.load('token');
         const table = $('.data-table-wrapper').find(`table.${PURCHASE_ORDERS_TABLE}`).DataTable();
         const form = $(e.target);
@@ -114,6 +118,10 @@ export default class PurchaseOrders extends Component {
             .then((response) => {
                 table.ajax.reload(null, false);
                 form[0].reset();
+                self.setState({
+                    ...self.state,
+                    updateAvailableLocations: uuidv4(),
+                })
             })
             .catch((error) => {
                 if (error.response) {
@@ -159,6 +167,7 @@ export default class PurchaseOrders extends Component {
                     isDeletePurchaseOrderError: false,
                     deletePurchaseOrderErrorHeaderTitle: '',
                     deletePurchaseOrderErrorBodyText: '',
+                    updateAvailableLocations: uuidv4(),
                 });
             })
             .catch((error) => {
@@ -176,6 +185,7 @@ export default class PurchaseOrders extends Component {
             isDeletePurchaseOrderError,
             deletePurchaseOrderErrorHeaderTitle,
             deletePurchaseOrderErrorBodyText,
+            updateAvailableLocations,
         } = this.state;
 
         return (
@@ -210,11 +220,12 @@ export default class PurchaseOrders extends Component {
                             <Card.Header>New Purchase Order</Card.Header>
                             <Card.Body>
                                 <Form onSubmit={this.handleSubmitNewPurchaseOrder}>
-                                    <Form.Group>
-                                        <Form.Label>Location:</Form.Label>
-                                        <Form.Control type="text" name="location"></Form.Control>
-                                        <div className="invalid-feedback"></div>
-                                    </Form.Group>
+                                    <CommonDropdownSelectSingleLocation
+                                        key={updateAvailableLocations}
+                                        label="Location:"
+                                        name="location"
+                                        handleChange={null}
+                                        handleInputChange={null}/>
                                     <Form.Group>
                                         <Form.Label>From:</Form.Label>
                                         <Form.Control type="date" name="from"></Form.Control>

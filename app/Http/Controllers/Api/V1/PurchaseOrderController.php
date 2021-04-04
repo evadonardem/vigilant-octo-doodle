@@ -9,7 +9,7 @@ use App\Models\PurchaseOrderStoreItem;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class PurchaseOrderController extends Controller
 {
@@ -34,6 +34,23 @@ class PurchaseOrderController extends Controller
             ->paginate($perPage);
 
         return response()->json($purchaseOrders);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function indexPurchaseOrderLocations()
+    {
+        $purchaseOrderTableName = resolve(PurchaseOrder::class)->getTable();
+        $locations = DB::table($purchaseOrderTableName)
+            ->select([$purchaseOrderTableName . '.location'])
+            ->orderBy($purchaseOrderTableName . '.location')
+            ->groupBy($purchaseOrderTableName . '.location')
+            ->get();
+
+        return response()->json(['data' => $locations]);
     }
 
     /**
@@ -103,6 +120,7 @@ class PurchaseOrderController extends Controller
     public function store(Request $request)
     {
         $attributes = $request->only(['location', 'from', 'to']);
+        $attributes['location'] = strtoupper($attributes['location']);
 
         PurchaseOrder::create(array_merge(
             [

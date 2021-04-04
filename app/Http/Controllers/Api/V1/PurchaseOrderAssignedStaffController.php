@@ -22,6 +22,10 @@ class PurchaseOrderAssignedStaffController extends Controller
             ->orderBy('name', 'asc')
             ->get();
 
+        $assignedStaff->each(function ($staff) use ($purchaseOrder) {
+            $staff->can_delete = +$purchaseOrder->status->id !== 3;
+        });
+
         return response()->json(['data' => $assignedStaff]);
     }
 
@@ -33,6 +37,10 @@ class PurchaseOrderAssignedStaffController extends Controller
      */
     public function store(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if (+$purchaseOrder->status->id === 3) {
+            abort(422, 'Cannot assign staff. Purchase order status is ' . $purchaseOrder->status->name);
+        }
+
         $user = User::where('biometric_id', '=', $request->input('biometric_id'))->first();
 
         if ($purchaseOrder->assignedStaff->contains($user)) {
@@ -52,6 +60,10 @@ class PurchaseOrderAssignedStaffController extends Controller
      */
     public function destroy(PurchaseOrder $purchaseOrder, PurchaseOrderAssignedStaff $purchaseOrderAssignedStaff)
     {
+        if (+$purchaseOrder->status->id === 3) {
+            abort(422, 'Cannot delete assigned staff. Purchase order status is ' . $purchaseOrder->status->name);
+        }
+
         if ($purchaseOrderAssignedStaff->purchase_order_id == $purchaseOrder->id) {
             $purchaseOrderAssignedStaff->delete();
         }

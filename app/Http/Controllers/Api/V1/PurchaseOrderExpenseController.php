@@ -21,6 +21,10 @@ class PurchaseOrderExpenseController extends Controller
             ->orderBy('name', 'asc')
             ->get();
 
+        $expenses->each(function ($expense) use ($purchaseOrder) {
+            $expense->can_update = $expense->can_delete = +$purchaseOrder->status->id !== 3;
+        });
+
         return response()->json(['data' => $expenses]);
     }
 
@@ -56,6 +60,10 @@ class PurchaseOrderExpenseController extends Controller
      */
     public function store(Request $request, PurchaseOrder $purchaseOrder)
     {
+        if (+$purchaseOrder->status->id === 3) {
+            abort(422, 'Cannot allocate expense. Purchase order status is ' . $purchaseOrder->status->name);
+        }
+
         $attributes = $request->only(['name', 'amount_original']);
         $purchaseOrder->expenses()->save(PurchaseOrderExpense::make($attributes));
 
@@ -91,9 +99,19 @@ class PurchaseOrderExpenseController extends Controller
      * @param  \App\Models\PurchaseOrderExpense  $purchaseOrderExpense
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, PurchaseOrderExpense $purchaseOrderExpense)
+    public function update(Request $request, PurchaseOrder $purchaseOrder, PurchaseOrderExpense $purchaseOrderExpense)
     {
-        //
+        if (+$purchaseOrder->status->id === 3) {
+            abort(422, 'Cannot update purchase order allocated expense. Purchase order status is ' . $purchaseOrder->status->name);
+        }
+
+        $attributes = $request->only('amount_actual');
+
+        if (+$purchaseOrderExpense->purchase_order_id === +$purchaseOrder->id) {
+            $purchaseOrderExpense->fill($attributes)->save();
+        }
+
+        return response()->noContent();
     }
 
     /**
@@ -104,6 +122,10 @@ class PurchaseOrderExpenseController extends Controller
      */
     public function destroy(PurchaseOrder $purchaseOrder, PurchaseOrderExpense $purchaseOrderExpense)
     {
+        if (+$purchaseOrder->status->id === 3) {
+            abort(422, 'Cannot delete purchase order allocated expense. Purchase order status is ' . $purchaseOrder->status->name);
+        }
+
         if (+$purchaseOrderExpense->purchase_order_id === +$purchaseOrder->id) {
             $purchaseOrderExpense->delete();
         }

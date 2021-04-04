@@ -51,6 +51,7 @@ $api->version('v1', function ($api) {
         $api->get('thirteenth-month-pay-periods/{id}/details', 'App\Http\Controllers\Api\V1\ThirteenthMonthController@showThirteenthMonthPayPeriodDetails');
 
         $api->resource('purchase-orders', 'App\Http\Controllers\Api\V1\PurchaseOrderController');
+        $api->get('purchase-order-locations', 'App\Http\Controllers\Api\V1\PurchaseOrderController@indexPurchaseOrderLocations');
         $api->get('purchase-orders/{purchaseOrder}/stores', 'App\Http\Controllers\Api\V1\PurchaseOrderController@indexPurchaseOrderStores');
         $api->delete('purchase-orders/{purchaseOrder}/stores/{store}', 'App\Http\Controllers\Api\V1\PurchaseOrderController@destroyPurchaseOrderStore');
         $api->post('purchase-orders/{purchaseOrder}/items', 'App\Http\Controllers\Api\V1\PurchaseOrderController@storePurchaseOrderItems');
@@ -63,6 +64,7 @@ $api->version('v1', function ($api) {
         $api->get('purchase-order-expense-types', 'App\Http\Controllers\Api\V1\PurchaseOrderExpenseController@indexPurchaseOrderExpenseTypes');
         $api->get('purchase-orders/{purchaseOrder}/expenses', 'App\Http\Controllers\Api\V1\PurchaseOrderExpenseController@index');
         $api->post('purchase-orders/{purchaseOrder}/expenses', 'App\Http\Controllers\Api\V1\PurchaseOrderExpenseController@store');
+        $api->patch('purchase-orders/{purchaseOrder}/expenses/{purchaseOrderExpense}', 'App\Http\Controllers\Api\V1\PurchaseOrderExpenseController@update');
         $api->delete('purchase-orders/{purchaseOrder}/expenses/{purchaseOrderExpense}', 'App\Http\Controllers\Api\V1\PurchaseOrderExpenseController@destroy');
     });
 
