@@ -17,15 +17,7 @@ class StoreController extends Controller
      */
     public function index(Request $request)
     {
-        $start = $request->input('start') ?? 0;
-        $perPage = $request->input('length') ?? 10;
-        $page = ($start/$perPage) + 1;
         $search = $request->input('search') ?? [];
-
-        Paginator::currentPageResolver(function () use ($page) {
-            return $page;
-        });
-
         $storesQuery = Store::orderBy('name', 'asc')
             ->orderBy('address_line', 'asc');
 
@@ -34,6 +26,20 @@ class StoreController extends Controller
                 ->where('code', 'like', '%' . $search['value'] . '%')
                 ->orWhere('name', 'like', '%' . $search['value'] . '%');
         }
+
+        if ($request->input('all')) {
+            $stores = $storesQuery->get();
+
+            return response()->json(['data' => $stores]);
+        }
+
+        $start = $request->input('start') ?? 0;
+        $perPage = $request->input('length') ?? 10;
+        $page = ($start/$perPage) + 1;
+
+        Paginator::currentPageResolver(function () use ($page) {
+            return $page;
+        });
 
         $stores = $storesQuery->paginate($perPage);
 

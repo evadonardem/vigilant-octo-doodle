@@ -16,7 +16,7 @@ export default class CommonDropdownSelectSingleStore extends Component {
         const self = this;
 
         if (token) {
-            axios.get(apiBaseUrl + '/settings/stores?token=' + token)
+            axios.get(apiBaseUrl + '/settings/stores?all=1&token=' + token)
                 .then((response) => {
                     const { data: items } = response.data;
                     const options = items.map((item) => { return { value: item.id, label: `${item.code} - ${item.name}` } });
