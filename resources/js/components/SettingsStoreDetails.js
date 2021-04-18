@@ -1,25 +1,26 @@
 import React, { Component } from 'react';
 import cookie from 'react-cookies';
 import { v4 as uuidv4 } from 'uuid';
-import { Badge, Breadcrumb, Button, Card, Form } from 'react-bootstrap';
+import { Breadcrumb, Button, ButtonGroup, Card, Form } from 'react-bootstrap';
 import CommonDeleteModal from './CommonDeleteModal';
-import EditPromodiserModal from './EditPromodiserModal';
 import CommonDropdownSelectSingleItem from './CommonDropdownSelectSingleItem'
+
+const END_POINT = `${apiBaseUrl}/settings/stores`;
 
 export default class SettingStoreDetails extends Component {
     constructor(props) {
         super(props);
+
+        this.handleToggleUpdateDetails = this.handleToggleUpdateDetails.bind(this);
+        this.handleCancelUpdateDetails = this.handleCancelUpdateDetails.bind(this);
+        this.handleSubmitUpdateDetails = this.handleSubmitUpdateDetails.bind(this);
+
         this.handleSubmitNewPromodiser = this.handleSubmitNewPromodiser.bind(this);
 
         this.handleCloseDeletePromodiserModal = this.handleCloseDeletePromodiserModal.bind(this);
         this.handleSubmitDeletePromodiserModal = this.handleSubmitDeletePromodiserModal.bind(this);
 
-        this.handleCloseEditPromodiserModal = this.handleCloseEditPromodiserModal.bind(this);
-        this.handleShowEditPromodiserModal = this.handleShowEditPromodiserModal.bind(this);
-        this.handleSubmitEditPromodiserModal = this.handleSubmitEditPromodiserModal.bind(this);
-
         this.handleSubmitNewItemPricing = this.handleSubmitNewItemPricing.bind(this);
-
         this.handleChangeSelectSingleItem = this.handleChangeSelectSingleItem.bind(this);
 
         this.state = {
@@ -29,6 +30,8 @@ export default class SettingStoreDetails extends Component {
                 name: null,
                 address_line: null,
             },
+            updateStoreDetails: false,
+            cancelledUpdateStoreDetails: false,
             deletePromodiser: {
                 id: null,
                 showModal: false,
@@ -36,11 +39,6 @@ export default class SettingStoreDetails extends Component {
                 isDeleteError: false,
                 deleteErrorHeaderTitle: '',
                 deleteErrorBodyText: '',
-            },
-            editPromodiser: {
-                id: null,
-                showModal: false,
-                loading: true,
             },
             selectedItem: null,
         };
@@ -52,14 +50,7 @@ export default class SettingStoreDetails extends Component {
         const { params } = self.props.match;
         const { storeId } = params;
 
-        const exportButtons = window.exportButtonsBase;
-        const exportFilename = 'Stores';
-        const exportTitle = 'Stores';
-        exportButtons[0].filename = exportFilename;
-        exportButtons[1].filename = exportFilename;
-        exportButtons[1].title = exportTitle;
-
-        $('.table-store-promodisers').DataTable({
+        const dataTablePromodisers = $('.table-store-promodisers').DataTable({
             ajax: {
                 type: 'get',
                 url: `${apiBaseUrl}/settings/stores/${storeId}/promodisers?token=${token}`,
@@ -76,32 +67,79 @@ export default class SettingStoreDetails extends Component {
                     return data;
                 },
             },
-            buttons: exportButtons,
+            buttons: [],
             ordering: false,
             processing: true,
             serverSide: true,
             columns: [
-                { 'data': 'name' },
                 {
                     'data': null,
                     'render': function (data, type, row) {
-                        const editBtn = '<a href="#" class="edit btn btn-warning" data-toggle="modal" data-target="#deleteModal" data-promodiser-id="' + row.id + '"><i class="fa fa-edit"></i></a>';
-                        const deleteBtn = '<a href="#" class="delete btn btn-warning" data-toggle="modal" data-target="#deleteModal" data-promodiser-id="' + row.id + '"><i class="fa fa-trash"></i></a>';
-                        return `${editBtn} ${deleteBtn}`;
+                        return `<input
+                            class="form-control update-promodiser"
+                            type="text"
+                            name="name"
+                            value="${data.name}"
+                            readonly/>
+                        <div class="invalid-feedback"></div>`;
+                    }
+                },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        return `<input
+                            class="form-control update-promodiser"
+                            type="text"
+                            name="contact_no"
+                            value="${data.contact_no}"
+                            readonly/>
+                        <div class="invalid-feedback"></div>`;
+                    }
+                },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        const editBtn = `<a
+                            href="#"
+                            class="edit btn btn-secondary">
+                                <i class="fa fa-edit"></i>
+                            </a>`;
+                        const deleteBtn = `<a
+                            href="#"
+                            class="delete btn btn-secondary"
+                            data-toggle="modal"
+                            data-promodiser-id="${row.id}">
+                                <i class="fa fa-trash"></i>
+                            </a>`;
+                        return `<div class="action-a btn-group" role="group">
+                            ${editBtn}
+                            ${deleteBtn}
+                        </div>
+                        <div class="action-b btn-group" role="group" style="display: none;">
+                            <a href="#" class="save btn btn-secondary" data-promodiser-id="${row.id}">
+                                <i class="fa fa-save"></i>
+                            </a>
+                            <a href="#" class="cancel btn btn-secondary">
+                                <i class="fa fa-undo"></i>
+                            </a>
+                        </div>`;
                     }
                 }
-            ]
+            ],
+            columnDefs: [
+                {
+                    targets: [2],
+                    className: 'text-center',
+                }
+            ],
         });
 
         $(document).on('click', '.data-table-wrapper > .table-store-promodisers .edit', function(e) {
-            const id = e.currentTarget.getAttribute('data-promodiser-id');
-            self.setState({
-                ...self.state,
-                editPromodiser: {
-                    id,
-                    showModal: true,
-                }
-            });
+            e.preventDefault();
+            const tableRow = $(e.currentTarget).closest('tr');
+            tableRow.find('.update-promodiser').prop('readonly', false);
+            tableRow.find('.action-a').hide();
+            tableRow.find('.action-b').show();
         });
 
         $(document).on('click', '.data-table-wrapper > .table-store-promodisers .delete', function(e) {
@@ -113,6 +151,49 @@ export default class SettingStoreDetails extends Component {
                     showModal: true,
                 }
             });
+        });
+
+        $(document).on('click', '.data-table-wrapper > .table-store-promodisers .cancel', function(e) {
+            e.preventDefault();
+            const tableRow = $(e.currentTarget).closest('tr');
+            tableRow.find('.update-promodiser').prop('readonly', true);
+            tableRow.find('.action-a').show();
+            tableRow.find('.action-b').hide();
+            dataTablePromodisers.ajax.reload(null, false);
+        });
+
+        $(document).on('click', '.data-table-wrapper > .table-store-promodisers .save', function(e) {
+            e.preventDefault();
+            const { store } = self.state;
+            const promodiserId = $(e.currentTarget).data('promodiser-id');
+            const tableRow = $(e.currentTarget).closest('tr');
+            const inputFields = tableRow.find('.update-promodiser');
+            let data = {};
+            inputFields.each(function () {
+                data[$(this).prop('name')] = $(this).val();
+            });
+            axios.patch(`${END_POINT}/${store.id}/promodisers/${promodiserId}?token=${token}`, data)
+                .then(() => {
+                    tableRow.find('.form-control').removeClass('is-invalid');
+                    tableRow.find('.update-promodiser').prop('readonly', true);
+                    tableRow.find('.action-a').show();
+                    tableRow.find('.action-b').hide();
+                })
+                .catch((error) => {
+                    if (error.response) {
+                        const { response } = error;
+                        const { data } = response;
+                        const { errors } = data;
+                        tableRow.find('.form-control').removeClass('is-invalid');
+                        for (const key in errors) {
+                            $('[name=' + key + ']', tableRow)
+                                .addClass('is-invalid')
+                                .closest('td')
+                                .find('.invalid-feedback')
+                                .text(errors[key][0]);
+                        }
+                   }
+                });
         });
 
         $('.table-store-items').DataTable({
@@ -132,7 +213,7 @@ export default class SettingStoreDetails extends Component {
                     return data;
                 },
             },
-            buttons: exportButtons,
+            buttons: [],
             ordering: false,
             processing: true,
             serverSide: true,
@@ -207,7 +288,7 @@ export default class SettingStoreDetails extends Component {
                                 return data;
                             },
                         },
-                        buttons: exportButtons,
+                        buttons: [],
                         ordering: false,
                         searching: false,
                         processing: true,
@@ -241,6 +322,59 @@ export default class SettingStoreDetails extends Component {
             .destroy(true);
     }
 
+    handleToggleUpdateDetails(e) {
+        const self = this;
+        self.setState({
+            ...self.state,
+            updateStoreDetails: true,
+            cancelledUpdateStoreDetails: false,
+        });
+    }
+
+    handleCancelUpdateDetails(e) {
+        const self = this;
+        self.setState({
+            ...self.state,
+            cancelledUpdateStoreDetails: true,
+            updateStoreDetails: false,
+        })
+    }
+
+    handleSubmitUpdateDetails(e) {
+        e.preventDefault();
+        const token = cookie.load('token');
+        const self = this;
+        const { store } = self.state;
+        const form = $(e.target);
+        const data = $(form).serialize();
+
+        axios.patch(`${END_POINT}/${store.id}?token=${token}`, data)
+            .then((response) => {
+                $('.form-control', form).removeClass('is-invalid');
+                const { data: store } = response.data;
+                self.setState({
+                    ...self.state,
+                    store,
+                    updateStoreDetails: false,
+                });
+            })
+            .catch((error) => {
+                $('.form-control', form).removeClass('is-invalid');
+                if (error.response) {
+                    const { response } = error;
+                    const { data } = response;
+                    const { errors } = data;
+                    for (const key in errors) {
+                        $('[name=' + key + ']', form)
+                            .addClass('is-invalid')
+                            .closest('.form-group')
+                            .find('.invalid-feedback')
+                            .text(errors[key][0]);
+                    }
+               }
+            });
+    }
+
     handleSubmitNewPromodiser(e) {
         e.preventDefault();
         const token = cookie.load('token');
@@ -254,7 +388,7 @@ export default class SettingStoreDetails extends Component {
         const actionEndPoint = `${apiBaseUrl}/settings/stores/${store.id}/promodisers?token=${token}`;
 
         axios.post(actionEndPoint, data)
-            .then((response) => {
+            .then(() => {
                 table.ajax.reload(null, false);
                 $('.form-control', form).removeClass('is-invalid');
                 form[0].reset();
@@ -288,71 +422,6 @@ export default class SettingStoreDetails extends Component {
                 deleteErrorBodyText: '',
             },
         });
-    }
-
-    handleCloseEditPromodiserModal() {
-        const self = this;
-        self.setState({
-            ...self.state,
-            editPromodiser: {
-                id: null,
-                showModal: false,
-                loading: true,
-            },
-        });
-    }
-
-    handleShowEditPromodiserModal() {
-        const token = cookie.load('token');
-        const self = this;
-        const { store, editPromodiser } = self.state;
-
-        axios.get(`${apiBaseUrl}/settings/stores/${store.id}/promodisers/${editPromodiser.id}?token=${token}`)
-            .then((response) => {
-                const { data: promodiser } = response.data;
-                self.setState({
-                    ...self.state,
-                    editPromodiser: {
-                        ...self.state.editPromodiser,
-                        ...promodiser,
-                        loading: false,
-                    }
-                });
-            })
-            .catch(() => {
-                location.href = `${appBaseUrl}`;
-            });
-    }
-
-    handleSubmitEditPromodiserModal(e) {
-        e.preventDefault();
-
-        const self = this;
-        const token = cookie.load('token');
-        const { store, deletePromodiser } = self.state;
-        const form = $(e.currentTarget);
-        const promodiserId = $('input[name="id"]', form).val();
-        const data = form.serialize();
-        const table = $('.data-table-wrapper').find('table.table-store-promodisers').DataTable();
-
-        axios.patch(
-                `${apiBaseUrl}/settings/stores/${store.id}/promodisers/${promodiserId}?token=${token}`,
-                data
-            )
-            .then(() => {
-                table.ajax.reload(null, false);
-                self.setState({
-                    ...self.state,
-                    editPromodiser: {
-                        id: null,
-                        showModal: false,
-                        loading: true,
-                    },
-                });
-            })
-            .catch(() => {
-                //
-            });
     }
 
     handleSubmitDeletePromodiserModal(e) {
@@ -426,8 +495,9 @@ export default class SettingStoreDetails extends Component {
     render() {
         const {
             store,
+            updateStoreDetails,
+            cancelledUpdateStoreDetails,
             deletePromodiser,
-            editPromodiser,
             selectedItem,
         } = this.state;
 
@@ -438,89 +508,156 @@ export default class SettingStoreDetails extends Component {
                     <Breadcrumb.Item href="#/settings-stores">Stores Registry</Breadcrumb.Item>
                     <Breadcrumb.Item active>{store.code}</Breadcrumb.Item>
                 </Breadcrumb>
-                <div className="row">
-                    <div className="col-md-9">
+                <Card>
+                    <Card.Body>
                         <Card>
+                            <Card.Header>General Details</Card.Header>
                             <Card.Body>
-                                <Card.Title>
-                                    <p><Badge variant="primary">{store.code}</Badge></p>
-                                    <p>{store.name}</p>
-                                </Card.Title>
-                                <Card.Subtitle>{store.address_line}</Card.Subtitle>
-
-                                <hr className="my-4"/>
-                                <h4>Promodisers</h4>
-
-                                <table className="table table-striped table-store-promodisers" style={{width: 100+'%'}}>
-                                    <thead>
-                                        <tr>
-                                        <th scope="col">Name</th>
-                                        <th scope="col"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-
-                                <hr className="my-4"/>
-                                <h4>Item Pricing</h4>
-
-                                <table className="table table-striped table-store-items" style={{width: 100+'%'}}>
-                                    <thead>
-                                        <tr>
-                                        <th></th>
-                                        <th scope="col">Code</th>
-                                        <th scope="col">Name</th>
-                                        <th scope="col">Latest Effectivity Date</th>
-                                        <th scope="col">Latest Amount</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-
-                            </Card.Body>
-                        </Card>
-                    </div>
-                    <div className="col-md-3">
-                        <Card bg="dark" text="white" className="mb-3">
-                            <Card.Header>Add New Promodiser</Card.Header>
-                            <Card.Body>
-                                <Form onSubmit={this.handleSubmitNewPromodiser}>
+                                <Form
+                                    key={cancelledUpdateStoreDetails ? uuidv4() : store.id}
+                                    onSubmit={this.handleSubmitUpdateDetails}>
+                                    <div className="row">
+                                        <div className="col-md-4">
+                                            <Form.Group>
+                                                <Form.Label>Code:</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    name="code"
+                                                    defaultValue={store.code}
+                                                    readOnly={!updateStoreDetails}></Form.Control>
+                                                <div className="invalid-feedback"></div>
+                                            </Form.Group>
+                                        </div>
+                                        <div className="col-md-8">
+                                            <Form.Group>
+                                                <Form.Label>Name:</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    name="name"
+                                                    defaultValue={store.name}
+                                                    readOnly={!updateStoreDetails}></Form.Control>
+                                                <div className="invalid-feedback"></div>
+                                            </Form.Group>
+                                        </div>
+                                    </div>
                                     <Form.Group>
-                                        <Form.Label>Name:</Form.Label>
-                                        <Form.Control type="text" name="name"></Form.Control>
+                                        <Form.Label>Address:</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="address_line"
+                                            defaultValue={store.address_line}
+                                            readOnly={!updateStoreDetails}></Form.Control>
                                         <div className="invalid-feedback"></div>
                                     </Form.Group>
-                                    <hr/>
-                                    <Button type="submit" block>Add</Button>
+                                    <hr className="my-4"/>
+                                    {
+                                        updateStoreDetails
+                                            ? <ButtonGroup className="pull-right">
+                                                <Button
+                                                    type="submit"
+                                                    variant="primary">Save</Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="secondary"
+                                                    onClick={this.handleCancelUpdateDetails}>Cancel</Button>
+                                            </ButtonGroup>
+                                            : <Button
+                                                type="button"
+                                                className="pull-right"
+                                                onClick={this.handleToggleUpdateDetails}>Update Details</Button>
+                                    }
                                 </Form>
                             </Card.Body>
                         </Card>
-                        <Card>
-                            <Card.Header>Register Item Pricing</Card.Header>
-                            <Card.Body>
-                                <Form onSubmit={this.handleSubmitNewItemPricing}>
-                                    <CommonDropdownSelectSingleItem
-                                        key={uuidv4()}
-                                        name="item_id"
-                                        selectedItem={selectedItem}
-                                        handleChange={this.handleChangeSelectSingleItem}/>
-                                    <Form.Group>
-                                        <Form.Label>Effectivity Date:</Form.Label>
-                                        <Form.Control type="date" name="effectivity_date"></Form.Control>
-                                        <div className="invalid-feedback"></div>
-                                    </Form.Group>
-                                    <Form.Group>
-                                        <Form.Label>Amount:</Form.Label>
-                                        <Form.Control type="text" name="amount"></Form.Control>
-                                        <div className="invalid-feedback"></div>
-                                    </Form.Group>
-                                    <hr/>
-                                    <Button type="submit" block>Register</Button>
-                                </Form>
-                            </Card.Body>
-                        </Card>
-                    </div>
-                </div>
+                        <div className="row my-4">
+                            <div className="col-md-8">
+                                <Card>
+                                    <Card.Header>Promodisers</Card.Header>
+                                    <Card.Body>
+                                        <table className="table table-striped table-store-promodisers" style={{width: 100+'%'}}>
+                                            <thead>
+                                                <tr>
+                                                <th scope="col">Name</th>
+                                                <th scope="col">Contact No.</th>
+                                                <th scope="col"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </Card.Body>
+                                </Card>
+                            </div>
+                            <div className="col-md-4">
+                                <Card>
+                                    <Card.Header>Add New Promodiser</Card.Header>
+                                    <Card.Body>
+                                        <Form onSubmit={this.handleSubmitNewPromodiser}>
+                                            <Form.Group>
+                                                <Form.Label>Name:</Form.Label>
+                                                <Form.Control type="text" name="name"></Form.Control>
+                                                <div className="invalid-feedback"></div>
+                                            </Form.Group>
+                                            <Form.Group>
+                                                <Form.Label>Contact No:</Form.Label>
+                                                <Form.Control type="text" name="contact_no"></Form.Control>
+                                                <div className="invalid-feedback"></div>
+                                            </Form.Group>
+                                            <hr/>
+                                            <Button type="submit" block>Add</Button>
+                                        </Form>
+                                    </Card.Body>
+                                </Card>
+                            </div>
+                        </div>
+                        <div className="row my-4">
+                            <div className="col-md-8">
+                                <Card>
+                                    <Card.Header>Item Pricing</Card.Header>
+                                    <Card.Body>
+                                        <table className="table table-striped table-store-items" style={{width: 100+'%'}}>
+                                            <thead>
+                                                <tr>
+                                                <th></th>
+                                                <th scope="col">Code</th>
+                                                <th scope="col">Name</th>
+                                                <th scope="col">Latest Effectivity Date</th>
+                                                <th scope="col">Latest Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </Card.Body>
+                                </Card>
+                            </div>
+                            <div className="col-md-4">
+                                <Card>
+                                    <Card.Header>Register Item Pricing</Card.Header>
+                                    <Card.Body>
+                                        <Form onSubmit={this.handleSubmitNewItemPricing}>
+                                            <CommonDropdownSelectSingleItem
+                                                key={uuidv4()}
+                                                name="item_id"
+                                                selectedItem={selectedItem}
+                                                handleChange={this.handleChangeSelectSingleItem}/>
+                                            <Form.Group>
+                                                <Form.Label>Effectivity Date:</Form.Label>
+                                                <Form.Control type="date" name="effectivity_date"></Form.Control>
+                                                <div className="invalid-feedback"></div>
+                                            </Form.Group>
+                                            <Form.Group>
+                                                <Form.Label>Amount:</Form.Label>
+                                                <Form.Control type="text" name="amount"></Form.Control>
+                                                <div className="invalid-feedback"></div>
+                                            </Form.Group>
+                                            <hr/>
+                                            <Button type="submit" block>Register</Button>
+                                        </Form>
+                                    </Card.Body>
+                                </Card>
+                            </div>
+                        </div>
+                    </Card.Body>
+                </Card>
                 <CommonDeleteModal
                     isShow={deletePromodiser.showModal}
                     headerTitle="Delete Promodiser"
@@ -530,11 +667,6 @@ export default class SettingStoreDetails extends Component {
                     isDeleteError={deletePromodiser.isDeleteError}
                     deleteErrorHeaderTitle={deletePromodiser.deleteErrorHeaderTitle}
                     deleteErrorBodyText={deletePromodiser.deleteErrorBodyText}/>
-                <EditPromodiserModal
-                    editPromodiser={editPromodiser}
-                    handleClose={this.handleCloseEditPromodiserModal}
-                    handleShow={this.handleShowEditPromodiserModal}
-                    handleSubmit={this.handleSubmitEditPromodiserModal}/>
             </div>
         );
     }

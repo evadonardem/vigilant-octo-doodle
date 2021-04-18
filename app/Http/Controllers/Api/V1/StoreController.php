@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreStoreRequest;
+use App\Http\Requests\UpdateStoreRequest;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
@@ -47,16 +48,6 @@ class StoreController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -83,26 +74,19 @@ class StoreController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Store  $store
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Store $store)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Store  $store
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Store $store)
+    public function update(UpdateStoreRequest $request, Store $store)
     {
-        //
+        $attributes = $request->only(['code', 'name', 'address_line']);
+
+        $store->fill($attributes)->save();
+
+        return response()->json(['data' => $store]);
     }
 
     /**

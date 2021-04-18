@@ -18,13 +18,13 @@ const styles = StyleSheet.create({
         paddingBottom: 5,
     },
     tableHeading: {
-        borderTop: '2pt solid black',
-        borderBottom: '2pt solid black',
+        // borderTop: '2pt solid black',
+        // borderBottom: '2pt solid black',
         flexDirection: 'row',
         flexWrap: 'wrap',
     },
     tableRow: {
-        borderBottom: '1pt solid black',
+        // borderBottom: '1pt solid black',
         flexDirection: 'row',
         flexWrap: 'wrap',
     },
@@ -60,16 +60,34 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
             purchaseOrderExpenses,
         } = this.props;
 
+        let itemsTotal = {};
+
         const details = purchaseOrderStores.map((store) => {
             const items = store.items.map((item) => {
+                if (itemsTotal.hasOwnProperty(item.id)) {
+                    itemsTotal[item.id].totalQuantityOriginal += +item.quantity_original;
+                    itemsTotal[item.id].totalQuantityActual += +item.quantity_actual;
+                    itemsTotal[item.id].totalQuantityBadOrders += +item.quantity_bad_orders;
+                    itemsTotal[item.id].totalQuantityReturns += +item.quantity_returns;
+                } else {
+                    itemsTotal[item.id] = {
+                        code: item.code,
+                        name: item.name,
+                        totalQuantityOriginal: +item.quantity_original,
+                        totalQuantityActual: +item.quantity_actual,
+                        totalQuantityBadOrders: +item.quantity_bad_orders,
+                        totalQuantityReturns: +item.quantity_returns,
+                    };
+                }
+
                 return +purchaseOrder.status.id === 3
                     ? <View style={styles.tableRow}>
                         <Text style={{flexGrow: 1, width: '15%'}}>{item.code}</Text>
                         <Text style={{flexGrow: 1, width: '15%'}}>{item.name}</Text>
-                        <Text style={{flexGrow: 1, width: '8%'}}>{item.quantity_original}</Text>
-                        <Text style={{flexGrow: 1, width: '8%'}}>{item.quantity_actual}</Text>
-                        <Text style={{flexGrow: 1, width: '8%'}}>{item.quantity_bad_orders}</Text>
-                        <Text style={{flexGrow: 1, width: '8%'}}>{item.quantity_returns}</Text>
+                        <Text style={{flexGrow: 1, width: '8%'}}>{+item.quantity_original}</Text>
+                        <Text style={{flexGrow: 1, width: '8%'}}>{+item.quantity_actual}</Text>
+                        <Text style={{flexGrow: 1, width: '8%'}}>{+item.quantity_bad_orders}</Text>
+                        <Text style={{flexGrow: 1, width: '8%'}}>{+item.quantity_returns}</Text>
                         <Text style={{flexGrow: 1, width: '11%'}}>{item.delivery_receipt_no}</Text>
                         <Text style={{flexGrow: 1, width: '11%'}}>{item.booklet_no}</Text>
                         <Text style={{flexGrow: 1, width: '16%'}}>{item.remarks}</Text>
@@ -77,13 +95,17 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                     : <View style={styles.tableRow}>
                         <Text style={{flexGrow: 1, width: '35%'}}>{item.code}</Text>
                         <Text style={{flexGrow: 1, width: '35%'}}>{item.name}</Text>
-                        <Text style={{flexGrow: 1, width: '30%'}}>{item.quantity_original}</Text>
+                        <Text style={{flexGrow: 1, width: '30%'}}>{+item.quantity_original}</Text>
                     </View>;
             });
 
+            const promodisers = store.promodisers.map((promodiser) => {
+                return `${promodiser.name} ${promodiser.contact_no}`;
+            });
+
             return <View key={store.id} style={styles.store}>
-                <Text>({store.code}) {store.name}</Text>
-                <Text>{store.address_line}</Text>
+                <Text>({store.code}) {store.name} | Address: {store.address_line}</Text>
+                <Text style={{marginBottom: 5}}>Promodiser(s): {promodisers.join(', ')}</Text>
                 {
                     +purchaseOrder.status.id === 3
                         ? <View style={styles.tableHeading}>
@@ -106,6 +128,54 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                 {items}
             </View>;
         });
+
+        let items = [];
+        for (const itemId in itemsTotal) {
+            const itemTotal = itemsTotal[itemId];
+            items.push(
+                +purchaseOrder.status.id === 3
+                    ? <View key={itemTotal.id} style={styles.tableHeading}>
+                        <Text style={{flexGrow: 1, width: '15%'}}>{itemTotal.code}</Text>
+                        <Text style={{flexGrow: 1, width: '15%'}}>{itemTotal.name}</Text>
+                        <Text style={{flexGrow: 1, width: '8%'}}>{itemTotal.totalQuantityOriginal}</Text>
+                        <Text style={{flexGrow: 1, width: '8%'}}>{itemTotal.totalQuantityActual}</Text>
+                        <Text style={{flexGrow: 1, width: '8%'}}>{itemTotal.totalQuantityBadOrders}</Text>
+                        <Text style={{flexGrow: 1, width: '8%'}}>{itemTotal.totalQuantityReturns}</Text>
+                        <Text style={{flexGrow: 1, width: '11%'}}></Text>
+                        <Text style={{flexGrow: 1, width: '11%'}}></Text>
+                        <Text style={{flexGrow: 1, width: '16%'}}></Text>
+                    </View>
+                    : <View key={itemTotal.id} style={styles.tableHeading}>
+                        <Text style={{flexGrow: 1, width: '35%'}}>{itemTotal.code}</Text>
+                        <Text style={{flexGrow: 1, width: '35%'}}>{itemTotal.name}</Text>
+                        <Text style={{flexGrow: 1, width: '30%'}}>{itemTotal.totalQuantityOriginal}</Text>
+                    </View>
+            );
+        }
+
+        const totals = <View style={styles.store}>
+            <Text style={{marginBottom: 5}}>Grand Total</Text>
+            {
+                +purchaseOrder.status.id === 3
+                ? <View style={styles.tableHeading}>
+                    <Text style={{flexGrow: 1, width: '15%'}}>Code</Text>
+                    <Text style={{flexGrow: 1, width: '15%'}}>Name</Text>
+                    <Text style={{flexGrow: 1, width: '8%'}}>Qty. (Orig.)</Text>
+                    <Text style={{flexGrow: 1, width: '8%'}}>Qty. (Act.)</Text>
+                    <Text style={{flexGrow: 1, width: '8%'}}>Qty. (BO)</Text>
+                    <Text style={{flexGrow: 1, width: '8%'}}>Qty. (Ret.)</Text>
+                    <Text style={{flexGrow: 1, width: '11%'}}></Text>
+                    <Text style={{flexGrow: 1, width: '11%'}}></Text>
+                    <Text style={{flexGrow: 1, width: '16%'}}></Text>
+                </View>
+                : <View style={styles.tableHeading}>
+                    <Text style={{flexGrow: 1, width: '35%'}}>Code</Text>
+                    <Text style={{flexGrow: 1, width: '35%'}}>Name</Text>
+                    <Text style={{flexGrow: 1, width: '30%'}}>Qty. (Orig.)</Text>
+                </View>
+            }
+            { items }
+        </View>;
 
         let assignedStaff = purchaseOrderAssignedStaff.map((staff) => {
             return <View key={uuidv4()} style={styles.tableRow}>
@@ -140,8 +210,8 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
             </View>
             <View key={uuidv4()} style={styles.tableHeading}>
                 <Text style={{flexGrow: 1, width: '20%'}}></Text>
-                <Text style={{flexGrow: 1, width: '25%'}}>Amount (Original)</Text>
-                <Text style={{flexGrow: 1, width: '25%'}}>Amount (Actual)</Text>
+                <Text style={{flexGrow: 1, width: '25%'}}>Amt. (Orig.)</Text>
+                <Text style={{flexGrow: 1, width: '25%'}}>Amt. (Act.)</Text>
                 <Text style={{flexGrow: 1, width: '29%'}}>Remarks</Text>
             </View>
             {expenses}
@@ -164,14 +234,26 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                                 Code: {purchaseOrder.code}&nbsp;
                                 Location: {purchaseOrder.location}&nbsp;
                                 From: {purchaseOrder.from} To: {purchaseOrder.to}&nbsp;
-                                ({purchaseOrder.days} day{purchaseOrder.days > 1 ? "s" : ""})
+                                ({purchaseOrder.trips} trip{purchaseOrder.trips > 1 ? "s" : ""})
                             </Text>
                         </View>
                         {details}
+                        {totals}
                         <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
                             {assignedStaff}
                             {expenses}
                         </View>
+                        {
+                            +purchaseOrder.status.id === 3
+                                ? <View style={styles.purchaseOrder}>
+                                    <Text style={{marginTop: 11}}>Completed By:</Text>
+                                    <Text style={{marginTop: 22}}>_________________________________</Text>
+                                </View>
+                                : <View style={styles.purchaseOrder}>
+                                    <Text style={{marginTop: 11}}>Approved By:</Text>
+                                    <Text style={{marginTop: 22}}>_________________________________</Text>
+                                </View>
+                        }
                     </View>
                 </Page>
             </Document>

@@ -3,6 +3,8 @@ import { Breadcrumb, Button, Card, Container, Form, Jumbotron } from 'react-boot
 import cookie from 'react-cookies';
 import CommonDeleteModal from './CommonDeleteModal';
 
+const END_POINT = `${apiBaseUrl}/settings/items`;
+
 export default class SettingsItems extends Component {
     constructor(props) {
         super(props);
@@ -22,14 +24,8 @@ export default class SettingsItems extends Component {
     componentDidMount() {
         const token = cookie.load('token');
         const self = this;
-        const exportButtons = window.exportButtonsBase;
-        const exportFilename = 'Items';
-        const exportTitle = 'Items';
-        exportButtons[0].filename = exportFilename;
-        exportButtons[1].filename = exportFilename;
-        exportButtons[1].title = exportTitle;
 
-        $(this.refs.itemsList).DataTable({
+        const dataTable = $(this.refs.itemsList).DataTable({
             ajax: {
                 type: 'get',
                 url: `${apiBaseUrl}/settings/items?token=${token}`,
@@ -46,22 +42,130 @@ export default class SettingsItems extends Component {
                     return data;
                 },
             },
-            buttons: exportButtons,
+            buttons: [],
             ordering: false,
             processing: true,
             serverSide: true,
             columns: [
-                { 'data': 'code' },
-                { 'data': 'name' },
                 {
                     'data': null,
                     'render': function (data, type, row) {
-                        const deleteBtn = '<a href="#" class="delete btn btn-warning" data-toggle="modal" data-target="#deleteModal" data-item-id="' + row.id + '"><i class="fa fa-trash"></i></a>';
-
-                        return `${deleteBtn}`;
+                        return `<input
+                            class="update-item form-control"
+                            data-item-id=${data.id}
+                            name="code"
+                            value="${data.code}"
+                            autocomplete="off"
+                            readonly/>
+                            <div class="invalid-feedback"></div>`;
+                    }
+                },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        return `<input
+                            class="update-item form-control"
+                            data-item-id=${data.id}
+                            name="name"
+                            value="${data.name}"
+                            autocomplete="off"
+                            readonly/>
+                            <div class="invalid-feedback"></div>`;
+                    }
+                },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        const editBtn = `<a
+                            href="#"
+                            class="edit btn btn-secondary">
+                                <i class="fa fa-edit"></i>
+                            </a>`;
+                        const undoEditBtn = `<a
+                            href="#"
+                            style="display: none;"
+                            class="undo-edit btn btn-secondary">
+                                <i class="fa fa-undo"></i>
+                            </a>`;
+                        const deleteBtn = `<a
+                            href="#"
+                            class="delete btn btn-secondary"
+                            data-toggle="modal"
+                            data-target="#deleteModal"
+                            data-item-id="${row.id}">
+                                <i class="fa fa-trash"></i>
+                            </a>`;
+                        return `<div class="btn-group" role="group">
+                            ${editBtn}
+                            ${undoEditBtn}
+                            ${deleteBtn}
+                        </div>`;
                     }
                 }
-            ]
+            ],
+            columnDefs: [
+                {
+                    targets: [2],
+                    className: 'text-center'
+                }
+            ],
+        });
+
+        $(document).on('change', '.data-table-wrapper .update-item', function () {
+            const itemId = $(this).data('item-id');
+            const field = $(this).prop('name');
+            const container = $(this).closest('td');
+            let data = {};
+            data[field] = $(this).val();
+            axios.patch(`${END_POINT}/${itemId}?token=${token}`, data)
+                .then(() => {
+                    $('[name=' + field + ']', container)
+                        .removeClass('is-invalid')
+                        .closest('td')
+                        .find('.invalid-feedback')
+                        .text('');
+                    container
+                        .closest('tr')
+                        .find('.update-item')
+                        .prop('readonly', true);
+                    container
+                        .closest('tr')
+                        .find('.edit')
+                        .show();
+                    container
+                        .closest('tr')
+                        .find('.undo-edit')
+                        .hide();
+                })
+                .catch((error) => {
+                    if (error.response) {
+                        const { response } = error;
+                        const { data } = response;
+                        const { errors } = data;
+                        for (const key in errors) {
+                            $('[name=' + key + ']', container)
+                                .addClass('is-invalid')
+                                .closest('td')
+                                .find('.invalid-feedback')
+                                .text(errors[key][0]);
+                        }
+                   }
+                });
+        });
+
+        $(document).on('click', '.data-table-wrapper .edit', function(e) {
+            e.preventDefault();
+            const tableRow = $(this).hide().closest('tr');
+            tableRow.find('.update-item').prop('readonly', false);
+            tableRow.find('.undo-edit').show();
+        });
+
+        $(document).on('click', '.data-table-wrapper .undo-edit', function(e) {
+            e.preventDefault();
+            const tableRow = $(this).hide().closest('tr');
+            tableRow.find('.update-item').prop('readonly', true);
+            tableRow.find('.edit').show();
+            dataTable.ajax.reload(null, false);
         });
 
         $(document).on('click', '.data-table-wrapper .delete', function(e) {

@@ -33,6 +33,7 @@ export default class PurchaseOrderDetails extends Component {
         this.handleCloseDeleteModal = this.handleCloseDeleteModal.bind(this);
         this.handleSubmitDeleteModal = this.handleSubmitDeleteModal.bind(this);
 
+        this.handleUpdatePurchaseOrderDuration = this.handleUpdatePurchaseOrderDuration.bind(this);
         this.handleClickUpdatePurchaseOrderStatus = this.handleClickUpdatePurchaseOrderStatus.bind(this);
 
         this.state = {
@@ -79,6 +80,23 @@ export default class PurchaseOrderDetails extends Component {
                 { 'data': 'code' },
                 { 'data': 'name' },
                 { 'data': 'address_line' },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        const {promodisers} = data;
+
+                        if (promodisers) {
+                            return promodisers.map((promodiser) => {
+                                return `<p>
+                                    ${promodiser.name}<br/>
+                                    <span class="badge badge-pill badge-dark">${promodiser.contact_no}</span>
+                                </p>`;
+                            }).join('');
+                        }
+
+                        return null;
+                    }
+                },
                 {
                     'data': null,
                     'render': function (data, type, row) {
@@ -526,7 +544,7 @@ export default class PurchaseOrderDetails extends Component {
             searching: false,
         });
 
-        $(document).on('click', '.data-table-wrapper .update-po-allocated-expense', function (e) {
+        $(document).on('change', '.data-table-wrapper .update-po-allocated-expense', function (e) {
             e.preventDefault();
 
             const token = cookie.load('token');
@@ -909,6 +927,38 @@ export default class PurchaseOrderDetails extends Component {
             });
     }
 
+    handleUpdatePurchaseOrderDuration(e) {
+        const self = this;
+        const token = cookie.load('token');
+        const type = $(e.currentTarget).prop('name');
+        const { purchaseOrder } = self.state;
+
+        let data = {};
+        data[type] = $(e.currentTarget).val();
+
+        axios.patch(`${END_POINT}/${purchaseOrder.id}?token=${token}`, data)
+            .then((response) => {
+                const { data: purchaseOrder } = response.data;
+                self.setState({
+                    ...self.state,
+                    purchaseOrder
+                });
+            })
+            .catch((error) => {
+                const {
+                    data,
+                    status,
+                } = error.response;
+                if (+status === 422) {
+                    const { message: generalMessage } = data;
+                    self.setState({
+                        ...self.state,
+                        error: { generalMessage },
+                    });
+                }
+            });
+    }
+
     handleClickUpdatePurchaseOrderStatus(e) {
         const self = this;
         const token = cookie.load('token');
@@ -1011,9 +1061,46 @@ export default class PurchaseOrderDetails extends Component {
                                             <Badge variant="primary">{purchaseOrder.code}</Badge>&nbsp;
                                             <Badge variant={currentStatusVariant}>{purchaseOrder.status ? purchaseOrder.status.name : ''}</Badge>
                                             <br/><br/>
-                                            Location: <em>{purchaseOrder.location}</em>&nbsp;
-                                            From: <em>{purchaseOrder.from}</em>&nbsp;
-                                            To: <em>{purchaseOrder.to} ({purchaseOrder.days} day{ +purchaseOrder.days > 1 ? 's' : ''})</em>
+                                            <div className="row">
+                                                <div className="col-md-6">
+                                                    <Form.Group>
+                                                        <Form.Label>Location:</Form.Label>
+                                                        <Form.Control type="text" defaultValue={purchaseOrder.location} readOnly></Form.Control>
+                                                    </Form.Group>
+                                                </div>
+                                                <div className="w-100"></div>
+                                                <div className="col-md-6">
+                                                    <Form.Group>
+                                                        <Form.Label>From:</Form.Label>
+                                                        <Form.Control
+                                                            type="date"
+                                                            name="from"
+                                                            onChange={this.handleUpdatePurchaseOrderDuration}
+                                                            value={purchaseOrder.from}
+                                                            readOnly={+purchaseOrder.status.id === 3}></Form.Control>
+                                                        <div className="invalid-feedback"></div>
+                                                    </Form.Group>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Form.Group>
+                                                        <Form.Label>To:</Form.Label>
+                                                        <Form.Control
+                                                            type="date"
+                                                            name="to"
+                                                            onChange={this.handleUpdatePurchaseOrderDuration}
+                                                            value={purchaseOrder.to}
+                                                            readOnly={+purchaseOrder.status.id === 3}></Form.Control>
+                                                        <div className="invalid-feedback"></div>
+                                                    </Form.Group>
+                                                </div>
+                                                <div className="col-md-6">
+                                                    <Form.Group>
+                                                        <Form.Label>Trips:</Form.Label>
+                                                        <Form.Control type="text" value={purchaseOrder.trips} readOnly></Form.Control>
+                                                    </Form.Group>
+                                                </div>
+                                            </div>
+
                                             {
                                                 purchaseOrderStores &&
                                                 purchaseOrderStores.length > 0 &&
@@ -1056,6 +1143,7 @@ export default class PurchaseOrderDetails extends Component {
                                                         <th scope="col">Code</th>
                                                         <th scope="col">Name</th>
                                                         <th scope="col">Address</th>
+                                                        <th scope="col">Promodisers</th>
                                                         <th scope="col"></th>
                                                     </tr>
                                                 </thead>

@@ -11,5 +11,6 @@ class Promodiser extends Model
 
     protected $fillable = [
         'name',
+        'contact_no',
     ];
 }

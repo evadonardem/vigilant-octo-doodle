@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StorePromodiserRequest;
+use App\Http\Requests\UpdatePromodiserRequest;
 use App\Models\Promodiser;
 use App\Models\Store;
 use Illuminate\Http\Request;
@@ -46,9 +48,9 @@ class StorePromodiserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, Store $store)
+    public function store(StorePromodiserRequest $request, Store $store)
     {
-        $attributes = $request->only(['name']);
+        $attributes = $request->only(['name', 'contact_no']);
         $store->promodisers()->save(Promodiser::make($attributes));
 
         return response()->noContent();
@@ -70,28 +72,18 @@ class StorePromodiserController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Store  $store
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Store $store)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Store  $store
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Store $store, Promodiser $promodiser)
+    public function update(UpdatePromodiserRequest $request, Store $store, Promodiser $promodiser)
     {
         if ($store->promodisers->contains($promodiser)) {
-            $promodiser->fill($request->only(['name']));
-            $promodiser->save();
+            $promodiser
+                ->fill($request->only(['name', 'contact_no']))
+                ->save();
         }
 
         return response()->noContent();

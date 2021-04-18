@@ -18,12 +18,12 @@ class PurchaseOrder extends Model
         'purchase_order_status_id',
     ];
 
-    protected $appends = ['days'];
+    protected $appends = ['trips'];
 
-    public function getDaysAttribute() {
+    public function getTripsAttribute() {
         $from = Carbon::createFromFormat('Y-m-d', $this->from);
         $to = Carbon::createFromFormat('Y-m-d', $this->to);
-        return $from->diffInDays($to);
+        return $from->diffInDays($to) + 1;
     }
 
     public function status() {

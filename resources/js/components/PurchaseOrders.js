@@ -61,7 +61,7 @@ export default class PurchaseOrders extends Component {
                 { 'data': 'location' },
                 { 'data': 'from' },
                 { 'data': 'to' },
-                { 'data': 'days' },
+                { 'data': 'trips' },
                 {
                     'data': null,
                     'render': function (data, type, row) {
@@ -205,7 +205,7 @@ export default class PurchaseOrders extends Component {
                                         <th scope="col">Location</th>
                                         <th scope="col">From</th>
                                         <th scope="col">To</th>
-                                        <th scope="col">Days</th>
+                                        <th scope="col">Trips</th>
                                         <th scope="col">Status</th>
                                         <th></th>
                                         </tr>

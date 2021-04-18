@@ -62,6 +62,7 @@ class PurchaseOrderController extends Controller
     {
         $stores = $purchaseOrder
             ->stores()
+            ->with('promodisers')
             ->orderBy('name', 'asc')
             ->orderBy('address_line', 'asc')
             ->get();

@@ -57,10 +57,25 @@ export default class SettingsStores extends Component {
                 {
                     'data': null,
                     'render': function (data, type, row) {
-                        const openBtn = '<a href="#" class="open btn btn-primary" data-store-id="' + row.id + '"><i class="fa fa-folder-open"></i></a>';
-                        const deleteBtn = '<a href="#" class="delete btn btn-warning" data-toggle="modal" data-target="#deleteModal" data-store-id="' + row.id + '"><i class="fa fa-trash"></i></a>';
+                        const openBtn = `<a
+                            href="#"
+                            class="open btn btn-secondary"
+                            data-store-id="${row.id}">
+                                <i class="fa fa-folder-open"></i>
+                            </a>`;
+                        const deleteBtn = `<a
+                            href="#"
+                            class="delete btn btn-secondary"
+                            data-toggle="modal"
+                            data-target="#deleteModal"
+                            data-store-id="${row.id}">
+                                <i class="fa fa-trash"></i>
+                            </a>`;
 
-                        return `${openBtn} ${deleteBtn}`;
+                        return `<div class="btn-group" role="group">
+                            ${openBtn}
+                            ${deleteBtn}
+                        </div>`;
                     }
                 }
             ]
