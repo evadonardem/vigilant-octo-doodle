@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Item;
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderExpense;
 use App\Models\PurchaseOrderStoreItem;
 use App\Models\Store;
 use Illuminate\Http\Request;
@@ -209,7 +210,19 @@ class PurchaseOrderController extends Controller
                             ->orWhereNull('booklet_no');
                     })
                     ->get();
-                if ($purchaseOrderStoreItems->count() > 0) {
+                $purchaseOrderExpenses = PurchaseOrderExpense::where('purchase_order_id', $purchaseOrder->id)
+                    ->where(function ($query) {
+                        $query
+                            ->orWhere('amount_original', '<=', 0)
+                            ->orWhereNull('amount_original')
+                            ->orWhere('amount_actual', '<=', 0)
+                            ->orWhereNull('amount_actual');
+                    })
+                    ->get();
+                if (
+                    $purchaseOrderStoreItems->count() > 0 ||
+                    $purchaseOrderExpenses->count() > 0
+                ) {
                     abort(422, 'Cannot close purchase order. Kindly update required details.');
                 }
             } else {
