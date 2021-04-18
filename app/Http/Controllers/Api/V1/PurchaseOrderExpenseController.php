@@ -25,7 +25,17 @@ class PurchaseOrderExpenseController extends Controller
             $expense->can_update = $expense->can_delete = +$purchaseOrder->status->id !== 3;
         });
 
-        return response()->json(['data' => $expenses]);
+        $totalAmountOriginal = $expenses->sum('amount_original');
+        $totalAmountActual = $expenses->sum('amount_actual');
+
+        return response()->json([
+            'data' => $expenses,
+            'meta' => [
+                'total_amount_original' => $totalAmountOriginal,
+                'total_amount_actual' => $totalAmountActual,
+                'change' => $totalAmountOriginal - $totalAmountActual,
+            ],
+        ]);
     }
 
     /**

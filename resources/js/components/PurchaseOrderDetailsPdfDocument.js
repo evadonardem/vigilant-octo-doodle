@@ -58,6 +58,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
             purchaseOrderStores,
             purchaseOrderAssignedStaff,
             purchaseOrderExpenses,
+            purchaseOrderExpensesMeta,
         } = this.props;
 
         let itemsTotal = {};
@@ -198,8 +199,11 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
         let expenses = purchaseOrderExpenses.map((expense) => {
             return <View key={uuidv4()} style={styles.tableRow}>
                 <Text style={{flexGrow: 1, width: '20%'}}>{expense.name}</Text>
-                <Text style={{flexGrow: 1, width: '25%'}}>{expense.amount_original}</Text>
-                <Text style={{flexGrow: 1, width: '25%'}}>{expense.amount_actual}</Text>
+                <Text style={{flexGrow: 1, textAlign:'right', width: '25%'}}>{expense.amount_original}</Text>
+                {
+                    +purchaseOrder.status.id === 3 &&
+                    <Text style={{flexGrow: 1, textAlign:'right', width: '25%'}}>{expense.amount_actual}</Text>
+                }
                 <Text style={{flexGrow: 1, width: '29%'}}></Text>
             </View>;
         });
@@ -210,11 +214,29 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
             </View>
             <View key={uuidv4()} style={styles.tableHeading}>
                 <Text style={{flexGrow: 1, width: '20%'}}></Text>
-                <Text style={{flexGrow: 1, width: '25%'}}>Amt. (Orig.)</Text>
-                <Text style={{flexGrow: 1, width: '25%'}}>Amt. (Act.)</Text>
-                <Text style={{flexGrow: 1, width: '29%'}}>Remarks</Text>
+                <Text style={{flexGrow: 1, textAlign:'right', width: '25%'}}>Amt. (Orig.)</Text>
+                {
+                    +purchaseOrder.status.id === 3 &&
+                    <Text style={{flexGrow: 1, textAlign:'right', width: '25%'}}>Amt. (Act.)</Text>
+                }
+                <Text style={{flexGrow: 1, textAlign:'center', width: '29%'}}>Remarks</Text>
             </View>
             {expenses}
+            <View key={uuidv4()} style={styles.tableRow}>
+                <Text style={{flexGrow: 1, width: '20%'}}></Text>
+                <Text style={{borderTop: '1pt dotted black', flexGrow: 1, textAlign:'right', width: '25%'}}>{parseFloat(purchaseOrderExpensesMeta.total_amount_original).toFixed(2)}</Text>
+                {
+                    +purchaseOrder.status.id === 3 &&
+                    <Text style={{borderTop: '1pt dotted black', flexGrow: 1, textAlign:'right', width: '25%'}}>{parseFloat(purchaseOrderExpensesMeta.total_amount_actual).toFixed(2)}</Text>
+                }
+                <Text style={{flexGrow: 1, width: '29%'}}></Text>
+            </View>
+            {
+                +purchaseOrder.status.id === 3 &&
+                <View key={uuidv4()} style={styles.sectionHeading}>
+                    <Text>CHANGE: {parseFloat(purchaseOrderExpensesMeta.change).toFixed(2)}</Text>
+                </View>
+            }
         </View>;
 
         const orientation = +purchaseOrder.status.id === 3 ? "landscape" : "portrait";

@@ -41,6 +41,7 @@ export default class PurchaseOrderDetails extends Component {
             purchaseOrderStores: null,
             purchaseOrderAssignedStaff: null,
             purchaseOrderExpenses: null,
+            purchaseOrderExpensesMeta: null,
             selectedStore: null,
             selectedItem: null,
             selectedUser: null,
@@ -562,10 +563,11 @@ export default class PurchaseOrderDetails extends Component {
                      */
                     axios.get(`${END_POINT}/${purchaseOrderId}/expenses?token=${token}`)
                         .then((response) => {
-                            const { data: purchaseOrderExpenses } = response.data;
+                            const { data: purchaseOrderExpenses, meta: purchaseOrderExpensesMeta } = response.data;
                             self.setState({
                                 ...self.state,
                                 purchaseOrderExpenses,
+                                purchaseOrderExpensesMeta,
                             });
                         })
                         .catch(() => {
@@ -645,10 +647,11 @@ export default class PurchaseOrderDetails extends Component {
 
         axios.get(`${END_POINT}/${purchaseOrderId}/expenses?token=${token}`)
             .then((response) => {
-                const { data: purchaseOrderExpenses } = response.data;
+                const { data: purchaseOrderExpenses, meta: purchaseOrderExpensesMeta } = response.data;
                 self.setState({
                     ...self.state,
                     purchaseOrderExpenses,
+                    purchaseOrderExpensesMeta,
                 });
             })
             .catch(() => {
@@ -827,10 +830,11 @@ export default class PurchaseOrderDetails extends Component {
                  */
                 axios.get(`${END_POINT}/${purchaseOrder.id}/expenses?token=${token}`)
                     .then((response) => {
-                        const { data: purchaseOrderExpenses } = response.data;
+                        const { data: purchaseOrderExpenses, meta: purchaseOrderExpensesMeta } = response.data;
                         self.setState({
                             ...self.state,
                             purchaseOrderExpenses,
+                            purchaseOrderExpensesMeta,
                         });
                     })
                     .catch(() => {
@@ -1010,6 +1014,7 @@ export default class PurchaseOrderDetails extends Component {
             purchaseOrderStores,
             purchaseOrderAssignedStaff,
             purchaseOrderExpenses,
+            purchaseOrderExpensesMeta,
             selectedStore,
             selectedItem,
             selectedUser,
@@ -1116,7 +1121,8 @@ export default class PurchaseOrderDetails extends Component {
                                                                 purchaseOrder={purchaseOrder}
                                                                 purchaseOrderStores={purchaseOrderStores}
                                                                 purchaseOrderAssignedStaff={purchaseOrderAssignedStaff}
-                                                                purchaseOrderExpenses={purchaseOrderExpenses}/>}
+                                                                purchaseOrderExpenses={purchaseOrderExpenses}
+                                                                purchaseOrderExpensesMeta={purchaseOrderExpensesMeta}/>}
                                                             fileName={`PO-${purchaseOrder.code}.pdf`}
                                                             className="btn btn-primary pull-right">
                                                             {({ blob, url, loading, error }) => (
