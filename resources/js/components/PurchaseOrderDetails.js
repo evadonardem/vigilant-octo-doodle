@@ -395,11 +395,11 @@ export default class PurchaseOrderDetails extends Component {
                                         });
                                     })
                                     .catch(() => {
-                                        location.href = `${appBaseUrl}`;
+                                        // location.href = `${appBaseUrl}`;
                                     });
                             })
                             .catch(() => {
-                                location.href = `${appBaseUrl}`;
+                                // location.href = `${appBaseUrl}`;
                             });
                     });
 
@@ -571,7 +571,7 @@ export default class PurchaseOrderDetails extends Component {
                             });
                         })
                         .catch(() => {
-                            location.href = `${appBaseUrl}`;
+                            // location.href = `${appBaseUrl}`;
                         });
                 })
                 .catch((error) => {
@@ -618,7 +618,7 @@ export default class PurchaseOrderDetails extends Component {
                 });
             })
             .catch(() => {
-                location.href = `${appBaseUrl}`;
+                // location.href = `${appBaseUrl}`;
             });
 
         axios.get(`${END_POINT}/${purchaseOrderId}/stores?include=items&token=${token}`)
@@ -630,7 +630,7 @@ export default class PurchaseOrderDetails extends Component {
                 });
             })
             .catch(() => {
-                location.href = `${appBaseUrl}`;
+                // location.href = `${appBaseUrl}`;
             });
 
         axios.get(`${END_POINT}/${purchaseOrderId}/assigned-staff?token=${token}`)
@@ -642,7 +642,7 @@ export default class PurchaseOrderDetails extends Component {
                 });
             })
             .catch(() => {
-                location.href = `${appBaseUrl}`;
+                // location.href = `${appBaseUrl}`;
             });
 
         axios.get(`${END_POINT}/${purchaseOrderId}/expenses?token=${token}`)
@@ -655,7 +655,7 @@ export default class PurchaseOrderDetails extends Component {
                 });
             })
             .catch(() => {
-                location.href = `${appBaseUrl}`;
+                // location.href = `${appBaseUrl}`;
             });
     }
 
@@ -713,7 +713,7 @@ export default class PurchaseOrderDetails extends Component {
                         });
                     })
                     .catch(() => {
-                        location.href = `${appBaseUrl}`;
+                        // location.href = `${appBaseUrl}`;
                     });
             })
             .catch((error) => {
@@ -780,7 +780,7 @@ export default class PurchaseOrderDetails extends Component {
                         });
                     })
                     .catch(() => {
-                        location.href = `${appBaseUrl}`;
+                        // location.href = `${appBaseUrl}`;
                     });
             })
             .catch((error) => {
@@ -838,7 +838,7 @@ export default class PurchaseOrderDetails extends Component {
                         });
                     })
                     .catch(() => {
-                        location.href = `${appBaseUrl}`;
+                        // location.href = `${appBaseUrl}`;
                     });
             })
             .catch((error) => {

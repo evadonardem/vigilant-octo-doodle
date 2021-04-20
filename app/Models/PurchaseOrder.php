@@ -34,7 +34,7 @@ class PurchaseOrder extends Model
     public function stores() {
         return $this
             ->belongsToMany(Store::class, 'purchase_order_store_items')
-            ->distinct();
+            ->withPivot(['id']);
     }
 
     public function items() {

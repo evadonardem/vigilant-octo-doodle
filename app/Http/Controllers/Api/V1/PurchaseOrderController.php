@@ -11,6 +11,7 @@ use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PurchaseOrderController extends Controller
 {
@@ -64,9 +65,10 @@ class PurchaseOrderController extends Controller
         $stores = $purchaseOrder
             ->stores()
             ->with('promodisers')
-            ->orderBy('name', 'asc')
-            ->orderBy('address_line', 'asc')
+            ->orderBy('pivot_id', 'asc')
             ->get();
+
+        $stores = $stores->unique('id')->values();
 
         $include = $request->input('include');
 

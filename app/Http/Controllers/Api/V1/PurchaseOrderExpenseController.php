@@ -18,7 +18,7 @@ class PurchaseOrderExpenseController extends Controller
     public function index(PurchaseOrder $purchaseOrder)
     {
         $expenses = $purchaseOrder->expenses()
-            ->orderBy('name', 'asc')
+            ->orderBy('id', 'asc')
             ->get();
 
         $expenses->each(function ($expense) use ($purchaseOrder) {
