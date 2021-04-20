@@ -1051,7 +1051,7 @@ export default class PurchaseOrderDetails extends Component {
             <div className="container-fluid my-4">
                 { purchaseOrder &&
                     <Breadcrumb>
-                        <Breadcrumb.Item href="#/purchase-orders"><i className="fa fa-file"></i> Purchase Orders</Breadcrumb.Item>
+                        <Breadcrumb.Item href="#/purchase-orders"><i className="fa fa-folder"></i> Purchase Orders</Breadcrumb.Item>
                         <Breadcrumb.Item active>{purchaseOrder.code}</Breadcrumb.Item>
                     </Breadcrumb>
                 }

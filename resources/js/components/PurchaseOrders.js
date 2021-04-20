@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
-import { Button, Card, Form } from 'react-bootstrap';
+import { Breadcrumb, Button, Card, Form, Tab, Tabs } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import { v4 as uuidv4 } from 'uuid';
 import CommonDeleteModal from './CommonDeleteModal';
 import CommonDropdownSelectSingleLocation from './CommonDropdownSelectSingleLocation';
 
 const END_POINT = `${apiBaseUrl}/purchase-orders`;
-const PURCHASE_ORDERS_TABLE = 'table-purchase-orders';
+const PURCHASE_ORDERS_PENDING_TABLE = 'table-purchase-orders-pending';
+const PURCHASE_ORDERS_APPROVED_TABLE = 'table-purchase-orders-approved';
+const PURCHASE_ORDERS_CLOSED_TABLE = 'table-purchase-orders-closed';
 
 export default class PurchaseOrders extends Component {
     constructor(props) {
@@ -28,17 +30,14 @@ export default class PurchaseOrders extends Component {
     componentDidMount() {
         const token = cookie.load('token');
         const self = this;
-        const exportButtons = window.exportButtonsBase;
-        const exportFilename = 'PurchaseOrders';
-        const exportTitle = 'Purchase Orders';
-        exportButtons[0].filename = exportFilename;
-        exportButtons[1].filename = exportFilename;
-        exportButtons[1].title = exportTitle;
 
-        $(`.${PURCHASE_ORDERS_TABLE}`).DataTable({
+        /**
+         * Purchase Orders (Pending)
+         */
+        $(`.${PURCHASE_ORDERS_PENDING_TABLE}`).DataTable({
             ajax: {
                 type: 'get',
-                url: `${END_POINT}?token=${token}`,
+                url: `${END_POINT}?filters[status]=1&token=${token}`,
                 dataFilter: (data) => {
                     let json = jQuery.parseJSON(data);
                     json.recordsTotal = json.total;
@@ -52,7 +51,7 @@ export default class PurchaseOrders extends Component {
                     return data;
                 },
             },
-            buttons: exportButtons,
+            buttons: [],
             ordering: false,
             processing: true,
             serverSide: true,
@@ -65,26 +64,13 @@ export default class PurchaseOrders extends Component {
                 {
                     'data': null,
                     'render': function (data, type, row) {
-                        let purchaseOrderStatusVariant = null;
-                        if (+data.status.id === 1) {
-                            purchaseOrderStatusVariant = 'warning';
-                        } else if (+data.status.id === 2) {
-                            purchaseOrderStatusVariant = 'success';
-                        } else {
-                            if (+data.status.id === 3) {
-                                purchaseOrderStatusVariant = 'danger';
-                            }
-                        }
-                        return `<p class="alert alert-${purchaseOrderStatusVariant}">${data.status.name}</p>`;
-                    }
-                },
-                {
-                    'data': null,
-                    'render': function (data, type, row) {
                         const openBtn = '<a href="#" class="open btn btn-primary" data-purchase-order-id="' + row.id + '"><i class="fa fa-file"></i></a>';
                         const deleteBtn = '<a href="#" class="delete btn btn-warning" data-toggle="modal" data-target="#deleteModal" data-purchase-order-id="' + row.id + '"><i class="fa fa-trash"></i></a>';
 
-                        return `${openBtn} ${deleteBtn}`;
+                        return `<div class="btn-group" role="group">
+                            ${openBtn}
+                            ${deleteBtn}
+                        </div>`;
                     }
                 }
             ]
@@ -103,13 +89,93 @@ export default class PurchaseOrders extends Component {
                 purchasePeriodId,
             });
         });
+
+        /**
+         * Purchase Orders (Approved)
+         */
+         $(`.${PURCHASE_ORDERS_APPROVED_TABLE}`).DataTable({
+            ajax: {
+                type: 'get',
+                url: `${END_POINT}?filters[status]=2&token=${token}`,
+                dataFilter: (data) => {
+                    let json = jQuery.parseJSON(data);
+                    json.recordsTotal = json.total;
+                    json.recordsFiltered = json.total;
+
+                    return JSON.stringify(json);
+                },
+                dataSrc: (response) => {
+                    const { data } = response;
+
+                    return data;
+                },
+            },
+            buttons: [],
+            ordering: false,
+            processing: true,
+            serverSide: true,
+            columns: [
+                { 'data': 'code' },
+                { 'data': 'location' },
+                { 'data': 'from' },
+                { 'data': 'to' },
+                { 'data': 'trips' },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        const openBtn = '<a href="#" class="open btn btn-primary" data-purchase-order-id="' + row.id + '"><i class="fa fa-file"></i></a>';
+                        return `${openBtn}`;
+                    }
+                }
+            ]
+        });
+
+        /**
+         * Purchase Orders (Closed)
+         */
+         $(`.${PURCHASE_ORDERS_CLOSED_TABLE}`).DataTable({
+            ajax: {
+                type: 'get',
+                url: `${END_POINT}?filters[status]=3&token=${token}`,
+                dataFilter: (data) => {
+                    let json = jQuery.parseJSON(data);
+                    json.recordsTotal = json.total;
+                    json.recordsFiltered = json.total;
+
+                    return JSON.stringify(json);
+                },
+                dataSrc: (response) => {
+                    const { data } = response;
+
+                    return data;
+                },
+            },
+            buttons: [],
+            ordering: false,
+            processing: true,
+            serverSide: true,
+            columns: [
+                { 'data': 'code' },
+                { 'data': 'location' },
+                { 'data': 'from' },
+                { 'data': 'to' },
+                { 'data': 'trips' },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        const openBtn = '<a href="#" class="open btn btn-primary" data-purchase-order-id="' + row.id + '"><i class="fa fa-file"></i></a>';
+                        return `${openBtn}`;
+                    }
+                }
+            ]
+        });
     }
 
     handleSubmitNewPurchaseOrder(e) {
         e.preventDefault();
         const self = this;
         const token = cookie.load('token');
-        const table = $('.data-table-wrapper').find(`table.${PURCHASE_ORDERS_TABLE}`).DataTable();
+        const table = $('.data-table-wrapper').find(`table.${PURCHASE_ORDERS_PENDING_TABLE}`).DataTable();
         const form = $(e.target);
         const data = $(form).serialize();
         const actionEndPoint = `${END_POINT}?token=${token}`;
@@ -156,7 +222,7 @@ export default class PurchaseOrders extends Component {
         const self = this;
         const token = cookie.load('token');
         const { purchasePeriodId } = self.state;
-        const table = $('.data-table-wrapper').find(`table.${PURCHASE_ORDERS_TABLE}`).DataTable();
+        const table = $('.data-table-wrapper').find(`table.${PURCHASE_ORDERS_PENDING_TABLE}`).DataTable();
 
         axios.delete(`${END_POINT}/${purchasePeriodId}?token=${token}`)
             .then(() => {
@@ -190,15 +256,65 @@ export default class PurchaseOrders extends Component {
 
         return (
             <div className="container-fluid my-4">
-                <h1><i className="fa fa-address-card-o"></i> Purchase Orders</h1>
+                <Breadcrumb>
+                    <Breadcrumb.Item active><span><i className="fa fa-folder"></i> Purchase Orders</span></Breadcrumb.Item>
+                </Breadcrumb>
 
-                <hr className="my-4"/>
-
-                <div className="row">
-                    <div className="col-md-9">
-                        <Card>
+                <Tabs defaultActiveKey="pending">
+                    <Tab eventKey="pending" title="Pending">
+                        <Card border="warning" className="mt-4">
                             <Card.Body>
-                                <table className={`table table-striped ${PURCHASE_ORDERS_TABLE}`} style={{width: 100+'%'}}>
+                                <div className="row">
+                                    <div className="col-md-9">
+                                        <table className={`table table-striped ${PURCHASE_ORDERS_PENDING_TABLE}`} style={{width: 100+'%'}}>
+                                            <thead>
+                                                <tr>
+                                                <th scope="col">Code</th>
+                                                <th scope="col">Location</th>
+                                                <th scope="col">From</th>
+                                                <th scope="col">To</th>
+                                                <th scope="col">Trips</th>
+                                                <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                    <div className="col-md-3">
+                                        <Card>
+                                            <Card.Header>New Purchase Order</Card.Header>
+                                            <Card.Body>
+                                                <Form onSubmit={this.handleSubmitNewPurchaseOrder}>
+                                                    <CommonDropdownSelectSingleLocation
+                                                        key={updateAvailableLocations}
+                                                        label="Location:"
+                                                        name="location"
+                                                        handleChange={null}
+                                                        handleInputChange={null}/>
+                                                    <Form.Group>
+                                                        <Form.Label>From:</Form.Label>
+                                                        <Form.Control type="date" name="from"></Form.Control>
+                                                        <div className="invalid-feedback"></div>
+                                                    </Form.Group>
+                                                    <Form.Group>
+                                                        <Form.Label>To:</Form.Label>
+                                                        <Form.Control type="date" name="to"></Form.Control>
+                                                        <div className="invalid-feedback"></div>
+                                                    </Form.Group>
+                                                    <hr/>
+                                                    <Button type="submit" block>Create</Button>
+                                                </Form>
+                                            </Card.Body>
+                                        </Card>
+                                    </div>
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Tab>
+                    <Tab eventKey="approved" title="Approved">
+                        <Card border="success" className="mt-4">
+                            <Card.Body>
+                                <table className={`table table-striped ${PURCHASE_ORDERS_APPROVED_TABLE}`} style={{width: 100+'%'}}>
                                     <thead>
                                         <tr>
                                         <th scope="col">Code</th>
@@ -206,7 +322,6 @@ export default class PurchaseOrders extends Component {
                                         <th scope="col">From</th>
                                         <th scope="col">To</th>
                                         <th scope="col">Trips</th>
-                                        <th scope="col">Status</th>
                                         <th></th>
                                         </tr>
                                     </thead>
@@ -214,35 +329,28 @@ export default class PurchaseOrders extends Component {
                                 </table>
                             </Card.Body>
                         </Card>
-                    </div>
-                    <div className="col-md-3">
-                        <Card>
-                            <Card.Header>New Purchase Order</Card.Header>
+                    </Tab>
+                    <Tab eventKey="closed" title="Closed">
+                        <Card border="danger" className="mt-4">
                             <Card.Body>
-                                <Form onSubmit={this.handleSubmitNewPurchaseOrder}>
-                                    <CommonDropdownSelectSingleLocation
-                                        key={updateAvailableLocations}
-                                        label="Location:"
-                                        name="location"
-                                        handleChange={null}
-                                        handleInputChange={null}/>
-                                    <Form.Group>
-                                        <Form.Label>From:</Form.Label>
-                                        <Form.Control type="date" name="from"></Form.Control>
-                                        <div className="invalid-feedback"></div>
-                                    </Form.Group>
-                                    <Form.Group>
-                                        <Form.Label>To:</Form.Label>
-                                        <Form.Control type="date" name="to"></Form.Control>
-                                        <div className="invalid-feedback"></div>
-                                    </Form.Group>
-                                    <hr/>
-                                    <Button type="submit" block>Create</Button>
-                                </Form>
+                                <table className={`table table-striped ${PURCHASE_ORDERS_CLOSED_TABLE}`} style={{width: 100+'%'}}>
+                                    <thead>
+                                        <tr>
+                                        <th scope="col">Code</th>
+                                        <th scope="col">Location</th>
+                                        <th scope="col">From</th>
+                                        <th scope="col">To</th>
+                                        <th scope="col">Trips</th>
+                                        <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
                             </Card.Body>
                         </Card>
-                    </div>
-                </div>
+                    </Tab>
+                </Tabs>
+
 
                 <CommonDeleteModal
                     isShow={showDeletePurchaseOrderModal}

@@ -11,7 +11,6 @@ use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class PurchaseOrderController extends Controller
 {
@@ -22,6 +21,8 @@ class PurchaseOrderController extends Controller
      */
     public function index(Request $request)
     {
+        $filters = $request->input('filters');
+        $search = $request->input('search') ?? [];
         $start = $request->input('start') ?? 0;
         $perPage = $request->input('length') ?? 10;
         $page = ($start/$perPage) + 1;
@@ -33,7 +34,22 @@ class PurchaseOrderController extends Controller
         $purchaseOrders = PurchaseOrder::orderBy('from', 'desc')
             ->orderBy('to', 'desc')
             ->with('status')
-            ->paginate($perPage);
+            ->whereHas('status', function ($query) use ($filters) {
+                if (isset($filters['status'])) {
+                    $query->where('id', '=', $filters['status']);
+                }
+            });
+
+        if ($search && !empty($search['value'])) {
+            $searchTerm = $search['value'];
+            $purchaseOrders = $purchaseOrders->where(function ($query) use ($searchTerm) {
+                $query
+                    ->orWhere('code', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('location', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        $purchaseOrders = $purchaseOrders->paginate($perPage);
 
         return response()->json($purchaseOrders);
     }
@@ -204,8 +220,19 @@ class PurchaseOrderController extends Controller
                 $purchaseOrderStoreItems = PurchaseOrderStoreItem::where('purchase_order_id', $purchaseOrder->id)
                     ->where(function ($query) {
                         $query
-                            ->orWhere('quantity_actual', '<=', 0)
-                            ->orWhereNull('quantity_actual')
+                            ->orWhere(function ($query) {
+                                $query
+                                    ->where(function ($query) {
+                                        $query
+                                            ->where('quantity_actual', '<=', 0)
+                                            ->orWhereNull('quantity_actual');
+                                    })
+                                    ->where(function ($query) {
+                                        $query
+                                            ->where('quantity_returns', '<=', 0)
+                                            ->orWhereNull('quantity_returns');
+                                    });
+                            })
                             ->orWhere('delivery_receipt_no', '=', '')
                             ->orWhereNull('delivery_receipt_no')
                             ->orWhere('booklet_no', '=', '')

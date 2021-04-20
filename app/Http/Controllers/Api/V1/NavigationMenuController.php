@@ -34,7 +34,7 @@ class NavigationMenuController extends Controller
                 ],
                 [
                     'label' => 'Purchase Orders',
-                    'icon' => 'fa fa-file',
+                    'icon' => 'fa fa-folder',
                     'to' => '/purchase-orders'
                 ],
                 [
