@@ -83,6 +83,7 @@ $api->version('v1', function ($api) {
         $api->get('overtime-rate-types', 'App\Http\Controllers\Api\V1\OvertimeRateTypeController@index');
         $api->resource('items', 'App\Http\Controllers\Api\V1\ItemController');
         $api->resource('stores', 'App\Http\Controllers\Api\V1\StoreController');
+        $api->get('store-categories', 'App\Http\Controllers\Api\V1\StoreController@indexStoreCategories');
         $api->resource('stores/{store}/promodisers', 'App\Http\Controllers\Api\V1\StorePromodiserController');
         $api->resource('stores/{store}/items', 'App\Http\Controllers\Api\V1\StoreItemController');
     });

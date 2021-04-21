@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import cookie from 'react-cookies';
+import { v4 as uuidv4 } from 'uuid';
 import CommonDeleteModal from './CommonDeleteModal';
+import CommonDropdownSelectSingleStoreCategory from './CommonDropdownSelectSingleStoreCategory';
 
 export default class SettingsStores extends Component {
     constructor(props) {
@@ -9,6 +11,7 @@ export default class SettingsStores extends Component {
         this.handleSubmitNewStore = this.handleSubmitNewStore.bind(this);
         this.handleCloseDeleteStoreModal = this.handleCloseDeleteStoreModal.bind(this);
         this.handleSubmitDeleteStoreModal = this.handleSubmitDeleteStoreModal.bind(this);
+        this.handleStoreCategoryChange = this.handleStoreCategoryChange.bind(this);
 
         this.state = {
             showDeleteStoreModal: false,
@@ -16,18 +19,13 @@ export default class SettingsStores extends Component {
             isDeleteStoreError: false,
             deleteStoreErrorHeaderTitle: '',
             deleteStoreErrorBodyText: '',
+            selectedCategory: {},
         };
     }
 
     componentDidMount() {
         const token = cookie.load('token');
         const self = this;
-        const exportButtons = window.exportButtonsBase;
-        const exportFilename = 'Stores';
-        const exportTitle = 'Stores';
-        exportButtons[0].filename = exportFilename;
-        exportButtons[1].filename = exportFilename;
-        exportButtons[1].title = exportTitle;
 
         $(this.refs.storesList).DataTable({
             ajax: {
@@ -46,13 +44,14 @@ export default class SettingsStores extends Component {
                     return data;
                 },
             },
-            buttons: exportButtons,
+            buttons: [],
             ordering: false,
             processing: true,
             serverSide: true,
             columns: [
                 { 'data': 'code' },
                 { 'data': 'name' },
+                { 'data': 'category' },
                 { 'data': 'address_line' },
                 {
                     'data': null,
@@ -98,6 +97,7 @@ export default class SettingsStores extends Component {
 
     handleSubmitNewStore(e) {
         e.preventDefault();
+        const self = this;
         const token = cookie.load('token');
         const table = $('.data-table-wrapper').find('table.table-stores').DataTable();
         const form = $(e.target);
@@ -105,7 +105,11 @@ export default class SettingsStores extends Component {
         const actionEndPoint = `${apiBaseUrl}/settings/stores?token=${token}`;
 
         axios.post(actionEndPoint, data)
-            .then((response) => {
+            .then(() => {
+                self.setState({
+                    ...self.state,
+                    selectedCategory: {},
+                });
                 table.ajax.reload(null, false);
                 $('.form-control', form).removeClass('is-invalid');
                 form[0].reset();
@@ -166,13 +170,21 @@ export default class SettingsStores extends Component {
             });
     }
 
+    handleStoreCategoryChange(e) {
+        const self = this;
+        self.setState({
+            ...self.state,
+            selectedCategory: e
+        })
+    }
+
     render() {
         const {
             showDeleteStoreModal,
-            storeId,
             isDeleteStoreError,
             deleteStoreErrorHeaderTitle,
             deleteStoreErrorBodyText,
+            selectedCategory,
         } = this.state;
 
         return (
@@ -191,6 +203,7 @@ export default class SettingsStores extends Component {
                                         <tr>
                                         <th scope="col">Code</th>
                                         <th scope="col">Name</th>
+                                        <th scope="col">Category</th>
                                         <th scope="col">Address</th>
                                         <th scope="col"></th>
                                         </tr>
@@ -201,7 +214,7 @@ export default class SettingsStores extends Component {
                         </Card>
                     </div>
                     <div className="col-md-3">
-                        <Card bg="dark" text="white">
+                        <Card>
                             <Card.Header>Add New Store</Card.Header>
                             <Card.Body>
                                 <Form onSubmit={this.handleSubmitNewStore}>
@@ -215,6 +228,10 @@ export default class SettingsStores extends Component {
                                         <Form.Control type="text" name="name"></Form.Control>
                                         <div className="invalid-feedback"></div>
                                     </Form.Group>
+                                    <CommonDropdownSelectSingleStoreCategory
+                                        name="category"
+                                        handleChange={this.handleStoreCategoryChange}
+                                        selectedCategory={selectedCategory}/>
                                     <Form.Group>
                                         <Form.Label>Address:</Form.Label>
                                         <Form.Control as="textarea" name="address_line"></Form.Control>

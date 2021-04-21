@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateStoreRequest;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\DB;
 
 class StoreController extends Controller
 {
@@ -25,7 +26,8 @@ class StoreController extends Controller
         if ($search && !empty($search['value'])) {
             $storesQuery
                 ->where('code', 'like', '%' . $search['value'] . '%')
-                ->orWhere('name', 'like', '%' . $search['value'] . '%');
+                ->orwhere('name', 'like', '%' . $search['value'] . '%')
+                ->orWhere('category', 'like', '%' . $search['value'] . '%');
         }
 
         if ($request->input('all')) {
@@ -48,6 +50,24 @@ class StoreController extends Controller
     }
 
     /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function indexStoreCategories()
+    {
+        $storeTableName = resolve(Store::class)->getTable();
+        $categories = DB::table($storeTableName)
+            ->select([$storeTableName . '.category'])
+            ->where($storeTableName . '.category', '<>', '')
+            ->orderBy($storeTableName . '.category')
+            ->groupBy($storeTableName . '.category')
+            ->get();
+
+        return response()->json(['data' => $categories]);
+    }
+
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -55,7 +75,8 @@ class StoreController extends Controller
      */
     public function store(StoreStoreRequest $request)
     {
-        $attributes = $request->only(['code', 'name', 'address_line']);
+        $attributes = $request->only(['code', 'name', 'category', 'address_line']);
+        $attributes['category'] = strtoupper($attributes['category']);
 
         Store::create($attributes);
 
@@ -82,7 +103,8 @@ class StoreController extends Controller
      */
     public function update(UpdateStoreRequest $request, Store $store)
     {
-        $attributes = $request->only(['code', 'name', 'address_line']);
+        $attributes = $request->only(['code', 'name', 'category', 'address_line']);
+        $attributes['category'] = strtoupper($attributes['category']);
 
         $store->fill($attributes)->save();
 

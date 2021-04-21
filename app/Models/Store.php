@@ -12,6 +12,7 @@ class Store extends Model
     protected $fillable = [
         'code',
         'name',
+        'category',
         'address_line',
     ];
 

@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Breadcrumb, Button, ButtonGroup, Card, Form } from 'react-bootstrap';
 import CommonDeleteModal from './CommonDeleteModal';
 import CommonDropdownSelectSingleItem from './CommonDropdownSelectSingleItem'
+import CommonDropdownSelectSingleStoreCategory from './CommonDropdownSelectSingleStoreCategory';
 
 const END_POINT = `${apiBaseUrl}/settings/stores`;
 
@@ -23,6 +24,8 @@ export default class SettingStoreDetails extends Component {
         this.handleSubmitNewItemPricing = this.handleSubmitNewItemPricing.bind(this);
         this.handleChangeSelectSingleItem = this.handleChangeSelectSingleItem.bind(this);
 
+        this.handleStoreCategoryChange = this.handleStoreCategoryChange.bind(this);
+
         this.state = {
             store: {
                 id: null,
@@ -30,6 +33,7 @@ export default class SettingStoreDetails extends Component {
                 name: null,
                 address_line: null,
             },
+            selectedCategory: {},
             updateStoreDetails: false,
             cancelledUpdateStoreDetails: false,
             deletePromodiser: {
@@ -308,6 +312,7 @@ export default class SettingStoreDetails extends Component {
                 self.setState({
                     ...self.state,
                     store,
+                    selectedCategory: (store.category ? { value: store.category, label: store.category } : {}),
                 });
             })
             .catch(() => {
@@ -355,6 +360,7 @@ export default class SettingStoreDetails extends Component {
                 self.setState({
                     ...self.state,
                     store,
+                    selectedCategory: { value: store.category, label: store.category },
                     updateStoreDetails: false,
                 });
             })
@@ -492,6 +498,14 @@ export default class SettingStoreDetails extends Component {
         });
     }
 
+    handleStoreCategoryChange(e) {
+        const self = this;
+        self.setState({
+            ...self.state,
+            selectedCategory: e
+        })
+    }
+
     render() {
         const {
             store,
@@ -499,6 +513,7 @@ export default class SettingStoreDetails extends Component {
             cancelledUpdateStoreDetails,
             deletePromodiser,
             selectedItem,
+            selectedCategory,
         } = this.state;
 
         return (
@@ -517,7 +532,7 @@ export default class SettingStoreDetails extends Component {
                                     key={cancelledUpdateStoreDetails ? uuidv4() : store.id}
                                     onSubmit={this.handleSubmitUpdateDetails}>
                                     <div className="row">
-                                        <div className="col-md-4">
+                                        <div className="col-md-3">
                                             <Form.Group>
                                                 <Form.Label>Code:</Form.Label>
                                                 <Form.Control
@@ -528,7 +543,7 @@ export default class SettingStoreDetails extends Component {
                                                 <div className="invalid-feedback"></div>
                                             </Form.Group>
                                         </div>
-                                        <div className="col-md-8">
+                                        <div className="col-md-6">
                                             <Form.Group>
                                                 <Form.Label>Name:</Form.Label>
                                                 <Form.Control
@@ -538,6 +553,13 @@ export default class SettingStoreDetails extends Component {
                                                     readOnly={!updateStoreDetails}></Form.Control>
                                                 <div className="invalid-feedback"></div>
                                             </Form.Group>
+                                        </div>
+                                        <div className="col-md-3">
+                                            <CommonDropdownSelectSingleStoreCategory
+                                                name="category"
+                                                readOnly={!updateStoreDetails}
+                                                handleChange={this.handleStoreCategoryChange}
+                                                selectedValue={selectedCategory}/>
                                         </div>
                                     </div>
                                     <Form.Group>
