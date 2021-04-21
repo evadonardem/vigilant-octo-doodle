@@ -63,7 +63,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
 
         let itemsTotal = {};
 
-        const details = purchaseOrderStores.map((store) => {
+        const details = purchaseOrderStores ? purchaseOrderStores.map((store) => {
             const items = store.items.map((item) => {
                 if (itemsTotal.hasOwnProperty(item.id)) {
                     itemsTotal[item.id].totalQuantityOriginal += +item.quantity_original;
@@ -128,7 +128,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                 }
                 {items}
             </View>;
-        });
+        }) : [];
 
         let items = [];
         for (const itemId in itemsTotal) {
@@ -178,66 +178,76 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
             { items }
         </View>;
 
-        let assignedStaff = purchaseOrderAssignedStaff.map((staff) => {
-            return <View key={uuidv4()} style={styles.tableRow}>
-                <Text style={{flexGrow: 1, width: '40%'}}>{staff.biometric_id}</Text>
-                <Text style={{flexGrow: 1, width: '60%'}}>{staff.name}</Text>
-            </View>;
-        });
+        let assignedStaff = [];
+        if (purchaseOrderAssignedStaff) {
+            assignedStaff = purchaseOrderAssignedStaff.map((staff) => {
+                return <View key={uuidv4()} style={styles.tableRow}>
+                    <Text style={{flexGrow: 1, width: '40%'}}>{staff.biometric_id}</Text>
+                    <Text style={{flexGrow: 1, width: '60%'}}>{staff.name}</Text>
+                </View>;
+            });
 
-        assignedStaff = <View key={uuidv4()} style={styles.assignedStaff}>
-            <View key={uuidv4()} style={styles.sectionHeading}>
-                <Text>Assigned Staff</Text>
-            </View>
-            <View key={uuidv4()} style={styles.tableHeading}>
-                <Text style={{flexGrow: 1, width: '40%'}}>ID</Text>
-                <Text style={{flexGrow: 1, width: '60%'}}>Name</Text>
-            </View>
-            {assignedStaff}
-        </View>;
-
-        let expenses = purchaseOrderExpenses.map((expense) => {
-            return <View key={uuidv4()} style={styles.tableRow}>
-                <Text style={{flexGrow: 1, width: '20%'}}>{expense.name}</Text>
-                <Text style={{flexGrow: 1, textAlign:'right', width: '25%'}}>{expense.amount_original}</Text>
-                {
-                    +purchaseOrder.status.id === 3 &&
-                    <Text style={{flexGrow: 1, textAlign:'right', width: '25%'}}>{expense.amount_actual}</Text>
-                }
-                <Text style={{flexGrow: 1, width: '29%'}}></Text>
-            </View>;
-        });
-
-        expenses = <View key={uuidv4()} style={styles.expenses}>
-            <View key={uuidv4()} style={styles.sectionHeading}>
-                <Text>Allocated Expenses</Text>
-            </View>
-            <View key={uuidv4()} style={styles.tableHeading}>
-                <Text style={{flexGrow: 1, width: '20%'}}></Text>
-                <Text style={{flexGrow: 1, textAlign:'right', width: '25%'}}>Amt. (Orig.)</Text>
-                {
-                    +purchaseOrder.status.id === 3 &&
-                    <Text style={{flexGrow: 1, textAlign:'right', width: '25%'}}>Amt. (Act.)</Text>
-                }
-                <Text style={{flexGrow: 1, textAlign:'center', width: '29%'}}>Remarks</Text>
-            </View>
-            {expenses}
-            <View key={uuidv4()} style={styles.tableRow}>
-                <Text style={{flexGrow: 1, width: '20%'}}></Text>
-                <Text style={{borderTop: '1pt dotted black', flexGrow: 1, textAlign:'right', width: '25%'}}>{parseFloat(purchaseOrderExpensesMeta.total_amount_original).toFixed(2)}</Text>
-                {
-                    +purchaseOrder.status.id === 3 &&
-                    <Text style={{borderTop: '1pt dotted black', flexGrow: 1, textAlign:'right', width: '25%'}}>{parseFloat(purchaseOrderExpensesMeta.total_amount_actual).toFixed(2)}</Text>
-                }
-                <Text style={{flexGrow: 1, width: '29%'}}></Text>
-            </View>
-            {
-                +purchaseOrder.status.id === 3 &&
+            assignedStaff = <View key={uuidv4()} style={styles.assignedStaff}>
                 <View key={uuidv4()} style={styles.sectionHeading}>
-                    <Text>CHANGE: {parseFloat(purchaseOrderExpensesMeta.change).toFixed(2)}</Text>
+                    <Text>Assigned Staff</Text>
                 </View>
-            }
-        </View>;
+                <View key={uuidv4()} style={styles.tableHeading}>
+                    <Text style={{flexGrow: 1, width: '40%'}}>ID</Text>
+                    <Text style={{flexGrow: 1, width: '60%'}}>Name</Text>
+                </View>
+                {assignedStaff}
+            </View>;
+        }
+
+        let expenses = [];
+        if (purchaseOrderExpenses) {
+            expenses = purchaseOrderExpenses.map((expense) => {
+                return <View key={uuidv4()} style={styles.tableRow}>
+                    <Text style={{flexGrow: 1, width: '20%'}}>{expense.name}</Text>
+                    <Text style={{flexGrow: 1, textAlign:'right', width: '25%'}}>{expense.amount_original}</Text>
+                    {
+                        +purchaseOrder.status.id === 3 &&
+                        <Text style={{flexGrow: 1, textAlign:'right', width: '25%'}}>{expense.amount_actual}</Text>
+                    }
+                    <Text style={{flexGrow: 1, width: '29%'}}></Text>
+                </View>;
+            });
+
+            expenses = <View key={uuidv4()} style={styles.expenses}>
+                <View key={uuidv4()} style={styles.sectionHeading}>
+                    <Text>Allocated Expenses</Text>
+                </View>
+                <View key={uuidv4()} style={styles.tableHeading}>
+                    <Text style={{flexGrow: 1, width: '20%'}}></Text>
+                    <Text style={{flexGrow: 1, textAlign:'right', width: '25%'}}>Amt. (Orig.)</Text>
+                    {
+                        +purchaseOrder.status.id === 3 &&
+                        <Text style={{flexGrow: 1, textAlign:'right', width: '25%'}}>Amt. (Act.)</Text>
+                    }
+                    <Text style={{flexGrow: 1, textAlign:'center', width: '29%'}}>Remarks</Text>
+                </View>
+                {expenses}
+
+                {
+                    purchaseOrderExpensesMeta &&
+                    <View key={uuidv4()} style={styles.tableRow}>
+                        <Text style={{flexGrow: 1, width: '20%'}}></Text>
+                        <Text style={{borderTop: '1pt dotted black', flexGrow: 1, textAlign:'right', width: '25%'}}>{parseFloat(purchaseOrderExpensesMeta.total_amount_original).toFixed(2)}</Text>
+                        {
+                            +purchaseOrder.status.id === 3 &&
+                            <Text style={{borderTop: '1pt dotted black', flexGrow: 1, textAlign:'right', width: '25%'}}>{parseFloat(purchaseOrderExpensesMeta.total_amount_actual).toFixed(2)}</Text>
+                        }
+                        <Text style={{flexGrow: 1, width: '29%'}}></Text>
+                    </View>
+                }
+                {
+                    +purchaseOrder.status.id === 3 && purchaseOrderExpensesMeta &&
+                    <View key={uuidv4()} style={styles.sectionHeading}>
+                        <Text>CHANGE: {parseFloat(purchaseOrderExpensesMeta.change).toFixed(2)}</Text>
+                    </View>
+                }
+            </View>;
+        }
 
         const orientation = +purchaseOrder.status.id === 3 ? "landscape" : "portrait";
 
