@@ -1105,35 +1105,26 @@ export default class PurchaseOrderDetails extends Component {
                                                     </Form.Group>
                                                 </div>
                                             </div>
-
-                                            {
-                                                purchaseOrderStores &&
-                                                purchaseOrderStores.length > 0 &&
-                                                purchaseOrderAssignedStaff &&
-                                                purchaseOrderAssignedStaff.length > 0 &&
-                                                purchaseOrderExpenses &&
-                                                purchaseOrderExpenses.length > 0 &&
-                                                <div className="row">
-                                                    <div className="col-md-12">
-                                                        <PDFDownloadLink
-                                                            key={uuidv4()}
-                                                            document={<PurchaseOrderDetailsPdfDocument
-                                                                purchaseOrder={purchaseOrder}
-                                                                purchaseOrderStores={purchaseOrderStores}
-                                                                purchaseOrderAssignedStaff={purchaseOrderAssignedStaff}
-                                                                purchaseOrderExpenses={purchaseOrderExpenses}
-                                                                purchaseOrderExpensesMeta={purchaseOrderExpensesMeta}/>}
-                                                            fileName={`PO-${purchaseOrder.code}.pdf`}
-                                                            className="btn btn-primary pull-right">
-                                                            {({ blob, url, loading, error }) => (
-                                                                loading
-                                                                    ? "Loading document..."
-                                                                    : <span><i className="fa fa-file"></i> Download PO</span>
-                                                            )}
-                                                        </PDFDownloadLink>
-                                                    </div>
+                                            <div className="row">
+                                                <div className="col-md-12">
+                                                    <PDFDownloadLink
+                                                        key={uuidv4()}
+                                                        document={<PurchaseOrderDetailsPdfDocument
+                                                            purchaseOrder={purchaseOrder}
+                                                            purchaseOrderStores={purchaseOrderStores}
+                                                            purchaseOrderAssignedStaff={purchaseOrderAssignedStaff}
+                                                            purchaseOrderExpenses={purchaseOrderExpenses}
+                                                            purchaseOrderExpensesMeta={purchaseOrderExpensesMeta}/>}
+                                                        fileName={`PO-${purchaseOrder.code}.pdf`}
+                                                        className="btn btn-primary pull-right">
+                                                        {({ blob, url, loading, error }) => (
+                                                            loading
+                                                                ? "Loading document..."
+                                                                : <span><i className="fa fa-file"></i> Download PO</span>
+                                                        )}
+                                                    </PDFDownloadLink>
                                                 </div>
-                                            }
+                                            </div>
                                         </Alert>
                                     }
                                 </Card.Title>
