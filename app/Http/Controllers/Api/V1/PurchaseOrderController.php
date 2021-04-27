@@ -144,7 +144,12 @@ class PurchaseOrderController extends Controller
 
         PurchaseOrder::create(array_merge(
             [
-                'code' => date('Y') . '-' . str_pad(PurchaseOrder::max('id'), 4, "0", STR_PAD_LEFT),
+                'code' => date('Y') . '-' . str_pad(
+                    PurchaseOrder::where('code', 'like', date('Y') . '-%')->get()->count() + 1,
+                    4,
+                    "0",
+                    STR_PAD_LEFT
+                ),
                 'purchase_order_status_id' => 1,
             ],
             $attributes
