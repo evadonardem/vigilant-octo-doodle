@@ -144,12 +144,7 @@ class PurchaseOrderController extends Controller
 
         PurchaseOrder::create(array_merge(
             [
-                'code' => date('Y') . '-' . str_pad(
-                    PurchaseOrder::where('code', 'like', date('Y') . '-%')->get()->count() + 1,
-                    4,
-                    "0",
-                    STR_PAD_LEFT
-                ),
+                'code' => $this->generatePurchaseOrderCode(),
                 'purchase_order_status_id' => 1,
             ],
             $attributes
@@ -315,5 +310,24 @@ class PurchaseOrderController extends Controller
         $store->pivot->delete();
 
         return response()->noContent();
+    }
+
+
+    private function generatePurchaseOrderCode($increment = 1)
+    {
+        $code = date('Y') . '-' . str_pad(
+            PurchaseOrder::where('code', 'like', date('Y') . '-%')->get()->count() + $increment,
+            4,
+            "0",
+            STR_PAD_LEFT
+        );
+
+        $isExist = PurchaseOrder::where('code', '=', $code)->get()->count() > 0;
+        
+        if ($isExist) {
+            return $this->generatePurchaseOrderCode(++$increment);
+        }
+
+        return $code;
     }
 }
