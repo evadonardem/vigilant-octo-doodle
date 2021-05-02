@@ -120,6 +120,7 @@ class DeliverySalesMonitoringController extends Controller
         });
 
         $booklets->each(function ($booklet) {
+            $booklet->deliveryReceipts = $booklet->deliveryReceipts->sortBy('id')->values();
             $booklet->amount = 0;
             $booklet->deliveryReceipts->each(function ($deliveryReceipt) use ($booklet) {
                 $deliveryReceipt->stores->each(function ($store) use ($booklet, $deliveryReceipt) {
@@ -130,6 +131,7 @@ class DeliverySalesMonitoringController extends Controller
             });
             $booklet->amount = number_format($booklet->amount, 2, '.', '');
         });
+        $booklets = $booklets->sortBy('id')->values();
 
         return response()->json([
             'data' => $booklets,
