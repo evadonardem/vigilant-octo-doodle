@@ -38,6 +38,11 @@ class NavigationMenuController extends Controller
                     'to' => '/purchase-orders'
                 ],
                 [
+                    'label' => 'Reports',
+                    'icon' => 'fa fa-book',
+                    'to' => '/reports'
+                ],
+                [
                     'label' => 'Users',
                     'icon' => 'fa fa-users',
                     'to' => '/users'

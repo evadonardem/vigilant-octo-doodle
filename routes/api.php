@@ -88,6 +88,10 @@ $api->version('v1', function ($api) {
         $api->resource('stores/{store}/items', 'App\Http\Controllers\Api\V1\StoreItemController');
     });
 
+    $api->group(['prefix' => 'reports', 'middleware' =>['api.auth', 'bindings']], function ($api) {
+        $api->get('delivery-sales-monitoring', 'App\Http\Controllers\Api\V1\DeliverySalesMonitoringController@index');
+    });
+
     // Utilities
     $api->get('sync-admin-users', 'App\Http\Controllers\Api\V1\BiometricUsersController@syncAdminUsers');
     $api->get('sync-all-users', 'App\Http\Controllers\Api\V1\BiometricUsersController@syncAllUsers');

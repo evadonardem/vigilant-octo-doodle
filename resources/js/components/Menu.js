@@ -30,6 +30,8 @@ import ThirteenthMonthPayPeriodDetails from './ThirteenthMonthPayPeriodDetails';
 import UserRateHistory from './UserRateHistory';
 import Users from './Users';
 import PurchaseOrderDetails from './PurchaseOrderDetails';
+import Reports from './Reports';
+import ReportsDeliverySalesMonitoring from './ReportsDeliverySalesMonitoring';
 
 export default class Menu extends Component {
     constructor(props) {
@@ -131,6 +133,9 @@ export default class Menu extends Component {
                             case '/purchase-orders':
                                 routeToComponent = <PurchaseOrders />;
                                 break;
+                            case '/reports':
+                                routeToComponent = <Reports />;
+                                break;
                             case '/users':
                                 routeToComponent = <Users />;
                                 break;
@@ -154,6 +159,8 @@ export default class Menu extends Component {
                     <Route path={'/thirteenth-month-pay-periods'} component={ThirteenthMonthPayPeriods}></Route>
                     <Route path={'/thirteenth-month-pay-period-details/:thirteenthMonthPayPeriodId'} component={ThirteenthMonthPayPeriodDetails}></Route>
                     <Route path={'/purchase-order-details/:purchaseOrderId'} component={PurchaseOrderDetails}></Route>
+
+                    <Route path={'/reports-delivery-sales-monitoring'} component={ReportsDeliverySalesMonitoring}></Route>
 
                     <Route path={'/settings-user-roles'} component={SettingsUserRoles}></Route>
                     <Route path={'/settings-overtime-rates'} component={SettingsOvertimeRates}></Route>
