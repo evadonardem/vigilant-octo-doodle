@@ -31,7 +31,7 @@ export default class Reports extends Component {
                             </h1>
                             <hr className="my-4"/>
                             <p className="lead text-center">
-                                <Link to={'settings-overtime-rates'}>
+                                <Link to={'reports-delivery-receipt-monitoring'}>
                                     <Button variant="primary" size="lg">Continue &raquo;</Button>
                                 </Link>
                             </p>

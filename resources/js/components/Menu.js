@@ -32,6 +32,7 @@ import Users from './Users';
 import PurchaseOrderDetails from './PurchaseOrderDetails';
 import Reports from './Reports';
 import ReportsDeliverySalesMonitoring from './ReportsDeliverySalesMonitoring';
+import ReportsDeliveryReceiptMonitoring from './ReportsDeliveryReceiptMonitoring';
 
 export default class Menu extends Component {
     constructor(props) {
@@ -161,6 +162,7 @@ export default class Menu extends Component {
                     <Route path={'/purchase-order-details/:purchaseOrderId'} component={PurchaseOrderDetails}></Route>
 
                     <Route path={'/reports-delivery-sales-monitoring'} component={ReportsDeliverySalesMonitoring}></Route>
+                    <Route path={'/reports-delivery-receipt-monitoring'} component={ReportsDeliveryReceiptMonitoring}></Route>
 
                     <Route path={'/settings-user-roles'} component={SettingsUserRoles}></Route>
                     <Route path={'/settings-overtime-rates'} component={SettingsOvertimeRates}></Route>
