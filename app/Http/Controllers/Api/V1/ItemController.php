@@ -18,15 +18,7 @@ class ItemController extends Controller
      */
     public function index(Request $request)
     {
-        $start = $request->input('start') ?? 0;
-        $perPage = $request->input('length') ?? 10;
-        $page = ($start/$perPage) + 1;
         $search = $request->input('search') ?? [];
-
-        Paginator::currentPageResolver(function () use ($page) {
-            return $page;
-        });
-
         $itemsQuery = Item::orderBy('name', 'asc');
 
         if ($search && !empty($search['value'])) {
@@ -34,6 +26,20 @@ class ItemController extends Controller
                 ->where('code', 'like', '%' . $search['value'] . '%')
                 ->orWhere('name', 'like', '%' . $search['value'] . '%');
         }
+
+        if ($request->input('all')) {
+            $items = $itemsQuery->get();
+
+            return response()->json(['data' => $items]);
+        }
+
+        $start = $request->input('start') ?? 0;
+        $perPage = $request->input('length') ?? 10;
+        $page = ($start/$perPage) + 1;
+
+        Paginator::currentPageResolver(function () use ($page) {
+            return $page;
+        });
 
         $items = $itemsQuery->paginate($perPage);
 
