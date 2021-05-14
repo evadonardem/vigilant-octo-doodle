@@ -33,6 +33,7 @@ export default class PurchaseOrderDetails extends Component {
         this.handleCloseDeleteModal = this.handleCloseDeleteModal.bind(this);
         this.handleSubmitDeleteModal = this.handleSubmitDeleteModal.bind(this);
 
+        this.handleUpdatePurchaseOrderLocation = this.handleUpdatePurchaseOrderLocation.bind(this);
         this.handleUpdatePurchaseOrderDuration = this.handleUpdatePurchaseOrderDuration.bind(this);
         this.handleClickUpdatePurchaseOrderStatus = this.handleClickUpdatePurchaseOrderStatus.bind(this);
 
@@ -931,6 +932,38 @@ export default class PurchaseOrderDetails extends Component {
             });
     }
 
+    handleUpdatePurchaseOrderLocation(e) {
+        const self = this;
+        const token = cookie.load('token');
+        const type = $(e.currentTarget).prop('name');
+        const { purchaseOrder } = self.state;
+
+        let data = {};
+        data[type] = $(e.currentTarget).val();
+
+        axios.patch(`${END_POINT}/${purchaseOrder.id}?token=${token}`, data)
+            .then((response) => {
+                const { data: purchaseOrder } = response.data;
+                self.setState({
+                    ...self.state,
+                    purchaseOrder
+                });
+            })
+            .catch((error) => {
+                const {
+                    data,
+                    status,
+                } = error.response;
+                if (+status === 422) {
+                    const { message: generalMessage } = data;
+                    self.setState({
+                        ...self.state,
+                        error: { generalMessage },
+                    });
+                }
+            });
+    }
+
     handleUpdatePurchaseOrderDuration(e) {
         const self = this;
         const token = cookie.load('token');
@@ -1070,7 +1103,12 @@ export default class PurchaseOrderDetails extends Component {
                                                 <div className="col-md-6">
                                                     <Form.Group>
                                                         <Form.Label>Location:</Form.Label>
-                                                        <Form.Control type="text" defaultValue={purchaseOrder.location} readOnly></Form.Control>
+                                                        <Form.Control
+                                                            type="text"
+                                                            name="location"
+                                                            onChange={this.handleUpdatePurchaseOrderLocation}
+                                                            defaultValue={purchaseOrder.location}
+                                                            readOnly={+purchaseOrder.status.id === 3}></Form.Control>
                                                     </Form.Group>
                                                 </div>
                                                 <div className="w-100"></div>

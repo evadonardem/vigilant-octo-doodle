@@ -66,6 +66,8 @@ $api->version('v1', function ($api) {
         $api->post('purchase-orders/{purchaseOrder}/expenses', 'App\Http\Controllers\Api\V1\PurchaseOrderExpenseController@store');
         $api->patch('purchase-orders/{purchaseOrder}/expenses/{purchaseOrderExpense}', 'App\Http\Controllers\Api\V1\PurchaseOrderExpenseController@update');
         $api->delete('purchase-orders/{purchaseOrder}/expenses/{purchaseOrderExpense}', 'App\Http\Controllers\Api\V1\PurchaseOrderExpenseController@destroy');
+
+        $api->post('sales-invoices', 'App\Http\Controllers\Api\V1\SalesInvoiceController@store');
     });
 
     $api->group(['prefix' => 'biometric', 'middleware' => 'api.auth'], function ($api) {
@@ -91,6 +93,7 @@ $api->version('v1', function ($api) {
     $api->group(['prefix' => 'reports', 'middleware' =>['api.auth', 'bindings']], function ($api) {
         $api->get('delivery-sales-monitoring', 'App\Http\Controllers\Api\V1\DeliverySalesMonitoringController@index');
         $api->get('delivery-receipt-monitoring', 'App\Http\Controllers\Api\V1\DeliveryReceiptMonitoringController@index');
+        $api->get('sales-invoices-monitoring', 'App\Http\Controllers\Api\V1\SalesInvoiceMonitoringController@index');
     });
 
     // Utilities

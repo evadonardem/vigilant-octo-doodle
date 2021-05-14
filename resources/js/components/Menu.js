@@ -33,6 +33,7 @@ import PurchaseOrderDetails from './PurchaseOrderDetails';
 import Reports from './Reports';
 import ReportsDeliverySalesMonitoring from './ReportsDeliverySalesMonitoring';
 import ReportsDeliveryReceiptMonitoring from './ReportsDeliveryReceiptMonitoring';
+import ReportsSalesInvoiceMonitoring from './ReportsSalesInvoiceMonitoring';
 
 export default class Menu extends Component {
     constructor(props) {
@@ -163,6 +164,7 @@ export default class Menu extends Component {
 
                     <Route path={'/reports-delivery-sales-monitoring'} component={ReportsDeliverySalesMonitoring}></Route>
                     <Route path={'/reports-delivery-receipt-monitoring'} component={ReportsDeliveryReceiptMonitoring}></Route>
+                    <Route path={'/reports-sales-invoice-monitoring'} component={ReportsSalesInvoiceMonitoring}></Route>
 
                     <Route path={'/settings-user-roles'} component={SettingsUserRoles}></Route>
                     <Route path={'/settings-overtime-rates'} component={SettingsOvertimeRates}></Route>
