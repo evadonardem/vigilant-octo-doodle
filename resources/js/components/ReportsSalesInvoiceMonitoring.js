@@ -269,15 +269,28 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
 
         axios.post(`${SALES_INVOICES_END_POINT}?token=${token}`, data)
             .then((response) => {
-                form[0].reset();
                 self.setState({
                     ...self.state,
                     searchFilters: null,
                     isAddSalesInvoice: false,
                 });
+                $('.form-control', form).removeClass('is-invalid');
+                form[0].reset();
             })
             .catch((error) => {
-
+                $('.form-control', form).removeClass('is-invalid');
+                if (error.response) {
+                    const { response } = error;
+                    const { data } = response;
+                    const { errors } = data;
+                    for (const key in errors) {
+                        $('[name=' + key + ']', form)
+                            .addClass('is-invalid')
+                            .closest('.form-group')
+                            .find('.invalid-feedback')
+                            .text(errors[key][0]);
+                    }
+               }
             });
     }
 
@@ -315,6 +328,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                         <Form.Group>
                                             <Form.Label>Date Countered:</Form.Label>
                                             <Form.Control type="date" name="date_countered"/>
+                                            <div className="invalid-feedback"></div>
                                         </Form.Group>
                                     </div>
                                 </div>
@@ -327,20 +341,22 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                                         <Form.Group>
                                                             <Form.Label>Booklet No.:</Form.Label>
                                                             <Form.Control type="text" name="booklet_no"/>
+                                                            <div className="invalid-feedback"></div>
                                                         </Form.Group>
                                                     </div>
                                                     <div className="col-md-3">
                                                         <Form.Group>
                                                             <Form.Label>Invoice No.:</Form.Label>
                                                             <Form.Control type="text" name="invoice_no"/>
+                                                            <div className="invalid-feedback"></div>
                                                         </Form.Group>
                                                     </div>
                                                     <div className="col-md-6">
-                                                    <CommonDropdownSelectSingleStoreCategory
-                                                        label="Sold To:"
-                                                        name="category_id"
-                                                        handleChange={this.handleStoreCategoryChange}
-                                                        selectedCategory={selectedCategory}/>
+                                                        <CommonDropdownSelectSingleStoreCategory
+                                                            label="Sold To:"
+                                                            name="category_id"
+                                                            handleChange={this.handleStoreCategoryChange}
+                                                            selectedCategory={selectedCategory}/>
                                                     </div>
                                                 </div>
                                                 <div className="row">
@@ -348,18 +364,21 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                                         <Form.Group>
                                                             <Form.Label>From:</Form.Label>
                                                             <Form.Control type="date" name="from"/>
+                                                            <div className="invalid-feedback"></div>
                                                         </Form.Group>
                                                     </div>
                                                     <div className="col-md-6">
                                                         <Form.Group>
                                                             <Form.Label>To:</Form.Label>
                                                             <Form.Control type="date" name="to"/>
+                                                            <div className="invalid-feedback"></div>
                                                         </Form.Group>
                                                     </div>
                                                 </div>
                                                 <Form.Group>
                                                     <Form.Label>Total Sales:</Form.Label>
                                                     <Form.Control type="number" step="any" name="total_sales" onChange={this.handleTotalSalesChange}/>
+                                                    <div className="invalid-feedback"></div>
                                                 </Form.Group>
                                             </Card.Body>
                                         </Card>
