@@ -51,7 +51,16 @@ export default class SettingsStores extends Component {
             columns: [
                 { 'data': 'code' },
                 { 'data': 'name' },
-                { 'data': 'category' },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        if (row.category_id) {
+                            return row.category.name;
+                        }
+
+                        return '-';
+                    }
+                },
                 { 'data': 'address_line' },
                 {
                     'data': null,
@@ -98,10 +107,17 @@ export default class SettingsStores extends Component {
     handleSubmitNewStore(e) {
         e.preventDefault();
         const self = this;
+        const { selectedCategory } = self.state;
         const token = cookie.load('token');
         const table = $('.data-table-wrapper').find('table.table-stores').DataTable();
         const form = $(e.target);
-        const data = $(form).serialize();
+        const data = {
+            code: $('[name="code"]', form).val(),
+            name: $('[name="name"]', form).val(),
+            category: selectedCategory,
+            address_line: $('[name="address_line"]', form).val(),
+        };
+
         const actionEndPoint = `${apiBaseUrl}/settings/stores?token=${token}`;
 
         axios.post(actionEndPoint, data)
@@ -229,7 +245,6 @@ export default class SettingsStores extends Component {
                                         <div className="invalid-feedback"></div>
                                     </Form.Group>
                                     <CommonDropdownSelectSingleStoreCategory
-                                        name="category"
                                         handleChange={this.handleStoreCategoryChange}
                                         selectedCategory={selectedCategory}/>
                                     <Form.Group>

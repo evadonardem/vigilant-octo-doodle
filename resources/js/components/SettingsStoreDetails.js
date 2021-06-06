@@ -312,7 +312,7 @@ export default class SettingStoreDetails extends Component {
                 self.setState({
                     ...self.state,
                     store,
-                    selectedCategory: (store.category ? { value: store.category, label: store.category } : {}),
+                    selectedCategory: (store.category ? { value: store.category.id, label: store.category.name } : {}),
                 });
             })
             .catch(() => {
@@ -349,9 +349,14 @@ export default class SettingStoreDetails extends Component {
         e.preventDefault();
         const token = cookie.load('token');
         const self = this;
-        const { store } = self.state;
+        const { store, selectedCategory } = self.state;
         const form = $(e.target);
-        const data = $(form).serialize();
+        const data = {
+            code: $('[name="code"]', form).val(),
+            name: $('[name="name"]', form).val(),
+            category: selectedCategory,
+            address_line: $('[name="address_line"]', form).val(),
+        };
 
         axios.patch(`${END_POINT}/${store.id}?token=${token}`, data)
             .then((response) => {
@@ -360,7 +365,7 @@ export default class SettingStoreDetails extends Component {
                 self.setState({
                     ...self.state,
                     store,
-                    selectedCategory: { value: store.category, label: store.category },
+                    selectedCategory: { value: store.category.id, label: store.category.name },
                     updateStoreDetails: false,
                 });
             })
@@ -556,7 +561,6 @@ export default class SettingStoreDetails extends Component {
                                         </div>
                                         <div className="col-md-3">
                                             <CommonDropdownSelectSingleStoreCategory
-                                                name="category"
                                                 readOnly={!updateStoreDetails}
                                                 handleChange={this.handleStoreCategoryChange}
                                                 selectedValue={selectedCategory}/>

@@ -63,7 +63,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
 
         let itemsTotal = {};
 
-        const details = purchaseOrderStores ? purchaseOrderStores.map((store) => {
+        const details = purchaseOrderStores ? purchaseOrderStores.map((store, i) => {
             const items = store.items.map((item) => {
                 if (itemsTotal.hasOwnProperty(item.id)) {
                     itemsTotal[item.id].totalQuantityOriginal += +item.quantity_original;
@@ -106,7 +106,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
             });
 
             return <View key={store.id} style={styles.store}>
-                <Text>({store.code}) {store.name} | Promodiser(s): {promodisers.join(', ')}</Text>
+                <Text>{i+1}) ({store.code}) {store.name} | Promodiser(s): {promodisers.join(', ')}</Text>
                 <Text style={{marginBottom: 5}}>Address: {store.address_line}</Text>
                 {
                     +purchaseOrder.status.id === 3
@@ -263,11 +263,10 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                             <Text>GIFT OF GRACE FOOD MANUFACTURING</Text>
                             <Text>#5 Purok 6 Pinsao Pilot, Baguio City</Text>
                             <Text>Tel. No: 074-661-3554</Text>
-                            <Text>Purchase Order</Text>
+                            <Text>Purchase Order #{purchaseOrder.code}</Text>
                         </View>
                         <View style={styles.purchaseOrder}>
                             <Text>
-                                Code: {purchaseOrder.code}&nbsp;
                                 Location: {purchaseOrder.location}&nbsp;
                                 From: {purchaseOrder.from} To: {purchaseOrder.to}&nbsp;
                                 ({purchaseOrder.trips} trip{purchaseOrder.trips > 1 ? "s" : ""})

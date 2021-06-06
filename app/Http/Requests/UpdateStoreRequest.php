@@ -27,7 +27,7 @@ class UpdateStoreRequest extends FormRequest
         return [
             'code' => 'required|string|max:255|unique:stores,code,' . $request->store->id,
             'name' => 'required|string|max:255',
-            'category' => 'required|string|max:255',
+            'category' => 'required|array',
             'address_line' => 'required|string|max:255',
         ];
     }

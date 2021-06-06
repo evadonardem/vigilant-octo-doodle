@@ -12,7 +12,7 @@ class Store extends Model
     protected $fillable = [
         'code',
         'name',
-        'category',
+        'category_id',
         'address_line',
     ];
 
@@ -26,5 +26,10 @@ class Store extends Model
         return $this->belongsToMany(Item::class, 'store_item_prices')
             ->withPivot('effectivity_date', 'amount')
             ->withTimestamps();
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }

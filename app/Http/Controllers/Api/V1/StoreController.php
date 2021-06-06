@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreStoreRequest;
 use App\Http\Requests\UpdateStoreRequest;
+use App\Models\Category;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
@@ -21,13 +22,13 @@ class StoreController extends Controller
     {
         $search = $request->input('search') ?? [];
         $storesQuery = Store::orderBy('name', 'asc')
-            ->orderBy('address_line', 'asc');
+            ->orderBy('address_line', 'asc')
+            ->with('category');
 
         if ($search && !empty($search['value'])) {
             $storesQuery
                 ->where('code', 'like', '%' . $search['value'] . '%')
-                ->orwhere('name', 'like', '%' . $search['value'] . '%')
-                ->orWhere('category', 'like', '%' . $search['value'] . '%');
+                ->orwhere('name', 'like', '%' . $search['value'] . '%');
         }
 
         if ($request->input('all')) {
@@ -56,13 +57,7 @@ class StoreController extends Controller
      */
     public function indexStoreCategories()
     {
-        $storeTableName = resolve(Store::class)->getTable();
-        $categories = DB::table($storeTableName)
-            ->select([$storeTableName . '.category'])
-            ->where($storeTableName . '.category', '<>', '')
-            ->orderBy($storeTableName . '.category')
-            ->groupBy($storeTableName . '.category')
-            ->get();
+        $categories = Category::orderBy('name', 'asc')->get();
 
         return response()->json(['data' => $categories]);
     }
@@ -75,10 +70,23 @@ class StoreController extends Controller
      */
     public function store(StoreStoreRequest $request)
     {
-        $attributes = $request->only(['code', 'name', 'category', 'address_line']);
-        $attributes['category'] = strtoupper($attributes['category']);
+        $storeAttributes = $request->only(['code', 'name', 'address_line']);
 
-        Store::create($attributes);
+        $selectedCategory = $request->only(['category']);
+        $isNewCategory = $selectedCategory['category']['__isNew__'] ?? false;
+
+        $categoryId = null;
+        if ($isNewCategory) {
+            $category = Category::create([
+                'name' => $selectedCategory['category']['label'],
+            ]);
+            $categoryId = $category->id;
+        } else {
+            $categoryId = $selectedCategory['category']['value'];
+        }
+        $storeAttributes['category_id'] = $categoryId;
+
+        Store::create($storeAttributes);
 
         return response()->noContent();
     }
@@ -91,6 +99,7 @@ class StoreController extends Controller
      */
     public function show(Store $store)
     {
+        $store->category;
         return response()->json(['data' => $store]);
     }
 
@@ -103,10 +112,24 @@ class StoreController extends Controller
      */
     public function update(UpdateStoreRequest $request, Store $store)
     {
-        $attributes = $request->only(['code', 'name', 'category', 'address_line']);
-        $attributes['category'] = strtoupper($attributes['category']);
+        $storeAttributes = $request->only(['code', 'name', 'address_line']);
 
-        $store->fill($attributes)->save();
+        $selectedCategory = $request->only(['category']);
+        $isNewCategory = $selectedCategory['category']['__isNew__'] ?? false;
+
+        $categoryId = null;
+        if ($isNewCategory) {
+            $category = Category::create([
+                'name' => $selectedCategory['category']['label'],
+            ]);
+            $categoryId = $category->id;
+        } else {
+            $categoryId = $selectedCategory['category']['value'];
+        }
+        $storeAttributes['category_id'] = $categoryId;
+        $store->fill($storeAttributes)->save();
+
+        $store->category;
 
         return response()->json(['data' => $store]);
     }

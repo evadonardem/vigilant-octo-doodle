@@ -19,7 +19,7 @@ export default class CommonDropdownSelectSingleStoreCategory extends Component {
             axios.get(`${apiBaseUrl}/settings/store-categories?token=${token}`)
                 .then((response) => {
                     const { data: categories } = response.data;
-                    const options = categories.map((category) => { return { value: category.category, label: `${category.category}` } });
+                    const options = categories.map((category) => { return { value: category.id, label: `${category.name}` } });
                     self.setState({ options });
                 })
                 .catch((error) => {
