@@ -17,42 +17,8 @@ class SalesInvoiceController extends Controller
      */
     public function store(StoreSalesInvoiceRequest $request)
     {
-        $attributes = $request->only(['booklet_no', 'invoice_no', 'store_id', 'date_countered', 'from', 'to', 'total_sales', 'vat_rate']);
+        $attributes = $request->only(['booklet_no', 'invoice_no', 'category_id', 'date_countered', 'from', 'to', 'total_sales', 'vat_rate']);
 
         return SalesInvoice::create($attributes);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\SalesInvoice  $salesInvoice
-     * @return \Illuminate\Http\Response
-     */
-    public function show(SalesInvoice $salesInvoice)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\SalesInvoice  $salesInvoice
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, SalesInvoice $salesInvoice)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\SalesInvoice  $salesInvoice
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(SalesInvoice $salesInvoice)
-    {
-        //
     }
 }

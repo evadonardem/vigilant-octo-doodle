@@ -12,7 +12,7 @@ class SalesInvoice extends Model
     protected $fillable = [
          'booklet_no',
          'invoice_no',
-         'store_id',
+         'category_id',
          'date_countered',
          'from',
          'to',
@@ -26,9 +26,9 @@ class SalesInvoice extends Model
         'total_amount_due',
     ];
 
-    public function store()
+    public function category()
     {
-        return $this->belongsTo(Store::class);
+        return $this->belongsTo(Category::class);
     }
 
     public function getVatAmountAttribute()

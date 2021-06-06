@@ -27,7 +27,7 @@ class StoreSalesInvoiceRequest extends FormRequest
             'date_countered' => 'required|date',
             'booklet_no' => 'required|string|max:255',
             'invoice_no' => 'required|string|max:255',
-            'store_id' => 'required|integer',
+            'category_id' => 'required|integer',
             'from' => 'required|date',
             'to' => 'required|date',
             'total_sales' => 'required|numeric',

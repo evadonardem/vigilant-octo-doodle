@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\SalesInvoice;
-use App\Models\Store;
 use stdClass;
 
 class SalesInvoiceMonitoringController extends Controller
@@ -17,16 +17,16 @@ class SalesInvoiceMonitoringController extends Controller
      */
     public function index(Request $request)
     {
-        $salesInvoicesQuery = SalesInvoice::with('store')
+        $salesInvoicesQuery = SalesInvoice::with('category')
             ->where('to', '>=', $request->input('from'))
             ->where('to', '<=', $request->input('to'));
 
-        $storeId = null;
-        $searchStore = null;
-        if ($request->input('store_id')) {
-            $storeId = $request->input('store_id');
-            $searchStore = Store::findOrFail($storeId);
-            $salesInvoicesQuery->where('store_id', '=', $storeId);
+        $categoryId = null;
+        $searchCategory = null;
+        if ($request->input('category_id')) {
+            $categoryId = $request->input('category_id');
+            $searchCategory = Category::findOrFail($categoryId);
+            $salesInvoicesQuery->where('category_id', '=', $categoryId);
         }
 
         $salesInvoices = $salesInvoicesQuery->get();
@@ -61,7 +61,7 @@ class SalesInvoiceMonitoringController extends Controller
             'meta' => [
                 'search_filters' => array_merge(
                     $request->only(['from', 'to']),
-                    ['store' => ($searchStore ? $searchStore->only('code', 'name') : null)]
+                    ['store' => ($searchCategory ? $searchCategory->only('name') : null)]
                 )
             ]
         ]);

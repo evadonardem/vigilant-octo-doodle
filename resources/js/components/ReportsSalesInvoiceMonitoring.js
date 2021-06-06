@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Breadcrumb, Button, ButtonGroup, Card, Form, Jumbotron } from 'react-bootstrap';
 import cookie from 'react-cookies';
-import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
+import CommonDropdownSelectSingleStoreCategory from './CommonDropdownSelectSingleStoreCategory';
 
 const END_POINT = `${apiBaseUrl}/reports/sales-invoices-monitoring`;
 const DT_SALES_INVOICES_MONITORING = `table-sales-invoices-monitoring`;
@@ -17,12 +17,14 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
         this.handleAddSalesInvoice = this.handleAddSalesInvoice.bind(this);
         this.handleAddSalesInvoiceCancelled = this.handleAddSalesInvoiceCancelled.bind(this);
         this.handleAddSalesInvoiceSubmit = this.handleAddSalesInvoiceSubmit.bind(this);
+        this.handleStoreCategoryChange = this.handleStoreCategoryChange.bind(this);
 
         this.state = {
             token: null,
             searchFilters: null,
             booklets: [],
             isAddSalesInvoice: false,
+            selectedCategory: {},
         };
     }
 
@@ -166,7 +168,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                             {
                                 'data': null,
                                 'render': function (data, type, row) {
-                                    return `${row.store.code} - ${row.store.name}`;
+                                    return `${row.category.name}`;
                                 }
                             },
                             { data: 'from' },
@@ -268,16 +270,30 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
         axios.post(`${SALES_INVOICES_END_POINT}?token=${token}`, data)
             .then((response) => {
                 form[0].reset();
+                self.setState({
+                    ...self.state,
+                    searchFilters: null,
+                    isAddSalesInvoice: false,
+                });
             })
             .catch((error) => {
 
             });
     }
 
+    handleStoreCategoryChange(e) {
+        const self = this;
+        self.setState({
+            ...self.state,
+            selectedCategory: e
+        })
+    }
+
     render() {
         const {
             searchFilters,
             isAddSalesInvoice,
+            selectedCategory,
         } = this.state;
 
         return (
@@ -320,7 +336,11 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                                         </Form.Group>
                                                     </div>
                                                     <div className="col-md-6">
-                                                        <CommonDropdownSelectSingleStore label="Sold To:" name="store_id"/>
+                                                    <CommonDropdownSelectSingleStoreCategory
+                                                        label="Sold To:"
+                                                        name="category_id"
+                                                        handleChange={this.handleStoreCategoryChange}
+                                                        selectedCategory={selectedCategory}/>
                                                     </div>
                                                 </div>
                                                 <div className="row">
@@ -394,7 +414,11 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                         <Form.Label>To:</Form.Label>
                                         <Form.Control type="date" name="to"/>
                                     </Form.Group>
-                                    <CommonDropdownSelectSingleStore name="store_id"/>
+                                    <CommonDropdownSelectSingleStoreCategory
+                                        label="Sold To:"
+                                        name="category_id"
+                                        handleChange={this.handleStoreCategoryChange}
+                                        selectedCategory={selectedCategory}/>
                                     <hr className="my-4"/>
                                     <Button type="submit" block>Generate Report</Button>
                                 </Form>
@@ -407,7 +431,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                 searchFilters &&
                                 <Card.Header>
                                     <h4>Sales Invoice Monitoring</h4>
-                                    {searchFilters.store ? `(${searchFilters.store.code}) ${searchFilters.store.name}` : `All Stores`} | From: {searchFilters.from} To: {searchFilters.to}
+                                    {searchFilters.store ? `${searchFilters.store.name}` : `All Stores`} | From: {searchFilters.from} To: {searchFilters.to}
                                 </Card.Header>
                             }
                             <Card.Body>
