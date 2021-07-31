@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreStoreRequest;
 use App\Http\Requests\UpdateStoreRequest;
 use App\Models\Category;
+use App\Models\Location;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
@@ -23,7 +24,8 @@ class StoreController extends Controller
         $search = $request->input('search') ?? [];
         $storesQuery = Store::orderBy('name', 'asc')
             ->orderBy('address_line', 'asc')
-            ->with('category');
+            ->with('category')
+            ->with('location');
 
         if ($search && !empty($search['value'])) {
             $storesQuery
@@ -63,6 +65,18 @@ class StoreController extends Controller
     }
 
     /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function indexStoreLocations()
+    {
+        $locations = Location::orderBy('name', 'asc')->get();
+
+        return response()->json(['data' => $locations]);
+    }
+
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -84,7 +98,22 @@ class StoreController extends Controller
         } else {
             $categoryId = $selectedCategory['category']['value'];
         }
+
+        $selectedLocation = $request->only(['location']);
+        $isNewLocation = $selectedLocation['location']['__isNew__'] ?? false;
+
+        $locationId = null;
+        if ($isNewLocation) {
+            $location = Location::create([
+                'name' => $selectedLocation['location']['label'],
+            ]);
+            $locationId = $location->id;
+        } else {
+            $locationId = $selectedLocation['location']['value'];
+        }
+
         $storeAttributes['category_id'] = $categoryId;
+        $storeAttributes['location_id'] = $locationId;
 
         Store::create($storeAttributes);
 
@@ -99,7 +128,7 @@ class StoreController extends Controller
      */
     public function show(Store $store)
     {
-        $store->category;
+        $store->loadMissing(['category', 'location']);
         return response()->json(['data' => $store]);
     }
 
@@ -120,16 +149,32 @@ class StoreController extends Controller
         $categoryId = null;
         if ($isNewCategory) {
             $category = Category::create([
-                'name' => $selectedCategory['category']['label'],
+                'name' => strtoupper($selectedCategory['category']['label']),
             ]);
             $categoryId = $category->id;
         } else {
-            $categoryId = $selectedCategory['category']['value'];
+            $categoryId = $selectedCategory['category']['value'] ?? null;
         }
+
+        $selectedLocation = $request->only(['location']);
+        $isNewLocation = $selectedLocation['location']['__isNew__'] ?? false;
+
+        $locationId = null;
+        if ($isNewLocation) {
+            $location = Location::create([
+                'name' => strtoupper($selectedLocation['location']['label']),
+            ]);
+            $locationId = $location->id;
+        } else {
+            $locationId = $selectedLocation['location']['value'] ?? null;
+        }
+
         $storeAttributes['category_id'] = $categoryId;
+        $storeAttributes['location_id'] = $locationId;
         $store->fill($storeAttributes)->save();
 
         $store->category;
+        $store->location;
 
         return response()->json(['data' => $store]);
     }

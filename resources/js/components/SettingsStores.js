@@ -4,6 +4,7 @@ import cookie from 'react-cookies';
 import { v4 as uuidv4 } from 'uuid';
 import CommonDeleteModal from './CommonDeleteModal';
 import CommonDropdownSelectSingleStoreCategory from './CommonDropdownSelectSingleStoreCategory';
+import CommonDropdownSelectSingleStoreLocation from './CommonDropdownSelectSingleStoreLocation';
 
 export default class SettingsStores extends Component {
     constructor(props) {
@@ -12,6 +13,7 @@ export default class SettingsStores extends Component {
         this.handleCloseDeleteStoreModal = this.handleCloseDeleteStoreModal.bind(this);
         this.handleSubmitDeleteStoreModal = this.handleSubmitDeleteStoreModal.bind(this);
         this.handleStoreCategoryChange = this.handleStoreCategoryChange.bind(this);
+        this.handleStoreLocationChange = this.handleStoreLocationChange.bind(this);
 
         this.state = {
             showDeleteStoreModal: false,
@@ -20,6 +22,7 @@ export default class SettingsStores extends Component {
             deleteStoreErrorHeaderTitle: '',
             deleteStoreErrorBodyText: '',
             selectedCategory: {},
+            selectedLocation: {},
         };
     }
 
@@ -61,6 +64,17 @@ export default class SettingsStores extends Component {
                         return '-';
                     }
                 },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        if (row.location_id) {
+                            return row.location.name;
+                        }
+
+                        return '-';
+                    }
+                },
+                { 'data': 'address_line' },
                 { 'data': 'address_line' },
                 {
                     'data': null,
@@ -107,7 +121,7 @@ export default class SettingsStores extends Component {
     handleSubmitNewStore(e) {
         e.preventDefault();
         const self = this;
-        const { selectedCategory } = self.state;
+        const { selectedCategory, selectedLocation } = self.state;
         const token = cookie.load('token');
         const table = $('.data-table-wrapper').find('table.table-stores').DataTable();
         const form = $(e.target);
@@ -115,6 +129,7 @@ export default class SettingsStores extends Component {
             code: $('[name="code"]', form).val(),
             name: $('[name="name"]', form).val(),
             category: selectedCategory,
+            location: selectedLocation,
             address_line: $('[name="address_line"]', form).val(),
         };
 
@@ -125,6 +140,7 @@ export default class SettingsStores extends Component {
                 self.setState({
                     ...self.state,
                     selectedCategory: {},
+                    selectedLocation: {},
                 });
                 table.ajax.reload(null, false);
                 $('.form-control', form).removeClass('is-invalid');
@@ -194,6 +210,14 @@ export default class SettingsStores extends Component {
         })
     }
 
+    handleStoreLocationChange(e) {
+        const self = this;
+        self.setState({
+            ...self.state,
+            selectedLocation: e
+        })
+    }
+
     render() {
         const {
             showDeleteStoreModal,
@@ -201,6 +225,7 @@ export default class SettingsStores extends Component {
             deleteStoreErrorHeaderTitle,
             deleteStoreErrorBodyText,
             selectedCategory,
+            selectedLocation,
         } = this.state;
 
         return (
@@ -220,6 +245,8 @@ export default class SettingsStores extends Component {
                                         <th scope="col">Code</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Category</th>
+                                        <th scope="col">Location</th>
+                                        <th scope="col">Tags</th>
                                         <th scope="col">Address</th>
                                         <th scope="col"></th>
                                         </tr>
@@ -246,7 +273,10 @@ export default class SettingsStores extends Component {
                                     </Form.Group>
                                     <CommonDropdownSelectSingleStoreCategory
                                         handleChange={this.handleStoreCategoryChange}
-                                        selectedCategory={selectedCategory}/>
+                                        selectedValue={selectedCategory}/>
+                                    <CommonDropdownSelectSingleStoreLocation
+                                        handleChange={this.handleStoreLocationChange}
+                                        selectedValue={selectedLocation}/>
                                     <Form.Group>
                                         <Form.Label>Address:</Form.Label>
                                         <Form.Control as="textarea" name="address_line"></Form.Control>
@@ -263,7 +293,7 @@ export default class SettingsStores extends Component {
                 <CommonDeleteModal
                     isShow={showDeleteStoreModal}
                     headerTitle="Delete Store"
-                    bodyText={`Are you sure to delete this pay period?`}
+                    bodyText={`Are you sure to delete this store?`}
                     handleClose={this.handleCloseDeleteStoreModal}
                     handleSubmit={this.handleSubmitDeleteStoreModal}
                     isDeleteError={isDeleteStoreError}

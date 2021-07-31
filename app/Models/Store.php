@@ -13,6 +13,7 @@ class Store extends Model
         'code',
         'name',
         'category_id',
+        'location_id',
         'address_line',
     ];
 
@@ -31,5 +32,10 @@ class Store extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
     }
 }

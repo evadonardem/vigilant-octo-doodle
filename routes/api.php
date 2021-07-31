@@ -86,6 +86,7 @@ $api->version('v1', function ($api) {
         $api->resource('items', 'App\Http\Controllers\Api\V1\ItemController');
         $api->resource('stores', 'App\Http\Controllers\Api\V1\StoreController');
         $api->get('store-categories', 'App\Http\Controllers\Api\V1\StoreController@indexStoreCategories');
+        $api->get('store-locations', 'App\Http\Controllers\Api\V1\StoreController@indexStoreLocations');
         $api->resource('stores/{store}/promodisers', 'App\Http\Controllers\Api\V1\StorePromodiserController');
         $api->resource('stores/{store}/items', 'App\Http\Controllers\Api\V1\StoreItemController');
     });

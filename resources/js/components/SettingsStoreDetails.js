@@ -5,6 +5,7 @@ import { Breadcrumb, Button, ButtonGroup, Card, Form } from 'react-bootstrap';
 import CommonDeleteModal from './CommonDeleteModal';
 import CommonDropdownSelectSingleItem from './CommonDropdownSelectSingleItem'
 import CommonDropdownSelectSingleStoreCategory from './CommonDropdownSelectSingleStoreCategory';
+import CommonDropdownSelectSingleStoreLocation from './CommonDropdownSelectSingleStoreLocation';
 
 const END_POINT = `${apiBaseUrl}/settings/stores`;
 
@@ -25,6 +26,7 @@ export default class SettingStoreDetails extends Component {
         this.handleChangeSelectSingleItem = this.handleChangeSelectSingleItem.bind(this);
 
         this.handleStoreCategoryChange = this.handleStoreCategoryChange.bind(this);
+        this.handleStoreLocationChange = this.handleStoreLocationChange.bind(this);
 
         this.state = {
             store: {
@@ -34,6 +36,7 @@ export default class SettingStoreDetails extends Component {
                 address_line: null,
             },
             selectedCategory: {},
+            selectedLocation: {},
             updateStoreDetails: false,
             cancelledUpdateStoreDetails: false,
             deletePromodiser: {
@@ -313,6 +316,7 @@ export default class SettingStoreDetails extends Component {
                     ...self.state,
                     store,
                     selectedCategory: (store.category ? { value: store.category.id, label: store.category.name } : {}),
+                    selectedLocation: (store.location ? { value: store.location.id, label: store.location.name } : {}),
                 });
             })
             .catch(() => {
@@ -349,12 +353,13 @@ export default class SettingStoreDetails extends Component {
         e.preventDefault();
         const token = cookie.load('token');
         const self = this;
-        const { store, selectedCategory } = self.state;
+        const { store, selectedCategory, selectedLocation } = self.state;
         const form = $(e.target);
         const data = {
             code: $('[name="code"]', form).val(),
             name: $('[name="name"]', form).val(),
             category: selectedCategory,
+            location: selectedLocation,
             address_line: $('[name="address_line"]', form).val(),
         };
 
@@ -366,6 +371,7 @@ export default class SettingStoreDetails extends Component {
                     ...self.state,
                     store,
                     selectedCategory: { value: store.category.id, label: store.category.name },
+                    selectedLocation: { value: store.location.id, label: store.location.name },
                     updateStoreDetails: false,
                 });
             })
@@ -511,6 +517,14 @@ export default class SettingStoreDetails extends Component {
         })
     }
 
+    handleStoreLocationChange(e) {
+        const self = this;
+        self.setState({
+            ...self.state,
+            selectedLocation: e
+        })
+    }
+
     render() {
         const {
             store,
@@ -519,6 +533,7 @@ export default class SettingStoreDetails extends Component {
             deletePromodiser,
             selectedItem,
             selectedCategory,
+            selectedLocation,
         } = this.state;
 
         return (
@@ -537,7 +552,7 @@ export default class SettingStoreDetails extends Component {
                                     key={cancelledUpdateStoreDetails ? uuidv4() : store.id}
                                     onSubmit={this.handleSubmitUpdateDetails}>
                                     <div className="row">
-                                        <div className="col-md-3">
+                                        <div className="col-md-2">
                                             <Form.Group>
                                                 <Form.Label>Code:</Form.Label>
                                                 <Form.Control
@@ -559,11 +574,17 @@ export default class SettingStoreDetails extends Component {
                                                 <div className="invalid-feedback"></div>
                                             </Form.Group>
                                         </div>
-                                        <div className="col-md-3">
+                                        <div className="col-md-2">
                                             <CommonDropdownSelectSingleStoreCategory
                                                 readOnly={!updateStoreDetails}
                                                 handleChange={this.handleStoreCategoryChange}
                                                 selectedValue={selectedCategory}/>
+                                        </div>
+                                        <div className="col-md-2">
+                                            <CommonDropdownSelectSingleStoreLocation
+                                                readOnly={!updateStoreDetails}
+                                                handleChange={this.handleStoreLocationChange}
+                                                selectedValue={selectedLocation}/>
                                         </div>
                                     </div>
                                     <Form.Group>
