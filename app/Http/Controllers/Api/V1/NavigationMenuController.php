@@ -38,6 +38,11 @@ class NavigationMenuController extends Controller
                     'to' => '/purchase-orders'
                 ],
                 [
+                    'label' => 'Sales Invoices',
+                    'icon' => 'fa fa-folder',
+                    'to' => '/sales-invoices'
+                ],
+                [
                     'label' => 'Reports',
                     'icon' => 'fa fa-book',
                     'to' => '/reports'
