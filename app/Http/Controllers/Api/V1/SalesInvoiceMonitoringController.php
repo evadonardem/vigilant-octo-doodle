@@ -30,6 +30,9 @@ class SalesInvoiceMonitoringController extends Controller
         }
 
         $salesInvoices = $salesInvoicesQuery->get();
+        foreach ($salesInvoices as $salesInvoice) {
+            $salesInvoice->total_sales = $salesInvoice->items->sum('total_amount');
+        }
 
         $booklets = collect();
         foreach ($salesInvoices as $salesInvoice) {

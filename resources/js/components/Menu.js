@@ -19,6 +19,9 @@ import ManualLogs from './ManualLogs';
 import PayPeriodDetails from './PayPeriodDetails';
 import PayPeriods from './PayPeriods';
 import PurchaseOrders from './PurchaseOrders';
+import SalesInvoices from './SalesInvoices';
+import SalesInvoicesCreate from './SalesInvoicesCreate';
+import SalesInvoicesShow from './SalesInvoicesShow';
 import Settings from './Settings';
 import SettingsItems from './SettingsItems';
 import SettingsOvertimeRates from './SettingsOvertimeRates';
@@ -34,6 +37,7 @@ import Reports from './Reports';
 import ReportsDeliverySalesMonitoring from './ReportsDeliverySalesMonitoring';
 import ReportsDeliveryReceiptMonitoring from './ReportsDeliveryReceiptMonitoring';
 import ReportsSalesInvoiceMonitoring from './ReportsSalesInvoiceMonitoring';
+import Trends from './Trends';
 
 export default class Menu extends Component {
     constructor(props) {
@@ -135,8 +139,14 @@ export default class Menu extends Component {
                             case '/purchase-orders':
                                 routeToComponent = <PurchaseOrders />;
                                 break;
+                            case '/sales-invoices':
+                                routeToComponent = <SalesInvoices />;
+                                break;
                             case '/reports':
                                 routeToComponent = <Reports />;
+                                break;
+                            case '/trends':
+                                routeToComponent = <Trends />;
                                 break;
                             case '/users':
                                 routeToComponent = <Users />;
@@ -161,6 +171,9 @@ export default class Menu extends Component {
                     <Route path={'/thirteenth-month-pay-periods'} component={ThirteenthMonthPayPeriods}></Route>
                     <Route path={'/thirteenth-month-pay-period-details/:thirteenthMonthPayPeriodId'} component={ThirteenthMonthPayPeriodDetails}></Route>
                     <Route path={'/purchase-order-details/:purchaseOrderId'} component={PurchaseOrderDetails}></Route>
+
+                    <Route path={'/sales-invoices-create'} component={SalesInvoicesCreate}></Route>
+                    <Route path={'/sales-invoice-details/:salesInvoiceId'} component={SalesInvoicesShow}></Route>
 
                     <Route path={'/reports-delivery-sales-monitoring'} component={ReportsDeliverySalesMonitoring}></Route>
                     <Route path={'/reports-delivery-receipt-monitoring'} component={ReportsDeliveryReceiptMonitoring}></Route>

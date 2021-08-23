@@ -14,9 +14,10 @@ export default class CommonDropdownSelectSingleStore extends Component {
     componentDidMount() {
         const token = cookie.load('token');
         const self = this;
+        const { categoryId: category_id } = self.props;
 
         if (token) {
-            axios.get(apiBaseUrl + '/settings/stores?all=1&token=' + token)
+            axios.get(apiBaseUrl + '/settings/stores?all=1&category_id=' + (category_id ?? 0) + '&token=' + token)
                 .then((response) => {
                     const { data: items } = response.data;
                     const options = items.map((item) => { return { value: item.id, label: `${item.code} - ${item.name}` } });

@@ -30,8 +30,6 @@ class StoreSalesInvoiceRequest extends FormRequest
             'category_id' => 'required|integer',
             'from' => 'required|date',
             'to' => 'required|date',
-            'total_sales' => 'required|numeric',
-            'vat_rate' => 'required|numeric',
         ];
     }
 }

@@ -48,6 +48,11 @@ class NavigationMenuController extends Controller
                     'to' => '/reports'
                 ],
                 [
+                    'label' => 'Trends',
+                    'icon' => 'fa fa-signal',
+                    'to' => '/trends'
+                ],
+                [
                     'label' => 'Users',
                     'icon' => 'fa fa-users',
                     'to' => '/users'

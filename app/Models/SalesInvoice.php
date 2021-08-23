@@ -20,7 +20,9 @@ class SalesInvoice extends Model
          'vat_rate',
     ];
 
+    protected $totalSales = 0;
     protected $appends = [
+        'total_sales',
         'vat_amount',
         'total_sales_less_vat',
         'total_amount_due',
@@ -31,6 +33,21 @@ class SalesInvoice extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function items()
+    {
+        return $this->hasMany(SalesInvoiceItem::class);
+    }
+
+    public function getTotalSalesAttribute()
+    {
+        return round($this->totalSales, 2);
+    }
+
+    public function setTotalSalesAttribute($totalSales)
+    {
+        $this->totalSales = $totalSales;
+    }
+
     public function getVatAmountAttribute()
     {
         return round($this->total_sales * $this->vat_rate, 2);
@@ -38,11 +55,11 @@ class SalesInvoice extends Model
 
     public function getTotalSalesLessVatAttribute()
     {
-        return $this->total_sales - $this->vat_amount;
+        return round($this->total_sales - $this->vat_amount, 2);
     }
 
     public function getTotalAmountDueAttribute()
     {
-        return $this->total_sales_less_vat + $this->vat_amount;
+        return round($this->total_sales_less_vat + $this->vat_amount, 2);
     }
 }

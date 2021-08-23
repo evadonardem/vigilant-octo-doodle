@@ -7,23 +7,16 @@ const END_POINT = `${apiBaseUrl}/reports/sales-invoices-monitoring`;
 const DT_SALES_INVOICES_MONITORING = `table-sales-invoices-monitoring`;
 const DT_SALES_INVOICES_MONITORING_INVOICES = `table-sales-invoices-monitoring-invoices`;
 
-const SALES_INVOICES_END_POINT = `${apiBaseUrl}/sales-invoices`;
-
 export default class ReportsSalesInvoiceMonitoring extends Component {
     constructor(props) {
         super(props);
         this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
-        this.handleTotalSalesChange = this.handleTotalSalesChange.bind(this);
-        this.handleAddSalesInvoice = this.handleAddSalesInvoice.bind(this);
-        this.handleAddSalesInvoiceCancelled = this.handleAddSalesInvoiceCancelled.bind(this);
-        this.handleAddSalesInvoiceSubmit = this.handleAddSalesInvoiceSubmit.bind(this);
         this.handleStoreCategoryChange = this.handleStoreCategoryChange.bind(this);
 
         this.state = {
             token: null,
             searchFilters: null,
             booklets: [],
-            isAddSalesInvoice: false,
             selectedCategory: {},
         };
     }
@@ -230,70 +223,6 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
             });
     }
 
-    handleTotalSalesChange(e) {
-        e.preventDefault();
-        const self = this;
-        const vatRate = $(e.currentTarget).closest('form').find('[name="vat_rate"]').val();
-        const vatAmount = parseFloat(+$(e.currentTarget).val() * vatRate).toFixed(2);
-        const totalSalesLessVat = parseFloat(+$(e.currentTarget).val() - vatAmount).toFixed(2);
-        const totalAmountDue = parseFloat(totalSalesLessVat + vatAmount).toFixed(2);
-        $(e.currentTarget).closest('form').find('[name="vat_amount"]').val(vatAmount);
-        $(e.currentTarget).closest('form').find('[name="total_sales_less_vat"]').val(totalSalesLessVat);
-        $(e.currentTarget).closest('form').find('[name="total_amount_due"]').val(totalAmountDue);
-    }
-
-    handleAddSalesInvoice(e) {
-        const self = this;
-
-        self.setState({
-            ...self.state,
-            isAddSalesInvoice: true,
-        });
-    }
-
-    handleAddSalesInvoiceCancelled(e) {
-        const self = this;
-
-        self.setState({
-            ...self.state,
-            isAddSalesInvoice: false,
-        });
-    }
-
-    handleAddSalesInvoiceSubmit(e) {
-        e.preventDefault();
-        const self = this;
-        const { token } = self.state;
-        const form = $(e.currentTarget);
-        const data = form.serialize();
-
-        axios.post(`${SALES_INVOICES_END_POINT}?token=${token}`, data)
-            .then((response) => {
-                self.setState({
-                    ...self.state,
-                    searchFilters: null,
-                    isAddSalesInvoice: false,
-                });
-                $('.form-control', form).removeClass('is-invalid');
-                form[0].reset();
-            })
-            .catch((error) => {
-                $('.form-control', form).removeClass('is-invalid');
-                if (error.response) {
-                    const { response } = error;
-                    const { data } = response;
-                    const { errors } = data;
-                    for (const key in errors) {
-                        $('[name=' + key + ']', form)
-                            .addClass('is-invalid')
-                            .closest('.form-group')
-                            .find('.invalid-feedback')
-                            .text(errors[key][0]);
-                    }
-               }
-            });
-    }
-
     handleStoreCategoryChange(e) {
         const self = this;
         self.setState({
@@ -305,7 +234,6 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
     render() {
         const {
             searchFilters,
-            isAddSalesInvoice,
             selectedCategory,
         } = this.state;
 
@@ -314,112 +242,10 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                 <Breadcrumb>
                     <Breadcrumb.Item href="#/reports"><i className="fa fa-book"></i> Reports</Breadcrumb.Item>
                     <Breadcrumb.Item active>Sales Invoice Monitoring</Breadcrumb.Item>
-                </Breadcrumb>
-                {
-                    isAddSalesInvoice &&
-                    <Card>
-                        <Card.Header>
-                            <i className="fa fa-file"></i> Add Sales Invoice
-                        </Card.Header>
-                        <Card.Body>
-                            <Form onSubmit={this.handleAddSalesInvoiceSubmit}>
-                                <div className="row">
-                                    <div className="col-md-3">
-                                        <Form.Group>
-                                            <Form.Label>Date Countered:</Form.Label>
-                                            <Form.Control type="date" name="date_countered"/>
-                                            <div className="invalid-feedback"></div>
-                                        </Form.Group>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-md-6">
-                                        <Card>
-                                            <Card.Body>
-                                                <div className="row">
-                                                    <div className="col-md-3">
-                                                        <Form.Group>
-                                                            <Form.Label>Booklet No.:</Form.Label>
-                                                            <Form.Control type="text" name="booklet_no"/>
-                                                            <div className="invalid-feedback"></div>
-                                                        </Form.Group>
-                                                    </div>
-                                                    <div className="col-md-3">
-                                                        <Form.Group>
-                                                            <Form.Label>Invoice No.:</Form.Label>
-                                                            <Form.Control type="text" name="invoice_no"/>
-                                                            <div className="invalid-feedback"></div>
-                                                        </Form.Group>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                        <CommonDropdownSelectSingleStoreCategory
-                                                            label="Sold To:"
-                                                            name="category_id"
-                                                            handleChange={this.handleStoreCategoryChange}
-                                                            selectedCategory={selectedCategory}/>
-                                                    </div>
-                                                </div>
-                                                <div className="row">
-                                                    <div className="col-md-6">
-                                                        <Form.Group>
-                                                            <Form.Label>From:</Form.Label>
-                                                            <Form.Control type="date" name="from"/>
-                                                            <div className="invalid-feedback"></div>
-                                                        </Form.Group>
-                                                    </div>
-                                                    <div className="col-md-6">
-                                                        <Form.Group>
-                                                            <Form.Label>To:</Form.Label>
-                                                            <Form.Control type="date" name="to"/>
-                                                            <div className="invalid-feedback"></div>
-                                                        </Form.Group>
-                                                    </div>
-                                                </div>
-                                                <Form.Group>
-                                                    <Form.Label>Total Sales:</Form.Label>
-                                                    <Form.Control type="number" step="any" name="total_sales" onChange={this.handleTotalSalesChange}/>
-                                                    <div className="invalid-feedback"></div>
-                                                </Form.Group>
-                                            </Card.Body>
-                                        </Card>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <Card>
-                                            <Card.Body>
-                                                <Form.Group>
-                                                    <Form.Label>Less VAT:</Form.Label>
-                                                    <Form.Control type="hidden" name="vat_rate" value="0.10715"/>
-                                                    <Form.Control type="number" step="any" name="vat_amount" readOnly/>
-                                                </Form.Group>
-                                                <Form.Group>
-                                                    <Form.Label>Amount Net less VAT:</Form.Label>
-                                                    <Form.Control type="number" step="any" name="total_sales_less_vat" readOnly/>
-                                                </Form.Group>
-                                                <Form.Group>
-                                                    <Form.Label>Total Amount of Due:</Form.Label>
-                                                    <Form.Control type="number" step="any" name="total_amount_due" readOnly/>
-                                                </Form.Group>
-                                            </Card.Body>
-                                        </Card>
-                                    </div>
-                                </div>
-                                <hr className="my-4"/>
-                                <ButtonGroup className="pull-right">
-                                    <Button type="submit">Add</Button>
-                                    <Button type="button" variant="secondary" onClick={this.handleAddSalesInvoiceCancelled}>Cancel</Button>
-                                </ButtonGroup>
-                            </Form>
-                        </Card.Body>
-                    </Card>
-                }
-                <div className="row my-4" style={!isAddSalesInvoice ? null : {display: 'none'}}>
-                    <div className="col-md-3">
+                </Breadcrumb>                
+                <div className="row my-4">
+                    <div className="col-md-3">                        
                         <Card>
-                            <Card.Body>
-                                <Button type="button" block onClick={this.handleAddSalesInvoice}>Add Sales Invoice</Button>
-                            </Card.Body>
-                        </Card>
-                        <Card className="my-4">
                             <Card.Header>
                                 <i className="fa fa-filter"></i> Search Filters
                             </Card.Header>

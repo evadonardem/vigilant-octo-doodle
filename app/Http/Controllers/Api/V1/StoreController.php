@@ -33,6 +33,13 @@ class StoreController extends Controller
                 ->orwhere('name', 'like', '%' . $search['value'] . '%');
         }
 
+        if ($request->has('category_id')) {
+            $categoryId = $request->input('category_id');
+            if ($categoryId) {
+                $storesQuery->where('category_id', '=', $categoryId);
+            }
+        } 
+
         if ($request->input('all')) {
             $stores = $storesQuery->get();
 

@@ -26,6 +26,7 @@ class Store extends Model
     {
         return $this->belongsToMany(Item::class, 'store_item_prices')
             ->withPivot('effectivity_date', 'amount')
+            ->orderBy('store_item_prices.effectivity_date', 'desc')
             ->withTimestamps();
     }
 

@@ -67,7 +67,32 @@ $api->version('v1', function ($api) {
         $api->patch('purchase-orders/{purchaseOrder}/expenses/{purchaseOrderExpense}', 'App\Http\Controllers\Api\V1\PurchaseOrderExpenseController@update');
         $api->delete('purchase-orders/{purchaseOrder}/expenses/{purchaseOrderExpense}', 'App\Http\Controllers\Api\V1\PurchaseOrderExpenseController@destroy');
 
+        $api->get('sales-invoices', 'App\Http\Controllers\Api\V1\SalesInvoiceController@index');
+        $api->get('sales-invoices/{salesInvoice}', 'App\Http\Controllers\Api\V1\SalesInvoiceController@show');
         $api->post('sales-invoices', 'App\Http\Controllers\Api\V1\SalesInvoiceController@store');
+        $api->delete('sales-invoices/{salesInvoice}', 'App\Http\Controllers\Api\V1\SalesInvoiceController@destroy');
+
+        $api->get('sales-invoices/{salesInvoice}/items', 'App\Http\Controllers\Api\V1\SalesInvoiceItemController@index');
+        $api->post('sales-invoices/{salesInvoice}/items', 'App\Http\Controllers\Api\V1\SalesInvoiceItemController@store');
+        $api->delete('sales-invoices/{salesInvoice}/items/{salesInvoiceItem}', 'App\Http\Controllers\Api\V1\SalesInvoiceItemController@destroy');
+
+        $api->get(
+            'charts/sales-by-store-data',
+            'App\Http\Controllers\Api\V1\ChartDataController@salesByStore'
+        );
+        $api->get(
+            'charts/sales-by-category-data',
+            'App\Http\Controllers\Api\V1\ChartDataController@salesByCategory'
+        );
+        $api->get(
+            'charts/sales-by-location-data',
+            'App\Http\Controllers\Api\V1\ChartDataController@salesByLocation'
+        );
+
+        $api->get(
+            'charts/purchase-orders/{type}',
+            'App\Http\Controllers\Api\V1\ChartDataController@purchaseOrders'
+        );
     });
 
     $api->group(['prefix' => 'biometric', 'middleware' => 'api.auth'], function ($api) {

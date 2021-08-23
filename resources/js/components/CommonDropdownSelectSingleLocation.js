@@ -29,7 +29,7 @@ export default class CommonDropdownSelectSingleLocation extends Component {
     }
 
     render() {
-        const { label, name, handleChange, handleInputChange } = this.props;
+        const { label, name, handleChange, handleInputChange, isMulti } = this.props;
         const { options } = this.state;
 
         return (
@@ -40,7 +40,8 @@ export default class CommonDropdownSelectSingleLocation extends Component {
                     isClearable
                     onChange={handleChange}
                     onInputChange={handleInputChange}
-                    options={options}/>
+                    options={options}
+                    isMulti={isMulti}/>
             </Form.Group>
         );
     }

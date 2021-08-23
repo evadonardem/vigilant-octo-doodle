@@ -29,7 +29,15 @@ export default class CommonDropdownSelectSingleStoreLocation extends Component {
     }
 
     render() {
-        const { label, name, handleChange, handleInputChange, selectedValue, readOnly } = this.props;
+        const {
+            label,
+            name,
+            handleChange,
+            handleInputChange,
+            selectedValue,
+            isMulti,
+            readOnly,
+        } = this.props;
         const { options } = this.state;
 
         return (
@@ -42,6 +50,7 @@ export default class CommonDropdownSelectSingleStoreLocation extends Component {
                     onInputChange={handleInputChange}
                     value={selectedValue}
                     options={options}
+                    isMulti={isMulti}
                     isDisabled={readOnly}/>
                 <div className="invalid-feedback"></div>
             </Form.Group>

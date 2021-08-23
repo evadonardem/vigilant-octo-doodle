@@ -27,6 +27,7 @@
     },
     "dependencies": {
         "@react-pdf/renderer": "^1.6.11",
+        "chart.js": "^3.5.1",
         "datatables.net-autofill-bs4": "^2.3.5",
         "datatables.net-bs4": "^1.10.21",
         "datatables.net-buttons-bs4": "^1.6.2",
@@ -42,7 +43,9 @@
         "jszip": "^3.4.0",
         "pdfmake": "^0.1.65",
         "react-bootstrap": "^1.0.1",
+        "react-chartjs-2": "^3.0.4",
         "react-cookies": "^0.1.1",
+        "react-number-format": "^4.7.3",
         "react-router-dom": "^5.2.0",
         "react-select": "^3.2.0",
         "sanitize-filename": "^1.6.3",
