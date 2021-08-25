@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\GetChartDataRequest;
 use App\Models\Store;
 use App\Models\PurchaseOrder;
 use App\Models\SalesInvoice;
@@ -17,7 +18,7 @@ class ChartDataController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function salesByStore(Request $request)
+    public function salesByStore(GetChartDataRequest $request)
     {
         $attributes = $request->only(['from', 'to', 'stores']);
         $attributes['from'] = Carbon::parse($attributes['from'])->startOfMonth();
@@ -122,7 +123,7 @@ class ChartDataController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function salesByCategory(Request $request)
+    public function salesByCategory(GetChartDataRequest $request)
     {
         $attributes = $request->only(['from', 'to', 'categories']);
         $attributes['from'] = Carbon::parse($attributes['from'])->startOfMonth();
@@ -140,7 +141,7 @@ class ChartDataController extends Controller
 
         $salesInvoices = $salesInvoices->get();
 
-        $qualifiedCategories = [];
+        $qualifiedStoresByCategory = [];
         $data = [];
         while($attributes['from'] <= $attributes['to']) {
             $currentMonth = $attributes['from'];
@@ -152,29 +153,35 @@ class ChartDataController extends Controller
                     $currentMonth->endOfMonth()->format('Y-m-d')
                 ]
             );
+
+            $indexMonthYear = $currentMonth->format('M Y');
             
-            $data[$currentMonth->format('M')] = [];
+            $data[$indexMonthYear] = [];
             foreach ($currentSalesInvoices as $salesInvoice) {
                 $salesInvoiceItems = $salesInvoice->items;                
                 foreach ($salesInvoiceItems as $salesInvoiceItem) {
-                    if (array_key_exists($salesInvoice->category_id, $data[$currentMonth->format('M')])) {
-                        $data[$currentMonth->format('M')][$salesInvoice->category_id]['total_sales'] += $salesInvoiceItem->total_amount;
-                    } else {
-                        if (!array_key_exists($salesInvoice->category_id, $qualifiedCategories)) {
-                            $qualifiedCategories[$salesInvoice->category_id] = $salesInvoice->category->only(['name']);
+                    $store = $salesInvoiceItem->store;
+                    if ($store) {
+                        $indexStoreId = $store->id;
+                        if (array_key_exists($indexStoreId, $data[$indexMonthYear])) {
+                            $data[$indexMonthYear][$indexStoreId]['total_sales'] += $salesInvoiceItem->total_amount;
+                        } else {
+                            if (!array_key_exists($indexStoreId, $qualifiedStoresByCategory)) {
+                                $qualifiedStoresByCategory[$indexStoreId] = $store->only(['code', 'name']);
+                            }
+                            $data[$indexMonthYear][$indexStoreId] = [
+                                'store' => $store->only(['code', 'name']),
+                                'total_sales' => $salesInvoiceItem->total_amount
+                            ];
                         }
-                        $data[$currentMonth->format('M')][$salesInvoice->category_id] = [
-                            'category' => $salesInvoice->category->only(['name']),
-                            'total_sales' => $salesInvoiceItem->total_amount
-                        ];
-                    }
+                    }                    
                 }
             }
 
             $attributes['from'] = $currentMonth->addMonthsNoOverflow();
         }
 
-        if (empty($qualifiedCategories)) {
+        if (empty($qualifiedStoresByCategory)) {
             return response()->json(['data' => null]);
         }
 
@@ -182,9 +189,9 @@ class ChartDataController extends Controller
         $chartData['labels'] = array_keys($data);
         $chartData['datasets'] = [];
 
-        foreach ($qualifiedCategories as $id => $category) {
+        foreach ($qualifiedStoresByCategory as $id => $store) {
             $temp = [
-                'label' => $category['name'],
+                'label' => $store['code'] . ' ' . $store['name'],
                 'data' => [],
                 'fill' => false,
                 'backgroundColor' => "rgb(" .
@@ -214,7 +221,7 @@ class ChartDataController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function salesByLocation(Request $request)
+    public function salesByLocation(GetChartDataRequest $request)
     {
         $attributes = $request->only(['from', 'to', 'locations']);
         $attributes['from'] = Carbon::parse($attributes['from'])->startOfMonth();
@@ -234,7 +241,7 @@ class ChartDataController extends Controller
 
         $salesInvoices = $salesInvoices->get();
 
-        $qualifiedLocations = [];
+        $qualifiedStoresByLocation = [];
         $data = [];
         while($attributes['from'] <= $attributes['to']) {
             $currentMonth = $attributes['from'];
@@ -247,20 +254,23 @@ class ChartDataController extends Controller
                 ]
             );
             
-            $data[$currentMonth->format('M')] = [];
+            $indexMonthYear = $currentMonth->format('M Y');
+
+            $data[$indexMonthYear] = [];
             foreach ($currentSalesInvoices as $salesInvoice) {
                 $salesInvoiceItems = $salesInvoice->items;                
                 foreach ($salesInvoiceItems as $salesInvoiceItem) {
-                    $location = $salesInvoiceItem->store->location;
-                    if ($location) {
-                        if (array_key_exists($location->id, $data[$currentMonth->format('M')])) {
-                            $data[$currentMonth->format('M')][$location->id]['total_sales'] += $salesInvoiceItem->total_amount;
+                    $store = $salesInvoiceItem->store;
+                    if ($store && ($store->location->id ?? false)) {
+                        $indexStoreId = $store->id;
+                        if (array_key_exists($indexStoreId, $data[$indexMonthYear])) {
+                            $data[$indexMonthYear][$indexStoreId]['total_sales'] += $salesInvoiceItem->total_amount;
                         } else {                        
-                            if (!array_key_exists($location->id, $qualifiedLocations)) {
-                                $qualifiedLocations[$location->id] = $location->only(['name']);
+                            if (!array_key_exists($indexStoreId, $qualifiedStoresByLocation)) {
+                                $qualifiedStoresByLocation[$indexStoreId] = $store->only(['code', 'name']);
                             }
-                            $data[$currentMonth->format('M')][$location->id] = [
-                                'location' => $location->only(['name']),
+                            $data[$indexMonthYear][$indexStoreId] = [
+                                'store' => $store->only(['code', 'name']),
                                 'total_sales' => $salesInvoiceItem->total_amount
                             ];
                         }
@@ -271,7 +281,7 @@ class ChartDataController extends Controller
             $attributes['from'] = $currentMonth->addMonthsNoOverflow();
         }
 
-        if (empty($qualifiedLocations)) {
+        if (empty($qualifiedStoresByLocation)) {
             return response()->json(['data' => null]);
         }
 
@@ -279,9 +289,9 @@ class ChartDataController extends Controller
         $chartData['labels'] = array_keys($data);
         $chartData['datasets'] = [];
 
-        foreach ($qualifiedLocations as $id => $location) {
+        foreach ($qualifiedStoresByLocation as $id => $store) {
             $temp = [
-                'label' => $location['name'],
+                'label' => $store['code'] . ' ' . $store['name'],
                 'data' => [],
                 'fill' => false,
                 'backgroundColor' => "rgb(" .
@@ -311,7 +321,7 @@ class ChartDataController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function purchaseOrders(Request $request, string $type)
+    public function purchaseOrders(GetChartDataRequest $request, string $type)
     {
         $attributes = $request->only(['from', 'to', 'stores', 'categories', 'locations']);
         $attributes['from'] = Carbon::parse($attributes['from'])->startOfMonth();
@@ -359,7 +369,7 @@ class ChartDataController extends Controller
             }
         }
         
-        $qualifiedItems = [];
+        $qualifiedStoreItems = [];
         $data = [];
         while($attributes['from'] <= $attributes['to']) {
             $currentMonth = $attributes['from'];
@@ -393,26 +403,33 @@ class ChartDataController extends Controller
                         return $location && in_array($location->id, $locationIds);
                     });
                 }
-                foreach ($purchaseOrderItems as $purchaseOrderItem) {                
-                    $indexItemId = $purchaseOrderItem->id;
-                    if (array_key_exists($indexItemId, $data[$indexMonthYear])) {
-                        $data[$indexMonthYear][$indexItemId][$valueReference] += $purchaseOrderItem->pivot->{$valueReference};
+                foreach ($purchaseOrderItems as $purchaseOrderItem) {                    
+                    $storeId = $purchaseOrderItem->pivot->store_id;
+                    $itemId = $purchaseOrderItem->id;
+                    $indexItemStoreId = $itemId . '-' . $storeId;
+                    $store = Store::find($storeId);
+                    if (array_key_exists($indexItemStoreId, $data[$indexMonthYear])) {
+                        $data[$indexMonthYear][$indexItemStoreId][$valueReference] += $purchaseOrderItem->pivot->{$valueReference};
                     } else {
-                        if (!array_key_exists($indexItemId, $qualifiedItems)) {
-                            $qualifiedItems[$indexItemId] = $purchaseOrderItem->only(['code', 'name']);
+                        if (!array_key_exists($indexItemStoreId, $qualifiedStoreItems)) {
+                            $qualifiedStoreItems[$indexItemStoreId] = [                                
+                                'item' => $purchaseOrderItem->only(['code', 'name']),
+                                'store' => $store->only(['code', 'name']),
+                            ];
                         }
-                        $data[$indexMonthYear][$indexItemId] = [
+                        $data[$indexMonthYear][$indexItemStoreId] = [                            
                             'item' => $purchaseOrderItem->only(['code', 'name']),
+                            'store' => $store->only(['code', 'name']),
                             $valueReference => $purchaseOrderItem->pivot->{$valueReference},
                         ];
-                    }                        
+                    }
                 }
             }
 
             $attributes['from'] = $currentMonth->addMonthsNoOverflow();
         }
 
-        if (empty($qualifiedItems)) {
+        if (empty($qualifiedStoreItems)) {
             return response()->json(['data' => null]);
         }
 
@@ -420,9 +437,10 @@ class ChartDataController extends Controller
         $chartData['labels'] = array_keys($data);
         $chartData['datasets'] = [];
 
-        foreach ($qualifiedItems as $id => $item) {
+        foreach ($qualifiedStoreItems as $id => $val) {
             $temp = [
-                'label' => $item['code'] . ' ' . $item['name'],
+                'label' => '[' . $val['item']['code'] . '] ' . $val['item']['name'] . ' (' .                    
+                    $val['store']['code'] . ' ' . $val['store']['name'] . ')',
                 'data' => [],
                 'fill' => false,
                 'backgroundColor' => "rgb(" .

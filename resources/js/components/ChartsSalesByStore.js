@@ -171,7 +171,7 @@ export default class ChartsSalesByStore extends Component {
             let categories = selectedCategory
                 ? selectedCategory.map((category) => category.value)
                 : [];
-            axios.get(`${apiBaseUrl}/charts/purchase-orders/deliveries?from=${from}&to=${to}&categories=${categories.join(',')}&token=${token}`)
+            axios.get(`${apiBaseUrl}/charts/sales-by-category-data?from=${from}&to=${to}&categories=${categories.join(',')}&token=${token}`)
                 .then((response) => {
                     const { data: dataSales } = response.data;
                     self.setState({
@@ -306,11 +306,11 @@ export default class ChartsSalesByStore extends Component {
             <div className="container-fluid my-4">
                 <Card>
                     <Card.Body>
-                        <Jumbotron>                            
-                            <h1 className="display-3"><i className="fa fa-signal"></i> Sales Trend</h1>
+                        <Jumbotron>
+                            <h1 className="display-3"><i className="fa fa-signal"></i> Trends</h1>
                             <p className="lead">
                                 { !dataSales && 
-                                    'Generate sales trend by store, category, or location.' }
+                                    'Generate sales, deliveries, and returns trend by store, category, or location.' }
                                 { dataSales &&
                                     `From: ${from} To: ${to} | ${ selectedEntities.length > 0
                                         ? selectedEntities.join(',')
@@ -401,7 +401,7 @@ export default class ChartsSalesByStore extends Component {
                                 <>
                                     <Card>
                                         <Card.Header>
-                                            <i className="fa fa-back"></i> Returns
+                                            <i className="fa fa-undo"></i> Returns
                                         </Card.Header>
                                         <Card.Body>
                                             { chartType === 'line' &&
