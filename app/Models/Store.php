@@ -15,6 +15,11 @@ class Store extends Model
         'category_id',
         'location_id',
         'address_line',
+        'tags',
+    ];
+
+    protected $casts = [
+        'tags' => 'array',
     ];
 
     public function promodisers()

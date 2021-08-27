@@ -11,7 +11,16 @@ const mix = require('laravel-mix');
  |
  */
 
-mix.react('resources/js/app.js', 'public/js')
+mix.webpackConfig({
+   resolve: {
+      fallback: {
+         stream: require.resolve("stream-browserify"),
+         zlib: require.resolve("browserify-zlib"),
+      },
+   },
+})
+   .js('resources/js/app.js', 'public/js')
+   .react()
    .sass('resources/sass/app.scss', 'public/css')
    .styles([
       'node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css'

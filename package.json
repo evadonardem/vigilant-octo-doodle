@@ -2,26 +2,26 @@
     "private": true,
     "scripts": {
         "dev": "npm run development",
-        "development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+        "development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --config=node_modules/laravel-mix/setup/webpack.config.js",
         "watch": "npm run development -- --watch",
         "watch-poll": "npm run watch -- --watch-poll",
         "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
         "prod": "npm run production",
-        "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+        "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --config=node_modules/laravel-mix/setup/webpack.config.js"
     },
     "devDependencies": {
         "@babel/preset-react": "^7.0.0",
-        "axios": "^0.18.1",
+        "axios": "^0.21.1",
         "bootstrap": "^4.1.0",
         "cross-env": "^5.1",
         "datatables.net": "^1.10.21",
         "jquery": "^3.5.1",
-        "laravel-mix": "^4.0.7",
+        "laravel-mix": "^6.0.28",
         "lodash": "^4.17.5",
         "popper.js": "^1.12",
         "react": "^16.2.0",
         "react-dom": "^16.2.0",
-        "resolve-url-loader": "^2.3.1",
+        "resolve-url-loader": "^4.0.0",
         "sass": "^1.15.2",
         "sass-loader": "^7.1.0"
     },
@@ -41,6 +41,8 @@
         "datatables.net-scroller-bs4": "^2.0.2",
         "datatables.net-searchpanes-bs4": "^1.1.1",
         "jszip": "^3.4.0",
+        "laravel-mix-polyfill": "^3.0.1",
+        "node-polyfill-webpack-plugin": "^1.1.4",
         "pdfmake": "^0.1.65",
         "react-bootstrap": "^1.0.1",
         "react-chartjs-2": "^3.0.4",
@@ -48,7 +50,9 @@
         "react-number-format": "^4.7.3",
         "react-router-dom": "^5.2.0",
         "react-select": "^3.2.0",
+        "react-tagsinput": "^3.19.0",
         "sanitize-filename": "^1.6.3",
+        "stream-browserify": "^3.0.0",
         "uuid": "^8.2.0"
     }
 }

@@ -75,7 +75,15 @@ export default class SettingsStores extends Component {
                     }
                 },
                 { 'data': 'address_line' },
-                { 'data': 'address_line' },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        const tags = row.tags.map(function (tag) {
+                            return `<span class="badge badge-pill badge-secondary">${tag}</span>`;
+                        });
+                        return tags.join('');
+                    }
+                },
                 {
                     'data': null,
                     'render': function (data, type, row) {
@@ -245,9 +253,9 @@ export default class SettingsStores extends Component {
                                         <th scope="col">Code</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Category</th>
-                                        <th scope="col">Location</th>
-                                        <th scope="col">Tags</th>
+                                        <th scope="col">Location</th>                                        
                                         <th scope="col">Address</th>
+                                        <th scope="col">Tags</th>
                                         <th scope="col"></th>
                                         </tr>
                                     </thead>

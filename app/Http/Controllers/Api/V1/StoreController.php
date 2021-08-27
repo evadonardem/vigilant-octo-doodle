@@ -30,7 +30,8 @@ class StoreController extends Controller
         if ($search && !empty($search['value'])) {
             $storesQuery
                 ->where('code', 'like', '%' . $search['value'] . '%')
-                ->orwhere('name', 'like', '%' . $search['value'] . '%');
+                ->orwhere('name', 'like', '%' . $search['value'] . '%')
+                ->orwhereJsonContains('tags', strtoupper($search['value']));
         }
 
         if ($request->has('category_id')) {
@@ -148,7 +149,11 @@ class StoreController extends Controller
      */
     public function update(UpdateStoreRequest $request, Store $store)
     {
-        $storeAttributes = $request->only(['code', 'name', 'address_line']);
+        $storeAttributes = $request->only(['code', 'name', 'address_line', 'tags']);
+
+        array_walk($storeAttributes['tags'], function (&$value) {
+            $value = strtoupper($value);
+        });
 
         $selectedCategory = $request->only(['category']);
         $isNewCategory = $selectedCategory['category']['__isNew__'] ?? false;

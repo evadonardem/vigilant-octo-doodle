@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import cookie from 'react-cookies';
 import { v4 as uuidv4 } from 'uuid';
 import { Breadcrumb, Button, ButtonGroup, Card, Form } from 'react-bootstrap';
+import TagsInput from 'react-tagsinput';
+import 'react-tagsinput/react-tagsinput.css'
 import CommonDeleteModal from './CommonDeleteModal';
 import CommonDropdownSelectSingleItem from './CommonDropdownSelectSingleItem'
 import CommonDropdownSelectSingleStoreCategory from './CommonDropdownSelectSingleStoreCategory';
@@ -28,12 +30,15 @@ export default class SettingStoreDetails extends Component {
         this.handleStoreCategoryChange = this.handleStoreCategoryChange.bind(this);
         this.handleStoreLocationChange = this.handleStoreLocationChange.bind(this);
 
+        this.handleChangeTags = this.handleChangeTags.bind(this);
+
         this.state = {
             store: {
                 id: null,
                 code: null,
                 name: null,
                 address_line: null,
+                tags: [],
             },
             selectedCategory: {},
             selectedLocation: {},
@@ -361,6 +366,7 @@ export default class SettingStoreDetails extends Component {
             category: selectedCategory,
             location: selectedLocation,
             address_line: $('[name="address_line"]', form).val(),
+            tags: store.tags,
         };
 
         axios.patch(`${END_POINT}/${store.id}?token=${token}`, data)
@@ -525,6 +531,18 @@ export default class SettingStoreDetails extends Component {
         })
     }
 
+    handleChangeTags(tags) {
+        const self = this;
+        tags = tags.map((tag) => tag.toUpperCase());
+        self.setState({
+            ...self.state,
+            store: {
+                ...self.state.store,
+                tags,
+            },
+        });
+    }
+
     render() {
         const {
             store,
@@ -594,6 +612,15 @@ export default class SettingStoreDetails extends Component {
                                             name="address_line"
                                             defaultValue={store.address_line}
                                             readOnly={!updateStoreDetails}></Form.Control>
+                                        <div className="invalid-feedback"></div>
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Tags:</Form.Label>
+                                        <TagsInput
+                                            value={store.tags ?? []}
+                                            onChange={this.handleChangeTags}
+                                            onlyUnique
+                                            disabled={!updateStoreDetails}/>
                                         <div className="invalid-feedback"></div>
                                     </Form.Group>
                                     <hr className="my-4"/>
