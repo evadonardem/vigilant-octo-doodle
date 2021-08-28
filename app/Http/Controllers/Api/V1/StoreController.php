@@ -31,7 +31,10 @@ class StoreController extends Controller
             $storesQuery
                 ->where('code', 'like', '%' . $search['value'] . '%')
                 ->orwhere('name', 'like', '%' . $search['value'] . '%')
-                ->orwhereJsonContains('tags', strtoupper($search['value']));
+                ->orwhereJsonContains('tags', strtoupper($search['value']))
+                ->orWhereHas('location', function ($query) use ($search) {
+                    $query->where('name', 'like', '%' . $search['value'] . '%');
+                });
         }
 
         if ($request->has('category_id')) {

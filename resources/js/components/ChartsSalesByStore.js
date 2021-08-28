@@ -119,6 +119,7 @@ export default class ChartsSalesByStore extends Component {
 
     handleGenerateChart(e) {
         e.preventDefault();
+        const form = $(e.target);
         const self = this;
         const {
             token,
@@ -142,8 +143,20 @@ export default class ChartsSalesByStore extends Component {
                         dataSales,
                     });
                 })
-                .catch(() => {
-                    
+                .catch((error) => {
+                    $('.form-control', form).removeClass('is-invalid');
+                    if (error.response) {
+                        const { response } = error;
+                        const { data } = response;
+                        const { errors } = data;
+                        for (const key in errors) {
+                            $('[name=' + key + ']', form)
+                                .addClass('is-invalid')
+                                .closest('.form-group')
+                                .find('.invalid-feedback')
+                                .text(errors[key][0]);
+                        }
+                    }
                 });
             axios.get(`${apiBaseUrl}/charts/purchase-orders/deliveries?from=${from}&to=${to}&stores=${stores.join(',')}&token=${token}`)
                 .then((response) => {
@@ -494,6 +507,7 @@ export default class ChartsSalesByStore extends Component {
                                             </Form.Group>
                                             { by === 'store' && 
                                                 <CommonDropdownSelectSingleStore
+                                                    name="stores"
                                                     handleChange={this.handleChangeStore}
                                                     selectedStore={selectedStore}
                                                     isMulti/> }
