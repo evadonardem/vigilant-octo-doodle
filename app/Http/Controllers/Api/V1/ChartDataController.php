@@ -261,7 +261,11 @@ class ChartDataController extends Controller
                 $salesInvoiceItems = $salesInvoice->items;                
                 foreach ($salesInvoiceItems as $salesInvoiceItem) {
                     $store = $salesInvoiceItem->store;
-                    if ($store && ($store->location->id ?? false)) {
+                    if (
+                        $store &&
+                        ($store->location->id ?? false) &&
+                        in_array($store->location->id, $locationIds)
+                    ) {
                         $indexStoreId = $store->id;
                         if (array_key_exists($indexStoreId, $data[$indexMonthYear])) {
                             $data[$indexMonthYear][$indexStoreId]['total_sales'] += $salesInvoiceItem->total_amount;
