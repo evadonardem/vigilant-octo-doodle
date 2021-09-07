@@ -1,4 +1,4 @@
-FROM php:7.2-apache
+FROM php:7.4-apache
 
 RUN apt-get update && apt-get install -y zip && apt-get install -y mariadb-client && apt-get install -y npm
 
@@ -17,5 +17,7 @@ RUN docker-php-ext-install tokenizer
 RUN docker-php-ext-install sockets
 
 RUN a2enmod rewrite
+
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
 
 WORKDIR /var/www/html
