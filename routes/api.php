@@ -93,6 +93,11 @@ $api->version('v1', function ($api) {
             'charts/purchase-orders/{type}',
             'App\Http\Controllers\Api\V1\ChartDataController@purchaseOrders'
         );
+
+        $api->get(
+            'charts/item-sales',
+            'App\Http\Controllers\Api\V1\ChartDataController@itemSales'
+        );
     });
 
     $api->group(['prefix' => 'biometric', 'middleware' => 'api.auth'], function ($api) {

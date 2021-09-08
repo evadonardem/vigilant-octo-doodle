@@ -235,7 +235,7 @@ class ChartDataController extends Controller
         if ($attributes['locations'] ?? false) {
             $locationIds =  explode(',', $attributes['locations']);
             $salesInvoices = $salesInvoices->whereHas('items.store', function ($query) use ($locationIds) {
-                $query->where('location_id', $locationIds);
+                $query->whereIn('location_id', $locationIds);
             });
         }
 
@@ -427,6 +427,160 @@ class ChartDataController extends Controller
                             $valueReference => $purchaseOrderItem->pivot->{$valueReference},
                         ];
                     }
+                }
+            }
+
+            $attributes['from'] = $currentMonth->addMonthsNoOverflow();
+        }
+
+        if (empty($qualifiedStoreItems)) {
+            return response()->json(['data' => null]);
+        }
+
+        $chartData = [];
+        $chartData['labels'] = array_keys($data);
+        $chartData['datasets'] = [];
+
+        foreach ($qualifiedStoreItems as $id => $val) {
+            $temp = [
+                'label' => '[' . $val['item']['code'] . '] ' . $val['item']['name'] . ' (' .                    
+                    $val['store']['code'] . ' ' . $val['store']['name'] . ')',
+                'data' => [],
+                'fill' => false,
+                'backgroundColor' => "rgb(" .
+                    random_int(0, 255) . ", " .
+                    random_int(0, 255) . ", " .
+                    random_int(0, 255) .
+                ")",
+                'borderColor' => "rgba(" .
+                    random_int(0, 255) . ", " .
+                    random_int(0, 255) . ", " .
+                    random_int(0, 255) . ", 0.2)",
+            ];
+            foreach ($chartData['labels'] as $month) {
+                $temp['data'][] = array_key_exists($id, $data[$month])
+                    ? $data[$month][$id][$valueReference]
+                    : 0;
+            }
+
+            $chartData['datasets'][] = $temp;
+        }
+ 
+        return response()->json(['data' => $chartData]);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function itemSales(GetChartDataRequest $request)
+    {
+        $attributes = $request->only(['from', 'to', 'items', 'stores', 'categories', 'locations']);
+        $attributes['from'] = Carbon::parse($attributes['from'])->startOfMonth();
+        $attributes['to'] = Carbon::parse($attributes['to'])->endOfMonth();
+
+        $salesInvoices = SalesInvoice::orderBy('from', 'desc')
+            ->orderBy('to', 'desc')
+            ->whereBetween('from', [$attributes['from'], $attributes['to']]);
+
+        $itemIds = [];
+        if ($attributes['items'] ?? false) {
+            $itemIds =  explode(',', $attributes['items']);
+        }
+        
+        $storeIds = null;
+        if ($attributes['stores'] ?? false) {
+            $storeIds =  explode(',', $attributes['stores']);
+            $salesInvoices = $salesInvoices
+                ->whereHas('items', function ($query) use ($itemIds, $storeIds) {
+                    if (count($itemIds) > 0) {
+                        $query->whereIn('item_id', $itemIds);
+                    }
+                    $query->whereIn('store_id', $storeIds);
+                })
+                ->with('items');
+        }
+
+        $categoryIds = null;
+        if ($attributes['categories'] ?? false) {
+            $categoryIds =  explode(',', $attributes['categories']);
+            $salesInvoices = $salesInvoices->whereIn('category_id', $categoryIds);
+            if (count($itemIds) > 0) {
+                $salesInvoices = $salesInvoices->whereHas('items', function ($query) use ($itemIds) {
+                    $query->whereIn('item_id', $itemIds);
+                });
+            }
+        }
+        
+        $locationIds = null;
+        if ($attributes['locations'] ?? false) {
+            $locationIds =  explode(',', $attributes['locations']);
+            $salesInvoices = $salesInvoices->whereHas('items', function ($query) use ($itemIds, $locationIds) {
+                if (count($itemIds) > 0) {
+                    $query->whereIn('item_id', $itemIds);
+                }                
+                $query->whereHas('store', function ($query) use ($locationIds) {
+                    $query->whereIn('location_id', $locationIds);
+                });
+            });
+        }
+
+        $salesInvoices = $salesInvoices->get();
+
+        $valueReference = 'total_amount';
+        $qualifiedStoreItems = [];        
+        $data = [];
+        while($attributes['from'] <= $attributes['to']) {
+            $currentMonth = $attributes['from'];
+
+            $currentSalesInvoices = $salesInvoices->whereBetween(
+                'from',
+                [
+                    $currentMonth->startOfMonth()->format('Y-m-d'),
+                    $currentMonth->endOfMonth()->format('Y-m-d')
+                ]
+            );
+
+            $indexMonthYear = $currentMonth->format('M Y');
+            
+            $data[$indexMonthYear] = [];
+            foreach ($currentSalesInvoices as $salesInvoice) {
+                if ($categoryIds && !in_array($salesInvoice->category_id, $categoryIds)) {
+                    continue;
+                }
+                $salesInvoiceItems = $salesInvoice->items;
+                foreach ($salesInvoiceItems as $salesInvoiceItem) {
+                    $store = $salesInvoiceItem->store;
+                    if (count($itemIds) > 0 && !in_array($salesInvoiceItem->item_id, $itemIds)) {
+                        continue;
+                    }
+                    if ($storeIds && !in_array($store->id, $storeIds)) {
+                        continue;
+                    }
+                    if ($locationIds && !in_array($store->location_id, $locationIds)) {
+                        continue;
+                    }
+                    if ($store) {
+                        $storeId = $store->id;
+                        $itemId = $salesInvoiceItem->item_id;
+                        $indexStoreItemId = $storeId . '-' . $itemId;
+                        if (array_key_exists($indexStoreItemId, $data[$indexMonthYear])) {
+                            $data[$indexMonthYear][$indexStoreItemId][$valueReference] += $salesInvoiceItem->total_amount;
+                        } else {
+                            if (!array_key_exists($indexStoreItemId, $qualifiedStoreItems)) {
+                                $qualifiedStoreItems[$indexStoreItemId] = [
+                                    'store' => $store->only(['code', 'name']),
+                                    'item' => $salesInvoiceItem->item->only(['code', 'name']),
+                                ];
+                            }
+                            $data[$indexMonthYear][$indexStoreItemId] = [
+                                'store' => $store->only(['code', 'name']),
+                                'item' => $salesInvoiceItem->item->only(['code', 'name']),
+                                $valueReference => $salesInvoiceItem->{$valueReference}
+                            ];
+                        }
+                    }                    
                 }
             }
 
