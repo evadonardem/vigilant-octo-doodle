@@ -33,6 +33,7 @@ export default class ChartsTrendsByItem extends Component {
             selectedCategory: null,
             selectedLocation: null,
             dataSales: null,
+            dataDeliveries: null,
         };
     }
 
@@ -51,6 +52,7 @@ export default class ChartsTrendsByItem extends Component {
             ...self.state,
             chartType: e.target.value,
             dataSales: null,
+            dataDeliveries: null,
         });
     }
 
@@ -60,7 +62,8 @@ export default class ChartsTrendsByItem extends Component {
 
         let newState = {
             ...self.state,
-            dataSales: null,            
+            dataSales: null,
+            dataDeliveries: null,
         };
         newState[name] = e.target.value;
 
@@ -75,7 +78,8 @@ export default class ChartsTrendsByItem extends Component {
             selectedStore: null,
             selectedCategory: null,
             selectedLocation: null,
-            dataSales: null,            
+            dataSales: null,
+            dataDeliveries: null,
         });        
     }
 
@@ -84,7 +88,8 @@ export default class ChartsTrendsByItem extends Component {
         self.setState({
             ...self.state,
             selectedItems: e,
-            dataSales: null,            
+            dataSales: null,
+            dataDeliveries: null,
         });
     }
 
@@ -93,7 +98,8 @@ export default class ChartsTrendsByItem extends Component {
         self.setState({
             ...self.state,
             selectedStore: e,
-            dataSales: null,            
+            dataSales: null,
+            dataDeliveries: null,
         });
     }
 
@@ -102,7 +108,8 @@ export default class ChartsTrendsByItem extends Component {
         self.setState({
             ...self.state,
             selectedCategory: e,
-            dataSales: null,            
+            dataSales: null,
+            dataDeliveries: null,
         });
     }
 
@@ -111,7 +118,8 @@ export default class ChartsTrendsByItem extends Component {
         self.setState({
             ...self.state,
             selectedLocation: e,
-            dataSales: null,            
+            dataSales: null,
+            dataDeliveries: null,
         });
     }
 
@@ -131,69 +139,76 @@ export default class ChartsTrendsByItem extends Component {
         } = self.state;
 
         let items = selectedItems
-            ? selectedItems.map((item) => item.value)
-            : [];
+            ? selectedItems.map((item) => item.value).join(',')
+            : '';
 
+        let entityType = null;
+        let entityIds = null;
         if (by === 'store') {
-            let stores = selectedStore
-                ? selectedStore.map((store) => store.value)
-                : [];
-            axios.get(`${apiBaseUrl}/charts/item-sales?from=${from}&to=${to}&items=${items}&stores=${stores.join(',')}&token=${token}`)
-                .then((response) => {
-                    const { data: dataSales } = response.data;
-                    self.setState({
-                        ...self.state,
-                        dataSales,
-                    });
-                })
-                .catch((error) => {
-                    $('.form-control', form).removeClass('is-invalid');
-                    if (error.response) {
-                        const { response } = error;
-                        const { data } = response;
-                        const { errors } = data;
-                        for (const key in errors) {
-                            $('[name=' + key + ']', form)
-                                .addClass('is-invalid')
-                                .closest('.form-group')
-                                .find('.invalid-feedback')
-                                .text(errors[key][0]);
-                        }
-                    }
-                });        
-        } else if (by === 'category') {
-            let categories = selectedCategory
-                ? selectedCategory.map((category) => category.value)
-                : [];
-            axios.get(`${apiBaseUrl}/charts/item-sales?from=${from}&to=${to}&items=${items}&categories=${categories.join(',')}&token=${token}`)
-                .then((response) => {
-                    const { data: dataSales } = response.data;
-                    self.setState({
-                        ...self.state,
-                        dataSales,
-                    });
-                })
-                .catch(() => {
+            entityType = 'stores';
+            entityIds = selectedStore
+                ? selectedStore.map((store) => store.value).join(',')
+                : '';
                     
-                });            
+        } else if (by === 'category') {
+            entityType = 'categories';
+            entityIds = selectedCategory
+                ? selectedCategory.map((category) => category.value).join(',')
+                : '';
         } else {
             if (by === 'location') {
-                let locations = selectedLocation
-                    ? selectedLocation.map((location) => location.value)
-                    : [];
-                axios.get(`${apiBaseUrl}/charts/item-sales?from=${from}&to=${to}&items=${items}&locations=${locations.join(',')}&token=${token}`)
-                    .then((response) => {
-                        const { data: dataSales } = response.data;
-                        self.setState({
-                            ...self.state,
-                            dataSales,
-                        });
-                    })
-                    .catch(() => {
-                        
-                    });                
+                entityType = 'locations';
+                entityIds = selectedLocation
+                    ? selectedLocation.map((location) => location.value).join(',')
+                    : '';
             }
         }
+        axios.get(`${apiBaseUrl}/charts/item-sales?from=${from}&to=${to}&items=${items}&${entityType}=${entityIds}&token=${token}`)
+            .then((response) => {
+                const { data: dataSales } = response.data;
+                self.setState({
+                    ...self.state,
+                    dataSales,
+                });
+            })
+            .catch((error) => {
+                $('.form-control', form).removeClass('is-invalid');
+                if (error.response) {
+                    const { response } = error;
+                    const { data } = response;
+                    const { errors } = data;
+                    for (const key in errors) {
+                        $('[name=' + key + ']', form)
+                            .addClass('is-invalid')
+                            .closest('.form-group')
+                            .find('.invalid-feedback')
+                            .text(errors[key][0]);
+                    }
+                }
+            });
+        axios.get(`${apiBaseUrl}/charts/purchase-orders/deliveries?from=${from}&to=${to}&${entityType}=${entityIds}&token=${token}`)
+            .then((response) => {
+                const { data: dataDeliveries } = response.data;
+                self.setState({
+                    ...self.state,
+                    dataDeliveries,
+                });
+            })
+            .catch((error) => {
+                $('.form-control', form).removeClass('is-invalid');
+                if (error.response) {
+                    const { response } = error;
+                    const { data } = response;
+                    const { errors } = data;
+                    for (const key in errors) {
+                        $('[name=' + key + ']', form)
+                            .addClass('is-invalid')
+                            .closest('.form-group')
+                            .find('.invalid-feedback')
+                            .text(errors[key][0]);
+                    }
+                }
+            });
     }
 
     handleBack() {
@@ -204,7 +219,8 @@ export default class ChartsTrendsByItem extends Component {
             selectedStore: null,
             selectedCategory: null,
             selectedLocation: null,
-            dataSales: null,            
+            dataSales: null,
+            dataDeliveries: null,            
         });        
     }
 
@@ -219,6 +235,7 @@ export default class ChartsTrendsByItem extends Component {
             selectedCategory,
             selectedLocation,
             dataSales,
+            dataDeliveries,
         } = this.state;
 
         const options = {
@@ -255,7 +272,7 @@ export default class ChartsTrendsByItem extends Component {
                 <Card>
                     <Card.Body>
                         <Jumbotron>
-                            <h1 className="display-3"><i className="fa fa-signal"></i> Item Sales Trends</h1>
+                            <h1 className="display-3"><i className="fa fa-bar-chart"></i> Item Trends</h1>
                             <p className="lead">
                                 { !dataSales && 
                                     'Generate item sales by store, category, or location.' }
@@ -266,16 +283,17 @@ export default class ChartsTrendsByItem extends Component {
                                         ? selectedEntities.join(',')
                                         : `All ${by}` }` }
                             </p>
-                        </Jumbotron>                    
-                        <div className="row">                            
-                            <div className="col-md-12">
-                                <Button
-                                    type="button"
-                                    className="pull-right mb-4"
-                                    variant="secondary"
-                                    onClick={this.handleBack}>Back</Button>
-                            </div>
-                        </div>
+                        </Jumbotron>
+                        { (dataSales || dataDeliveries) &&
+                            <div className="row">                            
+                                <div className="col-md-12">
+                                    <Button
+                                        type="button"
+                                        className="pull-right mb-4"
+                                        variant="secondary"
+                                        onClick={this.handleBack}>Back</Button>
+                                </div>
+                            </div> }
                         { dataSales &&
                             <>
                                 <Card className="mb-4">
@@ -312,8 +330,42 @@ export default class ChartsTrendsByItem extends Component {
                                     </Card.Footer>
                                 </Card>
                             </> }
+                        
+                        { dataDeliveries &&
+                            <>
+                                <Card className="mb-4">
+                                    <Card.Header>
+                                        <i className="fa fa-truck"></i> Deliveries
+                                    </Card.Header>
+                                    <Card.Body>
+                                        { chartType === 'line' &&
+                                            <Line data={dataDeliveries} options={options}/> }
+                                        { chartType === 'bar' &&
+                                            <Bar data={dataDeliveries} options={options}/> }                                                        
+                                    </Card.Body>
+                                    <Card.Footer>
+                                        <table className="table table-striped my-4" style={{width: 100+'%'}}>
+                                            <thead>
+                                                <th></th>
+                                                { dataDeliveries.labels.map((label) => <th>{label}</th>) }
+                                            </thead>
+                                            <tbody>
+                                                { dataDeliveries.datasets.map(({ label, data } = dataset) => <tr>
+                                                    <th>{label}</th>
+                                                    { data.map((value) => <td>
+                                                        <NumberFormat
+                                                            value={value}
+                                                            displayType="text"
+                                                            thousandSeparator/>
+                                                    </td>) }
+                                                </tr>) }
+                                            </tbody>
+                                        </table>
+                                    </Card.Footer>
+                                </Card>
+                            </> }
                             
-                        {!dataSales &&
+                        {!(dataSales || dataDeliveries) &&
                             <>                                
                                 <Form onSubmit={this.handleGenerateChart}>
                                     <Card>
