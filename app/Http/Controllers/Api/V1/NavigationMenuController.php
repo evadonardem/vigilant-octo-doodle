@@ -53,6 +53,11 @@ class NavigationMenuController extends Controller
                     'to' => '/trends'
                 ],
                 [
+                    'label' => 'Stock Cards',
+                    'icon' => 'fa fa-clipboard',
+                    'to' => '/stock-cards'
+                ],
+                [
                     'label' => 'Users',
                     'icon' => 'fa fa-users',
                     'to' => '/users'

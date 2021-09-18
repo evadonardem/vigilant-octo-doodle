@@ -30,7 +30,7 @@ export default class CommonDropdownSelectSingleStore extends Component {
     }
 
     render() {
-        const { label, name, handleChange, selectedItem, isMulti } = this.props;
+        const { label, name, handleChange, selectedItem, isMulti, readOnly } = this.props;
         const { options } = this.state;
 
         return (
@@ -44,7 +44,8 @@ export default class CommonDropdownSelectSingleStore extends Component {
                         isMulti={isMulti}
                         options={options}
                         value={selectedItem}
-                        onChange={handleChange}/>
+                        onChange={handleChange}
+                        isDisabled={readOnly}/>
                 }
             </Form.Group>
         );

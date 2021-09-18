@@ -28,6 +28,7 @@ import SettingsOvertimeRates from './SettingsOvertimeRates';
 import SettingsStores from './SettingsStores';
 import SettingStoreDetails from './SettingsStoreDetails';
 import SettingsUserRoles from './SettingsUserRoles';
+import StockCards from './StockCards';
 import ThirteenthMonthPayPeriods from './ThirteenthMonthPayPeriods';
 import ThirteenthMonthPayPeriodDetails from './ThirteenthMonthPayPeriodDetails';
 import UserRateHistory from './UserRateHistory';
@@ -40,6 +41,8 @@ import ReportsSalesInvoiceMonitoring from './ReportsSalesInvoiceMonitoring';
 import Trends from './Trends';
 import TrendsItem from './TrendsItem';
 import TrendsStore from './TrendsStore';
+import StockCardsCreate from './StockCardsCreate';
+import StockCardsShow from './StockCardsShow';
 
 export default class Menu extends Component {
     constructor(props) {
@@ -150,6 +153,9 @@ export default class Menu extends Component {
                             case '/trends':
                                 routeToComponent = <Trends />;
                                 break;
+                            case '/stock-cards':
+                                routeToComponent = <StockCards />;
+                                break;
                             case '/users':
                                 routeToComponent = <Users />;
                                 break;
@@ -183,6 +189,9 @@ export default class Menu extends Component {
 
                     <Route path={'/trends-store'} component={TrendsStore}></Route>
                     <Route path={'/trends-item'} component={TrendsItem}></Route>
+
+                    <Route path={'/stock-cards-create'} component={StockCardsCreate}></Route>
+                    <Route path={'/stock-card-details/:stockCardId'} component={StockCardsShow}></Route>
 
                     <Route path={'/settings-user-roles'} component={SettingsUserRoles}></Route>
                     <Route path={'/settings-overtime-rates'} component={SettingsOvertimeRates}></Route>

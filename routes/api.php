@@ -127,6 +127,17 @@ $api->version('v1', function ($api) {
         $api->get('sales-invoices-monitoring', 'App\Http\Controllers\Api\V1\SalesInvoiceMonitoringController@index');
     });
 
+    $api->group(['prefix' => 'stock-cards', 'middleware' => ['api.auth', 'bindings']], function ($api) {
+        $api->get('/', 'App\Http\Controllers\Api\V1\StockCardController@index');
+        $api->post('/', 'App\Http\Controllers\Api\V1\StockCardController@store');
+        $api->get('/{stockCard}', 'App\Http\Controllers\Api\V1\StockCardController@show');
+        $api->delete('/{stockCard}', 'App\Http\Controllers\Api\V1\StockCardController@destroy');
+        $api->group(['prefix' => '/{stockCard}/details', 'middleware' => ['bindings']], function ($api) {
+            $api->get('/', 'App\Http\Controllers\Api\V1\StockCardDetailController@index');
+            $api->post('/', 'App\Http\Controllers\Api\V1\StockCardDetailController@store');
+        });
+    });
+
     // Utilities
     $api->get('sync-admin-users', 'App\Http\Controllers\Api\V1\BiometricUsersController@syncAdminUsers');
     $api->get('sync-all-users', 'App\Http\Controllers\Api\V1\BiometricUsersController@syncAllUsers');
