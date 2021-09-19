@@ -1,4 +1,5 @@
 <?php
+
 namespace App\ZKLib;
 
 define('CMD_CONNECT', 1000);
@@ -828,7 +829,7 @@ class ZKLibrary
         $command_string = $byte1.$byte2.chr($finger);
         $u =  unpack('H2h1/H2h2', $this->execCommand($command, $command_string));
         $ret = hexdec($u['h2'].$u['h1']);
-        return ($ret == CMD_ACK_OK)?1:0;
+        return ($ret == CMD_ACK_OK) ? 1 : 0;
     }
     public function startVerify($uid)
     {

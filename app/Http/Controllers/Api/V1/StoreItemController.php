@@ -120,7 +120,6 @@ class StoreItemController extends Controller
      */
     public function update(Request $request, Store $store, Promodiser $promodiser)
     {
-
     }
 
     /**
@@ -131,6 +130,5 @@ class StoreItemController extends Controller
      */
     public function destroy(Store $store, Promodiser $promodiser)
     {
-
     }
 }

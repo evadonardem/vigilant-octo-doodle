@@ -71,7 +71,7 @@ class BiometricUsersController extends Controller
         if (!empty($filters)) {
             if (array_key_exists('role_id', $filters)) {
                 $roleId = $filters['role_id'];
-                $users = $users->filter(function($user) use ($roleId) {
+                $users = $users->filter(function ($user) use ($roleId) {
                     return $user->role == $roleId;
                 });
             }
@@ -180,12 +180,12 @@ class BiometricUsersController extends Controller
 
             if ($deviceUser) {
                 $this->zk->setUser(
-                  $deviceUser['record_id'],
-                  $deviceUser['biometric_id'],
-                  $attributes['name'],
-                  $deviceUser['password'],
-                  $deviceUser['role_id']
-              );
+                    $deviceUser['record_id'],
+                    $deviceUser['biometric_id'],
+                    $attributes['name'],
+                    $deviceUser['password'],
+                    $deviceUser['role_id']
+                );
             }
 
             $this->zk->disconnect();
@@ -242,9 +242,9 @@ class BiometricUsersController extends Controller
 
         $storedUser->delete();
         AttendanceLog::where(
-          'biometric_id',
-          '=',
-          $storedUser->biometric_id
+            'biometric_id',
+            '=',
+            $storedUser->biometric_id
         )->delete();
 
         return response()->noContent();
@@ -268,9 +268,9 @@ class BiometricUsersController extends Controller
             $isSync = false;
             foreach ($deviceUsersAdmin as $deviceUserAdmin) {
                 $user = User::where(
-                  'biometric_id',
-                  '=',
-                  $deviceUserAdmin['biometric_id']
+                    'biometric_id',
+                    '=',
+                    $deviceUserAdmin['biometric_id']
                 )->first();
                 $user->password = Hash::make($deviceUserAdmin['password']);
                 $isSync = $isSync || $user->save();
@@ -359,10 +359,10 @@ class BiometricUsersController extends Controller
             );
         }
         return response()->json(
-          [
+            [
             'error' => 'Biometric device is disabled.'
           ],
-          422
-      );
+            422
+        );
     }
 }

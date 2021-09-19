@@ -52,7 +52,7 @@ class SalesInvoiceItemController extends Controller
     {
         $attributes = $request->only(['store_id', 'item_id', 'quantity']);
         $attributes['sales_invoice_id'] = $salesInvoice->id;
-        
+
         SalesInvoiceItem::create($attributes);
 
         return response()->noContent();

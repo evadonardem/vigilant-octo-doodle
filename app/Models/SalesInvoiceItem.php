@@ -45,7 +45,7 @@ class SalesInvoiceItem extends Model
             ->where('item_id', $itemId)
             ->where('effectivity_date', '<=', $this->salesInvoice->from)
             ->first();
-                
+
         return $item ? $item->pivot->amount : 0.00;
     }
 

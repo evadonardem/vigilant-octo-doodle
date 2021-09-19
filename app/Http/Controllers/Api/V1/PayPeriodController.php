@@ -137,7 +137,7 @@ class PayPeriodController extends Controller
 
         foreach ($deductionTypes as $deductionType) {
             if (array_key_exists($deductionType->code . '_amount', $attributes)) {
-               $payPeriod->commonDeductions()->save(PayPeriodCommonDeduction::make([
+                $payPeriod->commonDeductions()->save(PayPeriodCommonDeduction::make([
                    'deduction_type_id' => $deductionType->id,
                    'default_amount' => $attributes[$deductionType->code . '_amount'],
                ]));

@@ -30,13 +30,13 @@ class GetChartDataRequest extends FormRequest
         ];
 
         if ($request->has('stores')) {
-          $rules['stores'] = 'required';
+            $rules['stores'] = 'required';
         } elseif ($request->has('categories')) {
-          $rules['categories'] = 'required';
+            $rules['categories'] = 'required';
         } else {
-          if ($request->has('locations')) {
-            $rules['locations'] = 'required';
-          }
+            if ($request->has('locations')) {
+                $rules['locations'] = 'required';
+            }
         }
 
         return $rules;

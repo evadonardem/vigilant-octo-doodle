@@ -20,24 +20,28 @@ class PurchaseOrder extends Model
 
     protected $appends = ['trips'];
 
-    public function getTripsAttribute() {
+    public function getTripsAttribute()
+    {
         $from = Carbon::createFromFormat('Y-m-d', $this->from);
         $to = Carbon::createFromFormat('Y-m-d', $this->to);
         return $from->diffInDays($to) + 1;
     }
 
-    public function status() {
+    public function status()
+    {
         return $this
             ->belongsTo(PurchaseOrderStatus::class, 'purchase_order_status_id');
     }
 
-    public function stores() {
+    public function stores()
+    {
         return $this
             ->belongsToMany(Store::class, 'purchase_order_store_items')
             ->withPivot(['id']);
     }
 
-    public function items() {
+    public function items()
+    {
         return $this
             ->belongsToMany(Item::class, 'purchase_order_store_items')
             ->withPivot([
@@ -54,7 +58,8 @@ class PurchaseOrder extends Model
             ->distinct();
     }
 
-    public function assignedStaff() {
+    public function assignedStaff()
+    {
         return $this
             ->belongsToMany(User::class, 'purchase_order_assigned_staff')
             ->withPivot([
@@ -63,7 +68,8 @@ class PurchaseOrder extends Model
             ->distinct();
     }
 
-    public function expenses() {
+    public function expenses()
+    {
         return $this->hasMany(PurchaseOrderExpense::class, 'purchase_order_id', 'id');
     }
 }

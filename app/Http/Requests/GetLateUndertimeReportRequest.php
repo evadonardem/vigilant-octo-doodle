@@ -32,7 +32,7 @@ class GetLateUndertimeReportRequest extends FormRequest
         $type = $request->input('type');
 
         if ($type == 'individual') {
-          $rules['biometric_id'] = 'required';
+            $rules['biometric_id'] = 'required';
         }
 
         return $rules;

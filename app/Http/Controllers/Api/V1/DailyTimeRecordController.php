@@ -315,12 +315,12 @@ class DailyTimeRecordController extends Controller
 
                             $totalAmountOvertime += $entryAmountOvertimeInitial;
                         } else {
-                           $isOvertime = ($totalSecondsOvertime > 0);
-                           if ($isOvertime) {
-                               $totalSecondsOvertime += $entrySeconds;
-                           } else {
-                               $totalSeconds += $entrySeconds;
-                           }
+                            $isOvertime = ($totalSecondsOvertime > 0);
+                            if ($isOvertime) {
+                                $totalSecondsOvertime += $entrySeconds;
+                            } else {
+                                $totalSeconds += $entrySeconds;
+                            }
                         }
 
                         $appliedPerHourRateAmount = $isOvertime
@@ -349,7 +349,9 @@ class DailyTimeRecordController extends Controller
 
                 $delivery = $user->deliveries()->where('delivery_date', $date->format('Y-m-d'))->first();
                 $perDeliveryRateAmount = $user->rates()
-                    ->whereHas('type', function ($query) { $query->where('code', 'per_delivery'); })
+                    ->whereHas('type', function ($query) {
+                        $query->where('code', 'per_delivery');
+                    })
                     ->where(
                         'effectivity_date',
                         '<=',
@@ -359,7 +361,9 @@ class DailyTimeRecordController extends Controller
                     ->first();
                 if (!$perDeliveryRateAmount) {
                     $perDeliveryRateAmount = $user->rates()
-                        ->whereHas('type', function ($query) { $query->where('code', 'per_delivery'); })
+                        ->whereHas('type', function ($query) {
+                            $query->where('code', 'per_delivery');
+                        })
                         ->orderBy('effectivity_date', 'desc')
                         ->first();
                 }

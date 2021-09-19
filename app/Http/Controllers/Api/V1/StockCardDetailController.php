@@ -42,7 +42,7 @@ class StockCardDetailController extends Controller
                 $itemEndingInventory->item_id = $itemId;
                 $itemEndingInventory->quantity = $itemEndingInventoryQuantity;
                 $stockCardDetails->prepend($itemEndingInventory);
-            }            
+            }
         });
 
         return response()->json(['data' => $stockCardDetails]);
@@ -64,7 +64,7 @@ class StockCardDetailController extends Controller
             ->where('item_id', $attributes['item_id'])
             ->orderBy('created_at', 'desc')
             ->first();
-        
+
         if (
             (!$itemInventory && is_numeric($attributes['quantity'])) ||
             ($itemInventory && $itemInventory->quantity !== $attributes['quantity'])

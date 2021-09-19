@@ -53,7 +53,6 @@ class PurchaseOrderStoreItemController extends Controller
      */
     public function store(Request $request, PurchaseOrder $purchaseOrder, Item $item)
     {
-
     }
 
     /**

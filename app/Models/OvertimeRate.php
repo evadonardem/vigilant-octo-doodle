@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class OvertimeRate extends Model
 {
-
     protected $fillable = [
         'effectivity_date',
         'overtime_rate_type_id',

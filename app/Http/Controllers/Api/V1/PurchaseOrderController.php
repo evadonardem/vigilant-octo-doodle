@@ -323,7 +323,7 @@ class PurchaseOrderController extends Controller
         );
 
         $isExist = PurchaseOrder::where('code', '=', $code)->get()->count() > 0;
-        
+
         if ($isExist) {
             return $this->generatePurchaseOrderCode(++$increment);
         }

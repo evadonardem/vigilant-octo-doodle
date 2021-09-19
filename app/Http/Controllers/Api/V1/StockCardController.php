@@ -62,7 +62,7 @@ class StockCardController extends Controller
                 'delivered_inventory',
                 'sold_inventory',
             ];
-            foreach($inventoryTypes as $type) {                
+            foreach ($inventoryTypes as $type) {
                 $coveredPurchaseOrders = PurchaseOrder::whereDate('from', '<=', $stockCard->from)
                     ->whereHas('status', function ($query) {
                         $query->where('code', 'closed');
@@ -81,10 +81,10 @@ class StockCardController extends Controller
                         ->where('pivot.store_id', $storeId);
                     if ($purchaseOrderItems->count() > 0) {
                         $poItems = $poItems->merge($purchaseOrderItems);
-                    }                    
+                    }
                 });
 
-                $coveredSalesInvoices = SalesInvoice::whereDate('from', '<=', $stockCard->from)                    
+                $coveredSalesInvoices = SalesInvoice::whereDate('from', '<=', $stockCard->from)
                     ->whereHas('items', function ($query) use ($itemId, $storeId) {
                         $query
                             ->where('item_id', $itemId)
@@ -99,13 +99,13 @@ class StockCardController extends Controller
                         ->where('store_id', $storeId);
                     if ($salesInvoiceItems->count() > 0) {
                         $salesItems = $salesItems->merge($salesInvoiceItems);
-                    }                    
+                    }
                 });
 
                 $quantity = 0;
                 if ($type === 'sra_inventory') {
                     $quantity = $poItems->sum('pivot.quantity_returns');
-                } else if ($type === 'beginning_inventory') {
+                } elseif ($type === 'beginning_inventory') {
                     $nearestPreviousStockCard = StockCard::orderBy('from', 'desc')
                         ->where('id', '!=', $stockCard->id)
                         ->whereDate('from', '<=', $stockCard->from)
@@ -122,7 +122,7 @@ class StockCardController extends Controller
                             : null;
                         $quantity = $itemEndingInventory ? $itemEndingInventory['quantity'] : 0;
                     }
-                } else if ($type === 'delivered_inventory') {
+                } elseif ($type === 'delivered_inventory') {
                     $quantity = $poItems->sum('pivot.quantity_actual');
                 } else {
                     if ($type === 'sold_inventory') {

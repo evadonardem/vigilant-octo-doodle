@@ -15,7 +15,8 @@ use App\Models\Rate;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use Notifiable, HasFactory;
+    use Notifiable;
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -48,10 +49,10 @@ class User extends Authenticatable implements JWTSubject
     public function roles()
     {
         return $this->belongsToMany(
-          Role::class,
-          'user_roles',
-          'user_id',
-          'role_id'
+            Role::class,
+            'user_roles',
+            'user_id',
+            'role_id'
         )->withTimestamps();
     }
 

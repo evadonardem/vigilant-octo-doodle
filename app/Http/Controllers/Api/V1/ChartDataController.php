@@ -27,7 +27,7 @@ class ChartDataController extends Controller
         $salesInvoices = SalesInvoice::orderBy('from', 'desc')
             ->orderBy('to', 'desc')
             ->whereBetween('from', [$attributes['from'], $attributes['to']]);
-        
+
         $storeIds = null;
         if ($attributes['stores'] ?? false) {
             $storeIds =  explode(',', $attributes['stores']);
@@ -42,7 +42,7 @@ class ChartDataController extends Controller
 
         $qualifiedStores = [];
         $data = [];
-        while($attributes['from'] <= $attributes['to']) {
+        while ($attributes['from'] <= $attributes['to']) {
             $currentMonth = $attributes['from'];
 
             $currentSalesInvoices = $salesInvoices->whereBetween(
@@ -52,7 +52,7 @@ class ChartDataController extends Controller
                     $currentMonth->endOfMonth()->format('Y-m-d')
                 ]
             );
-            
+
             $indexMonthYear = $currentMonth->format('M Y');
             $data[$indexMonthYear] = [];
             foreach ($currentSalesInvoices as $salesInvoice) {
@@ -75,7 +75,7 @@ class ChartDataController extends Controller
                                 'total_sales' => $salesInvoiceItem->total_amount
                             ];
                         }
-                    }                        
+                    }
                 }
             }
 
@@ -113,13 +113,13 @@ class ChartDataController extends Controller
 
             $chartData['datasets'][] = $temp;
         }
- 
+
         return response()->json(['data' => $chartData]);
     }
 
     /**
      * Display a listing of the resource.
-     * 
+     *
      *
      * @return \Illuminate\Http\Response
      */
@@ -132,7 +132,7 @@ class ChartDataController extends Controller
         $salesInvoices = SalesInvoice::orderBy('from', 'desc')
             ->orderBy('to', 'desc')
             ->whereBetween('from', [$attributes['from'], $attributes['to']]);
-        
+
         $categoryIds = null;
         if ($attributes['categories'] ?? false) {
             $categoryIds =  explode(',', $attributes['categories']);
@@ -143,7 +143,7 @@ class ChartDataController extends Controller
 
         $qualifiedStoresByCategory = [];
         $data = [];
-        while($attributes['from'] <= $attributes['to']) {
+        while ($attributes['from'] <= $attributes['to']) {
             $currentMonth = $attributes['from'];
 
             $currentSalesInvoices = $salesInvoices->whereBetween(
@@ -155,10 +155,10 @@ class ChartDataController extends Controller
             );
 
             $indexMonthYear = $currentMonth->format('M Y');
-            
+
             $data[$indexMonthYear] = [];
             foreach ($currentSalesInvoices as $salesInvoice) {
-                $salesInvoiceItems = $salesInvoice->items;                
+                $salesInvoiceItems = $salesInvoice->items;
                 foreach ($salesInvoiceItems as $salesInvoiceItem) {
                     $store = $salesInvoiceItem->store;
                     if ($store) {
@@ -174,7 +174,7 @@ class ChartDataController extends Controller
                                 'total_sales' => $salesInvoiceItem->total_amount
                             ];
                         }
-                    }                    
+                    }
                 }
             }
 
@@ -212,7 +212,7 @@ class ChartDataController extends Controller
 
             $chartData['datasets'][] = $temp;
         }
- 
+
         return response()->json(['data' => $chartData]);
     }
 
@@ -230,7 +230,7 @@ class ChartDataController extends Controller
         $salesInvoices = SalesInvoice::orderBy('from', 'desc')
             ->orderBy('to', 'desc')
             ->whereBetween('from', [$attributes['from'], $attributes['to']]);
-        
+
         $locationIds = null;
         if ($attributes['locations'] ?? false) {
             $locationIds =  explode(',', $attributes['locations']);
@@ -243,7 +243,7 @@ class ChartDataController extends Controller
 
         $qualifiedStoresByLocation = [];
         $data = [];
-        while($attributes['from'] <= $attributes['to']) {
+        while ($attributes['from'] <= $attributes['to']) {
             $currentMonth = $attributes['from'];
 
             $currentSalesInvoices = $salesInvoices->whereBetween(
@@ -253,12 +253,12 @@ class ChartDataController extends Controller
                     $currentMonth->endOfMonth()->format('Y-m-d')
                 ]
             );
-            
+
             $indexMonthYear = $currentMonth->format('M Y');
 
             $data[$indexMonthYear] = [];
             foreach ($currentSalesInvoices as $salesInvoice) {
-                $salesInvoiceItems = $salesInvoice->items;                
+                $salesInvoiceItems = $salesInvoice->items;
                 foreach ($salesInvoiceItems as $salesInvoiceItem) {
                     $store = $salesInvoiceItem->store;
                     if (
@@ -269,7 +269,7 @@ class ChartDataController extends Controller
                         $indexStoreId = $store->id;
                         if (array_key_exists($indexStoreId, $data[$indexMonthYear])) {
                             $data[$indexMonthYear][$indexStoreId]['total_sales'] += $salesInvoiceItem->total_amount;
-                        } else {                        
+                        } else {
                             if (!array_key_exists($indexStoreId, $qualifiedStoresByLocation)) {
                                 $qualifiedStoresByLocation[$indexStoreId] = $store->only(['code', 'name']);
                             }
@@ -316,7 +316,7 @@ class ChartDataController extends Controller
 
             $chartData['datasets'][] = $temp;
         }
- 
+
         return response()->json(['data' => $chartData]);
     }
 
@@ -334,7 +334,7 @@ class ChartDataController extends Controller
         $purchaseOrders = PurchaseOrder::orderBy('from', 'desc')
             ->orderBy('to', 'desc')
             ->whereBetween('from', [$attributes['from'], $attributes['to']]);
-        
+
         $storeIds = null;
         if ($attributes['stores'] ?? false) {
             $storeIds =  explode(',', $attributes['stores']);
@@ -352,7 +352,7 @@ class ChartDataController extends Controller
                     $query->whereIn('id', $categoryIds);
                 });
         }
-        
+
         $locationIds = null;
         if ($attributes['locations'] ?? false) {
             $locationIds =  explode(',', $attributes['locations']);
@@ -372,10 +372,10 @@ class ChartDataController extends Controller
                 $valueReference .= 'returns';
             }
         }
-        
+
         $qualifiedStoreItems = [];
         $data = [];
-        while($attributes['from'] <= $attributes['to']) {
+        while ($attributes['from'] <= $attributes['to']) {
             $currentMonth = $attributes['from'];
             $currentPurchaseOrders = $purchaseOrders->whereBetween(
                 'from',
@@ -407,7 +407,7 @@ class ChartDataController extends Controller
                         return $location && in_array($location->id, $locationIds);
                     });
                 }
-                foreach ($purchaseOrderItems as $purchaseOrderItem) {                    
+                foreach ($purchaseOrderItems as $purchaseOrderItem) {
                     $storeId = $purchaseOrderItem->pivot->store_id;
                     $itemId = $purchaseOrderItem->id;
                     $indexItemStoreId = $itemId . '-' . $storeId;
@@ -416,12 +416,12 @@ class ChartDataController extends Controller
                         $data[$indexMonthYear][$indexItemStoreId][$valueReference] += $purchaseOrderItem->pivot->{$valueReference};
                     } else {
                         if (!array_key_exists($indexItemStoreId, $qualifiedStoreItems)) {
-                            $qualifiedStoreItems[$indexItemStoreId] = [                                
+                            $qualifiedStoreItems[$indexItemStoreId] = [
                                 'item' => $purchaseOrderItem->only(['code', 'name']),
                                 'store' => $store->only(['code', 'name']),
                             ];
                         }
-                        $data[$indexMonthYear][$indexItemStoreId] = [                            
+                        $data[$indexMonthYear][$indexItemStoreId] = [
                             'item' => $purchaseOrderItem->only(['code', 'name']),
                             'store' => $store->only(['code', 'name']),
                             $valueReference => $purchaseOrderItem->pivot->{$valueReference},
@@ -443,7 +443,7 @@ class ChartDataController extends Controller
 
         foreach ($qualifiedStoreItems as $id => $val) {
             $temp = [
-                'label' => '[' . $val['item']['code'] . '] ' . $val['item']['name'] . ' (' .                    
+                'label' => '[' . $val['item']['code'] . '] ' . $val['item']['name'] . ' (' .
                     $val['store']['code'] . ' ' . $val['store']['name'] . ')',
                 'data' => [],
                 'fill' => false,
@@ -465,7 +465,7 @@ class ChartDataController extends Controller
 
             $chartData['datasets'][] = $temp;
         }
- 
+
         return response()->json(['data' => $chartData]);
     }
 
@@ -488,7 +488,7 @@ class ChartDataController extends Controller
         if ($attributes['items'] ?? false) {
             $itemIds =  explode(',', $attributes['items']);
         }
-        
+
         $storeIds = null;
         if ($attributes['stores'] ?? false) {
             $storeIds =  explode(',', $attributes['stores']);
@@ -512,14 +512,14 @@ class ChartDataController extends Controller
                 });
             }
         }
-        
+
         $locationIds = null;
         if ($attributes['locations'] ?? false) {
             $locationIds =  explode(',', $attributes['locations']);
             $salesInvoices = $salesInvoices->whereHas('items', function ($query) use ($itemIds, $locationIds) {
                 if (count($itemIds) > 0) {
                     $query->whereIn('item_id', $itemIds);
-                }                
+                }
                 $query->whereHas('store', function ($query) use ($locationIds) {
                     $query->whereIn('location_id', $locationIds);
                 });
@@ -529,9 +529,9 @@ class ChartDataController extends Controller
         $salesInvoices = $salesInvoices->get();
 
         $valueReference = 'total_amount';
-        $qualifiedStoreItems = [];        
+        $qualifiedStoreItems = [];
         $data = [];
-        while($attributes['from'] <= $attributes['to']) {
+        while ($attributes['from'] <= $attributes['to']) {
             $currentMonth = $attributes['from'];
 
             $currentSalesInvoices = $salesInvoices->whereBetween(
@@ -543,7 +543,7 @@ class ChartDataController extends Controller
             );
 
             $indexMonthYear = $currentMonth->format('M Y');
-            
+
             $data[$indexMonthYear] = [];
             foreach ($currentSalesInvoices as $salesInvoice) {
                 if ($categoryIds && !in_array($salesInvoice->category_id, $categoryIds)) {
@@ -580,7 +580,7 @@ class ChartDataController extends Controller
                                 $valueReference => $salesInvoiceItem->{$valueReference}
                             ];
                         }
-                    }                    
+                    }
                 }
             }
 
@@ -597,7 +597,7 @@ class ChartDataController extends Controller
 
         foreach ($qualifiedStoreItems as $id => $val) {
             $temp = [
-                'label' => '[' . $val['item']['code'] . '] ' . $val['item']['name'] . ' (' .                    
+                'label' => '[' . $val['item']['code'] . '] ' . $val['item']['name'] . ' (' .
                     $val['store']['code'] . ' ' . $val['store']['name'] . ')',
                 'data' => [],
                 'fill' => false,
@@ -619,7 +619,7 @@ class ChartDataController extends Controller
 
             $chartData['datasets'][] = $temp;
         }
- 
+
         return response()->json(['data' => $chartData]);
     }
 }

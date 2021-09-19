@@ -28,7 +28,7 @@ class DeliveryReceiptMonitoringController extends Controller
             $storeId = $request->input('store_id');
             $searchStore = Store::findOrFail($storeId);
             $purchaseOrdersQuery
-                ->whereHas('items', function($query) use ($storeId) {
+                ->whereHas('items', function ($query) use ($storeId) {
                     $query->where('purchase_order_store_items.store_id', '=', $storeId);
                 });
         }
@@ -84,7 +84,6 @@ class DeliveryReceiptMonitoringController extends Controller
                         $newDeliveryReceipt->stores->push((object)$store->only(['id', 'code', 'name', 'items']));
                         $booklet->deliveryReceipts->push($newDeliveryReceipt);
                     }
-
                 } else {
                     $newBooklet = new stdClass();
                     $newBooklet->id = $item->pivot->booklet_no;

@@ -42,7 +42,7 @@ class StoreController extends Controller
             if ($categoryId) {
                 $storesQuery->where('category_id', '=', $categoryId);
             }
-        } 
+        }
 
         if ($request->input('all')) {
             $stores = $storesQuery->get();
