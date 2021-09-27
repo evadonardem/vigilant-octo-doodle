@@ -62,7 +62,7 @@ export default class PurchaseOrderDetails extends Component {
         const { params } = self.props.match;
         const { purchaseOrderId } = params;
 
-        $(`.${PO_STORES_DT}`).DataTable({
+        const poStoresDataTable = $(`.${PO_STORES_DT}`).DataTable({
             ajax: {
                 type: 'get',
                 url: `${END_POINT}/${purchaseOrderId}/stores?token=${token}`,
@@ -74,6 +74,7 @@ export default class PurchaseOrderDetails extends Component {
             },
             buttons: [],
             columns: [
+                { 'data': 'sort_order' },
                 {
                     className: 'details-control text-center',
                     data: null,
@@ -122,6 +123,9 @@ export default class PurchaseOrderDetails extends Component {
             ],
             ordering: false,
             paging: false,
+            rowReorder: {
+                dataSrc: 'sort_order',                
+            },
             searching: false,
         });
 
@@ -426,6 +430,31 @@ export default class PurchaseOrderDetails extends Component {
                     });
                 }
             }
+        });
+
+        poStoresDataTable.on('row-reorder', (e, diff, edit) => {
+            poStoresDataTable.one('draw', function () {
+                let storesSortOrder = [];
+                poStoresDataTable.rows()
+                    .every(function (rowIdx, tableLoop, rowLoop) {
+                        const rowData = this.data();
+                        const {id: store_id, sort_order} = rowData;
+                        storesSortOrder.push({
+                            store_id,
+                            sort_order,
+                        });  
+                    });
+                    axios.post(
+                        `${END_POINT}/${purchaseOrderId}/stores-sort-order?token=${token}`,
+                        {sort_order: storesSortOrder}
+                    )
+                        .then(() => {
+                            poStoresDataTable.ajax.reload(null, false);
+                        })
+                        .catch(() => {
+                            location.reload();
+                        });
+            });        
         });
 
 
@@ -1174,6 +1203,7 @@ export default class PurchaseOrderDetails extends Component {
                                             <table className={`table table-striped ${PO_STORES_DT}`} style={{width: 100+'%'}}>
                                                 <thead>
                                                     <tr>
+                                                        <th scope="col">#</th>
                                                         <th scope="col"></th>
                                                         <th scope="col">Code</th>
                                                         <th scope="col">Name</th>
