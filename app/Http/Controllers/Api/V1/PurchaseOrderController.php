@@ -7,6 +7,7 @@ use App\Models\Item;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderExpense;
 use App\Models\PurchaseOrderStoreItem;
+use App\Models\PurchaseOrderStoresSortOrder;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
@@ -87,8 +88,13 @@ class PurchaseOrderController extends Controller
         $stores = $stores->unique('id')->values();
 
         $include = $request->input('include');
-
-        $stores->each(function ($store) use ($purchaseOrder, $include) {
+        
+        $sortOrder = 0;
+        $storesSortOrder = $purchaseOrder->storesSortOrder;
+        $stores->each(function ($store) use ($purchaseOrder, $include, &$sortOrder, $storesSortOrder) {
+            ++$sortOrder;
+            $storeSortOrder = $storesSortOrder->where('id', $store->id)->first();
+            $store->sort_order = $storeSortOrder ? $storeSortOrder->pivot->sort_order : $sortOrder;
             $store->purchase_order_status = $purchaseOrder->status;
             if ($include === 'items') {
                 $items = Item::
@@ -127,8 +133,44 @@ class PurchaseOrderController extends Controller
                 $store->items = $items;
             }
         });
+        $stores = $stores->sortBy('sort_order')->values();
 
         return response()->json(['data' => $stores]);
+    }
+
+     /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function syncPurchaseOrderStoresSortOrder(Request $request, PurchaseOrder $purchaseOrder)
+    {
+        $currentStoresSortOrder = $purchaseOrder->storesSortOrder;
+        $updatedStoresSortOrder = collect($request->input('sort_order'));
+        $stores = $purchaseOrder->stores()->get()->unique('id')->values();
+        $data = $stores->map(function ($store) use ($stores, $currentStoresSortOrder, $updatedStoresSortOrder) {
+            $sortOrder = $updatedStoresSortOrder->where('store_id', $store->id)->first();
+            if (!$sortOrder) {
+                $sortOrder = $currentStoresSortOrder->where('id', $store->id)->first();
+                $sortOrder = $sortOrder ? $sortOrder->pivot->sort_order : $stores->count();
+            } else {
+                $sortOrder = $sortOrder['sort_order'];
+            }
+            return [
+                'store_id' => $store->id,
+                'sort_order' => $sortOrder,
+            ];
+        });
+
+        $sortOrder = 0;
+        $data = $data->sortBy('sort_order')->map(function (&$item) use (&$sortOrder) {
+            ++$sortOrder;
+            $item['sort_order'] = $sortOrder;
+            return $item;
+        });
+        $purchaseOrder->storesSortOrder()->sync($data);
+
+        return response()->noContent();
     }
 
     /**
@@ -176,6 +218,22 @@ class PurchaseOrderController extends Controller
                 'quantity_original' => $attributes['quantity_original']
             ]
         ]);
+        
+        $purchaseOrder->fresh();
+        $storesSortOrder = $purchaseOrder->storesSortOrder
+            ->whereNotIn('pivot.store_id', [$attributes['store_id']])
+            ->values();
+        $data = $storesSortOrder->map(function ($storeSortOrder) {
+            return [
+                'store_id' => $storeSortOrder->pivot->store_id,
+                'sort_order' => $storeSortOrder->pivot->sort_order,
+            ];
+        })->toArray();
+        $data[] = [
+            'store_id' => $attributes['store_id'],
+            'sort_order' => $storesSortOrder->count() + 1,
+        ];
+        $purchaseOrder->storesSortOrder()->sync($data);
 
         return response()->noContent();
     }
@@ -191,17 +249,6 @@ class PurchaseOrderController extends Controller
         $purchaseOrder->status;
 
         return response()->json(['data' => $purchaseOrder]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\PurchaseOrder  $purchaseOrder
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(PurchaseOrder $purchaseOrder)
-    {
-        //
     }
 
     /**
@@ -308,6 +355,28 @@ class PurchaseOrderController extends Controller
             ->first();
 
         $store->pivot->delete();
+
+        PurchaseOrderStoresSortOrder::where([
+            'purchase_order_id' => $purchaseOrder->id,
+            'store_id' => $store->id,
+        ])->delete();
+
+        $purchaseOrder->fresh();
+        $storesSortOrder = $purchaseOrder
+            ->storesSortOrder
+            ->sortBy('pivot.sort_order')
+            ->values();
+
+            
+        $sortOrder = 0;
+        $data = $storesSortOrder->map(function ($storeSortOrder) use (&$sortOrder) {
+            ++$sortOrder;
+            return [
+                'store_id' => $storeSortOrder->pivot->store_id,
+                'sort_order' => $sortOrder,
+            ];
+        })->toArray();
+        $purchaseOrder->storesSortOrder()->sync($data);
 
         return response()->noContent();
     }

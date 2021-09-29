@@ -16,6 +16,7 @@ try {
     require('datatables.net-buttons-bs4');
     require('datatables.net-buttons/js/buttons.html5.js');
     require('datatables.net-fixedcolumns-bs4');
+    require('datatables.net-rowreorder-bs4');
     window.pdfMake = require('pdfmake/build/pdfmake');
     window.pdfFonts = require('pdfmake/build/vfs_fonts');
     window.pdfMake.vfs = window.pdfFonts.pdfMake.vfs;

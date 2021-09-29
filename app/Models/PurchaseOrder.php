@@ -40,6 +40,14 @@ class PurchaseOrder extends Model
             ->withPivot(['id']);
     }
 
+    public function storesSortOrder()
+    {
+        return $this
+            ->belongsToMany(Store::class, 'purchase_order_stores_sort_orders')
+            ->withPivot(['id', 'store_id', 'sort_order'])
+            ->withTimeStamps();
+    }
+
     public function items()
     {
         return $this
