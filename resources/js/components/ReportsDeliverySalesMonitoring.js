@@ -124,7 +124,14 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                                 defaultContent: '<i class="fa fa-lg fa-chevron-circle-down"></i>'
                             },
                             { data: 'id' },
-                            { data: 'purchase_order.code' },
+                            {
+                                data: null,
+                                render: function (data, type, row) {
+                                    return row.purchase_order
+                                        ? `${row.purchase_order.code} (From: ${row.purchase_order.from} To: ${row.purchase_order.to})`
+                                        : null;
+                                }
+                            },
                             { data: 'amount' },
                         ],
                         ordering: false,
