@@ -51,6 +51,7 @@ $api->version('v1', function ($api) {
         $api->get('thirteenth-month-pay-periods/{id}/details', 'App\Http\Controllers\Api\V1\ThirteenthMonthController@showThirteenthMonthPayPeriodDetails');
 
         $api->resource('purchase-orders', 'App\Http\Controllers\Api\V1\PurchaseOrderController');
+        $api->get('purchase-orders-folders', 'App\Http\Controllers\Api\V1\PurchaseOrderController@indexPurchaseOrderFolders');
         $api->get('purchase-order-locations', 'App\Http\Controllers\Api\V1\PurchaseOrderController@indexPurchaseOrderLocations');
         $api->get('purchase-orders/{purchaseOrder}/stores', 'App\Http\Controllers\Api\V1\PurchaseOrderController@indexPurchaseOrderStores');
         $api->delete('purchase-orders/{purchaseOrder}/stores/{store}', 'App\Http\Controllers\Api\V1\PurchaseOrderController@destroyPurchaseOrderStore');

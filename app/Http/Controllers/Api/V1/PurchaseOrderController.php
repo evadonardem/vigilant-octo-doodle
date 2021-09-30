@@ -32,6 +32,7 @@ class PurchaseOrderController extends Controller
             return $page;
         });
 
+        $purchaseOrderTableName = resolve(PurchaseOrder::class)->getTable();
         $purchaseOrders = PurchaseOrder::orderBy('from', 'desc')
             ->orderBy('to', 'desc')
             ->with('status')
@@ -40,6 +41,10 @@ class PurchaseOrderController extends Controller
                     $query->where('id', '=', $filters['status']);
                 }
             });
+
+        if (isset($filters['folder'])) {
+            $purchaseOrders = $purchaseOrders->whereRaw(DB::raw('DATE_FORMAT('. $purchaseOrderTableName . '.from, "%Y-%m") = "' . $filters['folder'] . '"'));
+        }
 
         if ($search && !empty($search['value'])) {
             $searchTerm = $search['value'];
@@ -53,6 +58,39 @@ class PurchaseOrderController extends Controller
         $purchaseOrders = $purchaseOrders->paginate($perPage);
 
         return response()->json($purchaseOrders);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function indexPurchaseOrderFolders(Request $request)
+    {
+        $filters = $request->input('filters');
+        $start = $request->input('start') ?? 0;
+        $perPage = $request->input('length') ?? 10;
+        $page = ($start/$perPage) + 1;
+
+        Paginator::currentPageResolver(function () use ($page) {
+            return $page;
+        });
+
+        $purchaseOrderTableName = resolve(PurchaseOrder::class)->getTable();
+        $foldersQuery = DB::table($purchaseOrderTableName)
+            ->select([
+                DB::raw('DATE_FORMAT('. $purchaseOrderTableName . '.from, "%Y-%m") folder'),
+            ])
+            ->groupBy('folder')
+            ->orderBy('folder', 'desc');
+
+        if (isset($filters['status'])) {
+            $foldersQuery = $foldersQuery->where($purchaseOrderTableName . '.purchase_order_status_id', '=', 3);
+        }
+
+        $folders = $foldersQuery->paginate($perPage);
+
+        return response()->json($folders);
     }
 
     /**
@@ -88,7 +126,7 @@ class PurchaseOrderController extends Controller
         $stores = $stores->unique('id')->values();
 
         $include = $request->input('include');
-        
+
         $sortOrder = 0;
         $storesSortOrder = $purchaseOrder->storesSortOrder;
         $stores->each(function ($store) use ($purchaseOrder, $include, &$sortOrder, $storesSortOrder) {
@@ -218,7 +256,7 @@ class PurchaseOrderController extends Controller
                 'quantity_original' => $attributes['quantity_original']
             ]
         ]);
-        
+
         $purchaseOrder->fresh();
         $storesSortOrder = $purchaseOrder->storesSortOrder
             ->whereNotIn('pivot.store_id', [$attributes['store_id']])
@@ -367,7 +405,7 @@ class PurchaseOrderController extends Controller
             ->sortBy('pivot.sort_order')
             ->values();
 
-            
+
         $sortOrder = 0;
         $data = $storesSortOrder->map(function ($storeSortOrder) use (&$sortOrder) {
             ++$sortOrder;
