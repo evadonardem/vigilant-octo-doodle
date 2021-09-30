@@ -106,8 +106,8 @@ export default class Menu extends Component {
                                             </NavDropdown>
                                         );
                                     } else {
-                                        return (<Link key={'menu-' + menuIndex++} className={'nav-link'} to={link.to}>
-                                            <i className={link.icon}></i> {link.label}
+                                        return (<Link key={'menu-' + menuIndex++} className={'nav-link'} to={link.to} title={link.label}>
+                                            <i className={link.icon}></i>
                                         </Link>);
                                     }
                                 }

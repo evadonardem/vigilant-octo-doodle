@@ -1,5 +1,6 @@
+import axios from 'axios';
 import React, { Component } from 'react';
-import { Breadcrumb, Button, Card, Form, Tab, Tabs } from 'react-bootstrap';
+import { Breadcrumb, Button, ButtonGroup, Card, Form, Tab, Tabs } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import { v4 as uuidv4 } from 'uuid';
 import CommonDeleteModal from './CommonDeleteModal';
@@ -8,6 +9,7 @@ import CommonDropdownSelectSingleLocation from './CommonDropdownSelectSingleLoca
 const END_POINT = `${apiBaseUrl}/purchase-orders`;
 const PURCHASE_ORDERS_PENDING_TABLE = 'table-purchase-orders-pending';
 const PURCHASE_ORDERS_APPROVED_TABLE = 'table-purchase-orders-approved';
+const PURCHASE_ORDERS_CLOSED_FOLDERS_TABLE = 'table-purchase-orders-closed-folders';
 const PURCHASE_ORDERS_CLOSED_TABLE = 'table-purchase-orders-closed';
 
 export default class PurchaseOrders extends Component {
@@ -24,6 +26,9 @@ export default class PurchaseOrders extends Component {
             deletePurchaseOrderErrorHeaderTitle: '',
             deletePurchaseOrderErrorBodyText: '',
             updateAvailableLocations: uuidv4(),
+            purchaseOrdersClosed: {
+                folder: '',
+            },
         };
     }
 
@@ -93,7 +98,7 @@ export default class PurchaseOrders extends Component {
         /**
          * Purchase Orders (Approved)
          */
-         $(`.${PURCHASE_ORDERS_APPROVED_TABLE}`).DataTable({
+        $(`.${PURCHASE_ORDERS_APPROVED_TABLE}`).DataTable({
             ajax: {
                 type: 'get',
                 url: `${END_POINT}?filters[status]=2&token=${token}`,
@@ -133,10 +138,10 @@ export default class PurchaseOrders extends Component {
         /**
          * Purchase Orders (Closed)
          */
-         $(`.${PURCHASE_ORDERS_CLOSED_TABLE}`).DataTable({
+        const purchaseOrdersClosedDataTable = $(`.${PURCHASE_ORDERS_CLOSED_TABLE}`).DataTable({
             ajax: {
                 type: 'get',
-                url: `${END_POINT}?filters[status]=3&token=${token}`,
+                url: `${END_POINT}?filters[status]=3&filters[folder]=1970-01&token=${token}`,
                 dataFilter: (data) => {
                     let json = jQuery.parseJSON(data);
                     json.recordsTotal = json.total;
@@ -168,6 +173,52 @@ export default class PurchaseOrders extends Component {
                     }
                 }
             ]
+        });
+        $(`.${PURCHASE_ORDERS_CLOSED_FOLDERS_TABLE}`).DataTable({
+            ajax: {
+                type: 'get',
+                url: `${END_POINT}-folders?filters[status]=3&token=${token}`,
+                dataFilter: (data) => {
+                    let json = jQuery.parseJSON(data);
+                    json.recordsTotal = json.total;
+                    json.recordsFiltered = json.total;
+
+                    return JSON.stringify(json);
+                },
+                dataSrc: (response) => {
+                    const { data } = response;
+
+                    return data;
+                },
+            },
+            buttons: [],
+            ordering: false,
+            searching: false,
+            processing: true,
+            serverSide: true,
+            columns: [
+                { 'data': 'folder' },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        const openBtn = '<a href="#" class="open-folder btn btn-primary" data-purchase-order-folder="' + row.folder + '"><i class="fa fa-folder-open"></i></a>';
+                        return `${openBtn}`;
+                    },
+                    class: 'text-center',
+                }
+            ]
+        });
+
+        $(document).on('click', '.data-table-wrapper .open-folder', function(e) {
+            e.preventDefault();
+            const purchaseOrderFolder = e.currentTarget.getAttribute('data-purchase-order-folder');
+            purchaseOrdersClosedDataTable.ajax.url(`${END_POINT}?filters[status]=3&filters[folder]=${purchaseOrderFolder}&token=${token}`).load();
+            self.setState({
+                ...self.state,
+                purchaseOrdersClosed: {
+                    folder: purchaseOrderFolder,
+                },
+            })
         });
     }
 
@@ -252,6 +303,7 @@ export default class PurchaseOrders extends Component {
             deletePurchaseOrderErrorHeaderTitle,
             deletePurchaseOrderErrorBodyText,
             updateAvailableLocations,
+            purchaseOrdersClosed,
         } = this.state;
 
         return (
@@ -333,19 +385,47 @@ export default class PurchaseOrders extends Component {
                     <Tab eventKey="closed" title="Closed">
                         <Card border="danger" className="mt-4">
                             <Card.Body>
-                                <table className={`table table-striped ${PURCHASE_ORDERS_CLOSED_TABLE}`} style={{width: 100+'%'}}>
-                                    <thead>
-                                        <tr>
-                                        <th scope="col">Code</th>
-                                        <th scope="col">Location</th>
-                                        <th scope="col">From</th>
-                                        <th scope="col">To</th>
-                                        <th scope="col">Trips</th>
-                                        <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
+                                <div className="row">
+                                    <div className="col-md-4">
+                                        <Card>
+                                            <Card.Body>
+                                                <table className={`table table-striped ${PURCHASE_ORDERS_CLOSED_FOLDERS_TABLE}`} style={{width: 100+'%'}}>
+                                                    <thead>
+                                                        <tr>
+                                                        <th scope="col">Folder</th>
+                                                        <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </Card.Body>
+                                        </Card>
+                                    </div>
+                                    <div className="col-md-8">
+                                        <h4 className="my-4">
+                                            <i className="fa fa-folder-open"></i>&nbsp;
+                                            {purchaseOrdersClosed.folder.length > 0
+                                                ? purchaseOrdersClosed.folder
+                                                : 'Select available folder'}
+                                        </h4>
+                                        <div style={{display: purchaseOrdersClosed.folder.length > 0 ? 'block' : 'none'}}>
+                                            <hr/>
+                                            <table className={`table table-striped ${PURCHASE_ORDERS_CLOSED_TABLE}`} style={{width: 100+'%'}}>
+                                                <thead>
+                                                    <tr>
+                                                    <th scope="col">Code</th>
+                                                    <th scope="col">Location</th>
+                                                    <th scope="col">From</th>
+                                                    <th scope="col">To</th>
+                                                    <th scope="col">Trips</th>
+                                                    <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
                             </Card.Body>
                         </Card>
                     </Tab>
