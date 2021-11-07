@@ -14,4 +14,9 @@ class StockCardDetail extends Model
         'item_id',
         'quantity',
     ];
+
+    public function item()
+    {
+        return $this->belongsTo(Item::class);
+    }
 }

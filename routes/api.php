@@ -127,6 +127,8 @@ $api->version('v1', function ($api) {
         $api->get('delivery-sales-monitoring', 'App\Http\Controllers\Api\V1\DeliverySalesMonitoringController@index');
         $api->get('delivery-receipt-monitoring', 'App\Http\Controllers\Api\V1\DeliveryReceiptMonitoringController@index');
         $api->get('sales-invoices-monitoring', 'App\Http\Controllers\Api\V1\SalesInvoiceMonitoringController@index');
+        $api->get('stock-cards-monitoring', 'App\Http\Controllers\Api\V1\StockCardsMonitoringController@index');
+        $api->get('stock-cards-monitoring-available-items', 'App\Http\Controllers\Api\V1\StockCardsMonitoringController@availableItems');
     });
 
     $api->group(['prefix' => 'stock-cards', 'middleware' => ['api.auth', 'bindings']], function ($api) {
