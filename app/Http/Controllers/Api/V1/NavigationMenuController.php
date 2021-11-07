@@ -43,6 +43,11 @@ class NavigationMenuController extends Controller
                     'to' => '/sales-invoices'
                 ],
                 [
+                    'label' => 'Stock Cards',
+                    'icon' => 'fa fa-clipboard',
+                    'to' => '/stock-cards'
+                ],
+                [
                     'label' => 'Reports',
                     'icon' => 'fa fa-book',
                     'to' => '/reports'
@@ -51,11 +56,6 @@ class NavigationMenuController extends Controller
                     'label' => 'Trends',
                     'icon' => 'fa fa-signal',
                     'to' => '/trends'
-                ],
-                [
-                    'label' => 'Stock Cards',
-                    'icon' => 'fa fa-clipboard',
-                    'to' => '/stock-cards'
                 ],
                 [
                     'label' => 'Users',
