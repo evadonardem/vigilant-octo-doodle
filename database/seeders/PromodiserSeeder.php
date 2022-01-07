@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Promodiser;
+use App\Models\Store;
 use Illuminate\Database\Seeder;
 
 class PromodiserSeeder extends Seeder
@@ -13,6 +15,8 @@ class PromodiserSeeder extends Seeder
      */
     public function run()
     {
-        //
+        Promodiser::factory()->count(10)->create([
+            'store_id' => Store::all()->first()->id,
+        ]);
     }
 }

@@ -5,17 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Promodiser extends Model
+class JobContract extends Model
 {
     use HasFactory;
-
+    
     protected $fillable = [
-        'name',
-        'contact_no',
+        'promodiser_id',
+        'start_date',
+        'end_date',
     ];
     
-    public function jobContracts()
+    public function promodiser()
     {
-        return $this->hasMany(JobContract::class);
+        return $this->belongsTo(Promodiser::class);
     }
 }

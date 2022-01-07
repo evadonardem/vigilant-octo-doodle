@@ -19,6 +19,10 @@ $api->version('v1', function ($api) {
     $api->get('/', function () {
         return 'TAD API';
     });
+    
+    $api->group(['middleware' => ['bindings']], function ($api) {
+        $api->resource('stores/{store}/promodisers/{promodiser}/job-contracts', 'App\Http\Controllers\Api\V1\StorePromodiserJobContractController');
+    });
 
     $api->post('login', 'App\Http\Controllers\Api\V1\AuthController@login');
 
