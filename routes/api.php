@@ -19,10 +19,6 @@ $api->version('v1', function ($api) {
     $api->get('/', function () {
         return 'TAD API';
     });
-    
-    $api->group(['middleware' => ['bindings']], function ($api) {
-        $api->resource('stores/{store}/promodisers/{promodiser}/job-contracts', 'App\Http\Controllers\Api\V1\StorePromodiserJobContractController');
-    });
 
     $api->post('login', 'App\Http\Controllers\Api\V1\AuthController@login');
 
@@ -124,7 +120,8 @@ $api->version('v1', function ($api) {
         $api->get('store-categories', 'App\Http\Controllers\Api\V1\StoreController@indexStoreCategories');
         $api->get('store-locations', 'App\Http\Controllers\Api\V1\StoreController@indexStoreLocations');
         $api->resource('stores/{store}/promodisers', 'App\Http\Controllers\Api\V1\StorePromodiserController');
-        $api->resource('stores/{store}/items', 'App\Http\Controllers\Api\V1\StoreItemController');
+        $api->resource('stores/{store}/promodisers/{promodiser}/job-contracts', 'App\Http\Controllers\Api\V1\StorePromodiserJobContractController');
+        $api->resource('stores/{store}/items', 'App\Http\Controllers\Api\V1\StoreItemController');        
     });
 
     $api->group(['prefix' => 'reports', 'middleware' =>['api.auth', 'bindings']], function ($api) {

@@ -44,6 +44,7 @@ import TrendsItem from './TrendsItem';
 import TrendsStore from './TrendsStore';
 import StockCardsCreate from './StockCardsCreate';
 import StockCardsShow from './StockCardsShow';
+import SettingStorePromodiserJobHistory from './SettingsStorePromodiserJobHistory';
 
 export default class Menu extends Component {
     constructor(props) {
@@ -201,6 +202,7 @@ export default class Menu extends Component {
                     <Route path={'/settings-items'} component={SettingsItems}></Route>
                     <Route path={'/settings-stores'} component={SettingsStores}></Route>
                     <Route path={'/settings-store-details/:storeId'} component={SettingStoreDetails}></Route>
+                    <Route path={'/settings-store-promodiser-job-histories/:storeId/:promodiserId'} component={SettingStorePromodiserJobHistory}></Route>
                 </Switch>
             </div>
         );

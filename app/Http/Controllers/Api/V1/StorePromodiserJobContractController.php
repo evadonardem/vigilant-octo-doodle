@@ -8,7 +8,9 @@ use App\Http\Requests\UpdateJobContractRequest;
 use App\Models\JobContract;
 use App\Models\Promodiser;
 use App\Models\Store;
-use Carbon\Carbon;	
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 
 class StorePromodiserJobContractController extends Controller
 {
@@ -17,11 +19,21 @@ class StorePromodiserJobContractController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Store $store, Promodiser $promodiser)
+    public function index(Request $request, Store $store, Promodiser $promodiser)
     {
-        return response()->json([
-            'data' => $promodiser->jobContracts
-        ]);
+        $start = $request->input('start') ?? 0;
+        $perPage = $request->input('length') ?? 10;
+        $page = ($start/$perPage) + 1;
+
+        Paginator::currentPageResolver(function () use ($page) {
+            return $page;
+        });
+
+        $jobContracts = JobContract::where('promodiser_id', '=', $promodiser->id)
+            ->orderBy('start_date', 'desc')
+            ->paginate($perPage);
+
+        return response()->json($jobContracts);
     }
 
     /**
@@ -32,8 +44,8 @@ class StorePromodiserJobContractController extends Controller
      */
     public function store(StoreJobContractRequest $request, Store $store, Promodiser $promodiser)
     {
-    				$attributes = $request->input('data.attributes');    				
-    				$promodiser->jobContracts()->create($attributes);
+    	$attributes = $request->input('data.attributes');    				
+    	$promodiser->jobContracts()->create($attributes);
     				
         return response()->noContent();
     }
@@ -78,8 +90,14 @@ class StorePromodiserJobContractController extends Controller
      * @param  \App\Models\JobContract  $jobContract
      * @return \Illuminate\Http\Response
      */
-    public function destroy(JobContract $jobContract)
+    public function destroy(Request $request, Store $store, Promodiser $promodiser, JobContract $jobContract)
     {
-        //
+
+        if ($jobContract->promodiser->id === $promodiser->id && $jobContract->promodiser->store->id === $store->id) {
+            $jobContract->delete();
+            return response()->noContent();
+        }
+        
+        return abort(400);
     }
 }

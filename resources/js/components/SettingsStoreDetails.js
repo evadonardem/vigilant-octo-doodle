@@ -116,6 +116,12 @@ export default class SettingStoreDetails extends Component {
                             class="edit btn btn-secondary">
                                 <i class="fa fa-edit"></i>
                             </a>`;
+                        const historyBtn = `<a
+                            href="#"
+                            class="job-history btn btn-secondary"
+                            data-promodiser-id="${row.id}">
+                                <i class="fa fa-history"></i>
+                            </a>`;
                         const deleteBtn = `<a
                             href="#"
                             class="delete btn btn-secondary"
@@ -125,6 +131,7 @@ export default class SettingStoreDetails extends Component {
                             </a>`;
                         return `<div class="action-a btn-group" role="group">
                             ${editBtn}
+                            ${historyBtn}
                             ${deleteBtn}
                         </div>
                         <div class="action-b btn-group" role="group" style="display: none;">
@@ -152,6 +159,12 @@ export default class SettingStoreDetails extends Component {
             tableRow.find('.update-promodiser').prop('readonly', false);
             tableRow.find('.action-a').hide();
             tableRow.find('.action-b').show();
+        });
+
+        $(document).on('click', '.data-table-wrapper > .table-store-promodisers .job-history', function(e) {
+            e.preventDefault();
+            const promodiserId = e.currentTarget.getAttribute('data-promodiser-id');
+            location.href = `${appBaseUrl}/#/settings-store-promodiser-job-histories/${storeId}/${promodiserId}`;
         });
 
         $(document).on('click', '.data-table-wrapper > .table-store-promodisers .delete', function(e) {

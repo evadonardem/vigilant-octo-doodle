@@ -14,6 +14,11 @@ class Promodiser extends Model
         'contact_no',
     ];
     
+    public function store()
+    {
+        return $this->belongsTo(Store::class);
+    }
+
     public function jobContracts()
     {
         return $this->hasMany(JobContract::class);

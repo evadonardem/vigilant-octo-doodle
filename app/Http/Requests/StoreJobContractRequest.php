@@ -25,7 +25,7 @@ class StoreJobContractRequest extends FormRequest
     {
         return [
             'data.type' => 'in:promodiser-job-contracts',
-            'data.attributes.start_date' => 'required|date',
+            'data.attributes.start_date' => 'required|date|before_or_equal:data.attributes.end_date',
             'data.attributes.end_date' => 'required|date',
         ];
     }
