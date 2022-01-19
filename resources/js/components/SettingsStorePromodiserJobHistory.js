@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import cookie from 'react-cookies';
 import { v4 as uuidv4 } from 'uuid';
 import { Badge, Breadcrumb, Button, ButtonGroup, Card, Form } from 'react-bootstrap';
-import TagsInput from 'react-tagsinput';
-import 'react-tagsinput/react-tagsinput.css'
 import CommonDeleteModal from './CommonDeleteModal';
 import CommonDropdownSelectSingleItem from './CommonDropdownSelectSingleItem'
 import CommonDropdownSelectSingleStoreCategory from './CommonDropdownSelectSingleStoreCategory';
@@ -16,6 +14,7 @@ export default class SettingStorePromodiserJobHistory extends Component {
     constructor(props) {
         super(props);
 
+        this.handleOnClickToPresent = this.handleOnClickToPresent.bind(this);
         this.handleSubmitAddJobContract = this.handleSubmitAddJobContract.bind(this);
         this.handleCloseDeleteJobContractModal = this.handleCloseDeleteJobContractModal.bind(this);
         this.handleSubmitDeleteJobContractModal = this.handleSubmitDeleteJobContractModal.bind(this);
@@ -38,6 +37,7 @@ export default class SettingStorePromodiserJobHistory extends Component {
                 deleteErrorHeaderTitle: '',
                 deleteErrorBodyText: '',                
             },
+            toPresent: false,
             token: null,
         };
     }
@@ -127,10 +127,19 @@ export default class SettingStorePromodiserJobHistory extends Component {
             .destroy(true);
     }
 
+    handleOnClickToPresent(e) {
+        const self = this;
+        const toPresent = e.currentTarget.checked;
+        self.setState({
+            ...self.state,
+            toPresent,
+        });
+    }
+
     handleSubmitAddJobContract(e) {
         e.preventDefault();
         const self = this;
-        const { promodiser, token } = self.state;
+        const { promodiser, token, toPresent } = self.state;
         const form = e.target;
         const formData = new FormData(form);
         const startDate = formData.get('start_date');
@@ -140,16 +149,22 @@ export default class SettingStorePromodiserJobHistory extends Component {
                 attributes: {
                     start_date: startDate,
                     end_date: endDate,
+                    to_present: toPresent,
                 },
             },
         };
+
         const table = $('.data-table-wrapper').find(`table.${JOB_CONTRACTS_DT}`).DataTable();
 
         axios.post(`${END_POINT}/${promodiser.store.id}/promodisers/${promodiser.id}/job-contracts?token=${token}`, payload)
             .then((response) => {
                 $('.form-control', form).removeClass('is-invalid');
                 table.ajax.reload(null, false);
-                form.reset();
+                self.setState({
+                    ...self.state,
+                    toPresent: false,
+                });
+                form.reset();                
             })
             .catch((error) => {
                 $('.form-control', form).removeClass('is-invalid');
@@ -219,6 +234,7 @@ export default class SettingStorePromodiserJobHistory extends Component {
     render() {
         const {
             promodiser,
+            toPresent,
             deleteJobContract,
         } = this.state;
 
@@ -266,10 +282,20 @@ export default class SettingStorePromodiserJobHistory extends Component {
                                                 <Form.Label>Start Date:</Form.Label>
                                                 <Form.Control type="date" name="start_date"></Form.Control>
                                                 <div className="invalid-feedback"></div>
-                                            </Form.Group>
+                                            </Form.Group>                                            
+                                            { !toPresent &&
+                                                <Form.Group>
+                                                    <Form.Label>End Date:</Form.Label>
+                                                    <Form.Control type="date" name="end_date"></Form.Control>
+                                                    <div className="invalid-feedback"></div>
+                                                </Form.Group> }
                                             <Form.Group>
-                                                <Form.Label>End Date:</Form.Label>
-                                                <Form.Control type="date" name="end_date"></Form.Control>
+                                                <Form.Check
+                                                    type="checkbox"
+                                                    label="To present (active contract)"
+                                                    checked={toPresent}
+                                                    onClick={this.handleOnClickToPresent}
+                                                    onChange={() => {}}/>
                                                 <div className="invalid-feedback"></div>
                                             </Form.Group>
                                             <hr/>

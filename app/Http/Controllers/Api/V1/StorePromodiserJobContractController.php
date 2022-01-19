@@ -30,7 +30,9 @@ class StorePromodiserJobContractController extends Controller
         });
 
         $jobContracts = JobContract::where('promodiser_id', '=', $promodiser->id)
+            ->orderByRaw('end_date IS NULL DESC')
             ->orderBy('start_date', 'desc')
+            ->orderBy('end_date', 'desc')
             ->paginate($perPage);
 
         return response()->json($jobContracts);
