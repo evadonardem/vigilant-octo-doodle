@@ -331,7 +331,7 @@ export default class SettingStorePromodiserJobHistory extends Component {
                                             </Form.Group>
                                             <Form.Group>
                                                 <Form.Label>Rate:</Form.Label>
-                                                <Form.Control type="number" name="rate"></Form.Control>
+                                                <Form.Control type="number" name="rate" step="any"></Form.Control>
                                                 <div className="invalid-feedback"></div>
                                             </Form.Group>
                                             <hr/>
