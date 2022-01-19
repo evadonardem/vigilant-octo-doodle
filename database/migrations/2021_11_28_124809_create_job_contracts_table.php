@@ -18,6 +18,8 @@ class CreateJobContractsTable extends Migration
             $table->unsignedBigInteger('promodiser_id');
             $table->date('start_date');
             $table->date('end_date')->nullable();
+            $table->decimal('rate', 8, 2);
+            $table->string('remarks')->default('');
             $table->timestamps();
             $table
                 ->foreign('promodiser_id')

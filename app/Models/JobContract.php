@@ -13,6 +13,7 @@ class JobContract extends Model
         'promodiser_id',
         'start_date',
         'end_date',
+        'rate',
     ];
     
     public function promodiser()

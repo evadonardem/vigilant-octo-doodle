@@ -58,19 +58,22 @@ class StoreJobContractRequest extends FormRequest
                         $query
                             ->where(function ($query) use ($value) {
                                 $query
-                                    ->where('start_date', '<=', $value)
-                                    ->where('end_date', '>=', $value);
+                                    ->where(function ($query) use ($value) {
+                                        $query
+                                            ->where('start_date', '<=', $value)
+                                            ->where('end_date', '>=', $value);
+                                    })
+                                    ->whereNotNull('end_date');
                             })
-                            ->whereNotNull('end_date');
-                    })
-                    ->orWhere(function ($query) use ($value) {
-                        $query
-                            ->where(function ($query) use ($value) {
+                            ->orWhere(function ($query) use ($value) {
                                 $query
-                                    ->where('start_date', '<=', $value);                                    
-                            })
-                            ->whereNull('end_date');
-                    })
+                                    ->where(function ($query) use ($value) {
+                                        $query
+                                            ->where('start_date', '<=', $value);                                    
+                                    })
+                                    ->whereNull('end_date');
+                            });
+                    })                    
                     ->get()
                     ->isNotEmpty();
                 if ($isExistJobContract) {
@@ -79,7 +82,9 @@ class StoreJobContractRequest extends FormRequest
             },
         ];
 
-        $rules = [];
+        $rules = [
+            'data.attributes.rate' => 'required|numeric',
+        ];
         if (!$isToPresent) {
             $startDateRules[] = 'before_or_equal:data.attributes.end_date';
             $rules['data.attributes.end_date'] = $endDateRules;
@@ -91,19 +96,22 @@ class StoreJobContractRequest extends FormRequest
                             $query
                                 ->where(function ($query) use ($value) {
                                     $query
-                                        ->where('start_date', '<=', $value)
-                                        ->where('end_date', '>=', $value);
+                                        ->where(function ($query) use ($value) {
+                                            $query
+                                                ->where('start_date', '<=', $value)
+                                                ->where('end_date', '>=', $value);
+                                        })
+                                        ->whereNotNull('end_date');
                                 })
-                                ->whereNotNull('end_date');
-                        })
-                        ->orWhere(function ($query) use ($value) {
-                            $query
-                                ->where(function ($query) use ($value) {
+                                ->orWhere(function ($query) use ($value) {
                                     $query
-                                        ->where('start_date', '>=', $value);                                    
-                                })
-                                ->whereNotNull('end_date');
-                        })
+                                        ->where(function ($query) use ($value) {
+                                            $query
+                                                ->where('start_date', '>=', $value);                                    
+                                        })
+                                        ->whereNotNull('end_date');
+                                });
+                        })                        
                         ->get()
                         ->isNotEmpty();
                     $isExistActiveJobContract = JobContract::where('promodiser_id', '=', $promodiser->id)

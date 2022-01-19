@@ -89,7 +89,34 @@ export default class SettingStorePromodiserJobHistory extends Component {
             serverSide: true,
             columns: [
                 { 'data': 'start_date' },
-                { 'data': 'end_date' },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        return row.end_date ? row.end_date : `<em>TO PRESENT</em>`;
+                    }
+                },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        return `<input
+                            class="form-control update-promodiser"
+                            type="text"
+                            name="contact_no"
+                            value="${row.rate}"/>
+                        <div class="invalid-feedback"></div>`;
+                    }
+                },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        return `<input
+                            class="form-control update-promodiser"
+                            type="text"
+                            name="contact_no"
+                            value="${row.remarks}"/>
+                        <div class="invalid-feedback"></div>`;
+                    }
+                },
                 {
                     'data': null,
                     'render': function (data, type, row) {
@@ -144,12 +171,14 @@ export default class SettingStorePromodiserJobHistory extends Component {
         const formData = new FormData(form);
         const startDate = formData.get('start_date');
         const endDate = formData.get('end_date');
+        const rate = formData.get('rate');
         const payload = {
             data: {
                 attributes: {
                     start_date: startDate,
                     end_date: endDate,
                     to_present: toPresent,
+                    rate,
                 },
             },
         };
@@ -262,7 +291,9 @@ export default class SettingStorePromodiserJobHistory extends Component {
                                             <thead>
                                                 <tr>
                                                 <th scope="col">Start Date</th>
-                                                <th scope="col">End Date</th>                                            
+                                                <th scope="col">End Date</th>
+                                                <th scope="col">Rate</th>
+                                                <th scope="col">Remarks</th>
                                                 <th scope="col"></th>
                                                 </tr>
                                             </thead>
@@ -282,7 +313,7 @@ export default class SettingStorePromodiserJobHistory extends Component {
                                                 <Form.Label>Start Date:</Form.Label>
                                                 <Form.Control type="date" name="start_date"></Form.Control>
                                                 <div className="invalid-feedback"></div>
-                                            </Form.Group>                                            
+                                            </Form.Group>
                                             { !toPresent &&
                                                 <Form.Group>
                                                     <Form.Label>End Date:</Form.Label>
@@ -296,6 +327,11 @@ export default class SettingStorePromodiserJobHistory extends Component {
                                                     checked={toPresent}
                                                     onClick={this.handleOnClickToPresent}
                                                     onChange={() => {}}/>
+                                                <div className="invalid-feedback"></div>
+                                            </Form.Group>
+                                            <Form.Group>
+                                                <Form.Label>Rate:</Form.Label>
+                                                <Form.Control type="number" name="rate"></Form.Control>
                                                 <div className="invalid-feedback"></div>
                                             </Form.Group>
                                             <hr/>
