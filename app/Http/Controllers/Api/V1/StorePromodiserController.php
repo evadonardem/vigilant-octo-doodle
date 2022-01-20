@@ -65,6 +65,7 @@ class StorePromodiserController extends Controller
     public function show(Store $store, Promodiser $promodiser)
     {
         if ($store->promodisers->contains($promodiser)) {
+            $promodiser->store;
             return response()->json(['data' => $promodiser]);
         }
 

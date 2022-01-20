@@ -1,12 +1,10 @@
-FROM php:7.4-apache
+FROM php:8.0-apache
 
 RUN apt-get update && apt-get install -y zip && apt-get install -y mariadb-client && apt-get install -y npm
 
 RUN docker-php-ext-install bcmath 
 
 RUN docker-php-ext-install ctype 
-
-RUN docker-php-ext-install json 
 
 RUN docker-php-ext-install pdo 
 

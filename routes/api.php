@@ -120,7 +120,8 @@ $api->version('v1', function ($api) {
         $api->get('store-categories', 'App\Http\Controllers\Api\V1\StoreController@indexStoreCategories');
         $api->get('store-locations', 'App\Http\Controllers\Api\V1\StoreController@indexStoreLocations');
         $api->resource('stores/{store}/promodisers', 'App\Http\Controllers\Api\V1\StorePromodiserController');
-        $api->resource('stores/{store}/items', 'App\Http\Controllers\Api\V1\StoreItemController');
+        $api->resource('stores/{store}/promodisers/{promodiser}/job-contracts', 'App\Http\Controllers\Api\V1\StorePromodiserJobContractController');
+        $api->resource('stores/{store}/items', 'App\Http\Controllers\Api\V1\StoreItemController');        
     });
 
     $api->group(['prefix' => 'reports', 'middleware' =>['api.auth', 'bindings']], function ($api) {
@@ -129,6 +130,7 @@ $api->version('v1', function ($api) {
         $api->get('sales-invoices-monitoring', 'App\Http\Controllers\Api\V1\SalesInvoiceMonitoringController@index');
         $api->get('stock-cards-monitoring', 'App\Http\Controllers\Api\V1\StockCardsMonitoringController@index');
         $api->get('stock-cards-monitoring-available-items', 'App\Http\Controllers\Api\V1\StockCardsMonitoringController@availableItems');
+        $api->get('promodisers-summary', 'App\Http\Controllers\Api\V1\PromodisersSummaryController@index');
     });
 
     $api->group(['prefix' => 'stock-cards', 'middleware' => ['api.auth', 'bindings']], function ($api) {

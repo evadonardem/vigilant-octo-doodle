@@ -53,6 +53,7 @@
         "sanitize-filename": "^1.6.3",
         "sass-loader": "^12.1.0",
         "stream-browserify": "^3.0.0",
-        "uuid": "^8.2.0"
+        "uuid": "^8.2.0",
+        "yarn": "^1.22.17"
     }
 }

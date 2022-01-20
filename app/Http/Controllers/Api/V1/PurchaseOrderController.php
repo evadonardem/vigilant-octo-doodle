@@ -117,9 +117,24 @@ class PurchaseOrderController extends Controller
      */
     public function indexPurchaseOrderStores(Request $request, PurchaseOrder $purchaseOrder)
     {
+        $purchaseOrderFrom = $purchaseOrder->from;
         $stores = $purchaseOrder
             ->stores()
-            ->with('promodisers')
+            ->with(['promodisers' => function ($query) use ($purchaseOrderFrom) {
+                $query->whereHas('jobContracts', function ($query) use ($purchaseOrderFrom) {
+                    $query
+                        ->where(function ($query) use ($purchaseOrderFrom) {
+                            $query
+                                ->where('start_date', '<=', $purchaseOrderFrom)
+                                ->where('end_date', '>=', $purchaseOrderFrom);
+                        })
+                        ->orWhere(function ($query) use ($purchaseOrderFrom) {
+                            $query
+                                ->where('start_date', '<=', $purchaseOrderFrom)
+                                ->whereNull('end_date');
+                        });
+                });
+            }])
             ->orderBy('pivot_id', 'asc')
             ->get();
 

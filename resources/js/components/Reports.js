@@ -65,6 +65,20 @@ export default class Reports extends Component {
                             </p>
                         </Jumbotron>
                     </div>
+                    <div className="col-md-6">
+                        <Jumbotron className="bg-primary text-white">
+                            <h1 className="text-center">
+                                <i className="fa fa-id-card"></i><br/>
+                                Promodisers Summary
+                            </h1>
+                            <hr className="my-4"/>
+                            <p className="lead text-center">
+                                <Link to={'reports-promodisers-summary'}>
+                                    <Button variant="primary" size="lg">Continue &raquo;</Button>
+                                </Link>
+                            </p>
+                        </Jumbotron>
+                    </div>
                 </div>
             </div>
         );

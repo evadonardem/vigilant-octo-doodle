@@ -44,6 +44,8 @@ import TrendsItem from './TrendsItem';
 import TrendsStore from './TrendsStore';
 import StockCardsCreate from './StockCardsCreate';
 import StockCardsShow from './StockCardsShow';
+import SettingStorePromodiserJobHistory from './SettingsStorePromodiserJobHistory';
+import ReportsPromodisersSummary from './ReportsPromodisersSummary';
 
 export default class Menu extends Component {
     constructor(props) {
@@ -188,6 +190,7 @@ export default class Menu extends Component {
                     <Route path={'/reports-delivery-receipt-monitoring'} component={ReportsDeliveryReceiptMonitoring}></Route>
                     <Route path={'/reports-sales-invoice-monitoring'} component={ReportsSalesInvoiceMonitoring}></Route>
                     <Route path={'/reports-stock-cards-monitoring'} component={ReportsStockCardsMonitoring}></Route>
+                    <Route path={'/reports-promodisers-summary'} component={ReportsPromodisersSummary}></Route>
 
                     <Route path={'/trends-store'} component={TrendsStore}></Route>
                     <Route path={'/trends-item'} component={TrendsItem}></Route>
@@ -201,6 +204,7 @@ export default class Menu extends Component {
                     <Route path={'/settings-items'} component={SettingsItems}></Route>
                     <Route path={'/settings-stores'} component={SettingsStores}></Route>
                     <Route path={'/settings-store-details/:storeId'} component={SettingStoreDetails}></Route>
+                    <Route path={'/settings-store-promodiser-job-histories/:storeId/:promodiserId'} component={SettingStorePromodiserJobHistory}></Route>
                 </Switch>
             </div>
         );
