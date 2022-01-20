@@ -16,31 +16,32 @@ class PromodisersSummaryController extends Controller
      */
     public function index()
     {
-        $promodisers = Promodiser::whereHas('jobContracts', function ($query) {
+        $currentDate = Carbon::now('Asia/Manila')->format('Y-m-d');
+        $promodisers = Promodiser::whereHas('jobContracts', function ($query) use ($currentDate) {
             $query
-                ->where(function ($query) {
+                ->where(function ($query) use ($currentDate) {
                     $query
-                        ->whereDate('start_date', '<=', Carbon::now()->format('Y-m-d'))
+                        ->whereDate('start_date', '<=', $currentDate)
                         ->whereNull('end_date');
                 })               
-                ->orwhere(function ($query) {
+                ->orwhere(function ($query) use ($currentDate) {
                     $query
-                        ->where('start_date', '<=', Carbon::now()->format('Y-m-d'))
-                        ->where('end_date', '>=', Carbon::now()->format('Y-m-d'))
+                        ->where('start_date', '<=', $currentDate)
+                        ->where('end_date', '>=', $currentDate)
                         ->whereNotNull('end_date');
                 });
         })
-            ->with(['jobContracts' => function ($query) {
+            ->with(['jobContracts' => function ($query) use ($currentDate) {
                 $query
-                    ->where(function ($query) {
+                    ->where(function ($query) use ($currentDate) {
                         $query
-                            ->where('start_date', '<=', Carbon::now()->format('Y-m-d'))
+                            ->where('start_date', '<=', $currentDate)
                             ->whereNull('end_date');
                     })
-                    ->orWhere(function ($query) {
+                    ->orWhere(function ($query) use ($currentDate) {
                         $query
-                            ->where('start_date', '<=', Carbon::now()->format('Y-m-d'))
-                            ->where('end_date', '>=', Carbon::now()->format('Y-m-d'))
+                            ->where('start_date', '<=', $currentDate)
+                            ->where('end_date', '>=', $currentDate)
                             ->whereNotNull('end_date');
                     });
             }])

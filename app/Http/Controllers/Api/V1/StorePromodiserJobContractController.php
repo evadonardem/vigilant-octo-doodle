@@ -53,37 +53,19 @@ class StorePromodiserJobContractController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\JobContract  $jobContract
-     * @return \Illuminate\Http\Response
-     */
-    public function show(JobContract $jobContract)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\JobContract  $jobContract
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(JobContract $jobContract)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \App\Http\Requests\UpdateJobContractRequest  $request
      * @param  \App\Models\JobContract  $jobContract
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateJobContractRequest $request, JobContract $jobContract)
+    public function update(UpdateJobContractRequest $request, Store $store, Promodiser $promodiser, JobContract $jobContract)
     {
-        //
+        $attributes = $request->input('data.attributes');
+        $jobContract->fill($attributes);
+        $jobContract->save();
+
+        return response()->noContent();
     }
 
     /**

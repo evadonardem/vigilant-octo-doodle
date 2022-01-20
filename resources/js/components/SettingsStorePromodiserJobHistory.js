@@ -92,16 +92,25 @@ export default class SettingStorePromodiserJobHistory extends Component {
                 {
                     'data': null,
                     'render': function (data, type, row) {
-                        return row.end_date ? row.end_date : `<em>TO PRESENT</em>`;
+                        const presentContract = `<input
+                                class="form-control update-job-contract"
+                                data-job-contract-id="${row.id}"
+                                placeholder="TO PRESENT"
+                                type="date"
+                                name="end_date"/>
+                            <div class="invalid-feedback"></div>`;
+                        return row.end_date ? row.end_date : presentContract;
                     }
                 },
                 {
                     'data': null,
                     'render': function (data, type, row) {
                         return `<input
-                            class="form-control update-promodiser"
-                            type="text"
-                            name="contact_no"
+                            class="form-control update-job-contract"
+                            data-job-contract-id="${row.id}"
+                            type="number"
+                            name="rate"
+                            step="any"
                             value="${row.rate}"/>
                         <div class="invalid-feedback"></div>`;
                     }
@@ -110,21 +119,22 @@ export default class SettingStorePromodiserJobHistory extends Component {
                     'data': null,
                     'render': function (data, type, row) {
                         return `<input
-                            class="form-control update-promodiser"
+                            class="form-control update-job-contract"
+                            data-job-contract-id="${row.id}"
                             type="text"
-                            name="contact_no"
+                            name="remarks"
                             value="${row.remarks}"/>
                         <div class="invalid-feedback"></div>`;
                     }
                 },
                 {
                     'data': null,
-                    'render': function (data, type, row) {
+                    'render': function (data, type, row) {                        
                         const deleteBtn = `<a
                             href="#"
                             class="delete btn btn-secondary"
                             data-toggle="modal"
-                            data-promodiser-id="${row.id}">
+                            data-job-contract-id="${row.id}">
                                 <i class="fa fa-trash"></i>
                             </a>`;
                         return `<div class="action-a btn-group" role="group">
@@ -135,8 +145,46 @@ export default class SettingStorePromodiserJobHistory extends Component {
             ],
         });
 
+        $(document).on('change', `.data-table-wrapper > .${JOB_CONTRACTS_DT} .update-job-contract`, function(e) {
+            const id = +e.currentTarget.getAttribute('data-job-contract-id');
+            const tableRow = $(e.currentTarget).closest('tr');
+            const inputName = e.currentTarget.getAttribute('name');
+            const inputValue = e.currentTarget.value;
+            const payload = {
+                data: {
+                    id,
+                    attributes: {},
+                },
+            };
+            payload.data.attributes[inputName] = inputValue;
+        
+            axios.patch(`${END_POINT}/${storeId}/promodisers/${promodiserId}/job-contracts/${id}?token=${token}`, payload)
+                .then(() => {
+                    $('[name=' + inputName + ']', tableRow).closest('td').find('.form-control').removeClass('is-invalid');
+                    if (inputName === 'end_date') {
+                        jobContractsDataTable.ajax.reload(null, false);
+                    }
+                })
+                .catch((error) => {
+                    $('[name=' + inputName + ']', tableRow).closest('td').find('.form-control').removeClass('is-invalid');
+                    if (error.response) {
+                        const { response } = error;
+                        const { data } = response;
+                        const { errors } = data;
+                        for (const key in errors) {
+                            let attributeName = key.replace('data.attributes.', '');                        
+                            $('[name=' + attributeName + ']', tableRow)
+                                .addClass('is-invalid')
+                                .closest('td')
+                                .find('.invalid-feedback')
+                                .text(errors[key][0]);
+                        }
+                    }
+                });
+        });
+
         $(document).on('click', `.data-table-wrapper > .${JOB_CONTRACTS_DT} .delete`, function(e) {
-            const id = e.currentTarget.getAttribute('data-promodiser-id');
+            const id = e.currentTarget.getAttribute('data-job-contract-id');
             self.setState({
                 ...self.state,
                 deleteJobContract: {
@@ -283,7 +331,7 @@ export default class SettingStorePromodiserJobHistory extends Component {
                     </Card.Header>
                     <Card.Body>
                        <div className='row'>
-                           <div className='col-md-8'>
+                           <div className='col-md-9'>
                                 <Card>
                                     <Card.Header>Job Contracts</Card.Header>
                                     <Card.Body>
@@ -302,7 +350,7 @@ export default class SettingStorePromodiserJobHistory extends Component {
                                     </Card.Body>
                                 </Card>
                            </div>
-                           <div className='col-md-4'>
+                           <div className='col-md-3'>
                                <Card>
                                    <Card.Header>
                                        Add Job Contract
