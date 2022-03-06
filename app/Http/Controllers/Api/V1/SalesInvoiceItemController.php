@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\Item;
 use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceItem;
+use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 
@@ -42,6 +44,28 @@ class SalesInvoiceItemController extends Controller
         return response()->json($salesInvoiceItems);
     }
 
+    public function indexStoreItems(Request $request, SalesInvoice $salesInvoice, Store $store)
+    {
+        $storeItems = Item::orderBy('name', 'asc')
+            ->whereHas('stores', function ($query) use ($store) {
+                $query->where('stores.id', $store->id);
+            })
+            ->get();
+
+        $salesInvoiceItemsKeyByItemId = $salesInvoice->items
+            ->where('store_id', '=', $store->id)
+            ->values()
+            ->keyBy('item_id');
+
+        foreach ($storeItems as $item) {
+            if ($salesInvoiceItemsKeyByItemId[$item->id] ?? false) {
+                $item->quantity = $salesInvoiceItemsKeyByItemId[$item->id]->quantity;
+            }
+        }
+
+        return response()->json(['data' => $storeItems]);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -53,43 +77,26 @@ class SalesInvoiceItemController extends Controller
         $attributes = $request->only(['store_id', 'item_id', 'quantity']);
         $attributes['sales_invoice_id'] = $salesInvoice->id;
 
-        SalesInvoiceItem::create($attributes);
+        if ($attributes['quantity'] > 0) {
+            SalesInvoiceItem::updateOrCreate(
+                [
+                    'sales_invoice_id' => $salesInvoice->id,
+                    'store_id' => $attributes['store_id'],
+                    'item_id' => $attributes['item_id'],
+                ],
+                [
+                    'quantity' => $attributes['quantity'],
+                ]
+            );
+        } else {
+            SalesInvoiceItem::where([
+                'sales_invoice_id' => $salesInvoice->id,
+                'store_id' => $attributes['store_id'],
+                'item_id' => $attributes['item_id'],
+            ])->delete();
+        }
 
         return response()->noContent();
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\SalesInvoiceItem  $salesInvoiceItem
-     * @return \Illuminate\Http\Response
-     */
-    public function show(SalesInvoiceItem $salesInvoiceItem)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\SalesInvoiceItem  $salesInvoiceItem
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(SalesInvoiceItem $salesInvoiceItem)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\SalesInvoiceItem  $salesInvoiceItem
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, SalesInvoiceItem $salesInvoiceItem)
-    {
-        //
     }
 
     /**

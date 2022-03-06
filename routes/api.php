@@ -78,6 +78,7 @@ $api->version('v1', function ($api) {
         $api->get('sales-invoices/{salesInvoice}/items', 'App\Http\Controllers\Api\V1\SalesInvoiceItemController@index');
         $api->post('sales-invoices/{salesInvoice}/items', 'App\Http\Controllers\Api\V1\SalesInvoiceItemController@store');
         $api->delete('sales-invoices/{salesInvoice}/items/{salesInvoiceItem}', 'App\Http\Controllers\Api\V1\SalesInvoiceItemController@destroy');
+        $api->get('sales-invoices/{salesInvoice}/stores/{store}/items', 'App\Http\Controllers\Api\V1\SalesInvoiceItemController@indexStoreItems');
 
         $api->get(
             'charts/sales-by-store-data',

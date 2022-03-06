@@ -3,8 +3,6 @@ import { Alert, Badge, Breadcrumb, Button, Card, Form, Modal } from 'react-boots
 import cookie from 'react-cookies';
 import { v4 as uuidv4 } from 'uuid';
 import CommonDeleteModal from './CommonDeleteModal';
-import CommonDropdownSelectSingleItem from './CommonDropdownSelectSingleItem';
-import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
 import CommonDropdownSelectSingleUsers from './CommonDropdownSelectSingleUsers';
 import CommonDropdownSelectSingleExpenseCode from './CommonDropdownSelectSingleExpenseCode';
 
@@ -69,7 +67,7 @@ export default class PurchaseOrderDetails extends Component {
                 this.initDataTables(purchaseOrderId);
             })
             .catch(() => {
-                // location.href = `${appBaseUrl}`;
+                
             });
 
         axios.get(`${END_POINT}/${purchaseOrderId}/stores?include=items&token=${token}`)
@@ -81,7 +79,7 @@ export default class PurchaseOrderDetails extends Component {
                 });
             })
             .catch(() => {
-                // location.href = `${appBaseUrl}`;
+                
             });
 
         axios.get(`${END_POINT}/${purchaseOrderId}/assigned-staff?token=${token}`)
@@ -93,7 +91,7 @@ export default class PurchaseOrderDetails extends Component {
                 });
             })
             .catch(() => {
-                // location.href = `${appBaseUrl}`;
+
             });
 
         axios.get(`${END_POINT}/${purchaseOrderId}/expenses?token=${token}`)
@@ -106,7 +104,7 @@ export default class PurchaseOrderDetails extends Component {
                 });
             })
             .catch(() => {
-                // location.href = `${appBaseUrl}`;
+                
             });
     }
 
@@ -464,11 +462,11 @@ export default class PurchaseOrderDetails extends Component {
                                         });
                                     })
                                     .catch(() => {
-                                        // location.href = `${appBaseUrl}`;
+                                        
                                     });
                             })
                             .catch(() => {
-                                // location.href = `${appBaseUrl}`;
+                                
                             });
                     });
     
@@ -665,7 +663,7 @@ export default class PurchaseOrderDetails extends Component {
                             });
                         })
                         .catch(() => {
-                            // location.href = `${appBaseUrl}`;
+                            
                         });
                 })
                 .catch((error) => {
@@ -747,7 +745,7 @@ export default class PurchaseOrderDetails extends Component {
                         });
                     })
                     .catch(() => {
-                        // location.href = `${appBaseUrl}`;
+                        
                     });
             })
             .catch((error) => {
@@ -805,7 +803,7 @@ export default class PurchaseOrderDetails extends Component {
                         });
                     })
                     .catch(() => {
-                        // location.href = `${appBaseUrl}`;
+                        
                     });
             })
             .catch((error) => {
@@ -1129,9 +1127,10 @@ export default class PurchaseOrderDetails extends Component {
                                 <Card className="my-4">
                                     <Card.Header><i className="fa fa-shopping-cart"></i> Stores</Card.Header>
                                     <Card.Body>
-                                        <Link to={`/purchase-order/${purchaseOrder ? purchaseOrder.id : null}/store-request`}>
-                                            <Button>Add Store Request</Button>
-                                        </Link>                                            
+                                        { purchaseOrder.status.id  === 1 &&
+                                            <Link to={`/purchase-order/${purchaseOrder.id}/store-request`}>
+                                                <Button>Add Store Request</Button>
+                                            </Link> }
                                         <table className={`table table-striped ${PO_STORES_DT}`} style={{width: 100+'%'}}>
                                             <thead>
                                                 <tr>

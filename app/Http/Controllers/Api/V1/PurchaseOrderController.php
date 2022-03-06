@@ -412,14 +412,16 @@ class PurchaseOrderController extends Controller
             abort(422, 'Cannot delete store for purchase order under ' . $purchaseOrder->status->name . ' status.');
         }
 
-        $store = $purchaseOrder
+        $poStores = $purchaseOrder
             ->stores()
             ->where([
                 'store_id' => $store->id,
             ])
-            ->first();
+            ->get();
 
-        $store->pivot->delete();
+        foreach ($poStores as $poStore) {
+            $poStore->pivot->delete();
+        }        
 
         PurchaseOrderStoresSortOrder::where([
             'purchase_order_id' => $purchaseOrder->id,
