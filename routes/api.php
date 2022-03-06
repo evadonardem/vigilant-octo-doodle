@@ -58,6 +58,7 @@ $api->version('v1', function ($api) {
         $api->post('purchase-orders/{purchaseOrder}/stores-sort-order', 'App\Http\Controllers\Api\V1\PurchaseOrderController@syncPurchaseOrderStoresSortOrder');
         $api->post('purchase-orders/{purchaseOrder}/items', 'App\Http\Controllers\Api\V1\PurchaseOrderController@storePurchaseOrderItems');
         $api->resource('purchase-orders/{purchaseOrder}/stores/{store}/items', 'App\Http\Controllers\Api\V1\PurchaseOrderStoreItemController');
+        $api->get('purchase-orders/{purchaseOrder}/stores/{store}/requests', 'App\Http\Controllers\Api\V1\PurchaseOrderStoreItemController@indexStoreRequests');
 
         $api->get('purchase-orders/{purchaseOrder}/assigned-staff', 'App\Http\Controllers\Api\V1\PurchaseOrderAssignedStaffController@index');
         $api->post('purchase-orders/{purchaseOrder}/assigned-staff', 'App\Http\Controllers\Api\V1\PurchaseOrderAssignedStaffController@store');
