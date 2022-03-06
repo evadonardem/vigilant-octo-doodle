@@ -41,7 +41,10 @@ export default class SalesInvoiceStoreItemsShow extends Component {
                     salesInvoice,
                 });                
             })
-            .catch(() => {
+            .catch((error) => {
+                if (error.response.status === 401) {
+                    window.location.reload();
+                }
             });
     }
 
@@ -69,7 +72,11 @@ export default class SalesInvoiceStoreItemsShow extends Component {
                         storeItems,
                     });
                 })
-                .catch(() => {});
+                .catch((error) => {
+                    if (error.response.status === 401) {
+                        window.location.reload();
+                    }
+                });
         } else {
             self.setState({
                 ...state,
@@ -119,7 +126,11 @@ export default class SalesInvoiceStoreItemsShow extends Component {
             { cancelToken: ajaxRequest.token }
         )
         .then(() => {})
-        .catch(() => {});
+        .catch((error) => {
+            if (error.response.status === 401) {
+                window.location.reload();
+            }
+        });
     }
 
     render() {
