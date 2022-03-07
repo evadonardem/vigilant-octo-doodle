@@ -3,27 +3,23 @@ import { Alert, Badge, Breadcrumb, Button, Card, Form, Modal } from 'react-boots
 import cookie from 'react-cookies';
 import { v4 as uuidv4 } from 'uuid';
 import CommonDeleteModal from './CommonDeleteModal';
-import CommonDropdownSelectSingleItem from './CommonDropdownSelectSingleItem';
-import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
 import CommonDropdownSelectSingleUsers from './CommonDropdownSelectSingleUsers';
 import CommonDropdownSelectSingleExpenseCode from './CommonDropdownSelectSingleExpenseCode';
 
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import PurchaseOrderDetailsPdfDocument from './PurchaseOrderDetailsPdfDocument';
+import { Link } from 'react-router-dom';
 
 const PO_STORES_DT = 'table-purchase-order-stores';
 const PO_STORE_ITEMS_DT = 'table-purchase-order-store-items';
 const PO_ASSIGNED_STAFF_DT = 'table-purchase-order-assigned-staff';
 const PO_EXPENSES_DT = 'table-purchase-order-expenses';
 const END_POINT = `${apiBaseUrl}/purchase-orders`;
-
 export default class PurchaseOrderDetails extends Component {
     constructor(props) {
         super(props);
 
-        this.handleChangeSelectSingleItem = this.handleChangeSelectSingleItem.bind(this);
-        this.handleChangeSelectSingleStore = this.handleChangeSelectSingleStore.bind(this);
-        this.handleSubmitStoreItemRequest = this.handleSubmitStoreItemRequest.bind(this);
+        this.initDataTables = this.initDataTables.bind(this);
 
         this.handleChangeSelectSingleUser = this.handleChangeSelectSingleUser.bind(this);
         this.handleSubmitAssignStaff = this.handleSubmitAssignStaff.bind(this);
@@ -43,8 +39,6 @@ export default class PurchaseOrderDetails extends Component {
             purchaseOrderAssignedStaff: null,
             purchaseOrderExpenses: null,
             purchaseOrderExpensesMeta: null,
-            selectedStore: null,
-            selectedItem: null,
             selectedUser: null,
             error: {},
             deleteModal: {
@@ -62,6 +56,69 @@ export default class PurchaseOrderDetails extends Component {
         const { params } = self.props.match;
         const { purchaseOrderId } = params;
 
+        axios.get(`${END_POINT}/${purchaseOrderId}?token=${token}`)
+            .then((response) => {
+                const { data: purchaseOrder } = response.data;
+                self.setState({
+                    ...self.state,
+                    purchaseOrder,
+                    token,
+                });
+                this.initDataTables(purchaseOrderId);
+            })
+            .catch(() => {
+                
+            });
+
+        axios.get(`${END_POINT}/${purchaseOrderId}/stores?include=items&token=${token}`)
+            .then((response) => {
+                const { data: purchaseOrderStores } = response.data;
+                self.setState({
+                    ...self.state,
+                    purchaseOrderStores,
+                });
+            })
+            .catch(() => {
+                
+            });
+
+        axios.get(`${END_POINT}/${purchaseOrderId}/assigned-staff?token=${token}`)
+            .then((response) => {
+                const { data: purchaseOrderAssignedStaff } = response.data;
+                self.setState({
+                    ...self.state,
+                    purchaseOrderAssignedStaff,
+                });
+            })
+            .catch(() => {
+
+            });
+
+        axios.get(`${END_POINT}/${purchaseOrderId}/expenses?token=${token}`)
+            .then((response) => {
+                const { data: purchaseOrderExpenses, meta: purchaseOrderExpensesMeta } = response.data;
+                self.setState({
+                    ...self.state,
+                    purchaseOrderExpenses,
+                    purchaseOrderExpensesMeta,
+                });
+            })
+            .catch(() => {
+                
+            });
+    }
+
+    componentWillUnmount() {
+        $('.data-table-wrapper')
+            .find('table')
+            .DataTable()
+            .destroy(true);
+    }
+
+    initDataTables(purchaseOrderId) {
+        const self = this;
+        const { token } = self.state;
+    
         const poStoresDataTable = $(`.${PO_STORES_DT}`).DataTable({
             ajax: {
                 type: 'get',
@@ -87,7 +144,7 @@ export default class PurchaseOrderDetails extends Component {
                     'data': null,
                     'render': function (data, type, row) {
                         const {promodisers} = data;
-
+    
                         if (promodisers) {
                             return promodisers.map((promodiser) => {
                                 return `<p>
@@ -96,7 +153,7 @@ export default class PurchaseOrderDetails extends Component {
                                 </p>`;
                             }).join('');
                         }
-
+    
                         return null;
                     }
                 },
@@ -104,6 +161,11 @@ export default class PurchaseOrderDetails extends Component {
                     'data': null,
                     'render': function (data, type, row) {
                         if (+data.purchase_order_status.id === 1) {
+                            const editBtn = `<a
+                                href="#/purchase-order/${data.pivot.purchase_order_id}/store-request/${data.pivot.store_id}"
+                                class="btn btn-primary">
+                                    <i class="fa fa-edit"></i>
+                            </a>`;
                             const deleteBtn = `<a
                                 href="#"
                                 data-purchase-order-id=${data.pivot.purchase_order_id}
@@ -113,10 +175,10 @@ export default class PurchaseOrderDetails extends Component {
                                 class="delete-po-store btn btn-warning">
                                     <i class="fa fa-trash"></i>
                             </a>`;
-
-                            return `${deleteBtn}`;
+    
+                            return `<div class="btn-group">${editBtn}${deleteBtn}</div>`;
                         }
-
+    
                         return null;
                     }
                 },
@@ -128,15 +190,15 @@ export default class PurchaseOrderDetails extends Component {
             },
             searching: false,
         });
-
+    
         $(document).on('click', '.data-table-wrapper .delete-po-store', function (e) {
             e.preventDefault();
-
+    
             const purchaseOrderId = $(this).data('purchase-order-id');
             const storeId = $(this).data('store-id');
             const storeCode = $(this).data('store-code');
             const storeName = $(this).data('store-name');
-
+    
             self.setState({
                 ...self.state,
                 deleteModal: {
@@ -148,7 +210,7 @@ export default class PurchaseOrderDetails extends Component {
                 }
             })
         });
-
+    
         const format = (d) => {
             return `<div class="card">
                 <div class="card-header">
@@ -176,7 +238,7 @@ export default class PurchaseOrderDetails extends Component {
                 </div>
             </div>`;
         };
-
+    
         // Add event listener for opening and closing details
         $('tbody', $(`.${PO_STORES_DT}`)).on('click', 'td.details-control', function () {
             var refDataTable = $('.data-table-wrapper')
@@ -184,7 +246,7 @@ export default class PurchaseOrderDetails extends Component {
                 .DataTable();
             var tr = $(this).closest('tr');
             var row = refDataTable.row( tr );
-
+    
             if ( row.child.isShown() ) {
                 $(this).find('i').removeClass('fa-chevron-circle-up');
                 $(this).find('i').addClass('fa-chevron-circle-down');
@@ -196,7 +258,7 @@ export default class PurchaseOrderDetails extends Component {
                 $(this).find('i').addClass('fa-chevron-circle-up');
                 row.child( format(row.data()) ).show();
                 tr.addClass('shown');
-
+    
                 if ( row.child.isShown() ) {
                     tr.next().find(`table.${PO_STORE_ITEMS_DT}`).DataTable({
                         ajax: {
@@ -206,12 +268,12 @@ export default class PurchaseOrderDetails extends Component {
                                 let json = jQuery.parseJSON(data);
                                 json.recordsTotal = json.total;
                                 json.recordsFiltered = json.total;
-
+    
                                 return JSON.stringify(json);
                             },
                             dataSrc: (response) => {
                                 const { data } = response;
-
+    
                                 return data;
                             },
                         },
@@ -235,10 +297,10 @@ export default class PurchaseOrderDetails extends Component {
                                             data-item-id=${data.id}
                                             data-type="quantity_original"
                                             value="${data.pivot.quantity_original}"/>`;
-
+    
                                         return `${input}`;
                                     }
-
+    
                                     return data.pivot.quantity_original;
                                 }
                             },
@@ -254,10 +316,10 @@ export default class PurchaseOrderDetails extends Component {
                                             data-item-id=${data.id}
                                             data-type="quantity_actual"
                                             value="${data.pivot.quantity_actual}"/>`;
-
+    
                                         return `${input}`;
                                     }
-
+    
                                     return data.pivot.quantity_actual;
                                 }
                             },
@@ -273,10 +335,10 @@ export default class PurchaseOrderDetails extends Component {
                                             data-item-id=${data.id}
                                             data-type="quantity_bad_orders"
                                             value="${data.pivot.quantity_bad_orders}"/>`;
-
+    
                                         return `${input}`;
                                     }
-
+    
                                     return data.pivot.quantity_bad_orders;
                                 }
                             },
@@ -292,10 +354,10 @@ export default class PurchaseOrderDetails extends Component {
                                             data-item-id=${data.id}
                                             data-type="quantity_returns"
                                             value="${data.pivot.quantity_returns}"/>`;
-
+    
                                         return `${input}`;
                                     }
-
+    
                                     return data.pivot.quantity_returns;
                                 }
                             },
@@ -311,10 +373,10 @@ export default class PurchaseOrderDetails extends Component {
                                             data-item-id=${data.id}
                                             data-type="delivery_receipt_no"
                                             value="${data.pivot.delivery_receipt_no}"/>`;
-
+    
                                         return `${input}`;
                                     }
-
+    
                                     return data.pivot.delivery_receipt_no;
                                 }
                             },
@@ -330,10 +392,10 @@ export default class PurchaseOrderDetails extends Component {
                                             data-item-id=${data.id}
                                             data-type="booklet_no"
                                             value="${data.pivot.booklet_no}"/>`;
-
+    
                                         return `${input}`;
                                     }
-
+    
                                     return data.pivot.booklet_no;
                                 }
                             },
@@ -349,10 +411,10 @@ export default class PurchaseOrderDetails extends Component {
                                             data-item-id=${data.id}
                                             data-type="remarks"
                                             value="${data.pivot.remarks}"/>`;
-
+    
                                         return `${input}`;
                                     }
-
+    
                                     return data.pivot.remarks;
                                 }
                             },
@@ -370,16 +432,16 @@ export default class PurchaseOrderDetails extends Component {
                                             class="delete-po-store-item btn btn-warning">
                                                 <i class="fa fa-trash"></i>
                                         </a>`;
-
+    
                                         return `${deleteBtn}`;
                                     }
-
+    
                                     return null;
                                 }
                             },
                         ]
                     });
-
+    
                     $(document).on('change', '.data-table-wrapper .update-po-store-item', function(e) {
                         const purchaseOrderId = $(this).data('purchase-order-id');
                         const storeId = $(this).data('store-id');
@@ -388,7 +450,7 @@ export default class PurchaseOrderDetails extends Component {
                         const quantity = $(this).val();
                         const postData = {};
                         postData[quantityType] = quantity;
-
+    
                         axios.patch(`${END_POINT}/${purchaseOrderId}/stores/${storeId}/items/${itemId}?token=${token}`, postData)
                             .then(() => {
                                 axios.get(`${END_POINT}/${purchaseOrderId}/stores?include=items&token=${token}`)
@@ -400,23 +462,23 @@ export default class PurchaseOrderDetails extends Component {
                                         });
                                     })
                                     .catch(() => {
-                                        // location.href = `${appBaseUrl}`;
+                                        
                                     });
                             })
                             .catch(() => {
-                                // location.href = `${appBaseUrl}`;
+                                
                             });
                     });
-
+    
                     $(document).on('click', '.data-table-wrapper .delete-po-store-item', function (e) {
                         e.preventDefault();
-
+    
                         const purchaseOrderId = $(this).data('purchase-order-id');
                         const storeId = $(this).data('store-id');
                         const itemId = $(this).data('item-id');
                         const itemCode = $(this).data('item-code');
                         const itemName = $(this).data('item-name');
-
+    
                         self.setState({
                             ...self.state,
                             deleteModal: {
@@ -431,7 +493,7 @@ export default class PurchaseOrderDetails extends Component {
                 }
             }
         });
-
+    
         poStoresDataTable.on('row-reorder', (e, diff, edit) => {
             poStoresDataTable.one('draw', function () {
                 let storesSortOrder = [];
@@ -456,8 +518,8 @@ export default class PurchaseOrderDetails extends Component {
                         });
             });        
         });
-
-
+    
+    
         $(`.${PO_ASSIGNED_STAFF_DT}`).DataTable({
             ajax: {
                 type: 'get',
@@ -485,10 +547,10 @@ export default class PurchaseOrderDetails extends Component {
                                 class="delete-po-assigned-staff btn btn-warning">
                                     <i class="fa fa-trash"></i>
                             </a>`;
-
+    
                             return `${deleteBtn}`;
                         }
-
+    
                         return null;
                     }
                 },
@@ -497,15 +559,15 @@ export default class PurchaseOrderDetails extends Component {
             paging: false,
             searching: false,
         });
-
+    
         $(document).on('click', '.data-table-wrapper .delete-po-assigned-staff', function (e) {
             e.preventDefault();
-
+    
             const purchaseOrderId = $(this).data('purchase-order-id');
             const purchaseOrderAssignedStaffId = $(this).data('purchase-order-assigned-staff-id');
             const biometricId = $(this).data('biometric-id');
             const staffName = $(this).data('staff-name');
-
+    
             self.setState({
                 ...self.state,
                 deleteModal: {
@@ -517,7 +579,7 @@ export default class PurchaseOrderDetails extends Component {
                 }
             })
         });
-
+    
         $(`.${PO_EXPENSES_DT}`).DataTable({
             ajax: {
                 type: 'get',
@@ -543,10 +605,10 @@ export default class PurchaseOrderDetails extends Component {
                                 data-purchase-order-expense-id=${data.id}
                                 data-type="amount_actual"
                                 value="${data.amount_actual}"/>`;
-
+    
                             return `${input}`;
                         }
-
+    
                         return data.amount_actual;
                     }
                 },
@@ -562,10 +624,10 @@ export default class PurchaseOrderDetails extends Component {
                                 class="delete-po-expense btn btn-warning">
                                     <i class="fa fa-trash"></i>
                             </a>`;
-
+    
                             return `${deleteBtn}`;
                         }
-
+    
                         return null;
                     }
                 },
@@ -574,10 +636,10 @@ export default class PurchaseOrderDetails extends Component {
             paging: false,
             searching: false,
         });
-
+    
         $(document).on('change', '.data-table-wrapper .update-po-allocated-expense', function (e) {
             e.preventDefault();
-
+    
             const token = cookie.load('token');
             const purchaseOrderId = $(this).data('purchase-order-id');
             const purchaseOrderExpenseId = $(this).data('purchase-order-expense-id');
@@ -585,7 +647,7 @@ export default class PurchaseOrderDetails extends Component {
             const value = $(this).val();
             let data = {};
             data[type] = value;
-
+    
             axios.patch(`${END_POINT}/${purchaseOrderId}/expenses/${purchaseOrderExpenseId}?token=${token}`, data)
                 .then(() => {
                     /**
@@ -601,7 +663,7 @@ export default class PurchaseOrderDetails extends Component {
                             });
                         })
                         .catch(() => {
-                            // location.href = `${appBaseUrl}`;
+                            
                         });
                 })
                 .catch((error) => {
@@ -609,7 +671,7 @@ export default class PurchaseOrderDetails extends Component {
                         data,
                         status,
                     } = error.response;
-
+    
                     if (+status === 422) {
                         const { message: generalMessage } = data;
                         self.setState({
@@ -619,14 +681,14 @@ export default class PurchaseOrderDetails extends Component {
                     }
                 });
         });
-
+    
         $(document).on('click', '.data-table-wrapper .delete-po-expense', function (e) {
             e.preventDefault();
-
+    
             const purchaseOrderId = $(this).data('purchase-order-id');
             const purchaseOrderExpenseId = $(this).data('purchase-order-expense-id');
             const expenseName = $(this).data('expense-name');
-
+    
             self.setState({
                 ...self.state,
                 deleteModal: {
@@ -638,133 +700,6 @@ export default class PurchaseOrderDetails extends Component {
                 }
             });
         });
-
-        axios.get(`${END_POINT}/${purchaseOrderId}?token=${token}`)
-            .then((response) => {
-                const { data: purchaseOrder } = response.data;
-                self.setState({
-                    ...self.state,
-                    purchaseOrder,
-                });
-            })
-            .catch(() => {
-                // location.href = `${appBaseUrl}`;
-            });
-
-        axios.get(`${END_POINT}/${purchaseOrderId}/stores?include=items&token=${token}`)
-            .then((response) => {
-                const { data: purchaseOrderStores } = response.data;
-                self.setState({
-                    ...self.state,
-                    purchaseOrderStores,
-                });
-            })
-            .catch(() => {
-                // location.href = `${appBaseUrl}`;
-            });
-
-        axios.get(`${END_POINT}/${purchaseOrderId}/assigned-staff?token=${token}`)
-            .then((response) => {
-                const { data: purchaseOrderAssignedStaff } = response.data;
-                self.setState({
-                    ...self.state,
-                    purchaseOrderAssignedStaff,
-                });
-            })
-            .catch(() => {
-                // location.href = `${appBaseUrl}`;
-            });
-
-        axios.get(`${END_POINT}/${purchaseOrderId}/expenses?token=${token}`)
-            .then((response) => {
-                const { data: purchaseOrderExpenses, meta: purchaseOrderExpensesMeta } = response.data;
-                self.setState({
-                    ...self.state,
-                    purchaseOrderExpenses,
-                    purchaseOrderExpensesMeta,
-                });
-            })
-            .catch(() => {
-                // location.href = `${appBaseUrl}`;
-            });
-    }
-
-    componentWillUnmount() {
-        $('.data-table-wrapper')
-            .find('table')
-            .DataTable()
-            .destroy(true);
-    }
-
-    handleChangeSelectSingleStore(e) {
-        this.setState({
-            ...this.state,
-            selectedStore: e
-        });
-    }
-
-    handleChangeSelectSingleItem(e) {
-        this.setState({
-            ...this.state,
-            selectedItem: e
-        });
-    }
-
-    handleSubmitStoreItemRequest(e) {
-        e.preventDefault();
-        const token = cookie.load('token');
-        const self = this;
-        const { purchaseOrder } = self.state;
-        const form = $(e.currentTarget);
-        const data = form.serialize();
-        const table = $('.data-table-wrapper').find(`table.${PO_STORES_DT}`).DataTable();
-
-        axios.post(
-                `${apiBaseUrl}/purchase-orders/${purchaseOrder.id}/items?token=${token}`,
-                data
-            )
-            .then(() => {
-                self.setState({
-                    ...self.state,
-                    selectedStore: null,
-                    selectedItem: null,
-                    error: {},
-                });
-                table.ajax.reload(null, false);
-                $('.form-control', form).removeClass('is-invalid');
-                form[0].reset();
-
-                axios.get(`${END_POINT}/${purchaseOrder.id}/stores?include=items&token=${token}`)
-                    .then((response) => {
-                        const { data: purchaseOrderStores } = response.data;
-                        self.setState({
-                            ...self.state,
-                            purchaseOrderStores,
-                        });
-                    })
-                    .catch(() => {
-                        // location.href = `${appBaseUrl}`;
-                    });
-            })
-            .catch((error) => {
-                const {
-                    data,
-                    status,
-                } = error.response;
-
-                $('.form-control', form).removeClass('is-invalid');
-                form[0].reset();
-
-                if (+status === 422) {
-                    const { message: generalMessage } = data;
-                    self.setState({
-                        ...self.state,
-                        selectedStore: null,
-                        selectedItem: null,
-                        error: { generalMessage },
-                    });
-                }
-            });
     }
 
     handleChangeSelectSingleUser(e) {
@@ -810,7 +745,7 @@ export default class PurchaseOrderDetails extends Component {
                         });
                     })
                     .catch(() => {
-                        // location.href = `${appBaseUrl}`;
+                        
                     });
             })
             .catch((error) => {
@@ -868,7 +803,7 @@ export default class PurchaseOrderDetails extends Component {
                         });
                     })
                     .catch(() => {
-                        // location.href = `${appBaseUrl}`;
+                        
                     });
             })
             .catch((error) => {
@@ -1076,9 +1011,7 @@ export default class PurchaseOrderDetails extends Component {
             purchaseOrderStores,
             purchaseOrderAssignedStaff,
             purchaseOrderExpenses,
-            purchaseOrderExpensesMeta,
-            selectedStore,
-            selectedItem,
+            purchaseOrderExpensesMeta,        
             selectedUser,
             error,
             deleteModal,
@@ -1112,111 +1045,122 @@ export default class PurchaseOrderDetails extends Component {
         return (
             <div className="container-fluid my-4">
                 { purchaseOrder &&
-                    <Breadcrumb>
-                        <Breadcrumb.Item href="#/purchase-orders"><i className="fa fa-folder"></i> Purchase Orders</Breadcrumb.Item>
-                        <Breadcrumb.Item active>{purchaseOrder.code}</Breadcrumb.Item>
-                    </Breadcrumb>
-                }
-                <div className="row">
-                    <div className={ purchaseOrder && +purchaseOrder.status.id === 1 ? "col-md-9" : "col-md-12"}>
+                    <>
+                        <Breadcrumb>
+                            <Breadcrumb.Item href="#/purchase-orders"><i className="fa fa-folder"></i> Purchase Orders</Breadcrumb.Item>
+                            <Breadcrumb.Item active>{purchaseOrder.code}</Breadcrumb.Item>
+                        </Breadcrumb>
                         <Card>
+                            <Card.Header>
+                                <div className='row'>
+                                    <div className='col-md-9'>
+                                        <p>
+                                            <Badge variant='primary'>PO: {purchaseOrder.code}</Badge>&nbsp;
+                                            <Badge variant={currentStatusVariant}>
+                                                {purchaseOrder.status ? purchaseOrder.status.name : ''}
+                                            </Badge>
+                                        </p>
+                                        <h4>Purchase Order &raquo; Details</h4>
+                                    </div>
+                                    <div className='col-md-3'>
+                                        <PDFDownloadLink
+                                            key={uuidv4()}
+                                            document={<PurchaseOrderDetailsPdfDocument
+                                                purchaseOrder={purchaseOrder}
+                                                purchaseOrderStores={purchaseOrderStores}
+                                                purchaseOrderAssignedStaff={purchaseOrderAssignedStaff}
+                                                purchaseOrderExpenses={purchaseOrderExpenses}
+                                                purchaseOrderExpensesMeta={purchaseOrderExpensesMeta}/>}
+                                            fileName={`PO-${purchaseOrder.code}.pdf`}
+                                            className="btn btn-primary pull-right">
+                                            {({ blob, url, loading, error }) => (
+                                                loading
+                                                    ? "Loading document..."
+                                                    : <span><i className="fa fa-file"></i> Download PO</span>
+                                            )}
+                                        </PDFDownloadLink>
+                                    </div>
+                                </div>
+                            </Card.Header>
                             <Card.Body>
                                 <Card.Title>
-                                    {
-                                        purchaseOrder &&
-                                        <Alert variant={currentStatusVariant}>
-                                            <Badge variant="primary">{purchaseOrder.code}</Badge>&nbsp;
-                                            <Badge variant={currentStatusVariant}>{purchaseOrder.status ? purchaseOrder.status.name : ''}</Badge>
-                                            <br/><br/>
-                                            <div className="row">
-                                                <div className="col-md-6">
-                                                    <Form.Group>
-                                                        <Form.Label>Location:</Form.Label>
-                                                        <Form.Control
-                                                            type="text"
-                                                            name="location"
-                                                            onChange={this.handleUpdatePurchaseOrderLocation}
-                                                            defaultValue={purchaseOrder.location}
-                                                            readOnly={+purchaseOrder.status.id === 3}></Form.Control>
-                                                    </Form.Group>
-                                                </div>
-                                                <div className="w-100"></div>
-                                                <div className="col-md-6">
-                                                    <Form.Group>
-                                                        <Form.Label>From:</Form.Label>
-                                                        <Form.Control
-                                                            type="date"
-                                                            name="from"
-                                                            onChange={this.handleUpdatePurchaseOrderDuration}
-                                                            value={purchaseOrder.from}
-                                                            readOnly={+purchaseOrder.status.id === 3}></Form.Control>
-                                                        <div className="invalid-feedback"></div>
-                                                    </Form.Group>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <Form.Group>
-                                                        <Form.Label>To:</Form.Label>
-                                                        <Form.Control
-                                                            type="date"
-                                                            name="to"
-                                                            onChange={this.handleUpdatePurchaseOrderDuration}
-                                                            value={purchaseOrder.to}
-                                                            readOnly={+purchaseOrder.status.id === 3}></Form.Control>
-                                                        <div className="invalid-feedback"></div>
-                                                    </Form.Group>
-                                                </div>
-                                                <div className="col-md-6">
-                                                    <Form.Group>
-                                                        <Form.Label>Trips:</Form.Label>
-                                                        <Form.Control type="text" value={purchaseOrder.trips} readOnly></Form.Control>
-                                                    </Form.Group>
-                                                </div>
+                                    <Alert variant={currentStatusVariant}>                                        
+                                        <div className="row">
+                                            <div className="col-md-5">
+                                                <Form.Group>
+                                                    <Form.Label>Location:</Form.Label>
+                                                    <Form.Control
+                                                        type="text"
+                                                        name="location"
+                                                        onChange={this.handleUpdatePurchaseOrderLocation}
+                                                        defaultValue={purchaseOrder.location}
+                                                        readOnly={+purchaseOrder.status.id === 3}></Form.Control>
+                                                </Form.Group>
                                             </div>
-                                            <div className="row">
-                                                <div className="col-md-12">
-                                                    <PDFDownloadLink
-                                                        key={uuidv4()}
-                                                        document={<PurchaseOrderDetailsPdfDocument
-                                                            purchaseOrder={purchaseOrder}
-                                                            purchaseOrderStores={purchaseOrderStores}
-                                                            purchaseOrderAssignedStaff={purchaseOrderAssignedStaff}
-                                                            purchaseOrderExpenses={purchaseOrderExpenses}
-                                                            purchaseOrderExpensesMeta={purchaseOrderExpensesMeta}/>}
-                                                        fileName={`PO-${purchaseOrder.code}.pdf`}
-                                                        className="btn btn-primary pull-right">
-                                                        {({ blob, url, loading, error }) => (
-                                                            loading
-                                                                ? "Loading document..."
-                                                                : <span><i className="fa fa-file"></i> Download PO</span>
-                                                        )}
-                                                    </PDFDownloadLink>
-                                                </div>
+                                            <div className="w-100"></div>
+                                            <div className="col-md-5">
+                                                <Form.Group>
+                                                    <Form.Label>From:</Form.Label>
+                                                    <Form.Control
+                                                        type="date"
+                                                        name="from"
+                                                        onChange={this.handleUpdatePurchaseOrderDuration}
+                                                        value={purchaseOrder.from}
+                                                        readOnly={+purchaseOrder.status.id === 3}></Form.Control>
+                                                    <div className="invalid-feedback"></div>
+                                                </Form.Group>
                                             </div>
-                                        </Alert>
-                                    }
+                                            <div className="col-md-5">
+                                                <Form.Group>
+                                                    <Form.Label>To:</Form.Label>
+                                                    <Form.Control
+                                                        type="date"
+                                                        name="to"
+                                                        onChange={this.handleUpdatePurchaseOrderDuration}
+                                                        value={purchaseOrder.to}
+                                                        readOnly={+purchaseOrder.status.id === 3}></Form.Control>
+                                                    <div className="invalid-feedback"></div>
+                                                </Form.Group>
+                                            </div>
+                                            <div className="col-md-2">
+                                                <Form.Group>
+                                                    <Form.Label>Trips:</Form.Label>
+                                                    <Form.Control type="text" value={purchaseOrder.trips} readOnly></Form.Control>
+                                                </Form.Group>
+                                            </div>
+                                        </div>                                        
+                                    </Alert>
                                 </Card.Title>
 
-                                <div style={!purchaseOrder ? {display: "none"} : null}>
-                                    <Card className="my-4">
-                                        <Card.Header><i className="fa fa-shopping-cart"></i> Stores</Card.Header>
-                                        <Card.Body>
-                                            <table className={`table table-striped ${PO_STORES_DT}`} style={{width: 100+'%'}}>
-                                                <thead>
-                                                    <tr>
-                                                        <th scope="col">#</th>
-                                                        <th scope="col"></th>
-                                                        <th scope="col">Code</th>
-                                                        <th scope="col">Name</th>
-                                                        <th scope="col">Address</th>
-                                                        <th scope="col">Promodisers</th>
-                                                        <th scope="col"></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody></tbody>
-                                            </table>
-                                        </Card.Body>
-                                    </Card>
-                                </div>
+                                <Card className="my-4">
+                                    <Card.Header><i className="fa fa-shopping-cart"></i> Stores</Card.Header>
+                                    <Card.Body>
+                                        <table className={`table table-striped ${PO_STORES_DT}`} style={{width: 100+'%'}}>
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col"></th>
+                                                    <th scope="col">Code</th>
+                                                    <th scope="col">Name</th>
+                                                    <th scope="col">Address</th>
+                                                    <th scope="col">Promodisers</th>
+                                                    <th scope="col"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </Card.Body>
+                                    { purchaseOrder.status.id  === 1 &&
+                                        <Card.Footer>
+                                            <div className='pull-right'>
+                                                <Link to={`/purchase-order/${purchaseOrder.id}/store-request`}>
+                                                    <Button>
+                                                        <i className='fa fa-plus-circle'></i> Store Request
+                                                    </Button>
+                                                </Link>
+                                            </div>
+                                        </Card.Footer> }
+                                </Card>
 
                                 <div style={(!purchaseOrder || +purchaseOrder.status.id === 1) ? {display: "none"} : null}>
                                     <div className="row">
@@ -1314,39 +1258,8 @@ export default class PurchaseOrderDetails extends Component {
                                 </Card.Footer>
                             }
                         </Card>
-                    </div>
-                    { purchaseOrder && +purchaseOrder.status.id === 1 &&
-                        <div className="col-md-3">
-                            {
-                                +purchaseOrder.status.id === 1 &&
-                                <Card>
-                                    <Card.Header>Add Store Item Request</Card.Header>
-                                    <Card.Body>
-                                        <Form onSubmit={this.handleSubmitStoreItemRequest}>
-                                            <CommonDropdownSelectSingleStore
-                                                key={uuidv4()}
-                                                name="store_id"
-                                                selectedItem={selectedStore}
-                                                handleChange={this.handleChangeSelectSingleStore}/>
-                                            <CommonDropdownSelectSingleItem
-                                                key={uuidv4()}
-                                                name="item_id"
-                                                selectedItem={selectedItem}
-                                                handleChange={this.handleChangeSelectSingleItem}/>
-                                            <Form.Group>
-                                                <Form.Label>Qty. (Original):</Form.Label>
-                                                <Form.Control type="number" name="quantity_original"></Form.Control>
-                                                <div className="invalid-feedback"></div>
-                                            </Form.Group>
-                                            <hr/>
-                                            <Button type="submit" block>Add</Button>
-                                        </Form>
-                                    </Card.Body>
-                                </Card>
-                            }
-                        </div>
-                    }
-                </div>
+                    </>
+                }
                 <CommonDeleteModal
                     isShow={deleteModal.show}
                     headerTitle={deleteModal.headerTitle}

@@ -44,15 +44,23 @@ class PurchaseOrderStoreItemController extends Controller
         return response()->json($items);
     }
 
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request, PurchaseOrder $purchaseOrder, Item $item)
+    public function indexStoreRequests(Request $request, PurchaseOrder $purchaseOrder, Store $store)
     {
+        $storeItems = Item::orderBy('name', 'asc')
+            ->whereHas('stores', function ($query) use ($store) {
+                $query->where('stores.id', $store->id);
+            })
+            ->get();
+
+        $purchaseOrderStoreItems = $purchaseOrder->items()
+            ->orderBy('name', 'asc')
+            ->wherePivot('purchase_order_id', '=', $purchaseOrder->id)
+            ->wherePivot('store_id', '=', $store->id)
+            ->get();
+        
+        $items = $storeItems->merge($purchaseOrderStoreItems)->unique();
+
+        return response()->json(['data' => $items]);
     }
 
     /**
@@ -80,6 +88,7 @@ class PurchaseOrderStoreItemController extends Controller
         $item = $purchaseOrder
             ->items()
             ->where([
+                'purchase_order_id' => $purchaseOrder->id,
                 'store_id' => $store->id,
                 'item_id' => $item->id,
             ])

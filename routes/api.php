@@ -58,6 +58,7 @@ $api->version('v1', function ($api) {
         $api->post('purchase-orders/{purchaseOrder}/stores-sort-order', 'App\Http\Controllers\Api\V1\PurchaseOrderController@syncPurchaseOrderStoresSortOrder');
         $api->post('purchase-orders/{purchaseOrder}/items', 'App\Http\Controllers\Api\V1\PurchaseOrderController@storePurchaseOrderItems');
         $api->resource('purchase-orders/{purchaseOrder}/stores/{store}/items', 'App\Http\Controllers\Api\V1\PurchaseOrderStoreItemController');
+        $api->get('purchase-orders/{purchaseOrder}/stores/{store}/requests', 'App\Http\Controllers\Api\V1\PurchaseOrderStoreItemController@indexStoreRequests');
 
         $api->get('purchase-orders/{purchaseOrder}/assigned-staff', 'App\Http\Controllers\Api\V1\PurchaseOrderAssignedStaffController@index');
         $api->post('purchase-orders/{purchaseOrder}/assigned-staff', 'App\Http\Controllers\Api\V1\PurchaseOrderAssignedStaffController@store');
@@ -77,6 +78,7 @@ $api->version('v1', function ($api) {
         $api->get('sales-invoices/{salesInvoice}/items', 'App\Http\Controllers\Api\V1\SalesInvoiceItemController@index');
         $api->post('sales-invoices/{salesInvoice}/items', 'App\Http\Controllers\Api\V1\SalesInvoiceItemController@store');
         $api->delete('sales-invoices/{salesInvoice}/items/{salesInvoiceItem}', 'App\Http\Controllers\Api\V1\SalesInvoiceItemController@destroy');
+        $api->get('sales-invoices/{salesInvoice}/stores/{store}/items', 'App\Http\Controllers\Api\V1\SalesInvoiceItemController@indexStoreItems');
 
         $api->get(
             'charts/sales-by-store-data',

@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import cookie from 'react-cookies';
-import { ButtonGroup } from 'react-bootstrap';
-import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
+import { Badge, Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import NumberFormat from 'react-number-format';
+import { Link } from 'react-router-dom';
 
 import CommonDeleteModal from './CommonDeleteModal';
-import CommonDropdownSelectSingleItem from './CommonDropdownSelectSingleItem';
-import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
 import CommonDropdownSelectSingleStoreCategory from './CommonDropdownSelectSingleStoreCategory';
 
 const END_POINT = `${apiBaseUrl}/sales-invoices`;
@@ -15,24 +13,19 @@ const SALES_INVOICE_ITEMS_TABLE = 'table-sales-invoice-items';
 
 const BREADCRUMB_ITEMS = [
     {
-        icon: 'fa-files-o',
+        icon: 'fa-folder',
         label: 'Sales Invoices',
         link: '#/sales-invoices'
     },
     {
-        icon: 'fa-file',
-        label: 'Sales Invoice {salesInvoiceId}',
+        icon: '',
+        label: '{salesInvoiceId}',
     },
 ];
 
 export default class SalesInvoicesShow extends Component {
     constructor(props) {
         super(props);
-        this.handleChangeSelectSingleStore = this.handleChangeSelectSingleStore.bind(this);
-        this.handleChangeSelectSingleItem = this.handleChangeSelectSingleItem.bind(this);
-        this.handleChangeQuantity = this.handleChangeQuantity.bind(this);
-        this.handleSubmitAddItem = this.handleSubmitAddItem.bind(this);
-        this.handleClearNewItemForm = this.handleClearNewItemForm.bind(this);
 
         this.handleCloseDeleteSalesInvoiceItemModal = this.handleCloseDeleteSalesInvoiceItemModal.bind(this);
         this.handleSubmitDeleteSalesInvoiceItem = this.handleSubmitDeleteSalesInvoiceItem.bind(this);
@@ -40,12 +33,7 @@ export default class SalesInvoicesShow extends Component {
         this.state = {
             token: '',
             salesInvoice: null,
-            selectedCategory: null,
-            newItem: {
-                selectedStore: null,
-                selectedItem: null,
-                quantity: '',
-            },
+            selectedCategory: null,        
             deleteSalesInvoiceItem: {
                 showConfirmation: false,
                 salesInvoiceItemId: null,
@@ -98,6 +86,7 @@ export default class SalesInvoicesShow extends Component {
                     ordering: false,
                     processing: true,
                     serverSide: true,
+                    searching: false,
                     columns: [
                         { 'data': 'store.name' },
                         { 'data': 'item.name' },
@@ -155,109 +144,6 @@ export default class SalesInvoicesShow extends Component {
             .catch(() => {
                 
             });
-    }
-
-    handleChangeSelectSingleStore(e) {
-        const self = this;
-        self.setState({
-            ...self.state,
-            newItem: {
-                ...self.state.newItem,
-                selectedStore: e,
-            },
-        });
-    }
-    
-    handleChangeSelectSingleItem(e) {
-        const self = this;
-        self.setState({
-            ...self.state,
-            newItem: {
-                ...self.state.newItem,
-                selectedItem: e,
-            },
-        });
-    }
-
-    handleChangeQuantity(e) {
-        const self = this;
-        self.setState({
-            ...self.state,
-            newItem: {
-                ...self.state.newItem,
-                quantity: e.currentTarget.value,
-            },
-        });
-    }
-
-    handleSubmitAddItem(e) {
-        e.preventDefault();
-        const self = this;
-        const {
-            token,
-            salesInvoiceId,
-            newItem,
-        } = self.state;
-        const {
-            selectedStore,
-            selectedItem,
-            quantity,
-        } = newItem;
-        const table = $('.data-table-wrapper').find(`table.${SALES_INVOICE_ITEMS_TABLE}`).DataTable();
-        axios.post(
-            `${END_POINT}/${salesInvoiceId}/items?token=${token}`,
-            {
-                store_id: selectedStore.value,
-                item_id: selectedItem.value,
-                quantity,
-            }            
-        )
-            .then(() => {
-                self.setState({
-                    ...self.state,
-                    newItem: {
-                        ...self.state.newItem,
-                        selectedStore: null,
-                        selectedItem: null,
-                        quantity: '',
-                    }
-                });
-                table.ajax.reload(null, false);
-
-                axios.get(`${END_POINT}/${salesInvoiceId}?token=${token}`)
-                    .then((response) => {
-                        const { data: salesInvoice } = response.data;
-                        self.setState({
-                            ...self.state,
-                            salesInvoice,
-                            selectedCategory: {
-                                value: salesInvoice.category.id,
-                                label: salesInvoice.category.name,
-                            },
-                        });
-                    })
-                    .catch(() => {
-
-                    });
-
-            })
-            .catch(() => {
-                
-            });
-    }
-
-    handleClearNewItemForm(e) {
-        e.preventDefault();
-        const self = this;
-        self.setState({
-            ...self.state,
-            newItem: {
-                ...self.state.newItem,
-                selectedStore: null,
-                selectedItem: null,
-                quantity: '',
-            },
-        });
     }
 
     handleCloseDeleteSalesInvoiceItemModal() {
@@ -323,17 +209,10 @@ export default class SalesInvoicesShow extends Component {
         const {
             salesInvoice,
             selectedCategory,
-            newItem,
             deleteSalesInvoiceItem,
         } = this.state;
         const {
-            selectedItem,
-            selectedStore,
-            quantity,
-        } = newItem;
-        const {
             showConfirmation,
-            salesInvoiceItemId,
         } = deleteSalesInvoiceItem;
 
 
@@ -353,7 +232,13 @@ export default class SalesInvoicesShow extends Component {
                                 )
                             }
                         </Breadcrumb>
-                        <Card>                        
+                        <Card>
+                            <Card.Header>
+                                <p>
+                                    <Badge variant='primary'>SI: {salesInvoice.id}</Badge>
+                                </p>
+                                <h4>Sales Invoice &raquo; Details</h4>
+                            </Card.Header>
                             <Card.Body>
                                 <Card>
                                     <Card.Header>
@@ -436,120 +321,81 @@ export default class SalesInvoicesShow extends Component {
                                         <i className="fa fa-list"></i> Items
                                     </Card.Header>
                                     <Card.Body>
-                                        <div className="row">
-                                            <div className="col-md-8">
-                                                <Card>
-                                                    <Card.Body>
-                                                        <table className={`table table-striped ${SALES_INVOICE_ITEMS_TABLE}`} style={{width: 100+'%'}}>
-                                                            <thead>
-                                                                <tr>
-                                                                    <th scope="col">Store</th>
-                                                                    <th scope="col">Item</th>                            
-                                                                    <th scope="col">Quantity</th>
-                                                                    <th scope="col">Price</th>
-                                                                    <th scope="col">Total Amount</th>                                                
-                                                                    <th></th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody></tbody>
-                                                        </table>
-                                                        <hr/>
-                                                        <table className="table table-striped" style={{width: 50+'%'}}>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <th>Total Sales</th>
-                                                                    <td>:</td>
-                                                                    <td align="right">
-                                                                        <NumberFormat
-                                                                            value={salesInvoice.total_sales}
-                                                                            displayType="text"
-                                                                            prefix="Php"
-                                                                            decimalScale="2"
-                                                                            fixedDecimalScale
-                                                                            thousandSeparator/>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th>Less VAT</th>
-                                                                    <td>:</td>
-                                                                    <td align="right">
-                                                                        <NumberFormat
-                                                                            value={salesInvoice.vat_amount}
-                                                                            displayType="text"
-                                                                            prefix="Php"
-                                                                            decimalScale="2"
-                                                                            fixedDecimalScale
-                                                                            thousandSeparator/>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th>Amount Net Less VAT</th>
-                                                                    <td>:</td>
-                                                                    <td align="right">
-                                                                        <NumberFormat
-                                                                            value={salesInvoice.total_sales_less_vat}
-                                                                            displayType="text"
-                                                                            prefix="Php"
-                                                                            decimalScale="2"
-                                                                            fixedDecimalScale
-                                                                            thousandSeparator/>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th>Total Amount Due</th>
-                                                                    <td>:</td>
-                                                                    <td align="right">                                                                
-                                                                        <NumberFormat
-                                                                            value={salesInvoice.total_amount_due}
-                                                                            displayType="text"
-                                                                            prefix="Php"
-                                                                            decimalScale="2"
-                                                                            fixedDecimalScale
-                                                                            thousandSeparator/>
-                                                                    </td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </Card.Body>
-                                                </Card>
-                                            </div>
-                                            <div className="col-md-4">
-                                                <Form onSubmit={this.handleSubmitAddItem}>
-                                                    <Card>
-                                                        <Card.Header>Add Item</Card.Header>
-                                                        <Card.Body>
-                                                            <CommonDropdownSelectSingleStore
-                                                                name="store_id"
-                                                                categoryId={salesInvoice.category_id}
-                                                                selectedItem={selectedStore}
-                                                                handleChange={this.handleChangeSelectSingleStore}/>
-                                                            <CommonDropdownSelectSingleItem
-                                                                name="item_id"
-                                                                selectedItem={selectedItem}
-                                                                handleChange={this.handleChangeSelectSingleItem}/>
-                                                            <Form.Group>
-                                                                <Form.Label>Quantity:</Form.Label>
-                                                                <Form.Control
-                                                                    type="number"
-                                                                    name="quantity"
-                                                                    value={quantity}
-                                                                    onChange={this.handleChangeQuantity}/>
-                                                                <div className="invalid-feedback"></div>
-                                                            </Form.Group>
-                                                        </Card.Body>
-                                                        <Card.Footer>
-                                                            <ButtonGroup className="pull-right">
-                                                                <Button type="submit">Add</Button>
-                                                                <Button
-                                                                    type="button"
-                                                                    variant="secondary"
-                                                                    onClick={this.handleClearNewItemForm}>Clear</Button>
-                                                            </ButtonGroup>
-                                                        </Card.Footer>
-                                                    </Card>
-                                                </Form>                                        
-                                            </div>
-                                        </div>
+                                        <Link to={`/sales-invoice-store-items/${salesInvoice.id}`}>
+                                            <Button>
+                                                <i className='fa fa-plus-circle'></i> Store Items
+                                            </Button>
+                                        </Link>
+                                        <table className={`table table-striped ${SALES_INVOICE_ITEMS_TABLE}`} style={{width: 100+'%'}}>
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Store</th>
+                                                    <th scope="col">Item</th>                            
+                                                    <th scope="col">Quantity</th>
+                                                    <th scope="col">Price</th>
+                                                    <th scope="col">Total Amount</th>                                                
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                        <hr/>
+                                        <table className="table table-striped" style={{width: 50+'%'}}>
+                                            <tbody>
+                                                <tr>
+                                                    <th>Total Sales</th>
+                                                    <td>:</td>
+                                                    <td align="right">
+                                                        <NumberFormat
+                                                            value={salesInvoice.total_sales}
+                                                            displayType="text"
+                                                            prefix="Php"
+                                                            decimalScale="2"
+                                                            fixedDecimalScale
+                                                            thousandSeparator/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Less VAT</th>
+                                                    <td>:</td>
+                                                    <td align="right">
+                                                        <NumberFormat
+                                                            value={salesInvoice.vat_amount}
+                                                            displayType="text"
+                                                            prefix="Php"
+                                                            decimalScale="2"
+                                                            fixedDecimalScale
+                                                            thousandSeparator/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Amount Net Less VAT</th>
+                                                    <td>:</td>
+                                                    <td align="right">
+                                                        <NumberFormat
+                                                            value={salesInvoice.total_sales_less_vat}
+                                                            displayType="text"
+                                                            prefix="Php"
+                                                            decimalScale="2"
+                                                            fixedDecimalScale
+                                                            thousandSeparator/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Total Amount Due</th>
+                                                    <td>:</td>
+                                                    <td align="right">                                                                
+                                                        <NumberFormat
+                                                            value={salesInvoice.total_amount_due}
+                                                            displayType="text"
+                                                            prefix="Php"
+                                                            decimalScale="2"
+                                                            fixedDecimalScale
+                                                            thousandSeparator/>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </Card.Body>
                                 </Card>
                             </Card.Body>

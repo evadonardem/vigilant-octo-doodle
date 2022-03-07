@@ -46,6 +46,8 @@ import StockCardsCreate from './StockCardsCreate';
 import StockCardsShow from './StockCardsShow';
 import SettingStorePromodiserJobHistory from './SettingsStorePromodiserJobHistory';
 import ReportsPromodisersSummary from './ReportsPromodisersSummary';
+import PurchaseOrderStoreRequest from './PurchaseOrderStoreRequest';
+import SalesInvoiceStoreItemsShow from './SalesInvoiceStoreItemsShow';
 
 export default class Menu extends Component {
     constructor(props) {
@@ -182,9 +184,11 @@ export default class Menu extends Component {
                     <Route path={'/thirteenth-month-pay-periods'} component={ThirteenthMonthPayPeriods}></Route>
                     <Route path={'/thirteenth-month-pay-period-details/:thirteenthMonthPayPeriodId'} component={ThirteenthMonthPayPeriodDetails}></Route>
                     <Route path={'/purchase-order-details/:purchaseOrderId'} component={PurchaseOrderDetails}></Route>
+                    <Route path={'/purchase-order/:purchaseOrderId/store-request/:storeId?'} component={PurchaseOrderStoreRequest}></Route>
 
                     <Route path={'/sales-invoices-create'} component={SalesInvoicesCreate}></Route>
                     <Route path={'/sales-invoice-details/:salesInvoiceId'} component={SalesInvoicesShow}></Route>
+                    <Route path={'/sales-invoice-store-items/:salesInvoiceId'} component={SalesInvoiceStoreItemsShow}></Route>
 
                     <Route path={'/reports-delivery-sales-monitoring'} component={ReportsDeliverySalesMonitoring}></Route>
                     <Route path={'/reports-delivery-receipt-monitoring'} component={ReportsDeliveryReceiptMonitoring}></Route>

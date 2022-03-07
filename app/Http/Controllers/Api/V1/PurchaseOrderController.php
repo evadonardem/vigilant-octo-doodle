@@ -262,7 +262,19 @@ class PurchaseOrderController extends Controller
             return $val->id == $attributes['item_id'] &&
                 $val->pivot->store_id == $attributes['store_id'];
         })) {
-            return abort(422, 'Store item already added to this purchase order.');
+            $existingPurchaseOrderStoreItem = PurchaseOrderStoreItem::where([
+                'purchase_order_id' => $purchaseOrder->id,
+                'store_id' => $attributes['store_id'],
+                'item_id' => $attributes['item_id'],
+            ])->first();
+            
+            if (!$attributes['quantity_original']) {
+                $existingPurchaseOrderStoreItem->delete();    
+            } else {
+                $existingPurchaseOrderStoreItem->quantity_original = $attributes['quantity_original'];
+                $existingPurchaseOrderStoreItem->save();
+            }
+            return response()->noContent();
         }
 
         $purchaseOrder->items()->attach([
@@ -400,14 +412,16 @@ class PurchaseOrderController extends Controller
             abort(422, 'Cannot delete store for purchase order under ' . $purchaseOrder->status->name . ' status.');
         }
 
-        $store = $purchaseOrder
+        $poStores = $purchaseOrder
             ->stores()
             ->where([
                 'store_id' => $store->id,
             ])
-            ->first();
+            ->get();
 
-        $store->pivot->delete();
+        foreach ($poStores as $poStore) {
+            $poStore->pivot->delete();
+        }        
 
         PurchaseOrderStoresSortOrder::where([
             'purchase_order_id' => $purchaseOrder->id,
