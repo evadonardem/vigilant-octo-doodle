@@ -1,9 +1,9 @@
 import { isNumber, map } from 'lodash';
 import React, { Component } from 'react';
-import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
+import { Badge, Breadcrumb, Button, Card, Form } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import cookie from 'react-cookies';
 import { v4 as uuidv4 } from 'uuid';
-import CommonDropdownSelectSingleItem from './CommonDropdownSelectSingleItem';
 import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
 
 const END_POINT = `${apiBaseUrl}/purchase-orders`;
@@ -167,6 +167,18 @@ export default class PurchaseOrderStoreRequest extends Component {
             isEdit,
         } = this.state;
 
+        let currentStatusVariant = null;
+        if (purchaseOrder) {
+            currentStatusVariant = 'danger';
+            if (purchaseOrder.status.name == 'Pending') {
+                currentStatusVariant = 'warning';
+            } else {
+                if (purchaseOrder.status.name == 'Approved') {
+                    currentStatusVariant = 'success';
+                }
+            }
+        }
+
         return (
             <div className="container-fluid my-4">
                 { purchaseOrder &&
@@ -178,7 +190,15 @@ export default class PurchaseOrderStoreRequest extends Component {
                 }
                 { purchaseOrder && +purchaseOrder.status.id === 1 &&
                     <Card>
-                        <Card.Header>{!isEdit ? 'Add' : 'Edit'} Store Item Request</Card.Header>
+                        <Card.Header>
+                            <p>
+                                <Badge variant='primary'>PO: {purchaseOrder.code}</Badge>&nbsp;
+                                <Badge variant={currentStatusVariant}>
+                                    {purchaseOrder.status ? purchaseOrder.status.name : ''}
+                                </Badge>
+                            </p>
+                            <h4>Purchase Order &raquo; Store Request</h4>
+                        </Card.Header>
                         <Card.Body>
                             <CommonDropdownSelectSingleStore
                                 key={uuidv4()}
@@ -205,6 +225,13 @@ export default class PurchaseOrderStoreRequest extends Component {
                                 </div>
                             }
                         </Card.Body>
+                        <Card.Footer>
+                            <div className='pull-right'>
+                                <Link to={`/purchase-order-details/${purchaseOrder.id}`}>
+                                    <Button variant='secondary'>Back</Button>
+                                </Link>
+                            </div>
+                        </Card.Footer>
                     </Card>
                 }
             </div>

@@ -163,7 +163,7 @@ export default class PurchaseOrderDetails extends Component {
                         if (+data.purchase_order_status.id === 1) {
                             const editBtn = `<a
                                 href="#/purchase-order/${data.pivot.purchase_order_id}/store-request/${data.pivot.store_id}"
-                                class="btn btn-warning">
+                                class="btn btn-primary">
                                     <i class="fa fa-edit"></i>
                             </a>`;
                             const deleteBtn = `<a
@@ -1048,31 +1048,39 @@ export default class PurchaseOrderDetails extends Component {
                     <>
                         <Breadcrumb>
                             <Breadcrumb.Item href="#/purchase-orders"><i className="fa fa-folder"></i> Purchase Orders</Breadcrumb.Item>
-                            <Breadcrumb.Item active>
-                                <Badge variant="primary" className='p-1'>{purchaseOrder.code}</Badge>&nbsp;
-                                <Badge variant={currentStatusVariant} className='p-1'>
-                                    {purchaseOrder.status ? purchaseOrder.status.name : ''}
-                                </Badge>                            
-                            </Breadcrumb.Item>
+                            <Breadcrumb.Item active>{purchaseOrder.code}</Breadcrumb.Item>
                         </Breadcrumb>
                         <Card>
-                            <Card.Header>                            
-                                <PDFDownloadLink
-                                    key={uuidv4()}
-                                    document={<PurchaseOrderDetailsPdfDocument
-                                        purchaseOrder={purchaseOrder}
-                                        purchaseOrderStores={purchaseOrderStores}
-                                        purchaseOrderAssignedStaff={purchaseOrderAssignedStaff}
-                                        purchaseOrderExpenses={purchaseOrderExpenses}
-                                        purchaseOrderExpensesMeta={purchaseOrderExpensesMeta}/>}
-                                    fileName={`PO-${purchaseOrder.code}.pdf`}
-                                    className="btn btn-primary pull-right">
-                                    {({ blob, url, loading, error }) => (
-                                        loading
-                                            ? "Loading document..."
-                                            : <span><i className="fa fa-file"></i> Download PO</span>
-                                    )}
-                                </PDFDownloadLink>
+                            <Card.Header>
+                                <div className='row'>
+                                    <div className='col-md-9'>
+                                        <p>
+                                            <Badge variant='primary'>PO: {purchaseOrder.code}</Badge>&nbsp;
+                                            <Badge variant={currentStatusVariant}>
+                                                {purchaseOrder.status ? purchaseOrder.status.name : ''}
+                                            </Badge>
+                                        </p>
+                                        <h4>Purchase Order &raquo; Details</h4>
+                                    </div>
+                                    <div className='col-md-3'>
+                                        <PDFDownloadLink
+                                            key={uuidv4()}
+                                            document={<PurchaseOrderDetailsPdfDocument
+                                                purchaseOrder={purchaseOrder}
+                                                purchaseOrderStores={purchaseOrderStores}
+                                                purchaseOrderAssignedStaff={purchaseOrderAssignedStaff}
+                                                purchaseOrderExpenses={purchaseOrderExpenses}
+                                                purchaseOrderExpensesMeta={purchaseOrderExpensesMeta}/>}
+                                            fileName={`PO-${purchaseOrder.code}.pdf`}
+                                            className="btn btn-primary pull-right">
+                                            {({ blob, url, loading, error }) => (
+                                                loading
+                                                    ? "Loading document..."
+                                                    : <span><i className="fa fa-file"></i> Download PO</span>
+                                            )}
+                                        </PDFDownloadLink>
+                                    </div>
+                                </div>
                             </Card.Header>
                             <Card.Body>
                                 <Card.Title>
@@ -1127,10 +1135,6 @@ export default class PurchaseOrderDetails extends Component {
                                 <Card className="my-4">
                                     <Card.Header><i className="fa fa-shopping-cart"></i> Stores</Card.Header>
                                     <Card.Body>
-                                        { purchaseOrder.status.id  === 1 &&
-                                            <Link to={`/purchase-order/${purchaseOrder.id}/store-request`}>
-                                                <Button>Add Store Request</Button>
-                                            </Link> }
                                         <table className={`table table-striped ${PO_STORES_DT}`} style={{width: 100+'%'}}>
                                             <thead>
                                                 <tr>
@@ -1146,6 +1150,16 @@ export default class PurchaseOrderDetails extends Component {
                                             <tbody></tbody>
                                         </table>
                                     </Card.Body>
+                                    { purchaseOrder.status.id  === 1 &&
+                                        <Card.Footer>
+                                            <div className='pull-right'>
+                                                <Link to={`/purchase-order/${purchaseOrder.id}/store-request`}>
+                                                    <Button>
+                                                        <i className='fa fa-plus-circle'></i> Store Request
+                                                    </Button>
+                                                </Link>
+                                            </div>
+                                        </Card.Footer> }
                                 </Card>
 
                                 <div style={(!purchaseOrder || +purchaseOrder.status.id === 1) ? {display: "none"} : null}>

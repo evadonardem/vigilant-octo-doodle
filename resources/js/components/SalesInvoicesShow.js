@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import cookie from 'react-cookies';
-import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
+import { Badge, Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import NumberFormat from 'react-number-format';
 import { Link } from 'react-router-dom';
 
@@ -13,13 +13,13 @@ const SALES_INVOICE_ITEMS_TABLE = 'table-sales-invoice-items';
 
 const BREADCRUMB_ITEMS = [
     {
-        icon: 'fa-files-o',
+        icon: 'fa-folder',
         label: 'Sales Invoices',
         link: '#/sales-invoices'
     },
     {
-        icon: 'fa-file',
-        label: 'Sales Invoice {salesInvoiceId}',
+        icon: '',
+        label: '{salesInvoiceId}',
     },
 ];
 
@@ -232,7 +232,13 @@ export default class SalesInvoicesShow extends Component {
                                 )
                             }
                         </Breadcrumb>
-                        <Card>                        
+                        <Card>
+                            <Card.Header>
+                                <p>
+                                    <Badge variant='primary'>SI: {salesInvoice.id}</Badge>
+                                </p>
+                                <h4>Sales Invoice &raquo; Details</h4>
+                            </Card.Header>
                             <Card.Body>
                                 <Card>
                                     <Card.Header>
@@ -316,7 +322,9 @@ export default class SalesInvoicesShow extends Component {
                                     </Card.Header>
                                     <Card.Body>
                                         <Link to={`/sales-invoice-store-items/${salesInvoice.id}`}>
-                                            <Button>Store Items</Button>
+                                            <Button>
+                                                <i className='fa fa-plus-circle'></i> Store Items
+                                            </Button>
                                         </Link>
                                         <table className={`table table-striped ${SALES_INVOICE_ITEMS_TABLE}`} style={{width: 100+'%'}}>
                                             <thead>

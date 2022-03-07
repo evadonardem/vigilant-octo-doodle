@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Badge, Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import cookie from 'react-cookies';
+import { Link } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
 
@@ -145,15 +146,17 @@ export default class SalesInvoiceStoreItemsShow extends Component {
                 { salesInvoice &&
                     <Breadcrumb>
                         <Breadcrumb.Item href="#/sales-invoices"><i className="fa fa-folder"></i> Sales Invoices</Breadcrumb.Item>
-                        <Breadcrumb.Item href={`#/sales-invoice-details/${salesInvoice.id}`}>Sales Invoice {salesInvoice.id}</Breadcrumb.Item>
+                        <Breadcrumb.Item href={`#/sales-invoice-details/${salesInvoice.id}`}>{salesInvoice.id}</Breadcrumb.Item>
                         <Breadcrumb.Item active>Store Items</Breadcrumb.Item>
                     </Breadcrumb>
                 }
                 { salesInvoice &&
                     <Card>
                         <Card.Header>
-                            <h4>Store Items</h4>
-                            <Badge variant='primary'>Sales Invoice {salesInvoice.id}</Badge>
+                            <p>
+                                <Badge variant='primary'>SI: {salesInvoice.id}</Badge>
+                            </p>
+                            <h4>Sales Invoice &raquo; Store Items</h4>
                         </Card.Header>
                         <Card.Body>
                             <CommonDropdownSelectSingleStore
@@ -180,6 +183,13 @@ export default class SalesInvoiceStoreItemsShow extends Component {
                                 </div>
                             }
                         </Card.Body>
+                        <Card.Footer>
+                            <div className='pull-right'>
+                                <Link to={`/sales-invoice-details/${salesInvoice.id}`}>
+                                    <Button variant='secondary'>Back</Button>
+                                </Link>
+                            </div>
+                        </Card.Footer>
                     </Card>
                 }
             </div>
