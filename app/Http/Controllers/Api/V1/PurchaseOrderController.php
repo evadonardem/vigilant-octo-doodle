@@ -216,7 +216,7 @@ class PurchaseOrderController extends Controller
         });
 
         $sortOrder = 0;
-        $data = $data->sortBy('sort_order')->map(function (&$item) use (&$sortOrder) {
+        $data = $data->sortBy('sort_order')->map(function ($item) use (&$sortOrder) {
             ++$sortOrder;
             $item['sort_order'] = $sortOrder;
             return $item;
