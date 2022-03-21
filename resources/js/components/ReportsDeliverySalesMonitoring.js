@@ -34,8 +34,39 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                     defaultContent: '<i class="fa fa-lg fa-chevron-circle-down"></i>'
                 },
                 { data: 'id' },
-                { data: 'amount' }
+                {
+                    data: 'amount',
+                    render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+                },
             ],
+            columnDefs: [
+                {
+                    targets: [2],
+                    className: 'dt-right',
+                },
+            ],
+            footerCallback: function (row, data, start, end, display) {
+                const api = this.api();
+
+                const intVal = function ( i ) {
+                    return typeof i === 'string'
+                        ? i.replace(/[\$,]/g, '')*1
+                        : typeof i === 'number' ? i : 0;
+                };
+
+                const totalSalesAmount = api
+                    .column(2)
+                    .data()
+                    .reduce(
+                        function (a, b) {
+                            return intVal(a) + intVal(b);
+                        },
+                        0
+                    );
+
+                const numberFormat = $.fn.dataTable.render.number(',', '.', 2, 'Php').display;
+                $(api.column(2).footer()).html(numberFormat(totalSalesAmount));
+            },
             ordering: false,
             paging: false,
             searching: false,
@@ -132,7 +163,10 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                                         : null;
                                 }
                             },
-                            { data: 'amount' },
+                            {
+                                data: 'amount',
+                                render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+                            },
                         ],
                         ordering: false,
                         paging: false,
@@ -169,8 +203,14 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                                             { data: 'code' },
                                             { data: 'name' },
                                             { data: 'quantity_actual' },
-                                            { data: 'effective_price' },
-                                            { data: 'amount' },
+                                            {
+                                                data: 'effective_price',
+                                                render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+                                            },
+                                            {
+                                                data: 'amount',
+                                                render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+                                            },
                                         ],
                                         ordering: false,
                                         paging: false,
@@ -263,6 +303,13 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th scope="col"></th>
+                                                <th scope="col" style={{textAlign: 'right'}}>Total:</th>
+                                                <th scope="col" style={{textAlign: 'right'}}></th>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                 </div>
                                 { !searchFilters &&

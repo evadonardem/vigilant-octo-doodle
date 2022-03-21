@@ -6,6 +6,9 @@ import CommonDeleteModal from './CommonDeleteModal';
 import CommonDropdownSelectSingleStoreCategory from './CommonDropdownSelectSingleStoreCategory';
 import CommonDropdownSelectSingleStoreLocation from './CommonDropdownSelectSingleStoreLocation';
 
+const END_POINT_STORE_CATEGORIES = `${apiBaseUrl}/settings/store-categories`;
+const DT_STORE_CATEGORIES = 'table-store-categories'; 
+const DT_STORES = 'table-stores'; 
 export default class SettingsStores extends Component {
     constructor(props) {
         super(props);
@@ -15,7 +18,14 @@ export default class SettingsStores extends Component {
         this.handleStoreCategoryChange = this.handleStoreCategoryChange.bind(this);
         this.handleStoreLocationChange = this.handleStoreLocationChange.bind(this);
 
+        this.exportFilename = this.exportFilename.bind(this);
+        this.exportTitle = this.exportTitle.bind(this);
+
         this.state = {
+            storeCategory: {
+                id: -1,
+                name: '',
+            },
             showDeleteStoreModal: false,
             storeId: null,
             isDeleteStoreError: false,
@@ -26,31 +36,41 @@ export default class SettingsStores extends Component {
         };
     }
 
+    exportFilename() {
+        const self = this;
+        const { storeCategory } = self.state;
+        return `stores_${storeCategory.name.replace(' ', '_').toLowerCase()}`;
+    }
+
+    exportTitle() {
+        const self = this;
+        const { storeCategory } = self.state;
+        return `Stores ${storeCategory.name}`;
+    }
+
     componentDidMount() {
         const token = cookie.load('token');
         const self = this;
+        const { storeCategory } = self.state;
 
-        $(this.refs.storesList).DataTable({
+        // create stores data table
+        const exportButtons = window.exportButtonsBase;
+        const exportFilename = () => { return this.exportFilename() };
+        const exportTitle = () => { return this.exportTitle() };
+        exportButtons[0].filename = exportFilename;
+        exportButtons[1].filename = exportFilename;
+        exportButtons[1].title = exportTitle;
+        const storesDataTable = $(`.${DT_STORES}`).DataTable({
             ajax: {
                 type: 'get',
-                url: `${apiBaseUrl}/settings/stores?token=${token}`,
-                dataFilter: (data) => {
-                    let json = jQuery.parseJSON(data);
-                    json.recordsTotal = json.total;
-                    json.recordsFiltered = json.total;
-
-                    return JSON.stringify(json);
-                },
+                url: `${apiBaseUrl}/settings/stores?all=1&category_id=${storeCategory.id}&token=${token}`,
                 dataSrc: (response) => {
                     const { data } = response;
-
                     return data;
                 },
             },
-            buttons: [],
+            buttons: exportButtons,
             ordering: false,
-            processing: true,
-            serverSide: true,
             columns: [
                 { 'data': 'code' },
                 { 'data': 'name' },
@@ -81,7 +101,7 @@ export default class SettingsStores extends Component {
                         const tags = row.tags.map(function (tag) {
                             return `<span class="badge badge-pill badge-secondary">${tag}</span>`;
                         });
-                        return tags.join('');
+                        return tags.join(' ');
                     }
                 },
                 {
@@ -124,6 +144,55 @@ export default class SettingsStores extends Component {
                 storeId,
             });
         });
+
+        // Create data table store categories
+        $(`.${DT_STORE_CATEGORIES}`).DataTable({
+            ajax: {
+                type: 'get',
+                url: `${END_POINT_STORE_CATEGORIES}?token=${token}`,
+                dataSrc: (response) => {
+                    const { data } = response;
+                    return data;
+                },
+            },
+            buttons: [],
+            ordering: false,
+            paging: false,
+            columns: [
+                { 'data': 'name' },
+                { 'data': 'stores_count' },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        const openBtn = `<a
+                            href="#"
+                            class="open-store-category btn btn-secondary"
+                            data-category-id="${row.id}"
+                            data-category-name="${row.name}">
+                                <i class="fa fa-folder-open"></i>
+                            </a>`;                        
+
+                        return `<div class="btn-group" role="group">
+                            ${openBtn}                            
+                        </div>`;
+                    }
+                }
+            ]
+        });
+
+        $(document).on('click', '.data-table-wrapper .open-store-category', function(e) {
+            e.preventDefault();
+            const categoryId = +e.currentTarget.getAttribute('data-category-id');
+            const categoryName = e.currentTarget.getAttribute('data-category-name');
+            self.setState({
+                ...self.state,
+                storeCategory: {
+                    id: categoryId,
+                    name: categoryName,
+                },
+            });
+            storesDataTable.ajax.url(`${apiBaseUrl}/settings/stores?all=1&category_id=${categoryId}&token=${token}`).load();
+        });
     }
 
     handleSubmitNewStore(e) {
@@ -131,7 +200,8 @@ export default class SettingsStores extends Component {
         const self = this;
         const { selectedCategory, selectedLocation } = self.state;
         const token = cookie.load('token');
-        const table = $('.data-table-wrapper').find('table.table-stores').DataTable();
+        const storeCategoriesDataTable = $('.data-table-wrapper').find(`table.${DT_STORE_CATEGORIES}`).DataTable();
+        const table = $('.data-table-wrapper').find(`table.${DT_STORES}`).DataTable();
         const form = $(e.target);
         const data = {
             code: $('[name="code"]', form).val(),
@@ -150,6 +220,7 @@ export default class SettingsStores extends Component {
                     selectedCategory: {},
                     selectedLocation: {},
                 });
+                storeCategoriesDataTable.ajax.reload(null, false);
                 table.ajax.reload(null, false);
                 $('.form-control', form).removeClass('is-invalid');
                 form[0].reset();
@@ -188,10 +259,12 @@ export default class SettingsStores extends Component {
         const self = this;
         const token = cookie.load('token');
         const { storeId } = self.state;
+        const storeCategoriesDataTable = $('.data-table-wrapper').find(`table.${DT_STORE_CATEGORIES}`).DataTable();
         const table = $('.data-table-wrapper').find('table.table-stores').DataTable();
 
         axios.delete(`${apiBaseUrl}/settings/stores/${storeId}?token=${token}`)
             .then(() => {
+                storeCategoriesDataTable.ajax.reload(null, false);
                 table.ajax.reload(null, false);
                 self.setState({
                     showDeleteStoreModal: false,
@@ -228,6 +301,7 @@ export default class SettingsStores extends Component {
 
     render() {
         const {
+            storeCategory,
             showDeleteStoreModal,
             isDeleteStoreError,
             deleteStoreErrorHeaderTitle,
@@ -244,55 +318,78 @@ export default class SettingsStores extends Component {
                 </Breadcrumb>
 
                 <div className="row">
-                    <div className="col-md-9">
+                    <div className="col-md-3">                    
                         <Card>
-                            <Card.Body>
-                                <table ref="storesList" className="table table-striped table-stores" style={{width: 100+'%'}}>
+                            <Card.Header><i className='fa fa-folder'></i> Store Categories</Card.Header>
+                            <Card.Body>                                
+                                <table className={`table table-striped ${DT_STORE_CATEGORIES}`} style={{width: 100+'%'}}>
                                     <thead>
                                         <tr>
-                                        <th scope="col">Code</th>
-                                        <th scope="col">Name</th>
                                         <th scope="col">Category</th>
-                                        <th scope="col">Location</th>                                        
-                                        <th scope="col">Address</th>
-                                        <th scope="col">Tags</th>
+                                        <th scope="col">Stores</th>
                                         <th scope="col"></th>
                                         </tr>
                                     </thead>
-                                    <tbody></tbody>
                                 </table>
                             </Card.Body>
                         </Card>
                     </div>
-                    <div className="col-md-3">
+                    <div className="col-md-9">
                         <Card>
-                            <Card.Header>Add New Store</Card.Header>
+                            { storeCategory.id >= 0 &&
+                                <Card.Header><i className="fa fa-folder-open"></i> {storeCategory.name}</Card.Header> }
                             <Card.Body>
-                                <Form onSubmit={this.handleSubmitNewStore}>
-                                    <Form.Group>
-                                        <Form.Label>Code:</Form.Label>
-                                        <Form.Control type="text" name="code"></Form.Control>
-                                        <div className="invalid-feedback"></div>
-                                    </Form.Group>
-                                    <Form.Group>
-                                        <Form.Label>Name:</Form.Label>
-                                        <Form.Control type="text" name="name"></Form.Control>
-                                        <div className="invalid-feedback"></div>
-                                    </Form.Group>
-                                    <CommonDropdownSelectSingleStoreCategory
-                                        handleChange={this.handleStoreCategoryChange}
-                                        selectedValue={selectedCategory}/>
-                                    <CommonDropdownSelectSingleStoreLocation
-                                        handleChange={this.handleStoreLocationChange}
-                                        selectedValue={selectedLocation}/>
-                                    <Form.Group>
-                                        <Form.Label>Address:</Form.Label>
-                                        <Form.Control as="textarea" name="address_line"></Form.Control>
-                                        <div className="invalid-feedback"></div>
-                                    </Form.Group>
-                                    <hr/>
-                                    <Button type="submit" block>Add</Button>
-                                </Form>
+                                { storeCategory.id < 0 &&
+                                    <div className='text-center'>
+                                        <h1><i className="fa fa-info-circle"></i></h1>
+                                        <p>Select store category to view or add new store below.</p>
+                                    </div> }
+                                <div style={{display: `${storeCategory.id < 0 ? 'none' : 'block'}`}}>
+                                    <table className={`table table-striped ${DT_STORES}`} style={{width: 100+'%'}}>
+                                        <thead>
+                                            <tr>
+                                            <th scope="col">Code</th>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">Category</th>
+                                            <th scope="col">Location</th>                                        
+                                            <th scope="col">Address</th>
+                                            <th scope="col">Tags</th>
+                                            <th scope="col"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <Card className='mt-4'>
+                                    <Card.Header>Add New Store</Card.Header>
+                                    <Card.Body>
+                                        <Form onSubmit={this.handleSubmitNewStore}>
+                                            <Form.Group>
+                                                <Form.Label>Code:</Form.Label>
+                                                <Form.Control type="text" name="code"></Form.Control>
+                                                <div className="invalid-feedback"></div>
+                                            </Form.Group>
+                                            <Form.Group>
+                                                <Form.Label>Name:</Form.Label>
+                                                <Form.Control type="text" name="name"></Form.Control>
+                                                <div className="invalid-feedback"></div>
+                                            </Form.Group>
+                                            <CommonDropdownSelectSingleStoreCategory
+                                                handleChange={this.handleStoreCategoryChange}
+                                                selectedValue={selectedCategory}/>
+                                            <CommonDropdownSelectSingleStoreLocation
+                                                handleChange={this.handleStoreLocationChange}
+                                                selectedValue={selectedLocation}/>
+                                            <Form.Group>
+                                                <Form.Label>Address:</Form.Label>
+                                                <Form.Control as="textarea" name="address_line"></Form.Control>
+                                                <div className="invalid-feedback"></div>
+                                            </Form.Group>
+                                            <hr/>
+                                            <Button type="submit" block>Add</Button>
+                                        </Form>
+                                    </Card.Body>
+                                </Card>
                             </Card.Body>
                         </Card>
                     </div>

@@ -123,7 +123,8 @@ $api->version('v1', function ($api) {
         $api->get('store-locations', 'App\Http\Controllers\Api\V1\StoreController@indexStoreLocations');
         $api->resource('stores/{store}/promodisers', 'App\Http\Controllers\Api\V1\StorePromodiserController');
         $api->resource('stores/{store}/promodisers/{promodiser}/job-contracts', 'App\Http\Controllers\Api\V1\StorePromodiserJobContractController');
-        $api->resource('stores/{store}/items', 'App\Http\Controllers\Api\V1\StoreItemController');        
+        $api->resource('stores/{store}/items', 'App\Http\Controllers\Api\V1\StoreItemController');
+        $api->get('stores/{store}/item-pricing/{effectivityDate}', 'App\Http\Controllers\Api\V1\StoreItemController@itemPricing');
     });
 
     $api->group(['prefix' => 'reports', 'middleware' =>['api.auth', 'bindings']], function ($api) {

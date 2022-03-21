@@ -356,8 +356,7 @@ class PurchaseOrderController extends Controller
                         $query
                             ->orWhere('amount_original', '<=', 0)
                             ->orWhereNull('amount_original')
-                            ->orWhere('amount_actual', '<=', 0)
-                            ->orWhereNull('amount_actual');
+                            ->orWhere('amount_actual', '<', 0);
                     })
                     ->get();
                 if (

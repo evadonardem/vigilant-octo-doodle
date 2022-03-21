@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Breadcrumb, Button, Alert, Card, Form, Jumbotron } from 'react-bootstrap';
+import { Breadcrumb, Card } from 'react-bootstrap';
 import cookie from 'react-cookies';
-import CommonDropdownSelectSingleStoreLocation from './CommonDropdownSelectSingleStoreLocation';
+import date from 'date-and-time';
 
 const END_POINT = `${apiBaseUrl}/reports/promodisers-summary`;
 const PROMODISERS_SUMMARY_DT = `table-promodisers-summary`;
@@ -18,6 +18,14 @@ export default class ReportsPromodisersSummary extends Component {
     componentDidMount() {
         const self = this;
         const token = cookie.load('token');
+        const now = new Date();
+        const exportButtons = window.exportButtonsBase;
+        const exportFilename = `${date.format(now, 'YYYY-MM-DD')}_promodisers_summary`;
+        const exportTitle = `${date.format(now, 'YYYY-MM-DD')} Promodisers Summary`;
+        exportButtons[0].filename = exportFilename;
+        exportButtons[1].filename = exportFilename;
+        exportButtons[1].title = exportTitle;
+
         self.setState({
             ...self.state,
             token,
@@ -32,10 +40,18 @@ export default class ReportsPromodisersSummary extends Component {
                     return data;
                 },
             },
-            buttons: [],
+            buttons: exportButtons,
             ordering: false,        
-            searching: false,           
+            searching: false,
+            paging: false,
             columns: [
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
+                        return row.store.location ? row.store.location.name : '';
+                    }
+                },
+                { 'data': 'store.name' },
                 { 'data': 'name' },
                 { 'data': 'contact_no' },
                 {
@@ -78,14 +94,7 @@ export default class ReportsPromodisersSummary extends Component {
                         }
                         return remarks;
                     }
-                },
-                {
-                    'data': null,
-                    'render': function (data, type, row) {
-                        return row.store.location ? row.store.location.name : '';
-                    }
-                },
-                { 'data': 'store.name' },                
+                },                
             ],
         });
     }
@@ -118,14 +127,14 @@ export default class ReportsPromodisersSummary extends Component {
                                 <table className={`table table-striped ${PROMODISERS_SUMMARY_DT}`} style={{width: 100+'%'}}>
                                     <thead>
                                         <tr>
+                                        <th scope="col">Location</th>
+                                        <th scope="col">Store</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Contact No.</th>
                                         <th scope="col">Current Rate</th>                                        
                                         <th scope="col">Start Date</th>
                                         <th scope="col">End Date</th>
-                                        <th scope="col">Remarks</th>
-                                        <th scope="col">Location</th>
-                                        <th scope="col">Store</th>
+                                        <th scope="col">Remarks</th>                                        
                                         </tr>
                                     </thead>
                                     <tbody></tbody>

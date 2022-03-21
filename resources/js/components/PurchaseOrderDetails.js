@@ -580,7 +580,7 @@ export default class PurchaseOrderDetails extends Component {
             })
         });
     
-        $(`.${PO_EXPENSES_DT}`).DataTable({
+        const poExpensesDataTable = $(`.${PO_EXPENSES_DT}`).DataTable({
             ajax: {
                 type: 'get',
                 url: `${END_POINT}/${purchaseOrderId}/expenses?token=${token}`,
@@ -604,6 +604,7 @@ export default class PurchaseOrderDetails extends Component {
                                 data-purchase-order-id=${purchaseOrderId}
                                 data-purchase-order-expense-id=${data.id}
                                 data-type="amount_actual"
+                                style="text-align: right;"
                                 value="${data.amount_actual}"/>`;
     
                             return `${input}`;
@@ -632,6 +633,55 @@ export default class PurchaseOrderDetails extends Component {
                     }
                 },
             ],
+            columnDefs: [
+                {
+                    targets: [1, 2],
+                    className: 'dt-right',
+                }
+            ],
+            footerCallback: function (row, data, start, end, display) {
+                const api = this.api();
+
+                const intVal = function ( i ) {
+                    return typeof i === 'string'
+                        ? i.replace(/[\$,]/g, '')*1
+                        : typeof i === 'number' ? i : 0;
+                };
+
+                const totalExpensesAmountOriginal = api
+                    .column(1)
+                    .data()
+                    .reduce(
+                        function (a, b) {
+                            return intVal(a) + intVal(b);
+                        },
+                        0
+                    );
+
+                const totalExpensesAmountActual = api
+                    .column(2)
+                    .data()
+                    .reduce(
+                        function (a, b) {
+                            if (a instanceof Object) {
+                                a = a.amount_actual;
+                            }
+                            if (b instanceof Object) {
+                                b = b.amount_actual;
+                            }
+                            return intVal(a) + intVal(b);
+                        },
+                        0
+                    );
+
+                $(api.column(1).footer()).html(totalExpensesAmountOriginal.toFixed(2));
+                $(api.column(2).footer()).html(`<input
+                    readonly
+                    type="number"
+                    class="form-control"
+                    value="${totalExpensesAmountActual.toFixed(2)}"
+                    style="text-align: right;"/>`);
+            },
             ordering: false,
             paging: false,
             searching: false,
@@ -665,6 +715,7 @@ export default class PurchaseOrderDetails extends Component {
                         .catch(() => {
                             
                         });
+                    poExpensesDataTable.ajax.reload(null, false);
                 })
                 .catch((error) => {
                     const {
@@ -1206,12 +1257,20 @@ export default class PurchaseOrderDetails extends Component {
                                                         <thead>
                                                             <tr>
                                                                 <th scope="col">Name</th>
-                                                                <th scope="col">Amount (Original)</th>
-                                                                <th scope="col">Amount (Actual)</th>
+                                                                <th scope="col" style={{textAlign: 'right'}}>Amount (Original)</th>
+                                                                <th scope="col" style={{textAlign: 'right'}}>Amount (Actual)</th>
                                                                 <th scope="col"></th>
                                                             </tr>
                                                         </thead>
                                                         <tbody></tbody>
+                                                        <tfoot>
+                                                            <tr>
+                                                                <th scope="col">Total:</th>
+                                                                <th scope="col" style={{textAlign: 'right'}}></th>
+                                                                <th scope="col" style={{textAlign: 'right'}}></th>
+                                                                <th scope="col"></th>
+                                                            </tr>
+                                                        </tfoot>
                                                     </table>
                                                     {
                                                         purchaseOrder && +purchaseOrder.status.id !== 3 &&
