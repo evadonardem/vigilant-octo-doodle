@@ -333,6 +333,36 @@ export default class SettingsStores extends Component {
                                 </table>
                             </Card.Body>
                         </Card>
+                        <Card className='mt-4'>
+                            <Card.Header><i className='fa fa-shopping-cart'></i> Add New Store</Card.Header>
+                            <Card.Body>
+                                <Form onSubmit={this.handleSubmitNewStore}>
+                                    <Form.Group>
+                                        <Form.Label>Code:</Form.Label>
+                                        <Form.Control type="text" name="code"></Form.Control>
+                                        <div className="invalid-feedback"></div>
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>Name:</Form.Label>
+                                        <Form.Control type="text" name="name"></Form.Control>
+                                        <div className="invalid-feedback"></div>
+                                    </Form.Group>
+                                    <CommonDropdownSelectSingleStoreCategory
+                                        handleChange={this.handleStoreCategoryChange}
+                                        selectedValue={selectedCategory}/>
+                                    <CommonDropdownSelectSingleStoreLocation
+                                        handleChange={this.handleStoreLocationChange}
+                                        selectedValue={selectedLocation}/>
+                                    <Form.Group>
+                                        <Form.Label>Address:</Form.Label>
+                                        <Form.Control as="textarea" name="address_line"></Form.Control>
+                                        <div className="invalid-feedback"></div>
+                                    </Form.Group>
+                                    <hr/>
+                                    <Button type="submit" block>Add</Button>
+                                </Form>
+                            </Card.Body>
+                        </Card>
                     </div>
                     <div className="col-md-9">
                         <Card>
@@ -359,37 +389,7 @@ export default class SettingsStores extends Component {
                                         </thead>
                                         <tbody></tbody>
                                     </table>
-                                </div>
-                                <Card className='mt-4'>
-                                    <Card.Header>Add New Store</Card.Header>
-                                    <Card.Body>
-                                        <Form onSubmit={this.handleSubmitNewStore}>
-                                            <Form.Group>
-                                                <Form.Label>Code:</Form.Label>
-                                                <Form.Control type="text" name="code"></Form.Control>
-                                                <div className="invalid-feedback"></div>
-                                            </Form.Group>
-                                            <Form.Group>
-                                                <Form.Label>Name:</Form.Label>
-                                                <Form.Control type="text" name="name"></Form.Control>
-                                                <div className="invalid-feedback"></div>
-                                            </Form.Group>
-                                            <CommonDropdownSelectSingleStoreCategory
-                                                handleChange={this.handleStoreCategoryChange}
-                                                selectedValue={selectedCategory}/>
-                                            <CommonDropdownSelectSingleStoreLocation
-                                                handleChange={this.handleStoreLocationChange}
-                                                selectedValue={selectedLocation}/>
-                                            <Form.Group>
-                                                <Form.Label>Address:</Form.Label>
-                                                <Form.Control as="textarea" name="address_line"></Form.Control>
-                                                <div className="invalid-feedback"></div>
-                                            </Form.Group>
-                                            <hr/>
-                                            <Button type="submit" block>Add</Button>
-                                        </Form>
-                                    </Card.Body>
-                                </Card>
+                                </div>                                
                             </Card.Body>
                         </Card>
                     </div>
