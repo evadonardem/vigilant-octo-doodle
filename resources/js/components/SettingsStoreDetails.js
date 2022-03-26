@@ -5,9 +5,9 @@ import { Breadcrumb, Button, ButtonGroup, Card, Form } from 'react-bootstrap';
 import TagsInput from 'react-tagsinput';
 import 'react-tagsinput/react-tagsinput.css'
 import CommonDeleteModal from './CommonDeleteModal';
-import CommonDropdownSelectSingleItem from './CommonDropdownSelectSingleItem'
 import CommonDropdownSelectSingleStoreCategory from './CommonDropdownSelectSingleStoreCategory';
 import CommonDropdownSelectSingleStoreLocation from './CommonDropdownSelectSingleStoreLocation';
+import { Link } from 'react-router-dom';
 
 const END_POINT = `${apiBaseUrl}/settings/stores`;
 
@@ -23,9 +23,6 @@ export default class SettingStoreDetails extends Component {
 
         this.handleCloseDeletePromodiserModal = this.handleCloseDeletePromodiserModal.bind(this);
         this.handleSubmitDeletePromodiserModal = this.handleSubmitDeletePromodiserModal.bind(this);
-
-        this.handleSubmitNewItemPricing = this.handleSubmitNewItemPricing.bind(this);
-        this.handleChangeSelectSingleItem = this.handleChangeSelectSingleItem.bind(this);
 
         this.handleStoreCategoryChange = this.handleStoreCategoryChange.bind(this);
         this.handleStoreLocationChange = this.handleStoreLocationChange.bind(this);
@@ -52,7 +49,6 @@ export default class SettingStoreDetails extends Component {
                 deleteErrorHeaderTitle: '',
                 deleteErrorBodyText: '',
             },
-            selectedItem: null,
         };
     }
 
@@ -494,40 +490,6 @@ export default class SettingStoreDetails extends Component {
             });
     }
 
-    handleSubmitNewItemPricing(e) {
-        e.preventDefault();
-        const token = cookie.load('token');
-        const self = this;
-        const { store } = self.state;
-        const form = $(e.currentTarget);
-        const data = form.serialize();
-        const table = $('.data-table-wrapper').find('table.table-store-items').DataTable();
-
-        axios.post(
-                `${apiBaseUrl}/settings/stores/${store.id}/items?token=${token}`,
-                data
-            )
-            .then(() => {
-                self.setState({
-                    ...self.state,
-                    selectedItem: null,
-                });
-                table.ajax.reload(null, false);
-                $('.form-control', form).removeClass('is-invalid');
-                form[0].reset();
-            })
-            .catch(() => {
-
-            });
-    }
-
-    handleChangeSelectSingleItem(e) {
-        this.setState({
-            ...this.state,
-            selectedItem: e
-        });
-    }
-
     handleStoreCategoryChange(e) {
         const self = this;
         self.setState({
@@ -562,7 +524,6 @@ export default class SettingStoreDetails extends Component {
             updateStoreDetails,
             cancelledUpdateStoreDetails,
             deletePromodiser,
-            selectedItem,
             selectedCategory,
             selectedLocation,
         } = this.state;
@@ -714,34 +675,13 @@ export default class SettingStoreDetails extends Component {
                                             <tbody></tbody>
                                         </table>
                                     </Card.Body>
+                                    <Card.Footer>
+                                        <Link to={`/settings-store-item-pricing/${store.id}`}>
+                                            <Button type='button'><i className='fa fa-refresh'></i> Update Item Pricing</Button>
+                                        </Link>                                        
+                                    </Card.Footer>
                                 </Card>
-                            </div>
-                            <div className="col-md-4">
-                                <Card>
-                                    <Card.Header>Register Item Pricing</Card.Header>
-                                    <Card.Body>
-                                        <Form onSubmit={this.handleSubmitNewItemPricing}>
-                                            <CommonDropdownSelectSingleItem
-                                                key={uuidv4()}
-                                                name="item_id"
-                                                selectedItem={selectedItem}
-                                                handleChange={this.handleChangeSelectSingleItem}/>
-                                            <Form.Group>
-                                                <Form.Label>Effectivity Date:</Form.Label>
-                                                <Form.Control type="date" name="effectivity_date"></Form.Control>
-                                                <div className="invalid-feedback"></div>
-                                            </Form.Group>
-                                            <Form.Group>
-                                                <Form.Label>Amount:</Form.Label>
-                                                <Form.Control type="text" name="amount"></Form.Control>
-                                                <div className="invalid-feedback"></div>
-                                            </Form.Group>
-                                            <hr/>
-                                            <Button type="submit" block>Register</Button>
-                                        </Form>
-                                    </Card.Body>
-                                </Card>
-                            </div>
+                            </div>                            
                         </div>
                     </Card.Body>
                 </Card>

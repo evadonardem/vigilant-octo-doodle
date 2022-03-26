@@ -48,6 +48,7 @@ import SettingStorePromodiserJobHistory from './SettingsStorePromodiserJobHistor
 import ReportsPromodisersSummary from './ReportsPromodisersSummary';
 import PurchaseOrderStoreRequest from './PurchaseOrderStoreRequest';
 import SalesInvoiceStoreItemsShow from './SalesInvoiceStoreItemsShow';
+import SettingsStoreItemPricing from './SettingsStoreItemPricing';
 
 export default class Menu extends Component {
     constructor(props) {
@@ -208,6 +209,7 @@ export default class Menu extends Component {
                     <Route path={'/settings-items'} component={SettingsItems}></Route>
                     <Route path={'/settings-stores'} component={SettingsStores}></Route>
                     <Route path={'/settings-store-details/:storeId'} component={SettingStoreDetails}></Route>
+                    <Route path={'/settings-store-item-pricing/:storeId'} component={SettingsStoreItemPricing}></Route>
                     <Route path={'/settings-store-promodiser-job-histories/:storeId/:promodiserId'} component={SettingStorePromodiserJobHistory}></Route>
                 </Switch>
             </div>

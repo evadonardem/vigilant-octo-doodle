@@ -39,8 +39,12 @@ class StoreController extends Controller
 
         if ($request->has('category_id')) {
             $categoryId = $request->input('category_id');
-            if ($categoryId) {
-                $storesQuery->where('category_id', '=', $categoryId);
+            if ($categoryId == 0) {
+                $storesQuery->whereNull('category_id');
+            } else {
+                if ($categoryId) {
+                    $storesQuery->where('category_id', '=', $categoryId);
+                }
             }
         }
 
@@ -71,6 +75,16 @@ class StoreController extends Controller
     public function indexStoreCategories()
     {
         $categories = Category::orderBy('name', 'asc')->get();
+        $categories->each(function ($category) {
+            $category->stores_count = $category->stores->count();
+        });
+
+        $category = new Category();
+        $category->id = 0;
+        $category->name = 'NO CATEGORY';
+        $category->stores_count = Store::whereNull('category_id')->count();
+
+        $categories->push($category);
 
         return response()->json(['data' => $categories]);
     }

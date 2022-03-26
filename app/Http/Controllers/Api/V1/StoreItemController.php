@@ -65,10 +65,30 @@ class StoreItemController extends Controller
     public function store(Request $request, Store $store, Item $item)
     {
         $attributes = $request->only(['item_id', 'effectivity_date', 'amount']);
-        $store->items()->attach($attributes['item_id'], [
-            'effectivity_date' => $attributes['effectivity_date'],
-            'amount' => $attributes['amount'],
-        ]);
+        
+        $storeItemPrice = StoreItemPrice::distinct(['store_id', 'item_id'])
+            ->where([
+                'effectivity_date' => $attributes['effectivity_date'],
+                'store_id' => $store->id,
+                'item_id' => $attributes['item_id']
+            ])
+            ->first();
+        
+        if ($storeItemPrice) {        
+            if ($attributes['amount'] <= 0) {
+                $storeItemPrice->delete();
+            } else {
+                $storeItemPrice->amount = $attributes['amount'];
+                $storeItemPrice->save();
+            }            
+        } else {
+            if ($attributes['amount'] > 0) {
+                $store->items()->attach($attributes['item_id'], [
+                    'effectivity_date' => $attributes['effectivity_date'],
+                    'amount' => $attributes['amount'],
+                ]);
+            }            
+        }
 
         return response()->noContent();
     }
@@ -100,35 +120,24 @@ class StoreItemController extends Controller
         return response()->json($storeItemPricing);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Store  $store
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Store $store)
+    public function itemPricing(Request $request, Store $store, string $effectivityDate)
     {
-        //
-    }
+        $items = Item::orderBy('name', 'asc')->get();
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Store  $store
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Store $store, Promodiser $promodiser)
-    {
-    }
+        $storeItemsPriceByEffectivity = StoreItemPrice::distinct(['store_id', 'item_id'])
+            ->where([
+                'effectivity_date' => $effectivityDate,
+                'store_id' => $store->id,
+            ])
+            ->whereIn('item_id', $items->pluck('id'))
+            ->get()
+            ->keyBy('item_id');
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Store  $store
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Store $store, Promodiser $promodiser)
-    {
+        $items->each(function ($item) use ($storeItemsPriceByEffectivity) {
+            $itemPrice = $storeItemsPriceByEffectivity->get($item->id);
+            $item->amount = $itemPrice ? $itemPrice->amount : 0;
+        });
+        
+        return response()->json(['data' => $items]);
     }
 }

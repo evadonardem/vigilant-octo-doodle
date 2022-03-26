@@ -17,20 +17,23 @@ class PromodisersSummaryController extends Controller
     public function index()
     {
         $currentDate = Carbon::now('Asia/Manila')->format('Y-m-d');
-        $promodisers = Promodiser::whereHas('jobContracts', function ($query) use ($currentDate) {
-            $query
-                ->where(function ($query) use ($currentDate) {
-                    $query
-                        ->whereDate('start_date', '<=', $currentDate)
-                        ->whereNull('end_date');
-                })               
-                ->orwhere(function ($query) use ($currentDate) {
-                    $query
-                        ->where('start_date', '<=', $currentDate)
-                        ->where('end_date', '>=', $currentDate)
-                        ->whereNotNull('end_date');
-                });
-        })
+        $promodisers = Promodiser::whereHas(
+            'jobContracts',
+            function ($query) use ($currentDate) {
+                $query
+                    ->where(function ($query) use ($currentDate) {
+                        $query
+                            ->whereDate('start_date', '<=', $currentDate)
+                            ->whereNull('end_date');
+                    })
+                    ->orwhere(function ($query) use ($currentDate) {
+                        $query
+                            ->where('start_date', '<=', $currentDate)
+                            ->where('end_date', '>=', $currentDate)
+                            ->whereNotNull('end_date');
+                    });
+            }
+        )
             ->with(['jobContracts' => function ($query) use ($currentDate) {
                 $query
                     ->where(function ($query) use ($currentDate) {
@@ -46,7 +49,11 @@ class PromodisersSummaryController extends Controller
                     });
             }])
             ->with('store.location')
-            ->get();
+            ->get()
+            ->sortBy('name', SORT_FLAG_CASE)
+            ->sortBy('store.name', SORT_FLAG_CASE)
+            ->sortBy('store.location.name', SORT_FLAG_CASE)
+            ->values();
 
         return response()->json(['data' => $promodisers]);
     }

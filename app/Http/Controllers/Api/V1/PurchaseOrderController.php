@@ -216,7 +216,7 @@ class PurchaseOrderController extends Controller
         });
 
         $sortOrder = 0;
-        $data = $data->sortBy('sort_order')->map(function (&$item) use (&$sortOrder) {
+        $data = $data->sortBy('sort_order')->map(function ($item) use (&$sortOrder) {
             ++$sortOrder;
             $item['sort_order'] = $sortOrder;
             return $item;
@@ -356,8 +356,7 @@ class PurchaseOrderController extends Controller
                         $query
                             ->orWhere('amount_original', '<=', 0)
                             ->orWhereNull('amount_original')
-                            ->orWhere('amount_actual', '<=', 0)
-                            ->orWhereNull('amount_actual');
+                            ->orWhere('amount_actual', '<', 0);
                     })
                     ->get();
                 if (
