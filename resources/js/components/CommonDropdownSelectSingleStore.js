@@ -1,3 +1,4 @@
+import { isNaN } from 'lodash';
 import React, { Component } from 'react';
 import { Form } from 'react-bootstrap';
 import cookie from 'react-cookies';
@@ -17,7 +18,8 @@ export default class CommonDropdownSelectSingleStore extends Component {
         const { categoryId: category_id } = self.props;
 
         if (token) {
-            axios.get(apiBaseUrl + '/settings/stores?all=1&category_id=' + (category_id ?? 0) + '&token=' + token)
+            axios.get(apiBaseUrl + '/settings/stores?all=1' +
+            (!isNaN(category_id) ? '&category_id=' + category_id : '') + '&token=' + token)
                 .then((response) => {
                     const { data: items } = response.data;
                     const options = items.map((item) => { return { value: item.id, label: `${item.code} - ${item.name}` } });
