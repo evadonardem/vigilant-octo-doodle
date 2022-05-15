@@ -40,7 +40,7 @@ export default class PaySlipsPdfDocument extends Component {
         const payslips = payPeriod.map((details, index) => {
             return <View key={`paylip${details.biometric_id}`} style={styles.payslip} wrap={false}>
                 <View style={styles.payslipHeading}>
-                    <Text>GIFT OF GRACE FOOD MANUFACTURING</Text>
+                    <Text>GIFT OF GRACE FOOD MANUFACTURING CORPORATION</Text>
                     <Text>#5 Purok 6 Pinsao Pilot, Baguio City</Text>
                     <Text>Tel. No: 074-661-3554</Text>
                     <Text>Payslip</Text>

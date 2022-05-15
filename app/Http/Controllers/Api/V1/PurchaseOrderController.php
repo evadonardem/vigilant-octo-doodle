@@ -183,6 +183,12 @@ class PurchaseOrderController extends Controller
                         }
                     )
                     ->get();
+
+                $items->each(function ($item) use ($store, $purchaseOrder) {
+                    $item->effective_price =
+                        $this->getStoreEffectiveItemPrice($store->id, $item->id, $purchaseOrder->to);
+                });
+                
                 $store->items = $items;
             }
         });
@@ -464,5 +470,16 @@ class PurchaseOrderController extends Controller
         }
 
         return $code;
+    }
+
+    private function getStoreEffectiveItemPrice(int $storeId, int $itemId, string $date)
+    {
+        $store = Store::findOrFail($storeId);
+        $itemEffectivePrice = $store->items()
+            ->orderBy('store_item_prices.effectivity_date', 'desc')
+            ->where('store_item_prices.item_id', '=', $itemId)
+            ->where('store_item_prices.effectivity_date', '<=', $date)
+            ->first();
+        return $itemEffectivePrice ? $itemEffectivePrice->pivot->amount : 0;
     }
 }
