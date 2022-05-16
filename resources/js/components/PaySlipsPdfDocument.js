@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
-import cookie from 'react-cookies';
+import NumberFormat from 'react-number-format';
 
 const styles = StyleSheet.create({
     page: {
@@ -40,7 +40,7 @@ export default class PaySlipsPdfDocument extends Component {
         const payslips = payPeriod.map((details, index) => {
             return <View key={`paylip${details.biometric_id}`} style={styles.payslip} wrap={false}>
                 <View style={styles.payslipHeading}>
-                    <Text>GIFT OF GRACE FOOD MANUFACTURING</Text>
+                    <Text>GIFT OF GRACE FOOD MANUFACTURING CORPORATION</Text>
                     <Text>#5 Purok 6 Pinsao Pilot, Baguio City</Text>
                     <Text>Tel. No: 074-661-3554</Text>
                     <Text>Payslip</Text>
@@ -62,29 +62,59 @@ export default class PaySlipsPdfDocument extends Component {
                     <View style={styles.payslipSectionDetail}>
                         <Text style={{flexGrow: 1, width: '40%'}}>TOTAL HOURS (REG)</Text>
                         <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}>{details.meta.duration_total_hours}</Text>
-                        <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}>{details.meta.duration_total_hours_amount}</Text>
+                        <NumberFormat
+                            value={details.meta.duration_total_hours_amount}
+                            displayType="text"
+                            decimalScale="2"
+                            fixedDecimalScale
+                            thousandSeparator
+                            renderText={(value) => <Text style={
+                                {flexGrow: 1, width: '30%', textAlign: 'right'}
+                            }>{value}</Text>}/>
                     </View>
                     <View style={styles.payslipSectionDetail}>
                         <Text style={{flexGrow: 1, width: '40%'}}>TOTAL HOURS (OT)</Text>
                         <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}>{details.meta.duration_total_hours_overtime}</Text>
-                        <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}>{details.meta.duration_total_hours_amount_overtime}</Text>
+                        <NumberFormat
+                            value={details.meta.duration_total_hours_amount_overtime}
+                            displayType="text"
+                            decimalScale="2"
+                            fixedDecimalScale
+                            thousandSeparator
+                            renderText={(value) => <Text style={
+                                {flexGrow: 1, width: '30%', textAlign: 'right'}
+                            }>{value}</Text>}/>
                     </View>
                     <View style={styles.payslipSectionDetail}>
                         <Text style={{flexGrow: 1, width: '40%'}}># OF DELIVERIES</Text>
                         <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}>{details.meta.duration_total_deliveries}</Text>
-                        <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}>{details.meta.duration_total_deliveries_amount}</Text>
+                        <NumberFormat
+                            value={details.meta.duration_total_deliveries_amount}
+                            displayType="text"
+                            decimalScale="2"
+                            fixedDecimalScale
+                            thousandSeparator
+                            renderText={(value) => <Text style={
+                                {flexGrow: 1, width: '30%', textAlign: 'right'}
+                            }>{value}</Text>}/>
                     </View>
                     <View style={styles.payslipSectionDetail}>
                         <Text style={{flexGrow: 1, width: '40%'}}>TOTAL</Text>
                         <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}></Text>
-                        <Text style={
-                            {
-                                flexGrow: 1,
-                                width: '30%',
-                                textAlign: 'right',
-                                borderTop: '1pt solid black;'
-                            }
-                        }>{details.meta.duration_total_gross_amount}</Text>
+                        <NumberFormat
+                            value={details.meta.duration_total_gross_amount}
+                            displayType="text"
+                            decimalScale="2"
+                            fixedDecimalScale
+                            thousandSeparator
+                            renderText={(value) => <Text style={
+                                {
+                                    flexGrow: 1,
+                                    width: '30%',
+                                    textAlign: 'right',
+                                    borderTop: '1pt solid black;'
+                                }
+                            }>{value}</Text>}/>
                     </View>
                 </View>
                 <View style={styles.payslipSection}>
@@ -94,34 +124,54 @@ export default class PaySlipsPdfDocument extends Component {
                             return <View key={`deduction${deduction.id}`} style={styles.payslipSectionDetail}>
                                 <Text style={{flexGrow: 1, width: '40%'}}>{deduction.deduction_type.title}</Text>
                                 <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}></Text>
-                                <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}>{deduction.amount}</Text>
+                                <NumberFormat
+                                    value={deduction.amount}
+                                    displayType="text"
+                                    decimalScale="2"
+                                    fixedDecimalScale
+                                    thousandSeparator
+                                    renderText={(value) => <Text style={
+                                        {flexGrow: 1, width: '30%', textAlign: 'right'}
+                                    }>{value}</Text>}/>
                             </View>;
                         })
                     }
                     <View style={styles.payslipSectionDetail}>
                         <Text style={{flexGrow: 1, width: '40%'}}>TOTAL</Text>
                         <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}></Text>
-                        <Text style={
-                            {
-                                flexGrow: 1,
-                                width: '30%',
-                                textAlign: 'right',
-                                borderTop: '1pt solid black;'
-                            }
-                        }>{details.meta.duration_total_deductions_amount}</Text>
+                        <NumberFormat
+                            value={details.meta.duration_total_deductions_amount}
+                            displayType="text"
+                            decimalScale="2"
+                            fixedDecimalScale
+                            thousandSeparator
+                            renderText={(value) => <Text style={
+                                {
+                                    flexGrow: 1,
+                                    width: '30%',
+                                    textAlign: 'right',
+                                    borderTop: '1pt solid black;'
+                                }
+                            }>{value}</Text>}/>
                     </View>
                 </View>
                 <View style={styles.payslipSection}>
                     <View style={styles.payslipSectionDetail}>
                         <Text style={{flexGrow: 1, width: '40%'}}>NET SALARY</Text>
                         <Text style={{flexGrow: 1, width: '30%', textAlign: 'right'}}></Text>
-                        <Text style={
-                            {
-                                flexGrow: 1,
-                                width: '30%',
-                                textAlign: 'right',
-                            }
-                        }>{details.meta.duration_total_net_amount}</Text>
+                        <NumberFormat
+                            value={details.meta.duration_total_net_amount}
+                            displayType="text"
+                            decimalScale="2"
+                            fixedDecimalScale
+                            thousandSeparator
+                            renderText={(value) => <Text style={
+                                {
+                                    flexGrow: 1,
+                                    width: '30%',
+                                    textAlign: 'right',
+                                }
+                            }>{value}</Text>}/>
                     </View>
                 </View>
                 <View style={{marginTop: 22}}>

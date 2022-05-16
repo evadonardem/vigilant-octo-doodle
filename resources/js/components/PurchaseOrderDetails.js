@@ -223,6 +223,7 @@ export default class PurchaseOrderDetails extends Component {
                             <tr>
                             <th scope="col">Code</th>
                             <th scope="col">Name</th>
+                            <th scope="col">Unit Price</th>
                             <th scope="col">Qty. (Original)</th>
                             <th scope="col">Qty. (Actual)</th>
                             <th scope="col">Qty. (Bad Orders)</th>
@@ -285,6 +286,7 @@ export default class PurchaseOrderDetails extends Component {
                         columns: [
                             { 'data': 'code' },
                             { 'data': 'name' },
+                            { 'data': 'effective_price' },
                             {
                                 'data': null,
                                 'render': function (data, type, row) {

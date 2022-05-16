@@ -83,20 +83,22 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
 
                 return +purchaseOrder.status.id === 3
                     ? <View style={styles.tableRow}>
-                        <Text style={{flexGrow: 1, width: '15%'}}>{item.code}</Text>
-                        <Text style={{flexGrow: 1, width: '15%'}}>{item.name}</Text>
+                        <Text style={{flexGrow: 1, width: '13%'}}>{item.code}</Text>
+                        <Text style={{flexGrow: 1, width: '13%'}}>{item.name}</Text>
+                        <Text style={{flexGrow: 1, width: '8%'}}>{item.effective_price}</Text>
                         <Text style={{flexGrow: 1, width: '8%'}}>{+item.quantity_original}</Text>
                         <Text style={{flexGrow: 1, width: '8%'}}>{+item.quantity_actual}</Text>
                         <Text style={{flexGrow: 1, width: '8%'}}>{+item.quantity_bad_orders}</Text>
                         <Text style={{flexGrow: 1, width: '8%'}}>{+item.quantity_returns}</Text>
-                        <Text style={{flexGrow: 1, width: '11%'}}>{item.delivery_receipt_no}</Text>
-                        <Text style={{flexGrow: 1, width: '11%'}}>{item.booklet_no}</Text>
-                        <Text style={{flexGrow: 1, width: '16%'}}>{item.remarks}</Text>
+                        <Text style={{flexGrow: 1, width: '10%'}}>{item.delivery_receipt_no}</Text>
+                        <Text style={{flexGrow: 1, width: '10%'}}>{item.booklet_no}</Text>
+                        <Text style={{flexGrow: 1, width: '14%'}}>{item.remarks}</Text>
                     </View>
                     : <View style={styles.tableRow}>
-                        <Text style={{flexGrow: 1, width: '20%'}}>{item.code}</Text>
-                        <Text style={{flexGrow: 1, width: '20%'}}>{item.name}</Text>
-                        <Text style={{flexGrow: 1, width: '20%'}}>{+item.quantity_original}</Text>
+                        <Text style={{flexGrow: 1, width: '15%'}}>{item.code}</Text>
+                        <Text style={{flexGrow: 1, width: '15%'}}>{item.name}</Text>
+                        <Text style={{flexGrow: 1, width: '15%'}}>{item.effective_price}</Text>
+                        <Text style={{flexGrow: 1, width: '15%'}}>{+item.quantity_original}</Text>
                         <Text style={{flexGrow: 1, width: '40%'}}></Text>
                     </View>;
             });
@@ -111,20 +113,22 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                 {
                     +purchaseOrder.status.id === 3
                         ? <View style={styles.tableHeading}>
-                            <Text style={{flexGrow: 1, width: '15%'}}>Code</Text>
-                            <Text style={{flexGrow: 1, width: '15%'}}>Name</Text>
+                            <Text style={{flexGrow: 1, width: '13%'}}>Code</Text>
+                            <Text style={{flexGrow: 1, width: '13%'}}>Name</Text>
+                            <Text style={{flexGrow: 1, width: '8%'}}>Unit Price</Text>
                             <Text style={{flexGrow: 1, width: '8%'}}>Qty. (Orig.)</Text>
                             <Text style={{flexGrow: 1, width: '8%'}}>Qty. (Act.)</Text>
                             <Text style={{flexGrow: 1, width: '8%'}}>Qty. (BO)</Text>
                             <Text style={{flexGrow: 1, width: '8%'}}>Qty. (Ret.)</Text>
-                            <Text style={{flexGrow: 1, width: '11%'}}>DR#</Text>
-                            <Text style={{flexGrow: 1, width: '11%'}}>B#</Text>
-                            <Text style={{flexGrow: 1, width: '16%'}}>Remarks</Text>
+                            <Text style={{flexGrow: 1, width: '10%'}}>DR#</Text>
+                            <Text style={{flexGrow: 1, width: '10%'}}>B#</Text>
+                            <Text style={{flexGrow: 1, width: '14%'}}>Remarks</Text>
                         </View>
                         : <View style={styles.tableHeading}>
-                            <Text style={{flexGrow: 1, width: '20%'}}>Code</Text>
-                            <Text style={{flexGrow: 1, width: '20%'}}>Name</Text>
-                            <Text style={{flexGrow: 1, width: '20%'}}>Qty. (Orig.)</Text>
+                            <Text style={{flexGrow: 1, width: '15%'}}>Code</Text>
+                            <Text style={{flexGrow: 1, width: '15%'}}>Name</Text>
+                            <Text style={{flexGrow: 1, width: '15%'}}>Unit Price</Text>
+                            <Text style={{flexGrow: 1, width: '15%'}}>Qty. (Orig.)</Text>
                             <Text style={{flexGrow: 1, width: '40%'}}></Text>
                         </View>
                 }
@@ -138,20 +142,22 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
             items.push(
                 +purchaseOrder.status.id === 3
                     ? <View key={itemTotal.id} style={styles.tableHeading}>
-                        <Text style={{flexGrow: 1, width: '15%'}}>{itemTotal.code}</Text>
-                        <Text style={{flexGrow: 1, width: '15%'}}>{itemTotal.name}</Text>
+                        <Text style={{flexGrow: 1, width: '13%'}}>{itemTotal.code}</Text>
+                        <Text style={{flexGrow: 1, width: '13%'}}>{itemTotal.name}</Text>
+                        <Text style={{flexGrow: 1, width: '8%'}}></Text>
                         <Text style={{flexGrow: 1, width: '8%'}}>{itemTotal.totalQuantityOriginal}</Text>
                         <Text style={{flexGrow: 1, width: '8%'}}>{itemTotal.totalQuantityActual}</Text>
                         <Text style={{flexGrow: 1, width: '8%'}}>{itemTotal.totalQuantityBadOrders}</Text>
                         <Text style={{flexGrow: 1, width: '8%'}}>{itemTotal.totalQuantityReturns}</Text>
-                        <Text style={{flexGrow: 1, width: '11%'}}></Text>
-                        <Text style={{flexGrow: 1, width: '11%'}}></Text>
-                        <Text style={{flexGrow: 1, width: '16%'}}></Text>
+                        <Text style={{flexGrow: 1, width: '10%'}}></Text>
+                        <Text style={{flexGrow: 1, width: '10%'}}></Text>
+                        <Text style={{flexGrow: 1, width: '14%'}}></Text>
                     </View>
                     : <View key={itemTotal.id} style={styles.tableHeading}>
-                        <Text style={{flexGrow: 1, width: '20%'}}>{itemTotal.code}</Text>
-                        <Text style={{flexGrow: 1, width: '20%'}}>{itemTotal.name}</Text>
-                        <Text style={{flexGrow: 1, width: '20%'}}>{itemTotal.totalQuantityOriginal}</Text>
+                        <Text style={{flexGrow: 1, width: '15%'}}>{itemTotal.code}</Text>
+                        <Text style={{flexGrow: 1, width: '15%'}}>{itemTotal.name}</Text>
+                        <Text style={{flexGrow: 1, width: '15%'}}></Text>
+                        <Text style={{flexGrow: 1, width: '15%'}}>{itemTotal.totalQuantityOriginal}</Text>
                         <Text style={{flexGrow: 1, width: '40%'}}></Text>
                     </View>
             );
@@ -162,20 +168,22 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
             {
                 +purchaseOrder.status.id === 3
                 ? <View style={styles.tableHeading}>
-                    <Text style={{flexGrow: 1, width: '15%'}}>Code</Text>
-                    <Text style={{flexGrow: 1, width: '15%'}}>Name</Text>
+                    <Text style={{flexGrow: 1, width: '13%'}}>Code</Text>
+                    <Text style={{flexGrow: 1, width: '13%'}}>Name</Text>
+                    <Text style={{flexGrow: 1, width: '8%'}}></Text>
                     <Text style={{flexGrow: 1, width: '8%'}}>Qty. (Orig.)</Text>
                     <Text style={{flexGrow: 1, width: '8%'}}>Qty. (Act.)</Text>
                     <Text style={{flexGrow: 1, width: '8%'}}>Qty. (BO)</Text>
                     <Text style={{flexGrow: 1, width: '8%'}}>Qty. (Ret.)</Text>
-                    <Text style={{flexGrow: 1, width: '11%'}}></Text>
-                    <Text style={{flexGrow: 1, width: '11%'}}></Text>
-                    <Text style={{flexGrow: 1, width: '16%'}}></Text>
+                    <Text style={{flexGrow: 1, width: '10%'}}></Text>
+                    <Text style={{flexGrow: 1, width: '10%'}}></Text>
+                    <Text style={{flexGrow: 1, width: '14%'}}></Text>
                 </View>
                 : <View style={styles.tableHeading}>
-                    <Text style={{flexGrow: 1, width: '20%'}}>Code</Text>
-                    <Text style={{flexGrow: 1, width: '20%'}}>Name</Text>
-                    <Text style={{flexGrow: 1, width: '20%'}}>Qty. (Orig.)</Text>
+                    <Text style={{flexGrow: 1, width: '15%'}}>Code</Text>
+                    <Text style={{flexGrow: 1, width: '15%'}}>Name</Text>
+                    <Text style={{flexGrow: 1, width: '15%'}}></Text>
+                    <Text style={{flexGrow: 1, width: '15%'}}>Qty. (Orig.)</Text>
                     <Text style={{flexGrow: 1, width: '40%'}}></Text>
                 </View>
             }
@@ -260,7 +268,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                 <Page size="LEGAL" orientation={orientation} style={styles.page}>
                     <View>
                         <View style={styles.heading}>
-                            <Text>GIFT OF GRACE FOOD MANUFACTURING</Text>
+                            <Text>GIFT OF GRACE FOOD MANUFACTURING CORPORATION</Text>
                             <Text>#5 Purok 6 Pinsao Pilot, Baguio City</Text>
                             <Text>Tel. No: 074-661-3554</Text>
                             <Text>Purchase Order #{purchaseOrder.code}</Text>
