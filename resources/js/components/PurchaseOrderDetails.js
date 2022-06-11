@@ -1106,7 +1106,7 @@ export default class PurchaseOrderDetails extends Component {
                         <Card>
                             <Card.Header>
                                 <div className='row'>
-                                    <div className='col-md-9'>
+                                    <div className='col-md-6'>
                                         <p>
                                             <Badge variant='primary'>PO: {purchaseOrder.code}</Badge>&nbsp;
                                             <Badge variant={currentStatusVariant}>
@@ -1115,7 +1115,24 @@ export default class PurchaseOrderDetails extends Component {
                                         </p>
                                         <h4>Purchase Order &raquo; Details</h4>
                                     </div>
-                                    <div className='col-md-3'>
+                                    <div className='col-md-6'>
+										<PDFDownloadLink
+                                            key={uuidv4()}
+                                            document={<PurchaseOrderDetailsPdfDocument
+                                                purchaseOrder={purchaseOrder}
+                                                purchaseOrderStores={purchaseOrderStores}
+                                                purchaseOrderAssignedStaff={purchaseOrderAssignedStaff}
+                                                purchaseOrderExpenses={purchaseOrderExpenses}
+                                                purchaseOrderExpensesMeta={purchaseOrderExpensesMeta}
+                                                withUnitPriceAndTotalAmount={true}/>}
+                                            fileName={`PO-${purchaseOrder.code}.pdf`}
+                                            className="btn btn-primary pull-right">
+                                            {({ blob, url, loading, error }) => (
+                                                loading
+                                                    ? "Loading document..."
+                                                    : <span><i className="fa fa-file"></i> Download PO (w/ Price & Total Amt.)</span>
+                                            )}
+                                        </PDFDownloadLink>
                                         <PDFDownloadLink
                                             key={uuidv4()}
                                             document={<PurchaseOrderDetailsPdfDocument
@@ -1123,9 +1140,10 @@ export default class PurchaseOrderDetails extends Component {
                                                 purchaseOrderStores={purchaseOrderStores}
                                                 purchaseOrderAssignedStaff={purchaseOrderAssignedStaff}
                                                 purchaseOrderExpenses={purchaseOrderExpenses}
-                                                purchaseOrderExpensesMeta={purchaseOrderExpensesMeta}/>}
+                                                purchaseOrderExpensesMeta={purchaseOrderExpensesMeta}
+                                                withUnitPriceAndTotalAmount={false}/>}
                                             fileName={`PO-${purchaseOrder.code}.pdf`}
-                                            className="btn btn-primary pull-right">
+                                            className="btn btn-primary pull-right mr-1">
                                             {({ blob, url, loading, error }) => (
                                                 loading
                                                     ? "Loading document..."
@@ -1215,7 +1233,7 @@ export default class PurchaseOrderDetails extends Component {
                                         </Card.Footer> }
                                 </Card>
 
-                                <div style={(!purchaseOrder || +purchaseOrder.status.id === 1) ? {display: "none"} : null}>
+                                <div style={!purchaseOrder ? {display: "none"} : null}>
                                     <div className="row">
                                         <div className="col-md-6">
                                             <Card>

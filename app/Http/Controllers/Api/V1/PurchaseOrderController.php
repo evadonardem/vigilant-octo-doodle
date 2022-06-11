@@ -185,8 +185,10 @@ class PurchaseOrderController extends Controller
                     ->get();
 
                 $items->each(function ($item) use ($store, $purchaseOrder) {
-                    $item->effective_price =
-                        $this->getStoreEffectiveItemPrice($store->id, $item->id, $purchaseOrder->to);
+					$effectivePrice = $this->getStoreEffectiveItemPrice($store->id, $item->id, $purchaseOrder->to);
+                    $totalAmount = $item->quantity_original * $effectivePrice;
+                    $item->effective_price = $effectivePrice;
+                    $item->total_amount = $totalAmount;
                 });
                 
                 $store->items = $items;

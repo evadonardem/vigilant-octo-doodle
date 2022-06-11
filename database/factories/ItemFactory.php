@@ -22,7 +22,7 @@ class ItemFactory extends Factory
     public function definition()
     {
         return [
-            'code' => $this->faker->uuid,
+            'code' => $this->faker->unixTime(),
             'name' => $this->faker->word(),
         ];
     }
