@@ -191,7 +191,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                 {
                     +purchaseOrder.status.id === 3
                         ? <View style={styles.tableHeading}>
-							<Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Qty. (Orig.)</Text>
+							<Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Qty.</Text>
                             <Text style={{flexGrow: 1, width: '13%'}}>Code</Text>
                             <Text style={{flexGrow: 1, width: '13%'}}>Name</Text>
                             { withUnitPriceAndTotalAmount ?
@@ -206,7 +206,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                             <Text style={{flexGrow: 1, width: '14%'}}>Remarks</Text>
                         </View>
                         : <View style={styles.tableHeading}>
-							<Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Qty. (Orig.)</Text>
+							<Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Qty.</Text>
                             <Text style={{flexGrow: 1, width: `${columnSize}%`}}>Code</Text>
                             <Text style={{flexGrow: 1, width: `${columnSize}%`}}>Name</Text>
                             { withUnitPriceAndTotalAmount ?
@@ -288,7 +288,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
             {
                 +purchaseOrder.status.id === 3
                 ? <View style={styles.tableHeading}>
-					<Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Qty. (Orig.)</Text>
+					<Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Qty.</Text>
                     <Text style={{flexGrow: 1, width: '13%'}}>Code</Text>
                     <Text style={{flexGrow: 1, width: '13%'}}>Name</Text>
                     { withUnitPriceAndTotalAmount ?
@@ -303,7 +303,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                     <Text style={{flexGrow: 1, width: '14%'}}></Text>
                 </View>
                 : <View style={styles.tableHeading}>
-					<Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Qty. (Orig.)</Text>
+					<Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Qty.</Text>
                     <Text style={{flexGrow: 1, width: `${columnSize}%`}}>Code</Text>
                     <Text style={{flexGrow: 1, width: `${columnSize}%`}}>Name</Text>
                     { withUnitPriceAndTotalAmount ?
