@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 import { v4 as uuidv4 } from 'uuid';
+import NumberFormat from 'react-number-format';
 
 const styles = StyleSheet.create({
     page: {
@@ -59,9 +60,18 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
             purchaseOrderAssignedStaff,
             purchaseOrderExpenses,
             purchaseOrderExpensesMeta,
+            withUnitPriceAndTotalAmount,
         } = this.props;
 
         let itemsTotal = {};
+        
+        const slicePercentage = 60;
+		let columnSize = 0;
+		if (+purchaseOrder.status.id === 3) {
+			columnSize = slicePercentage / (withUnitPriceAndTotalAmount ? 8 : 6);
+		} else {
+			columnSize = slicePercentage / (withUnitPriceAndTotalAmount ? 5 : 3);
+		}
 
         const details = purchaseOrderStores ? purchaseOrderStores.map((store, i) => {
             const items = store.items.map((item) => {
@@ -83,22 +93,90 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
 
                 return +purchaseOrder.status.id === 3
                     ? <View style={styles.tableRow}>
+						<NumberFormat
+                            value={+item.quantity_original}
+                            displayType="text"
+                            thousandSeparator
+                            renderText={(value) => <Text style={
+                                {flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
+                            }>{value}</Text>}/>
                         <Text style={{flexGrow: 1, width: '13%'}}>{item.code}</Text>
                         <Text style={{flexGrow: 1, width: '13%'}}>{item.name}</Text>
-                        <Text style={{flexGrow: 1, width: '8%'}}>{item.effective_price}</Text>
-                        <Text style={{flexGrow: 1, width: '8%'}}>{+item.quantity_original}</Text>
-                        <Text style={{flexGrow: 1, width: '8%'}}>{+item.quantity_actual}</Text>
-                        <Text style={{flexGrow: 1, width: '8%'}}>{+item.quantity_bad_orders}</Text>
-                        <Text style={{flexGrow: 1, width: '8%'}}>{+item.quantity_returns}</Text>
-                        <Text style={{flexGrow: 1, width: '10%'}}>{item.delivery_receipt_no}</Text>
-                        <Text style={{flexGrow: 1, width: '10%'}}>{item.booklet_no}</Text>
+                        { withUnitPriceAndTotalAmount ?
+							<NumberFormat
+								value={+item.effective_price}
+								displayType="text"
+								decimalScale="2"
+								fixedDecimalScale
+								thousandSeparator
+								renderText={(value) => <Text style={
+									{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
+								}>{value}</Text>}/> : null }
+						{ withUnitPriceAndTotalAmount ?
+							<NumberFormat
+								value={+item.total_amount}
+								displayType="text"
+								decimalScale="2"
+								fixedDecimalScale
+								thousandSeparator
+								renderText={(value) => <Text style={
+									{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
+								}>{value}</Text>}/> : null }
+                        <NumberFormat
+                            value={+item.quantity_actual}
+                            displayType="text"
+                            thousandSeparator
+                            renderText={(value) => <Text style={
+                                {flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
+                            }>{value}</Text>}/>
+                        <NumberFormat
+                            value={+item.quantity_bad_orders}
+                            displayType="text"
+                            thousandSeparator
+                            renderText={(value) => <Text style={
+                                {flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
+                            }>{value}</Text>}/>
+                        <NumberFormat
+                            value={+item.quantity_returns}
+                            displayType="text"
+                            thousandSeparator
+                            renderText={(value) => <Text style={
+                                {flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
+                            }>{value}</Text>}/>
+                        <Text style={{flexGrow: 1, width: `${columnSize}%`}}>{item.delivery_receipt_no}</Text>
+                        <Text style={{flexGrow: 1, width: `${columnSize}%`}}>{item.booklet_no}</Text>
                         <Text style={{flexGrow: 1, width: '14%'}}>{item.remarks}</Text>
                     </View>
                     : <View style={styles.tableRow}>
-                        <Text style={{flexGrow: 1, width: '15%'}}>{item.code}</Text>
-                        <Text style={{flexGrow: 1, width: '15%'}}>{item.name}</Text>
-                        <Text style={{flexGrow: 1, width: '15%'}}>{item.effective_price}</Text>
-                        <Text style={{flexGrow: 1, width: '15%'}}>{+item.quantity_original}</Text>
+						<NumberFormat
+                            value={+item.quantity_original}
+                            displayType="text"
+                            thousandSeparator
+                            renderText={(value) => <Text style={
+                                {flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
+                            }>{value}</Text>}/>
+                        <Text style={{flexGrow: 1, width: `${columnSize}%`}}>{item.code}</Text>
+                        <Text style={{flexGrow: 1, width: `${columnSize}%`}}>{item.name}</Text>
+                        { withUnitPriceAndTotalAmount ?
+							<NumberFormat
+								value={+item.effective_price}
+								displayType="text"
+								decimalScale="2"
+								fixedDecimalScale
+								thousandSeparator
+								renderText={(value) => <Text style={
+									{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
+								}>{value}</Text>}/> : null }
+						{ withUnitPriceAndTotalAmount ?
+							<NumberFormat
+								value={+item.total_amount}
+								displayType="text"
+								decimalScale="2"
+								fixedDecimalScale
+								thousandSeparator
+								renderText={(value) => <Text style={
+									{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
+								}>{value}</Text>}/> : null }
                         <Text style={{flexGrow: 1, width: '40%'}}></Text>
                     </View>;
             });
@@ -113,22 +191,28 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                 {
                     +purchaseOrder.status.id === 3
                         ? <View style={styles.tableHeading}>
+							<Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Qty. (Orig.)</Text>
                             <Text style={{flexGrow: 1, width: '13%'}}>Code</Text>
                             <Text style={{flexGrow: 1, width: '13%'}}>Name</Text>
-                            <Text style={{flexGrow: 1, width: '8%'}}>Unit Price</Text>
-                            <Text style={{flexGrow: 1, width: '8%'}}>Qty. (Orig.)</Text>
-                            <Text style={{flexGrow: 1, width: '8%'}}>Qty. (Act.)</Text>
-                            <Text style={{flexGrow: 1, width: '8%'}}>Qty. (BO)</Text>
-                            <Text style={{flexGrow: 1, width: '8%'}}>Qty. (Ret.)</Text>
-                            <Text style={{flexGrow: 1, width: '10%'}}>DR#</Text>
-                            <Text style={{flexGrow: 1, width: '10%'}}>B#</Text>
+                            { withUnitPriceAndTotalAmount ?
+								<Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Unit Price</Text> : null}
+							{ withUnitPriceAndTotalAmount ?
+								<Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Total Amount</Text> : null}
+                            <Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Qty. (Act.)</Text>
+                            <Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Qty. (BO)</Text>
+                            <Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Qty. (Ret.)</Text>
+                            <Text style={{flexGrow: 1, width: `${columnSize}%`}}>DR#</Text>
+                            <Text style={{flexGrow: 1, width: `${columnSize}%`}}>B#</Text>
                             <Text style={{flexGrow: 1, width: '14%'}}>Remarks</Text>
                         </View>
                         : <View style={styles.tableHeading}>
-                            <Text style={{flexGrow: 1, width: '15%'}}>Code</Text>
-                            <Text style={{flexGrow: 1, width: '15%'}}>Name</Text>
-                            <Text style={{flexGrow: 1, width: '15%'}}>Unit Price</Text>
-                            <Text style={{flexGrow: 1, width: '15%'}}>Qty. (Orig.)</Text>
+							<Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Qty. (Orig.)</Text>
+                            <Text style={{flexGrow: 1, width: `${columnSize}%`}}>Code</Text>
+                            <Text style={{flexGrow: 1, width: `${columnSize}%`}}>Name</Text>
+                            { withUnitPriceAndTotalAmount ?
+								<Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Unit Price</Text> : null}
+							{ withUnitPriceAndTotalAmount ?
+								<Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Total Amount</Text> : null}
                             <Text style={{flexGrow: 1, width: '40%'}}></Text>
                         </View>
                 }
@@ -142,22 +226,58 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
             items.push(
                 +purchaseOrder.status.id === 3
                     ? <View key={itemTotal.id} style={styles.tableHeading}>
+						<NumberFormat
+                            value={+itemTotal.totalQuantityOriginal}
+                            displayType="text"
+                            thousandSeparator
+                            renderText={(value) => <Text style={
+                                {flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
+                            }>{value}</Text>}/>
                         <Text style={{flexGrow: 1, width: '13%'}}>{itemTotal.code}</Text>
                         <Text style={{flexGrow: 1, width: '13%'}}>{itemTotal.name}</Text>
-                        <Text style={{flexGrow: 1, width: '8%'}}></Text>
-                        <Text style={{flexGrow: 1, width: '8%'}}>{itemTotal.totalQuantityOriginal}</Text>
-                        <Text style={{flexGrow: 1, width: '8%'}}>{itemTotal.totalQuantityActual}</Text>
-                        <Text style={{flexGrow: 1, width: '8%'}}>{itemTotal.totalQuantityBadOrders}</Text>
-                        <Text style={{flexGrow: 1, width: '8%'}}>{itemTotal.totalQuantityReturns}</Text>
-                        <Text style={{flexGrow: 1, width: '10%'}}></Text>
-                        <Text style={{flexGrow: 1, width: '10%'}}></Text>
+                        { withUnitPriceAndTotalAmount ?
+							<Text style={{flexGrow: 1, width: `${columnSize}%`}}></Text> : null }
+                        { withUnitPriceAndTotalAmount ?
+							<Text style={{flexGrow: 1, width: `${columnSize}%`}}></Text> : null }
+                        <NumberFormat
+                            value={+itemTotal.totalQuantityActual}
+                            displayType="text"
+                            thousandSeparator
+                            renderText={(value) => <Text style={
+                                {flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
+                            }>{value}</Text>}/>
+                        <NumberFormat
+                            value={+itemTotal.totalQuantityBadOrders}
+                            displayType="text"
+                            thousandSeparator
+                            renderText={(value) => <Text style={
+                                {flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
+                            }>{value}</Text>}/>
+                        <NumberFormat
+                            value={+itemTotal.totalQuantityReturns}
+                            displayType="text"
+                            thousandSeparator
+                            renderText={(value) => <Text style={
+                                {flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
+                            }>{value}</Text>}/>
+                        <Text style={{flexGrow: 1, width: `${columnSize}%`}}></Text>
+                        <Text style={{flexGrow: 1, width: `${columnSize}%`}}></Text>
                         <Text style={{flexGrow: 1, width: '14%'}}></Text>
                     </View>
                     : <View key={itemTotal.id} style={styles.tableHeading}>
-                        <Text style={{flexGrow: 1, width: '15%'}}>{itemTotal.code}</Text>
-                        <Text style={{flexGrow: 1, width: '15%'}}>{itemTotal.name}</Text>
-                        <Text style={{flexGrow: 1, width: '15%'}}></Text>
-                        <Text style={{flexGrow: 1, width: '15%'}}>{itemTotal.totalQuantityOriginal}</Text>
+						<NumberFormat
+                            value={+itemTotal.totalQuantityOriginal}
+                            displayType="text"
+                            thousandSeparator
+                            renderText={(value) => <Text style={
+                                {flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
+                            }>{value}</Text>}/>
+                        <Text style={{flexGrow: 1, width: `${columnSize}%`}}>{itemTotal.code}</Text>
+                        <Text style={{flexGrow: 1, width: `${columnSize}%`}}>{itemTotal.name}</Text>
+                        { withUnitPriceAndTotalAmount ?
+							<Text style={{flexGrow: 1, width: `${columnSize}%`}}></Text> : null }
+                        { withUnitPriceAndTotalAmount ?
+							<Text style={{flexGrow: 1, width: `${columnSize}%`}}></Text> : null }
                         <Text style={{flexGrow: 1, width: '40%'}}></Text>
                     </View>
             );
@@ -168,22 +288,28 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
             {
                 +purchaseOrder.status.id === 3
                 ? <View style={styles.tableHeading}>
+					<Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Qty. (Orig.)</Text>
                     <Text style={{flexGrow: 1, width: '13%'}}>Code</Text>
                     <Text style={{flexGrow: 1, width: '13%'}}>Name</Text>
-                    <Text style={{flexGrow: 1, width: '8%'}}></Text>
-                    <Text style={{flexGrow: 1, width: '8%'}}>Qty. (Orig.)</Text>
-                    <Text style={{flexGrow: 1, width: '8%'}}>Qty. (Act.)</Text>
-                    <Text style={{flexGrow: 1, width: '8%'}}>Qty. (BO)</Text>
-                    <Text style={{flexGrow: 1, width: '8%'}}>Qty. (Ret.)</Text>
-                    <Text style={{flexGrow: 1, width: '10%'}}></Text>
-                    <Text style={{flexGrow: 1, width: '10%'}}></Text>
+                    { withUnitPriceAndTotalAmount ?
+						<Text style={{flexGrow: 1, width: `${columnSize}%`}}></Text> : null }
+                    { withUnitPriceAndTotalAmount ?
+						<Text style={{flexGrow: 1, width: `${columnSize}%`}}></Text> : null }
+                    <Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Qty. (Act.)</Text>
+                    <Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Qty. (BO)</Text>
+                    <Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Qty. (Ret.)</Text>
+                    <Text style={{flexGrow: 1, width: `${columnSize}%`}}></Text>
+                    <Text style={{flexGrow: 1, width: `${columnSize}%`}}></Text>
                     <Text style={{flexGrow: 1, width: '14%'}}></Text>
                 </View>
                 : <View style={styles.tableHeading}>
-                    <Text style={{flexGrow: 1, width: '15%'}}>Code</Text>
-                    <Text style={{flexGrow: 1, width: '15%'}}>Name</Text>
-                    <Text style={{flexGrow: 1, width: '15%'}}></Text>
-                    <Text style={{flexGrow: 1, width: '15%'}}>Qty. (Orig.)</Text>
+					<Text style={{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}}>Qty. (Orig.)</Text>
+                    <Text style={{flexGrow: 1, width: `${columnSize}%`}}>Code</Text>
+                    <Text style={{flexGrow: 1, width: `${columnSize}%`}}>Name</Text>
+                    { withUnitPriceAndTotalAmount ?
+						<Text style={{flexGrow: 1, width: `${columnSize}%`}}></Text> : null }
+                    { withUnitPriceAndTotalAmount ?
+						<Text style={{flexGrow: 1, width: `${columnSize}%`}}></Text> : null }
                     <Text style={{flexGrow: 1, width: '40%'}}></Text>
                 </View>
             }
@@ -216,10 +342,26 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
             expenses = purchaseOrderExpenses.map((expense) => {
                 return <View key={uuidv4()} style={styles.tableRow}>
                     <Text style={{flexGrow: 1, width: '20%'}}>{expense.name}</Text>
-                    <Text style={{flexGrow: 1, textAlign:'right', width: '25%'}}>{expense.amount_original}</Text>
+                    <NumberFormat
+						value={+expense.amount_original}
+						displayType="text"
+						decimalScale="2"
+						fixedDecimalScale
+						thousandSeparator
+						renderText={(value) => <Text style={
+							{flexGrow: 1, textAlign:'right', width: '25%'}
+						}>{value}</Text>}/>
                     {
                         +purchaseOrder.status.id === 3 &&
-                        <Text style={{flexGrow: 1, textAlign:'right', width: '25%'}}>{expense.amount_actual}</Text>
+                        <NumberFormat
+							value={+expense.amount_actual}
+							displayType="text"
+							decimalScale="2"
+							fixedDecimalScale
+							thousandSeparator
+							renderText={(value) => <Text style={
+								{flexGrow: 1, textAlign:'right', width: '25%'}
+							}>{value}</Text>}/>
                     }
                     <Text style={{flexGrow: 1, width: '29%'}}></Text>
                 </View>;
@@ -244,10 +386,26 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                     purchaseOrderExpensesMeta &&
                     <View key={uuidv4()} style={styles.tableRow}>
                         <Text style={{flexGrow: 1, width: '20%'}}></Text>
-                        <Text style={{borderTop: '1pt dotted black', flexGrow: 1, textAlign:'right', width: '25%'}}>{parseFloat(purchaseOrderExpensesMeta.total_amount_original).toFixed(2)}</Text>
+                        <NumberFormat
+							value={+purchaseOrderExpensesMeta.total_amount_original}
+							displayType="text"
+							decimalScale="2"
+							fixedDecimalScale
+							thousandSeparator
+							renderText={(value) => <Text style={
+								{borderTop: '1pt dotted black', flexGrow: 1, textAlign:'right', width: '25%'}
+							}>{value}</Text>}/>
                         {
                             +purchaseOrder.status.id === 3 &&
-                            <Text style={{borderTop: '1pt dotted black', flexGrow: 1, textAlign:'right', width: '25%'}}>{parseFloat(purchaseOrderExpensesMeta.total_amount_actual).toFixed(2)}</Text>
+                            <NumberFormat
+								value={+purchaseOrderExpensesMeta.total_amount_actual}
+								displayType="text"
+								decimalScale="2"
+								fixedDecimalScale
+								thousandSeparator
+								renderText={(value) => <Text style={
+									{borderTop: '1pt dotted black', flexGrow: 1, textAlign:'right', width: '25%'}
+								}>{value}</Text>}/>
                         }
                         <Text style={{flexGrow: 1, width: '29%'}}></Text>
                     </View>
@@ -255,7 +413,13 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                 {
                     +purchaseOrder.status.id === 3 && purchaseOrderExpensesMeta &&
                     <View key={uuidv4()} style={styles.sectionHeading}>
-                        <Text>CHANGE: {parseFloat(purchaseOrderExpensesMeta.change).toFixed(2)}</Text>
+                        <NumberFormat
+							value={+purchaseOrderExpensesMeta.change}
+							displayType="text"
+							decimalScale="2"
+							fixedDecimalScale
+							thousandSeparator
+							renderText={(value) => <Text>CHANGE: {value}</Text>}/>
                     </View>
                 }
             </View>;
