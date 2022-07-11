@@ -12,11 +12,13 @@ use App\Models\Delivery;
 use App\Models\PayPeriodDeduction;
 use App\Models\Role;
 use App\Models\Rate;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements JWTSubject
 {
     use Notifiable;
     use HasFactory;
+    use HasRoles;
 
     /**
      * The attributes that are mass assignable.

@@ -15,6 +15,7 @@
         "laravel/framework": "^8.0",
         "laravel/tinker": "^2.0",
         "phing/phing": "^2.16",
+        "spatie/laravel-permission": "^5.5",
         "tymon/jwt-auth": "^1.0"
     },
     "require-dev": {
