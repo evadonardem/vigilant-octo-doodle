@@ -1,11 +1,27 @@
 import React, { Component } from 'react';
 import { Jumbotron, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import cookie from 'react-cookies';
+import jwt_decode from 'jwt-decode';
 
 export default class Dashboard extends Component {
+	constructor(props) {
+        super(props);
+        this.state = {
+			currentUser: null,
+		};
+    }
+    
+	componentDidMount() {
+        const self = this;
+        const token = cookie.load('token');
+	}
+	
     render() {
+		const { currentUser } = this.state;
         return (
             <div className="container-fluid my-4">
+				<p>{currentUser ? JSON.stringify(currentUser) : ''}</p>
                 <div className="row">
                     <div className="col-md-6">
                         <Jumbotron>

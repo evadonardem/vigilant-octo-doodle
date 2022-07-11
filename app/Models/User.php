@@ -48,16 +48,6 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Delivery::class, 'user_id', 'id');
     }
 
-    public function roles()
-    {
-        return $this->belongsToMany(
-            Role::class,
-            'user_roles',
-            'user_id',
-            'role_id'
-        )->withTimestamps();
-    }
-
     public function attendanceLogs()
     {
         return $this->hasMany(AttendanceLog::class, 'biometric_id', 'biometric_id');

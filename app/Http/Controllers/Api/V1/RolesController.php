@@ -16,7 +16,7 @@ class RolesController extends Controller
      */
     public function index()
     {
-        $roles = Role::all();
+        $roles = Role::orderBy('name')->where('name', '<>', 'Super Admin')->get();
 
         return response()->json(['data' => $roles]);
     }
