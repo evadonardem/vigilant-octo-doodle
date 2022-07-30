@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Item;
 use App\Models\PurchaseOrder;
 use App\Models\Store;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use stdClass;
 
 class DeliverySalesMonitoringController extends Controller
@@ -18,6 +19,8 @@ class DeliverySalesMonitoringController extends Controller
      */
     public function index(Request $request)
     {
+		$isGenerateCsvReport = $request->has('generate') && $request->input('generate') === 'csv';
+		
         $purchaseOrdersQuery = PurchaseOrder::where('purchase_order_status_id', '=', 3)
             ->where('to', '>=', $request->input('from'))
             ->where('to', '<=', $request->input('to'));
@@ -131,15 +134,46 @@ class DeliverySalesMonitoringController extends Controller
         });
         $booklets = $booklets->sortBy('id')->values();
 
-        return response()->json([
-            'data' => $booklets,
-            'meta' => [
-                'search_filters' => array_merge(
-                    $request->only(['from', 'to']),
-                    ['store' => ($searchStore ? $searchStore->only('code', 'name') : null)]
-                )
-            ]
-        ]);
+		if (!$isGenerateCsvReport) {
+			return response()->json([
+				'data' => $booklets,
+				'meta' => [
+					'search_filters' => array_merge(
+						$request->only(['from', 'to']),
+						['store' => ($searchStore ? $searchStore->only('code', 'name') : null)]
+					)
+				]
+			]);
+		}
+		
+		$filename = Str::slug('DSR ' . $request->input('from') . ' to ' . $request->input('to') . ($searchStore ? ' ' . $searchStore->code : '')) . '.csv';
+		$headers = [
+			'Content-type' => 'text/csv',
+			'Content-Disposition' => "attachment; filename=$filename",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => "0",
+		];
+		$columns = array('Title', 'Assign', 'Description', 'Start Date', 'Due Date');
+
+        $callback = function() use($columns, $booklets) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            /*foreach ($tasks as $task) {
+                $row['Title']  = $task->title;
+                $row['Assign']    = $task->assign->name;
+                $row['Description']    = $task->description;
+                $row['Start Date']  = $task->start_at;
+                $row['Due Date']  = $task->end_at;
+
+                fputcsv($file, array($row['Title'], $row['Assign'], $row['Description'], $row['Start Date'], $row['Due Date']));
+            }*/
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     private function createNewDeliveryReceipt(PurchaseOrder $purchaseOrder, Item $item)

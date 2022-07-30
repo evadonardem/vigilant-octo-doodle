@@ -12,10 +12,12 @@ export default class ReportsDeliverySalesMonitoring extends Component {
     constructor(props) {
         super(props);
         this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
+        this.handleGenerateCsvReport = this.handleGenerateCsvReport.bind(this);
 
         this.state = {
             searchFilters: null,
             booklets: [],
+            csvFilters: null,
         };
     }
 
@@ -232,6 +234,7 @@ export default class ReportsDeliverySalesMonitoring extends Component {
             .find(`table.${DT_DELIVERY_SALES_MONITORING}`)
             .DataTable();
         const data = $(e.currentTarget).serialize();
+        const csvFilters = data;
 
         axios.get(`${END_POINT}?${data}&token=${token}`)
             .then((response) => {
@@ -240,12 +243,35 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                 self.setState({
                     ...self.state,
                     searchFilters,
-                    booklets
+                    booklets,
+                    csvFilters,
                 });
                 table.clear();
                 table.rows.add(booklets).draw();
             });
     }
+    
+    handleGenerateCsvReport(e) {
+		e.preventDefault();
+		const self = this;
+		const token = cookie.load('token');
+		const { csvFilters } = self.state;
+		axios.get(`${END_POINT}?${csvFilters}&generate=csv&token=${token}`, {
+			responseType: 'arraybuffer',
+		})
+		.then(response => {
+			const filename = response.headers['content-disposition'].split('filename=')[1].split('.')[0];
+			const extension = response.headers['content-disposition'].split('.')[1].split(';')[0];
+			const blob = new Blob(
+				[response.data],
+				{ type: 'text/csv' }
+			);
+			const link = document.createElement('a');
+			link.href = window.URL.createObjectURL(blob);
+			link.download = `${filename}.${extension}`;
+			link.click();
+		});
+	}
 
     render() {
         const {
@@ -294,6 +320,7 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                             }
                             <Card.Body>
                                 <div style={!searchFilters ? {display: 'none'} : null}>
+									<Button onClick={this.handleGenerateCsvReport}>CSV</Button>
                                     <table className={`table table-striped ${DT_DELIVERY_SALES_MONITORING}`} style={{width: 100+'%'}}>
                                         <thead>
                                             <tr>
