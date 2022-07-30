@@ -320,7 +320,11 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                             }
                             <Card.Body>
                                 <div style={!searchFilters ? {display: 'none'} : null}>
-									<Button onClick={this.handleGenerateCsvReport}>CSV</Button>
+									<div className="row">
+										<div className="col-md-12">
+											<Button className="pull-right" onClick={this.handleGenerateCsvReport}><i className="fa fa-icon fa-download"></i> CSV</Button>
+										</div>
+									</div>
                                     <table className={`table table-striped ${DT_DELIVERY_SALES_MONITORING}`} style={{width: 100+'%'}}>
                                         <thead>
                                             <tr>

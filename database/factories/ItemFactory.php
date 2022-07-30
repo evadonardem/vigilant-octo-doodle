@@ -22,8 +22,8 @@ class ItemFactory extends Factory
     public function definition()
     {
         return [
-            'code' => $this->faker->unixTime(),
-            'name' => $this->faker->word(),
+            'code' => $this->faker->unique()->numerify('ITM-#####'),
+            'name' => $this->faker->unique()->words(3, true),
         ];
     }
 }

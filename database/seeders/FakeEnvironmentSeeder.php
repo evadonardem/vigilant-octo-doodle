@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use App\Models\Item;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderAssignedStaff;
@@ -13,6 +14,7 @@ use App\Models\StoreItemPrice;
 use App\Models\User;
 use Carbon\Carbon;
 use DB;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\Seeder;
 
 class FakeEnvironmentSeeder extends Seeder
@@ -31,6 +33,7 @@ class FakeEnvironmentSeeder extends Seeder
 				(new PurchaseOrderExpense)->getTable(),
 				(new Store)->getTable(),
 				(new Item)->getTable(),
+				(new Category)->getTable(),
 			];
 			foreach ($tables as $table) {
 				DB::table($table)->delete();
@@ -40,14 +43,22 @@ class FakeEnvironmentSeeder extends Seeder
 		// create fake items
 		$items = Item::factory(100)->create();
 		
+		// create fake categories;
+		$categories = Category::factory(100)->create();
+		
 		// create fake stores
-        $stores = Store::factory(100)->create();
+        $stores = Store::factory()
+			->count(100)
+			->state(new Sequence(
+				fn ($sequence) => ['category_id' => $categories->random()->id],
+			))
+			->create();
 
 		// create fake store items
         $stores->each(fn($store) => (
             $items->random(10)->each(fn($item) => (
                 StoreItemPrice::factory()
-                ->count(2)
+                ->count(5)
                 ->create([
                     'store_id' => $store->id,
                     'item_id' => $item->id,
@@ -83,7 +94,7 @@ class FakeEnvironmentSeeder extends Seeder
 				'purchase_order_id' => $purchaseOrder->id,
 				'user_id' => User::all()->random()->id,
 			]);
-			$purchaseOrder->expenses()->saveMany(PurchaseOrderExpense::factory()->count(2)->make());
+			$purchaseOrder->expenses()->saveMany(PurchaseOrderExpense::factory()->count(random_int(1, 5))->make());
 			$purchaseOrder->purchase_order_status_id = 2;
 			$purchaseOrder->save();
 		});

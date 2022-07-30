@@ -28,8 +28,8 @@ class PurchaseOrderFactory extends Factory
             ->addDays(random_int(1, 10))
             ->format('Y-m-d');
         return [
-            'code' => $this->faker->uuid,
-            'location' => $this->faker->text(),
+            'code' => $this->faker->unique()->numerify('PO-#####'),
+            'location' => $this->faker->city(),
             'from' => $from,
             'to' => $to,
             'purchase_order_status_id' => PurchaseOrderStatus::where('code', 'pending')->first()->id,
