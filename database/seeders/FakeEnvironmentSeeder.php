@@ -4,9 +4,15 @@ namespace Database\Seeders;
 
 use App\Models\Item;
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderAssignedStaff;
+use App\Models\PurchaseOrderExpense;
 use App\Models\PurchaseOrderStoreItem;
 use App\Models\Store;
+use App\Models\StoreItem;
 use App\Models\StoreItemPrice;
+use App\Models\User;
+use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Seeder;
 
 class FakeEnvironmentSeeder extends Seeder
@@ -18,13 +24,30 @@ class FakeEnvironmentSeeder extends Seeder
      */
     public function run()
     {
-        $stores = Store::factory(10)->create();
-        $items = Item::factory(10)->create();
+		// clear instances
+		DB::transaction(function () {
+			$tables = [
+				(new PurchaseOrder)->getTable(),
+				(new PurchaseOrderExpense)->getTable(),
+				(new Store)->getTable(),
+				(new Item)->getTable(),
+			];
+			foreach ($tables as $table) {
+				DB::table($table)->delete();
+			}
+		});
+		
+		// create fake items
+		$items = Item::factory(100)->create();
+		
+		// create fake stores
+        $stores = Store::factory(100)->create();
 
+		// create fake store items
         $stores->each(fn($store) => (
-            $items->each(fn($item) => (
+            $items->random(10)->each(fn($item) => (
                 StoreItemPrice::factory()
-                ->count(5)
+                ->count(2)
                 ->create([
                     'store_id' => $store->id,
                     'item_id' => $item->id,
@@ -33,13 +56,48 @@ class FakeEnvironmentSeeder extends Seeder
         ));
 
         $purchaseOrders = PurchaseOrder::factory(100)->create();
-        foreach ($stores->random(3) as $store) {
-            PurchaseOrderStoreItem::create([
-                'purchase_order_id' => $purchaseOrders->random()->id,
-                'store_id' => $store->id,
-                'item_id' => $items->first()->id,
-                'quantity_original' => random_int(1, 100),
-            ]);
-        }
+        $purchaseOrders->each(function ($purchaseOrder) use ($stores) {
+			$startDate = Carbon::now()->addDays(random_int(1, 90));
+			$purchaseOrder->from = $startDate->format('Y-m-d');
+			$purchaseOrder->to = $startDate->addDays(random_int(1, 2))->format('Y-m-d');
+			$purchaseOrder->save();
+			foreach ($stores->random(3) as $store) {
+				PurchaseOrderStoreItem::create([
+					'purchase_order_id' => $purchaseOrder->id,
+					'store_id' => $store->id,
+					'item_id' => $store->items->unique('id')->first()->id,
+					'quantity_original' => random_int(1, 100),
+				]);
+				PurchaseOrderStoreItem::create([
+					'purchase_order_id' => $purchaseOrder->id,
+					'store_id' => $store->id,
+					'item_id' => $store->items->unique('id')->last()->id,
+					'quantity_original' => random_int(1, 100),
+				]);
+			}
+		});
+        
+        // set purchase orders status approved
+        $purchaseOrders->where('purchase_order_status_id', 1)->random(50)->each(function ($purchaseOrder) {
+			PurchaseOrderAssignedStaff::factory()->create([
+				'purchase_order_id' => $purchaseOrder->id,
+				'user_id' => User::all()->random()->id,
+			]);
+			$purchaseOrder->expenses()->saveMany(PurchaseOrderExpense::factory()->count(2)->make());
+			$purchaseOrder->purchase_order_status_id = 2;
+			$purchaseOrder->save();
+		});
+		
+		// set purchase orders status closed
+		$purchaseOrders->where('purchase_order_status_id', 2)->random(25)->each(function ($purchaseOrder, $index1) {
+			$purchaseOrder->items->each(function ($item, $index2) use ($index1) {
+				$item->pivot->quantity_actual = $item->pivot->quantity_original;
+				$item->pivot->booklet_no = $index1 + 1;
+				$item->pivot->delivery_receipt_no = $item->pivot->booklet_no + ($index2 + 1);
+				$item->pivot->save();
+			});
+			$purchaseOrder->purchase_order_status_id = 3;
+			$purchaseOrder->save();
+		});
     }
 }

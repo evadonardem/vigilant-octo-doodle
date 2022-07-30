@@ -2,17 +2,17 @@
 
 namespace Database\Factories;
 
-use App\Models\PurchaseOrderAsssignedStaff;
+use App\Models\PurchaseOrderAssignedStaff;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class PurchaseOrderAsssignedStaffFactory extends Factory
+class PurchaseOrderAssignedStaffFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = PurchaseOrderAsssignedStaff::class;
+    protected $model = PurchaseOrderAssignedStaff::class;
 
     /**
      * Define the model's default state.

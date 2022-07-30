@@ -22,7 +22,8 @@ class PurchaseOrderExpenseFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'name' => $this->faker->word(),
+            'amount_original' => $this->faker->randomFloat(2, 0, 999),
         ];
     }
 }
