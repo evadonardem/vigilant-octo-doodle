@@ -22,8 +22,8 @@ class StoreFactory extends Factory
     public function definition()
     {
         return [
-            'code' => $this->faker->uuid,
-            'name' => $this->faker->word() . $this->faker->word()  . $this->faker->word(),
+            'code' => $this->faker->unique()->numerify('STR-#####'),
+            'name' => $this->faker->unique()->words(3, true),
             'address_line' => $this->faker->address,
         ];
     }
