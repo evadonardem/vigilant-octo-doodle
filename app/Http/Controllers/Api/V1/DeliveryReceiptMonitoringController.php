@@ -185,10 +185,10 @@ class DeliveryReceiptMonitoringController extends Controller
 					$row = [
 						'Code' => $item->code,
 						'Name' => $item->name,
-						'Qty. (Orig.)' => $item->quantity_original,
-						'Qty. (Act.)' => $item->quantity_actual,
-						'Qty. (BO)' => $item->quantity_bad_orders,
-						'Qty. (Ret.)' => $item->quantity_returns,
+						'Qty. (Orig.)' => (int)$item->quantity_original,
+						'Qty. (Act.)' => (int)$item->quantity_actual,
+						'Qty. (BO)' => (int)$item->quantity_bad_orders,
+						'Qty. (Ret.)' => (int)$item->quantity_returns,
 					];
 					fputcsv($file, $row);
 				});
@@ -222,10 +222,10 @@ class DeliveryReceiptMonitoringController extends Controller
 									'Store' => $storeName,
 									'Code' => $item->code,
 									'Name' => $item->name,
-									'Qty. (Orig.)' => $item->quantity_original,
-									'Qty. (Act.)' => $item->quantity_actual,
-									'Qty. (BO)' => $item->quantity_bad_orders,
-									'Qty. (Ret.)' => $item->quantity_returns,
+									'Qty. (Orig.)' => (int)$item->quantity_original,
+									'Qty. (Act.)' => (int)$item->quantity_actual,
+									'Qty. (BO)' => (int)$item->quantity_bad_orders,
+									'Qty. (Ret.)' => (int)$item->quantity_returns,
 								];
 								fputcsv($file, $row);
 							});
