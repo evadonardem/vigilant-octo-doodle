@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Item;
 use App\Models\PurchaseOrder;
 use App\Models\Store;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use stdClass;
 
 class DeliveryReceiptMonitoringController extends Controller
@@ -18,6 +19,9 @@ class DeliveryReceiptMonitoringController extends Controller
      */
     public function index(Request $request)
     {
+		$isGenerateCsvReport = $request->has('generate') && $request->input('generate') === 'csv';
+		$reportType = $request->has('report_type') ? $request->input('report_type') : null;
+		
         $purchaseOrdersQuery = PurchaseOrder::where('purchase_order_status_id', '=', 3)
             ->where('to', '>=', $request->input('from'))
             ->where('to', '<=', $request->input('to'));
@@ -143,16 +147,96 @@ class DeliveryReceiptMonitoringController extends Controller
         });
         $booklets = $booklets->sortBy('id')->values();
 
-        return response()->json([
-            'data' => $booklets,
-            'meta' => [
-                'search_filters' => array_merge(
-                    $request->only(['from', 'to']),
-                    ['store' => ($searchStore ? $searchStore->only('code', 'name') : null)]
-                ),
-                'summary' => $summary,
-            ]
-        ]);
+		if (!$isGenerateCsvReport) {
+			return response()->json([
+				'data' => $booklets,
+				'meta' => [
+					'search_filters' => array_merge(
+						$request->only(['from', 'to']),
+						['store' => ($searchStore ? $searchStore->only('code', 'name') : null)]
+					),
+					'summary' => $summary,
+				]
+			]);
+		}
+		
+		$filename = Str::slug('DRR ' . $request->input('from') . ' to ' . $request->input('to') . ($searchStore ? ' ' . $searchStore->code : '')) . '.csv';
+		$headers = [
+			'Content-type' => 'text/csv',
+			'Content-Disposition' => "attachment; filename=$filename",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => "0",
+		];
+        
+        if ($reportType === 'summary') {
+			$columns = [
+				'Code',
+				'Name',
+				'Qty. (Orig.)',
+				'Qty. (Act.)',
+				'Qty. (BO)',
+				'Qty. (Ret.)',
+			];
+			$callback = function() use ($columns, $summary) {
+				$file = fopen('php://output', 'w');
+				fputcsv($file, $columns);
+				$summary->each(function ($item) use ($file) {
+					$row = [
+						'Code' => $item->code,
+						'Name' => $item->name,
+						'Qty. (Orig.)' => $item->quantity_original,
+						'Qty. (Act.)' => $item->quantity_actual,
+						'Qty. (BO)' => $item->quantity_bad_orders,
+						'Qty. (Ret.)' => $item->quantity_returns,
+					];
+					fputcsv($file, $row);
+				});
+				fclose($file);
+			};
+		} else {
+			$columns = [
+				'BL No.',
+				'DR No.',
+				'Store',
+				'Code',
+				'Name',
+				'Qty. (Orig.)',
+				'Qty. (Act.)',
+				'Qty. (BO)',
+				'Qty. (Ret.)',
+			];
+			$callback = function() use ($columns, $booklets) {
+				$file = fopen('php://output', 'w');
+				fputcsv($file, $columns);
+				$booklets->each(function ($booklet) use ($file) {
+					$bookletNo = $booklet->id;
+					$booklet->deliveryReceipts->each(function ($deliveryReceipt) use ($bookletNo, $file) {
+						$deliveryReceiptNo = $deliveryReceipt->id;
+						$deliveryReceipt->stores->each(function ($store) use ($bookletNo, $deliveryReceiptNo, $file) {
+							$storeName = "({$store->code}) {$store->name}";
+							$store->items->each(function ($item) use ($bookletNo, $deliveryReceiptNo, $file, $storeName) {
+								$row = [
+									'BL No.' => $bookletNo,
+									'DR No.' => $deliveryReceiptNo,
+									'Store' => $storeName,
+									'Code' => $item->code,
+									'Name' => $item->name,
+									'Qty. (Orig.)' => $item->quantity_original,
+									'Qty. (Act.)' => $item->quantity_actual,
+									'Qty. (BO)' => $item->quantity_bad_orders,
+									'Qty. (Ret.)' => $item->quantity_returns,
+								];
+								fputcsv($file, $row);
+							});
+						});
+					});
+				});
+				fclose($file);
+			};
+		}
+
+        return response()->stream($callback, 200, $headers);
     }
 
     private function createNewDeliveryReceipt(PurchaseOrder $purchaseOrder, Item $item)

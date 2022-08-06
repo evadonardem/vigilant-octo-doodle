@@ -14,11 +14,13 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
     constructor(props) {
         super(props);
         this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
+        this.handleGenerateCsvReport = this.handleGenerateCsvReport.bind(this);
 
         this.state = {
             searchFilters: null,
             booklets: [],
             summary: [],
+            csvFilters: null,
         };
     }
 
@@ -407,6 +409,7 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
             .find(`table.${DT_DELIVERY_RECEIPT_MONITORING_SUMMARY}`)
             .DataTable();
         const data = $(e.currentTarget).serialize();
+        const csvFilters = data;
 
         axios.get(`${END_POINT}?${data}&token=${token}`)
             .then((response) => {
@@ -417,6 +420,7 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
                     searchFilters,
                     booklets,
                     summary,
+                    csvFilters,
                 });
                 table.clear();
                 table.rows.add(booklets).draw();
@@ -424,6 +428,29 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
                 tableSummary.rows.add(summary).draw();
             });
     }
+    
+    handleGenerateCsvReport(e) {
+		e.preventDefault();
+		const reportType = e.target.getAttribute('data-report-type');
+		const self = this;
+		const token = cookie.load('token');
+		const { csvFilters } = self.state;
+		axios.get(`${END_POINT}?${csvFilters}&generate=csv&report_type=${reportType}&token=${token}`, {
+			responseType: 'arraybuffer',
+		})
+		.then(response => {
+			const filename = response.headers['content-disposition'].split('filename=')[1].split('.')[0];
+			const extension = response.headers['content-disposition'].split('.')[1].split(';')[0];
+			const blob = new Blob(
+				[response.data],
+				{ type: 'text/csv' }
+			);
+			const link = document.createElement('a');
+			link.href = window.URL.createObjectURL(blob);
+			link.download = `${filename}.${extension}`;
+			link.click();
+		});
+	}
 
     render() {
         const {
@@ -479,7 +506,7 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
 										<Card.Body>
 											<div className="row">
 												<div className="col-md-12">
-													<Button className="pull-right">
+													<Button className="pull-right" onClick={this.handleGenerateCsvReport} data-report-type="full">
 														<i className="fa fa-icon fa-download"></i> CSV
 													</Button>
 												</div>
@@ -516,7 +543,7 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
 										<Card.Body>
 											<div className="row">
 												<div className="col-md-12">
-													<Button className="pull-right">
+													<Button className="pull-right" onClick={this.handleGenerateCsvReport} data-report-type="summary">
 														<i className="fa fa-icon fa-download"></i> CSV
 													</Button>
 												</div>
