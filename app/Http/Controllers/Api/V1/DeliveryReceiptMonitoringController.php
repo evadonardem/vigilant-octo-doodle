@@ -36,11 +36,12 @@ class DeliveryReceiptMonitoringController extends Controller
         $purchaseOrders = $purchaseOrdersQuery->get();
 
         $booklets = collect();
-        $purchaseOrders->each(function ($purchaseOrder) use ($booklets, $storeId) {
+        $summary = collect();
+        $purchaseOrders->each(function ($purchaseOrder) use ($booklets, $storeId, $summary) {
             $items = ($storeId)
                 ? $purchaseOrder->items()->where('purchase_order_store_items.store_id', '=', $storeId)->get()
                 : $purchaseOrder->items;
-            $items->each(function ($item) use ($booklets, $purchaseOrder) {
+            $items->each(function ($item) use ($booklets, $purchaseOrder, $summary) {
                 $booklet = $booklets->where('id', '=', $item->pivot->booklet_no)->first();
                 if ($booklet) {
                     $deliveryReceipt = $booklet->deliveryReceipts->where('id', '=', $item->pivot->delivery_receipt_no)->first();
@@ -62,6 +63,7 @@ class DeliveryReceiptMonitoringController extends Controller
                                     'quantity_returns',
                                 ])
                             );
+                            $this->populateSummary($summary, $item);
                         }
                     } else {
                         $newDeliveryReceipt = $this->createNewDeliveryReceipt($purchaseOrder, $item);
@@ -83,6 +85,7 @@ class DeliveryReceiptMonitoringController extends Controller
                         ]));
                         $newDeliveryReceipt->stores->push((object)$store->only(['id', 'code', 'name', 'items']));
                         $booklet->deliveryReceipts->push($newDeliveryReceipt);
+                        $this->populateSummary($summary, $item);
                     }
                 } else {
                     $newBooklet = new stdClass();
@@ -113,6 +116,7 @@ class DeliveryReceiptMonitoringController extends Controller
                     $newBooklet->deliveryReceipts->push($newDeliveryReceipt);
 
                     $booklets->push($newBooklet);
+                    $this->populateSummary($summary, $item);
                 }
             });
         });
@@ -145,7 +149,8 @@ class DeliveryReceiptMonitoringController extends Controller
                 'search_filters' => array_merge(
                     $request->only(['from', 'to']),
                     ['store' => ($searchStore ? $searchStore->only('code', 'name') : null)]
-                )
+                ),
+                'summary' => $summary,
             ]
         ]);
     }
@@ -158,4 +163,21 @@ class DeliveryReceiptMonitoringController extends Controller
 
         return $newDeliveryReceipt;
     }
+    
+    private function populateSummary($summary, $item) {
+		$item->quantity_original = +$item->quantity_original;
+		$item->quantity_actual = +$item->quantity_actual;
+		$item->quantity_bad_orders = +$item->quantity_bad_orders;
+		$item->quantity_returns = +$item->quantity_returns;
+		
+		$existingItem = $summary->where('code', $item->code)->first();
+		if ($existingItem) {
+			$existingItem->quantity_original += $item->quantity_original;
+			$existingItem->quantity_actual += $item->quantity_actual;
+			$existingItem->quantity_bad_orders += $item->quantity_bad_orders;
+			$existingItem->quantity_returns += $item->quantity_returns;
+		} else {
+			$summary->push($item);
+		}
+	}
 }
