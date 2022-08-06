@@ -8,6 +8,8 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderAssignedStaff;
 use App\Models\PurchaseOrderExpense;
 use App\Models\PurchaseOrderStoreItem;
+use App\Models\SalesInvoice;
+use App\Models\SalesInvoiceItem;
 use App\Models\Store;
 use App\Models\StoreItem;
 use App\Models\StoreItemPrice;
@@ -29,6 +31,7 @@ class FakeEnvironmentSeeder extends Seeder
 		// clear instances
 		DB::transaction(function () {
 			$tables = [
+				(new SalesInvoice)->getTable(),
 				(new PurchaseOrder)->getTable(),
 				(new PurchaseOrderExpense)->getTable(),
 				(new Store)->getTable(),
@@ -41,14 +44,14 @@ class FakeEnvironmentSeeder extends Seeder
 		});
 		
 		// create fake items
-		$items = Item::factory(100)->create();
+		$items = Item::factory(10)->create();
 		
 		// create fake categories;
-		$categories = Category::factory(100)->create();
+		$categories = Category::factory(10)->create();
 		
 		// create fake stores
         $stores = Store::factory()
-			->count(100)
+			->count(10)
 			->state(new Sequence(
 				fn ($sequence) => ['category_id' => $categories->random()->id],
 			))
@@ -66,6 +69,7 @@ class FakeEnvironmentSeeder extends Seeder
             ))
         ));
 
+		// create fake purchase orders
         $purchaseOrders = PurchaseOrder::factory(100)->create();
         $purchaseOrders->each(function ($purchaseOrder) use ($stores) {
 			$startDate = Carbon::now()->addDays(random_int(1, 90));
@@ -110,5 +114,44 @@ class FakeEnvironmentSeeder extends Seeder
 			$purchaseOrder->purchase_order_status_id = 3;
 			$purchaseOrder->save();
 		});
+		
+		// create fake sales invoices
+		for ($countBooklets = 4, $i = 0, $perBooklet = 25, $vatRate = 0.10715; $i < $countBooklets; $i++) {
+			$salesInvoices = SalesInvoice::factory()
+			->count($perBooklet)
+			->state(new Sequence(
+				function ($sequence) use ($categories, $i, $perBooklet, $vatRate) {
+					$startDate = Carbon::now()->addDays(random_int(1, 90));
+					$from = $startDate->format('Y-m-d');
+					$to = $startDate->addDays(random_int(1, 2))->format('Y-m-d');
+					return [
+						'booklet_no' => $i + 1,
+						'category_id' => $categories->random()->id,
+						'date_countered' => $to,
+						'from' => $from,
+						'invoice_no' => ($i * $perBooklet) + $sequence->index + 1,
+						'to' => $to,
+						'vat_rate' => $vatRate,
+					];
+				}
+			))
+			->create()
+			->each(function ($salesInvoice) use ($stores) {
+				foreach ($stores->random(3) as $store) {
+					SalesInvoiceItem::create([
+						'sales_invoice_id' => $salesInvoice->id,
+						'store_id' => $store->id,
+						'item_id' => $store->items->unique('id')->first()->id,
+						'quantity' => random_int(1, 100),
+					]);
+					SalesInvoiceItem::create([
+						'sales_invoice_id' => $salesInvoice->id,
+						'store_id' => $store->id,
+						'item_id' => $store->items->unique('id')->last()->id,
+						'quantity' => random_int(1, 100),
+					]);
+				}
+			});
+		}
     }
 }
