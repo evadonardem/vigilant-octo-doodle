@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\Item;
+use App\Models\Location;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderAssignedStaff;
 use App\Models\PurchaseOrderExpense;
@@ -37,6 +38,7 @@ class FakeEnvironmentSeeder extends Seeder
 				(new Store)->getTable(),
 				(new Item)->getTable(),
 				(new Category)->getTable(),
+				(new Location)->getTable(),
 			];
 			foreach ($tables as $table) {
 				DB::table($table)->delete();
@@ -46,14 +48,17 @@ class FakeEnvironmentSeeder extends Seeder
 		// create fake items
 		$items = Item::factory(10)->create();
 		
-		// create fake categories;
+		// create fake categories
 		$categories = Category::factory(10)->create();
+		
+		// create fake locations
+		$locations = Location::factory(5)->create();
 		
 		// create fake stores
         $stores = Store::factory()
 			->count(10)
 			->state(new Sequence(
-				fn ($sequence) => ['category_id' => $categories->random()->id],
+				fn ($sequence) => ['category_id' => $categories->random()->id, 'location_id' => $locations->random()->id],
 			))
 			->create();
 
