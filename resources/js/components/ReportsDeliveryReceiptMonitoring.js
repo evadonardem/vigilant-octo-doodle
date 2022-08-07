@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Breadcrumb, Button, Card, Form, Jumbotron } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
+import CommonDropdownSelectSingleStoreCategory from './CommonDropdownSelectSingleStoreCategory';
+import CommonDropdownSelectSingleStoreLocation from './CommonDropdownSelectSingleStoreLocation';
 
 const END_POINT = `${apiBaseUrl}/reports/delivery-receipt-monitoring`;
 const DT_DELIVERY_RECEIPT_MONITORING = `table-delivery-receipt-monitoring`;
@@ -13,14 +15,16 @@ const DT_DELIVERY_RECEIPT_MONITORING_SUMMARY = `table-delivery-receipt-monitorin
 export default class ReportsDeliveryReceiptMonitoring extends Component {
     constructor(props) {
         super(props);
+        this.handleChangeType = this.handleChangeType.bind(this);
         this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
         this.handleGenerateCsvReport = this.handleGenerateCsvReport.bind(this);
 
         this.state = {
-            searchFilters: null,
-            booklets: [],
-            summary: [],
+			booklets: [],
             csvFilters: null,
+            reportType: '',
+            searchFilters: null,
+            summary: [],
         };
     }
 
@@ -397,6 +401,19 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
             searching: false,
         });
     }
+    
+    handleChangeType(e) {
+		const self = this;
+		const reportType = e.target.value;
+		self.setState({
+			...self.state,
+			booklets: [],
+			csvFilters: null,
+			searchFilters: null,
+			summary: [],
+			reportType,
+		});
+	}
 
     handleSearchSubmit(e) {
         e.preventDefault();
@@ -454,8 +471,9 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
 
     render() {
         const {
+			booklets,
+			reportType,
             searchFilters,
-            booklets,
         } = this.state;
 
         return (
@@ -481,7 +499,33 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
                                         <Form.Label>To:</Form.Label>
                                         <Form.Control type="date" name="to"/>
                                     </Form.Group>
-                                    <CommonDropdownSelectSingleStore name="store_id"/>
+                                    <Form.Group>
+                                        <Form.Label>Select Type:</Form.Label>
+                                        <Form.Check
+											type="radio"
+											label="Store"
+											value="store"
+											checked={reportType === 'store'}
+											onClick={this.handleChangeType}/>
+										<Form.Check
+											type="radio"
+											label="Category"
+											value="category"
+											checked={reportType === 'category'}
+											onClick={this.handleChangeType}/>
+                                        <Form.Check
+											type="radio"
+											label="Location"
+											value="location"
+											checked={reportType === 'location'}
+											onClick={this.handleChangeType}/>
+                                    </Form.Group>
+                                    { reportType === 'store' && 
+										<CommonDropdownSelectSingleStore name="store_id"/> }
+									{ reportType === 'category' && 
+										<CommonDropdownSelectSingleStoreCategory name="category_id"/> }
+									{ reportType === 'location' && 
+										<CommonDropdownSelectSingleStoreLocation name="location_id"/> }
                                     <hr className="my-4"/>
                                     <Button type="submit">Generate Report</Button>
                                 </Form>
