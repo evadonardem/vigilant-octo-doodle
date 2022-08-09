@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Item;
+use App\Models\Location;
 use App\Models\PurchaseOrder;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use stdClass;
 
 class DeliveryReceiptMonitoringController extends Controller
@@ -19,31 +22,98 @@ class DeliveryReceiptMonitoringController extends Controller
      */
     public function index(Request $request)
     {
+		$filterBy = $request->has('by') ? $request->input('by') : 'store';
 		$isGenerateCsvReport = $request->has('generate') && $request->input('generate') === 'csv';
 		$reportType = $request->has('report_type') ? $request->input('report_type') : null;
+		$filenameSegment = '';
 		
         $purchaseOrdersQuery = PurchaseOrder::where('purchase_order_status_id', '=', 3)
             ->where('to', '>=', $request->input('from'))
             ->where('to', '<=', $request->input('to'));
-
+        
         $storeId = null;
         $searchStore = null;
-        if ($request->input('store_id')) {
-            $storeId = $request->input('store_id');
-            $searchStore = Store::findOrFail($storeId);
-            $purchaseOrdersQuery
-                ->whereHas('items', function ($query) use ($storeId) {
-                    $query->where('purchase_order_store_items.store_id', '=', $storeId);
-                });
-        }
+        
+        $categoryId = null;
+        $searchCategory = null;
+        
+        $locationId = null;
+        $searchLocation = null;
+            
+        if ($filterBy === 'store') {
+			if ($request->input('store_id')) {
+				$storeId = $request->input('store_id');
+				$searchStore = Store::findOrFail($storeId);
+				$purchaseOrdersQuery
+					->whereHas('items', function ($query) use ($storeId) {
+						$query->where('purchase_order_store_items.store_id', '=', $storeId);
+					})
+					->with(['stores' => function ($query) use ($storeId) {
+						$query->where('store_id', '=', $storeId);
+					}]);
+				$filenameSegment = "{$searchStore->code} {$searchStore->name}";
+			} else {
+				$purchaseOrdersQuery
+					->whereHas('stores')
+					->with('stores');
+				$filenameSegment = 'All Stores';
+			}
+		} elseif ($filterBy === 'category') {
+			if ($request->input('category_id')) {
+				$categoryId = $request->input('category_id');
+				$searchCategory = Category::findOrFail($categoryId);
+				$purchaseOrdersQuery
+					->whereHas('stores.category', function ($query) use ($categoryId) {
+						$query->where('id', '=', $categoryId);
+					})
+					->with(['stores' => function ($query) use ($categoryId) {
+						$query->where('category_id', '=', $categoryId);
+					}]);
+				$filenameSegment = $searchCategory->name;
+			} else {
+				$purchaseOrdersQuery
+					->whereHas('stores.category')
+					->with(['stores' => function ($query) {
+						$query->whereNotNull('category_id');
+					}]);
+				$filenameSegment = 'All Categories';
+			}
+		} else {
+			if ($filterBy === 'location') {
+				if ($request->input('location_id')) {
+					$locationId = $request->input('location_id');
+					$searchLocation = Location::findOrFail($locationId);	
+					$purchaseOrdersQuery
+						->whereHas('stores.location', function ($query) use ($locationId) {
+							$query->where('id', '=', $locationId);
+						})
+						->with(['stores' => function ($query) use ($locationId) {
+							$query->where('location_id', '=', $locationId);
+						}]);
+					$filenameSegment = $searchLocation->name;
+				} else {
+					$purchaseOrdersQuery
+						->whereHas('stores.location')
+						->with(['stores' => function ($query) {
+							$query->whereNotNull('location_id');
+						}]);
+					$filenameSegment = 'All Locations';
+				}
+			}
+		}
 
         $purchaseOrders = $purchaseOrdersQuery->get();
+            
+        $allStores = $purchaseOrders->map(function ($purchaseOrder) {
+			return $purchaseOrder->stores;
+		})->flatten(1)->values();
+		$storeIds = $allStores->pluck('id')->unique()->toArray();
 
         $booklets = collect();
         $summary = collect();
-        $purchaseOrders->each(function ($purchaseOrder) use ($booklets, $storeId, $summary) {
-            $items = ($storeId)
-                ? $purchaseOrder->items()->where('purchase_order_store_items.store_id', '=', $storeId)->get()
+        $purchaseOrders->each(function ($purchaseOrder) use ($booklets, $storeIds, $summary) {
+            $items = !empty($storeIds)
+                ? $purchaseOrder->items()->whereIn('purchase_order_store_items.store_id', $storeIds)->get()
                 : $purchaseOrder->items;
             $items->each(function ($item) use ($booklets, $purchaseOrder, $summary) {
                 $booklet = $booklets->where('id', '=', $item->pivot->booklet_no)->first();
@@ -73,6 +143,7 @@ class DeliveryReceiptMonitoringController extends Controller
                         $newDeliveryReceipt = $this->createNewDeliveryReceipt($purchaseOrder, $item);
                         $newDeliveryReceipt->stores = collect();
                         $store = Store::findOrFail($item->pivot->store_id);
+                        $store->loadMissing(['category', 'location']);
                         $item->quantity_original = $item->pivot->quantity_original;
                         $item->quantity_actual = $item->pivot->quantity_actual;
                         $item->quantity_bad_orders = $item->pivot->quantity_bad_orders;
@@ -87,7 +158,7 @@ class DeliveryReceiptMonitoringController extends Controller
                             'quantity_bad_orders',
                             'quantity_returns',
                         ]));
-                        $newDeliveryReceipt->stores->push((object)$store->only(['id', 'code', 'name', 'items']));
+                        $newDeliveryReceipt->stores->push((object)$store->only(['id', 'code', 'name', 'category', 'location', 'items']));
                         $booklet->deliveryReceipts->push($newDeliveryReceipt);
                         $this->populateSummary($summary, $item);
                     }
@@ -98,6 +169,7 @@ class DeliveryReceiptMonitoringController extends Controller
                     $newDeliveryReceipt = $this->createNewDeliveryReceipt($purchaseOrder, $item);
 
                     $store = Store::findOrFail($item->pivot->store_id);
+                    $store->loadMissing(['category', 'location']);
 
                     $item->quantity_original = $item->pivot->quantity_original;
                     $item->quantity_actual = $item->pivot->quantity_actual;
@@ -114,7 +186,7 @@ class DeliveryReceiptMonitoringController extends Controller
                         'quantity_returns',
                     ]));
                     $newDeliveryReceipt->stores = collect();
-                    $newDeliveryReceipt->stores->push((object)$store->only(['id', 'code', 'name', 'items']));
+                    $newDeliveryReceipt->stores->push((object)$store->only(['id', 'code', 'name', 'category', 'location', 'items']));
 
                     $newBooklet->deliveryReceipts = collect();
                     $newBooklet->deliveryReceipts->push($newDeliveryReceipt);
@@ -152,15 +224,20 @@ class DeliveryReceiptMonitoringController extends Controller
 				'data' => $booklets,
 				'meta' => [
 					'search_filters' => array_merge(
-						$request->only(['from', 'to']),
-						['store' => ($searchStore ? $searchStore->only('code', 'name') : null)]
+						$request->only(['from', 'to', 'by']),
+						[
+							'store' => ($searchStore ? $searchStore->only('code', 'name') : null),
+							'category' => ($searchCategory ? $searchCategory->only('name') : null),
+							'location' => ($searchLocation ? $searchLocation->only('name') : null),
+						]
 					),
 					'summary' => $summary,
 				]
 			]);
 		}
+				
+		$filename = Str::slug('DRR ' . $reportType . ' ' . $filenameSegment . ' ' . $request->input('from') . ' to ' . $request->input('to')) . '.csv';
 		
-		$filename = Str::slug('DRR ' . $request->input('from') . ' to ' . $request->input('to') . ($searchStore ? ' ' . $searchStore->code : '')) . '.csv';
 		$headers = [
 			'Content-type' => 'text/csv',
 			'Content-Disposition' => "attachment; filename=$filename",

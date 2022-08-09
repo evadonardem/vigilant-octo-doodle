@@ -22,7 +22,7 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
         this.state = {
 			booklets: [],
             csvFilters: null,
-            reportType: '',
+            reportType: 'store',
             searchFilters: null,
             summary: [],
         };
@@ -134,7 +134,8 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
         const formatDeliveryReceiptDetails = (d) => {
 
             const stores = d.stores.map((store) => {
-                return `<p class="mb-0">${store.code} ${store.name}</p>
+                return `<p class="mb-0">${store.code} ${store.name}<br/>
+					${store.category ? `Category: ${store.category.name}` : ''} ${store.location ? `Location: ${store.location.name}` : ''}</p>
                     <table class="table table-striped ${DT_DELIVERY_RECEIPT_MONITORING_DELIVERY_RECEIPT_STORES}-${store.id}" style="width: 100%">
                         <thead>
                             <tr>
@@ -500,21 +501,24 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
                                         <Form.Control type="date" name="to"/>
                                     </Form.Group>
                                     <Form.Group>
-                                        <Form.Label>Select Type:</Form.Label>
+                                        <Form.Label>By:</Form.Label>
                                         <Form.Check
 											type="radio"
+											name="by"
 											label="Store"
 											value="store"
 											checked={reportType === 'store'}
 											onClick={this.handleChangeType}/>
 										<Form.Check
 											type="radio"
+											name="by"
 											label="Category"
 											value="category"
 											checked={reportType === 'category'}
 											onClick={this.handleChangeType}/>
                                         <Form.Check
 											type="radio"
+											name="by"
 											label="Location"
 											value="location"
 											checked={reportType === 'location'}
@@ -538,7 +542,13 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
                                 searchFilters &&
                                 <Card.Header>
                                     <h4>Delivery Receipt Monitoring</h4>
-                                    {searchFilters.store ? `(${searchFilters.store.code}) ${searchFilters.store.name}` : `All Stores`} | From: {searchFilters.from} To: {searchFilters.to}
+                                    {searchFilters.by === 'store' && searchFilters.store && `Store: (${searchFilters.store.code}) ${searchFilters.store.name}`}
+                                    {searchFilters.by === 'store' && !searchFilters.store && 'All Stores'}
+                                    {searchFilters.by === 'category' && searchFilters.category && `Category: ${searchFilters.category.name}`}
+                                    {searchFilters.by === 'category' && !searchFilters.category && 'All Categories'}
+                                    {searchFilters.by === 'location' && searchFilters.location && `Location: ${searchFilters.location.name}`}
+                                    {searchFilters.by === 'location' && !searchFilters.location && 'All Locations'}
+                                    &nbsp;| From: {searchFilters.from} To: {searchFilters.to}
                                 </Card.Header>
                             }
                             <Card.Body>
