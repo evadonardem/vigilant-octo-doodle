@@ -25,6 +25,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
         const self = this;
         const token = cookie.load('token');
         const { booklets } = self.state;
+        const currencyFormat = $.fn.dataTable.render.number(',', '.', 2, 'Php').display;
 
         self.setState({
             ...self.state,
@@ -41,14 +42,29 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                     defaultContent: '<i class="fa fa-lg fa-chevron-circle-down"></i>'
                 },
                 { data: 'id' },
-                { data: 'total_sales' },
-                { data: 'vat_amount' },
-                { data: 'total_sales_less_vat' },
-                { data: 'total_amount_due' }
+                {
+					data: 'total_sales',
+					render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+				},
+                {
+					data: 'vat_amount',
+					render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+				},
+                {
+					data: 'total_sales_less_vat',
+					render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+				},
+                {
+					data: 'total_amount_due',
+					render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+				}
             ],
-            ordering: false,
-            paging: false,
-            searching: false,
+            columnDefs: [
+				{
+					targets: [2, 3, 4, 5],
+					className: 'dt-right',
+				},
+            ],
             footerCallback: function (row, data, start, end, display) {
                 const api = this.api();
 
@@ -57,52 +73,24 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                         ? i.replace(/[\$,]/g, '')*1
                         : typeof i === 'number' ? i : 0;
                 };
-
-                const totalSales = api
-                    .column(2)
-                    .data()
-                    .reduce(
-                        function (a, b) {
-                            return intVal(a) + intVal(b);
-                        },
-                        0
-                    );
-
-                const vatAmount = api
-                    .column(3)
-                    .data()
-                    .reduce(
-                        function (a, b) {
-                            return intVal(a) + intVal(b);
-                        },
-                        0
-                    );
-
-                const totalSalesLessVat = api
-                    .column(4)
-                    .data()
-                    .reduce(
-                        function (a, b) {
-                            return intVal(a) + intVal(b);
-                        },
-                        0
-                    );
-
-                const totalAmountDue = api
-                    .column(5)
-                    .data()
-                    .reduce(
-                        function (a, b) {
-                            return intVal(a) + intVal(b);
-                        },
-                        0
-                    );
-
-                $(api.column(2).footer()).html(totalSales.toFixed(2));
-                $(api.column(3).footer()).html(vatAmount.toFixed(2));
-                $(api.column(4).footer()).html(totalSalesLessVat.toFixed(2));
-                $(api.column(5).footer()).html(totalAmountDue.toFixed(2));
-            }
+                
+                const offset = 2;
+                for (let i = 0; i < 4; i++) {
+					const totalAmount = api
+						.column(offset + i)
+						.data()
+						.reduce(
+							function (a, b) {
+								return intVal(a) + intVal(b);
+							},
+							0
+						);
+					$(api.column(offset + i).footer()).html(currencyFormat(totalAmount));
+				}
+            },
+            ordering: false,
+            paging: false,
+            searching: false,
         });
 
         const format = (d) => {
@@ -126,6 +114,18 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                             </tr>
                         </thead>
                         <tbody></tbody>
+                        <tfoot>
+							<tr>
+								<th scope="col"></th>
+								<th scope="col"></th>
+								<th scope="col"></th>
+								<th scope="col">Total:</th>
+								<th scope="col"></th>
+								<th scope="col"></th>
+								<th scope="col"></th>
+								<th scope="col"></th>
+							</tr>
+						</tfoot>
                     </table>
                 </div>
             </div>`;
@@ -153,6 +153,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                 if (row.child.isShown()) {
                     const data = row.data();
                     const { invoices } = data;
+                    
                     tr.next().find(`table.${DT_SALES_INVOICES_MONITORING_INVOICES}`).DataTable({
                         data: invoices,
                         buttons: [],
@@ -167,30 +168,51 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                             { data: 'from' },
                             { data: 'to' },
                             {
-                                'data': null,
-                                'render': function (data, type, row) {
-                                    return parseFloat(row.total_sales).toFixed(2);
-                                }
+                                data: 'total_sales',
+                                render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
                             },
                             {
-                                'data': null,
-                                'render': function (data, type, row) {
-                                    return parseFloat(row.vat_amount).toFixed(2);
-                                }
+                                data: 'vat_amount',
+                                render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
                             },
                             {
-                                'data': null,
-                                'render': function (data, type, row) {
-                                    return parseFloat(row.total_sales_less_vat).toFixed(2);
-                                }
+                                data: 'total_sales_less_vat',
+                                render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
                             },
                             {
-                                'data': null,
-                                'render': function (data, type, row) {
-                                    return parseFloat(row.total_amount_due).toFixed(2);
-                                }
+                                data: 'total_amount_due',
+                                render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
                             },
                         ],
+                        columnDefs: [
+							{
+								targets: [4, 5, 6, 7],
+								className: 'dt-right',
+							},
+						],
+						footerCallback: function (row, data, start, end, display) {
+							const api = this.api();
+
+							const intVal = function ( i ) {
+								return typeof i === 'string'
+									? i.replace(/[\$,]/g, '')*1
+									: typeof i === 'number' ? i : 0;
+							};
+							
+							const offset = 4;
+							for (let i = 0; i < 4; i++) {
+								const totalAmount = api
+									.column(offset + i)
+									.data()
+									.reduce(
+										function (a, b) {
+											return intVal(a) + intVal(b);
+										},
+										0
+									);
+								$(api.column(offset + i).footer()).html(currencyFormat(totalAmount));
+							}
+						},
                         ordering: false,
                         paging: false,
                         searching: false,
