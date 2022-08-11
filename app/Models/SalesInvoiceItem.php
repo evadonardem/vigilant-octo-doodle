@@ -41,10 +41,10 @@ class SalesInvoiceItem extends Model
     public function getPriceAttribute()
     {
         $itemId = $this->item->id;
-        $item = $this->store->items()
+        $item = $this->store ? $this->store->items()
             ->where('item_id', $itemId)
             ->where('effectivity_date', '<=', $this->salesInvoice->from)
-            ->first();
+            ->first() : null;
 
         return $item ? $item->pivot->amount : 0.00;
     }

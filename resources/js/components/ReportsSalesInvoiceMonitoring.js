@@ -234,20 +234,20 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                 { data: 'code' },
                 { data: 'name' },
                 {
-					data: 'quantity_original',
-					render: $.fn.dataTable.render.number(','),
+					data: 'total_sales',
+					render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
 				},
                 {
-					data: 'quantity_actual',
-					render: $.fn.dataTable.render.number(','),
+					data: 'vat_amount',
+					render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
 				},
                 {
-					data: 'quantity_bad_orders',
-					render: $.fn.dataTable.render.number(','),
+					data: 'total_sales_less_vat',
+					render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
 				},
                 {
-					data: 'quantity_returns',
-					render: $.fn.dataTable.render.number(','),
+					data: 'total_amount_due',
+					render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
 				},
             ],
             columnDefs: [
@@ -325,7 +325,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                 table.clear();
                 table.rows.add(booklets).draw();
                 tableSummary.clear();
-                tableSummry.rows.add(summary).draw();
+                tableSummary.rows.add(summary).draw();
             });
     }
     
