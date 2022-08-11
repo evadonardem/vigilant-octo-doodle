@@ -8,6 +8,7 @@ import CommonDropdownSelectSingleStoreLocation from './CommonDropdownSelectSingl
 const END_POINT = `${apiBaseUrl}/reports/sales-invoices-monitoring`;
 const DT_SALES_INVOICES_MONITORING = `table-sales-invoices-monitoring`;
 const DT_SALES_INVOICES_MONITORING_INVOICES = `table-sales-invoices-monitoring-invoices`;
+const DT_SALES_INVOICES_MONITORING_INVOICE_ITEMS = `table-sales-invoices-monitoring-invoice-items`;
 const DT_SALES_INVOICES_MONITORING_SUMMARY = `table-sales-invoices-monitoring-summary`;
 
 export default class ReportsSalesInvoiceMonitoring extends Component {
@@ -32,6 +33,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
         const token = cookie.load('token');
         const { booklets, summary } = self.state;
         const currencyFormat = $.fn.dataTable.render.number(',', '.', 2, 'Php').display;
+        const numberFormat = $.fn.dataTable.render.number(',').display;
 
         self.setState({
             ...self.state,
@@ -109,6 +111,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                     <table class="table table-striped ${DT_SALES_INVOICES_MONITORING_INVOICES}" style="width: 100%">
                         <thead>
                             <tr>
+								<th scope="col"></th>
                                 <th scope="col">Invoice No.</th>
                                 <th scope="col">Sold To</th>
                                 <th scope="col">From</th>
@@ -122,6 +125,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                         <tbody></tbody>
                         <tfoot>
 							<tr>
+								<th scope="col"></th>
 								<th scope="col"></th>
 								<th scope="col"></th>
 								<th scope="col"></th>
@@ -150,20 +154,24 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                 $(this).find('i').addClass('fa-chevron-circle-down');
                 row.child.hide();
                 tr.removeClass('shown');
-            }
-            else {
+            } else {
                 $(this).find('i').removeClass('fa-chevron-circle-down');
                 $(this).find('i').addClass('fa-chevron-circle-up');
                 row.child( format(row.data()) ).show();
                 tr.addClass('shown');
                 if (row.child.isShown()) {
                     const data = row.data();
-                    const { invoices } = data;
+                    const { invoices } = data;      
                     
                     tr.next().find(`table.${DT_SALES_INVOICES_MONITORING_INVOICES}`).DataTable({
                         data: invoices,
                         buttons: [],
                         columns: [
+							{
+								className: 'invoice-details-control text-center',
+								data: null,
+								defaultContent: '<i class="fa fa-lg fa-chevron-circle-down"></i>'
+							},
                             { data: 'invoice_no' },
                             {
                                 'data': null,
@@ -192,7 +200,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                         ],
                         columnDefs: [
 							{
-								targets: [4, 5, 6, 7],
+								targets: [5, 6, 7, 8],
 								className: 'dt-right',
 							},
 						],
@@ -205,7 +213,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
 									: typeof i === 'number' ? i : 0;
 							};
 							
-							const offset = 4;
+							const offset = 5;
 							for (let i = 0; i < 4; i++) {
 								const totalAmount = api
 									.column(offset + i)
@@ -223,10 +231,123 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                         paging: false,
                         searching: false,
                     });
+                
+					const formatInvoiceItems = (d) => {
+						return `<div class="card">
+							<div class="card-header">
+								Invoice No. ${d.invoice_no}<br/>
+								<span class="badge badge-secondary">Invoice Items: ${d.items.length}</span>
+							</div>
+							<div class="card-body">
+								<table class="table table-striped ${DT_SALES_INVOICES_MONITORING_INVOICE_ITEMS}" style="width: 100%">
+									<thead>
+										<tr>
+											<th scope="col">Store</th>
+											<th scope="col">Location</th>
+											<th scope="col">Item</th>
+											<th scope="col">Quantity</th>
+											<th scope="col">Price</th>
+											<th scope="col">Total Amount</th>
+										</tr>
+									</thead>
+									<tbody></tbody>
+									<tfoot>
+										<tr>
+											<th scope="col"></th>
+											<th scope="col"></th>
+											<th scope="col">Total:</th>
+											<th scope="col"></th>
+											<th scope="col"></th>
+											<th scope="col"></th>
+										</tr>
+									</tfoot>
+								</table>
+							</div>
+						</div>`;
+					};
+					$('tbody', $(`.${DT_SALES_INVOICES_MONITORING_INVOICES}`)).on('click', 'td.invoice-details-control', function () {
+						const refDataTable = $('.data-table-wrapper')
+							.find(`table.${DT_SALES_INVOICES_MONITORING_INVOICES}`)
+							.DataTable();
+						const tr = $(this).closest('tr');
+						const row = refDataTable.row( tr );
+						
+						if ( row.child.isShown() ) {
+							$(this).find('i').removeClass('fa-chevron-circle-up');
+							$(this).find('i').addClass('fa-chevron-circle-down');
+							row.child.hide();
+							tr.removeClass('shown');
+						} else {
+							$(this).find('i').removeClass('fa-chevron-circle-down');
+							$(this).find('i').addClass('fa-chevron-circle-up');
+							row.child( formatInvoiceItems(row.data()) ).show();
+							tr.addClass('shown');
+							
+							if (row.child.isShown()) {
+								const data = row.data();
+								const { items } = data;
+								
+								tr.next().find(`table.${DT_SALES_INVOICES_MONITORING_INVOICE_ITEMS}`).DataTable({
+									data: items,
+									buttons: [],
+									columns: [
+										{ data: 'store.name' },
+										{ data: 'store.location.name' },
+										{ data: 'item.code' },
+										{
+											data: 'quantity',
+											render: $.fn.dataTable.render.number(','),
+										},
+										{
+											data: 'price',
+											render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+										},
+										{
+											data: 'total_amount',
+											render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+										},
+									],
+									columnDefs: [
+										{
+											targets: [3, 4, 5],
+											className: 'dt-right',
+										},
+									],
+									footerCallback: function (row, data, start, end, display) {
+										const api = this.api();
+
+										const intVal = function ( i ) {
+											return typeof i === 'string'
+												? i.replace(/[\$,]/g, '')*1
+												: typeof i === 'number' ? i : 0;
+										};
+										
+										const offset = 3;
+										for (let i = 0; i < 3; i++) {
+											const totalAmount = api
+												.column(offset + i)
+												.data()
+												.reduce(
+													function (a, b) {
+														return intVal(a) + intVal(b);
+													},
+													0
+												);
+											$(api.column(offset + i).footer())
+												.html(i == 0 ? numberFormat(totalAmount) : currencyFormat(totalAmount));
+										}
+									},
+									ordering: false,
+									paging: false,
+									searching: false,
+								});
+							}
+						}
+					});
                 }
             }
         });
-        
+		
         $(`.${DT_SALES_INVOICES_MONITORING_SUMMARY}`).DataTable({
             data: summary,
             buttons: [],
