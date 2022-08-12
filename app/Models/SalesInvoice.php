@@ -40,7 +40,7 @@ class SalesInvoice extends Model
 
     public function getTotalSalesAttribute()
     {
-        return round($this->totalSales, 2);
+        return $this->totalSales;
     }
 
     public function setTotalSalesAttribute($totalSales)
@@ -50,16 +50,16 @@ class SalesInvoice extends Model
 
     public function getVatAmountAttribute()
     {
-        return round($this->total_sales * $this->vat_rate, 2);
+        return $this->total_sales * $this->vat_rate;
     }
 
     public function getTotalSalesLessVatAttribute()
     {
-        return round($this->total_sales - $this->vat_amount, 2);
+        return $this->total_sales - $this->vat_amount;
     }
 
     public function getTotalAmountDueAttribute()
     {
-        return round($this->total_sales_less_vat + $this->vat_amount, 2);
+        return $this->total_sales_less_vat + $this->vat_amount;
     }
 }
