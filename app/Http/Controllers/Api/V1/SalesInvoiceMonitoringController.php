@@ -203,41 +203,46 @@ class SalesInvoiceMonitoringController extends Controller
 		} else {
 			$columns = [
 				'BL No.',
-				'DR No.',
+				'Invoice No.',
 				'Store',
-				'Code',
-				'Name',
-				'Qty. (Orig.)',
-				'Qty. (Act.)',
-				'Qty. (BO)',
-				'Qty. (Ret.)',
+				'Location',
+				'Item',
+				'Qty.',
+				'Price',
+				'Total Sales',
+				'Less VAT',
+				'Amt. Net less VAT',
+				'Total Amt. Due',
 			];
 			$callback = function() use ($columns, $booklets) {
 				$file = fopen('php://output', 'w');
 				fputcsv($file, $columns);
-				/*$booklets->each(function ($booklet) use ($file) {
+				$booklets->each(function ($booklet) use ($file) {
 					$bookletNo = $booklet->id;
-					$booklet->deliveryReceipts->each(function ($deliveryReceipt) use ($bookletNo, $file) {
-						$deliveryReceiptNo = $deliveryReceipt->id;
-						$deliveryReceipt->stores->each(function ($store) use ($bookletNo, $deliveryReceiptNo, $file) {
-							$storeName = "({$store->code}) {$store->name}";
-							$store->items->each(function ($item) use ($bookletNo, $deliveryReceiptNo, $file, $storeName) {
-								$row = [
-									'BL No.' => $bookletNo,
-									'DR No.' => $deliveryReceiptNo,
-									'Store' => $storeName,
-									'Code' => $item->code,
-									'Name' => $item->name,
-									'Qty. (Orig.)' => (int)$item->quantity_original,
-									'Qty. (Act.)' => (int)$item->quantity_actual,
-									'Qty. (BO)' => (int)$item->quantity_bad_orders,
-									'Qty. (Ret.)' => (int)$item->quantity_returns,
-								];
-								fputcsv($file, $row);
-							});
+					$booklet->invoices->each(function ($invoice) use ($bookletNo, $file) {
+						$invoiceNo = $invoice->invoice_no;
+						$invoice->items->each(function ($invoiceItem) use ($bookletNo, $invoice, $invoiceNo, $file) {
+							$storeName = "({$invoiceItem->store->code}) {$invoiceItem->store->name}";
+							$locationName = $invoiceItem->store->location->name;
+							$itemName = "({$invoiceItem->item->code}) {$invoiceItem->item->name}";
+							$invoice->total_sales = $invoiceItem->total_amount;
+							$row = [
+								'BL No.' => $bookletNo,
+								'Invoice No.' => $invoiceNo,
+								'Store' => $storeName,
+								'Location' => $locationName,
+								'Item' => $itemName,
+								'Qty.' => $invoiceItem->quantity,
+								'Price' => $invoiceItem->price,
+								'Total Sales' => $invoice->total_sales,
+								'Less VAT' => $invoice->vat_amount,
+								'Amt. Net less VAT' => $invoice->total_sales_less_vat,
+								'Total Amt. Due' => $invoice->total_amount_due,
+							];
+							fputcsv($file, $row);
 						});
 					});
-				});*/
+				});
 				fclose($file);
 			};
 		}
