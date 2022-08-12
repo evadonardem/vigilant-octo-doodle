@@ -42,15 +42,20 @@ class SalesInvoiceMonitoringController extends Controller
 			$storeId = $request->input('store_id');
 			$searchStore = Store::findOrFail($storeId);
 			$salesInvoicesQuery
-				->whereHas('items.store', function ($query) use ($storeId) {
-					$query->where('id', '=', $storeId);
+				->whereHas('items', function ($query) use ($storeId) {
+					$query->where('store_id', '=', $storeId);
 				})
 				->with('category')
-				->with(['items.store' => function ($query) use ($storeId) {
+				->with(['items' => function ($query) use ($storeId) {
 					$query
-						->where('id', '=', $storeId)
-						->with(['category', 'location']);
+						->where('store_id', '=', $storeId)
+						->with(['store' => function ($query) use ($storeId) {
+							$query
+								->where('id', '=', $storeId)
+								->with(['category', 'location']);
+						}]);
 				}]);
+			$filenameSegment = "{$searchStore->code} {$searchStore->name}";
 		} elseif ($filterBy === 'category' && $request->input('category_id')) {
 			$categoryId = $request->input('category_id');
 			$searchCategory = Category::findOrFail($categoryId);
@@ -62,19 +67,34 @@ class SalesInvoiceMonitoringController extends Controller
 				->with(['items.store' => function ($query) use ($categoryId) {
 					$query->with(['category', 'location']);
 				}]);
+			$filenameSegment = $searchCategory->name;
 		} elseif ($filterBy === 'location' && $request->input('location_id')) {
 			$locationId = $request->input('location_id');
 			$searchLocation = Location::findOrFail($locationId);
 			$salesInvoicesQuery
-				->whereHas('items.store', function ($query) use ($locationId) {
-					$query->where('location_id', '=', $locationId);
+				->whereHas('items', function ($query) use ($locationId) {
+					$query->whereHas('store', function ($query) use ($locationId) {
+						$query->where('location_id', '=', $locationId);
+					});
 				})
 				->with('category')
-				->with(['items.store' => function ($query) use ($locationId) {
+				->with(['items' => function ($query) use ($locationId) {
 					$query
-						->where('location_id', '=', $locationId)
-						->with('category');
+						->whereHas('store.location', function ($query) use ($locationId) {
+							$query->where('id', '=', $locationId);
+						})
+						->with(['store' => function ($query) use ($locationId) {
+							$query
+								->where('location_id', '=', $locationId)
+								->with([
+									'category',
+									'location' => function ($query) use ($locationId) {
+										$query->where('id', '=', $locationId);
+									},
+								]);
+						}]);
 				}]);
+			$filenameSegment = $searchLocation->name;
 		} else {
 			$salesInvoicesQuery->with([
 				'category',
@@ -82,9 +102,19 @@ class SalesInvoiceMonitoringController extends Controller
 					$query->with(['category', 'location']);
 				},
 			]);
+			if ($filterBy === 'store') {
+				$filenameSegment = 'All Stores';
+			} elseif ($filterBy === 'category') {
+				$filenameSegment = 'All Categories';
+			} else {
+				if ($filterBy === 'lcation') {
+					$filenameSegment = 'All Locations';
+				}
+			}
 		}
 
         $salesInvoices = $salesInvoicesQuery->get();
+        
         foreach ($salesInvoices as $salesInvoice) {
             $salesInvoice->total_sales = $salesInvoice->items->sum('total_amount');
         }
@@ -123,8 +153,12 @@ class SalesInvoiceMonitoringController extends Controller
 				'data' => $booklets,
 				'meta' => [
 					'search_filters' => array_merge(
-						$request->only(['from', 'to']),
-						['store' => ($searchCategory ? $searchCategory->only('name') : null)]
+						$request->only(['from', 'to', 'by']),
+						[
+							'store' => ($searchStore ? $searchStore->only('code', 'name') : null),
+							'category' => ($searchCategory ? $searchCategory->only('name') : null),
+							'location' => ($searchLocation ? $searchLocation->only('name') : null),
+						]
 					),
 					'summary' => $summary,
 				]

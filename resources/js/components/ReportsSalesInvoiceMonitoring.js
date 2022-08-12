@@ -542,7 +542,13 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                 searchFilters &&
                                 <Card.Header>
                                     <h4>Sales Invoice Monitoring</h4>
-                                    {searchFilters.store ? `${searchFilters.store.name}` : `All Stores`} | From: {searchFilters.from} To: {searchFilters.to}
+                                    {searchFilters.by === 'store' && searchFilters.store && `Store: (${searchFilters.store.code}) ${searchFilters.store.name}`}
+                                    {searchFilters.by === 'store' && !searchFilters.store && 'All Stores'}
+                                    {searchFilters.by === 'category' && searchFilters.category && `Category: ${searchFilters.category.name}`}
+                                    {searchFilters.by === 'category' && !searchFilters.category && 'All Categories'}
+                                    {searchFilters.by === 'location' && searchFilters.location && `Location: ${searchFilters.location.name}`}
+                                    {searchFilters.by === 'location' && !searchFilters.location && 'All Locations'}
+                                    &nbsp;| From: {searchFilters.from} To: {searchFilters.to}
                                 </Card.Header>
                             }
                             <Card.Body>
