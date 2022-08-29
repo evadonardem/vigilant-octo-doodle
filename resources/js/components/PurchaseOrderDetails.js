@@ -423,7 +423,7 @@ export default class PurchaseOrderDetails extends Component {
                             {
                                 'data': null,
                                 'render': function (data, type, row) {
-                                    if (+data.purchase_order_status.id === 1) {
+                                    if (+data.purchase_order_status.id === 1 || +data.purchase_order_status.id === 2) {
                                         const deleteBtn = `<a
                                             href="#"
                                             data-purchase-order-id=${data.pivot.purchase_order_id}
