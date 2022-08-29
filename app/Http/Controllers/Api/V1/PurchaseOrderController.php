@@ -415,7 +415,7 @@ class PurchaseOrderController extends Controller
      */
     public function destroyPurchaseOrderStore(PurchaseOrder $purchaseOrder, Store $store)
     {
-        if ($purchaseOrder->status()->whereIn('code', ['approved', 'closed'])->count() > 0) {
+        if ($purchaseOrder->status()->whereIn('code', ['closed'])->count() > 0) {
             abort(422, 'Cannot delete store for purchase order under ' . $purchaseOrder->status->name . ' status.');
         }
 
