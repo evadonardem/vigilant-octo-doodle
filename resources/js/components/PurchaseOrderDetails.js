@@ -160,7 +160,7 @@ export default class PurchaseOrderDetails extends Component {
                 {
                     'data': null,
                     'render': function (data, type, row) {
-                        if (+data.purchase_order_status.id === 1) {
+                        if (+data.purchase_order_status.id === 1 || +data.purchase_order_status.id === 2) {
                             const editBtn = `<a
                                 href="#/purchase-order/${data.pivot.purchase_order_id}/store-request/${data.pivot.store_id}"
                                 class="btn btn-primary">
@@ -423,7 +423,7 @@ export default class PurchaseOrderDetails extends Component {
                             {
                                 'data': null,
                                 'render': function (data, type, row) {
-                                    if (+data.purchase_order_status.id === 1) {
+                                    if (+data.purchase_order_status.id === 1 || +data.purchase_order_status.id === 2) {
                                         const deleteBtn = `<a
                                             href="#"
                                             data-purchase-order-id=${data.pivot.purchase_order_id}
@@ -1221,7 +1221,7 @@ export default class PurchaseOrderDetails extends Component {
                                             <tbody></tbody>
                                         </table>
                                     </Card.Body>
-                                    { purchaseOrder.status.id  === 1 &&
+                                    { (purchaseOrder.status.id  === 1 || purchaseOrder.status.id  === 2) &&
                                         <Card.Footer>
                                             <div className='pull-right'>
                                                 <Link to={`/purchase-order/${purchaseOrder.id}/store-request`}>
