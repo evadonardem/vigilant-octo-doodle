@@ -344,12 +344,12 @@ class PurchaseOrderController extends Controller
                                 $query
                                     ->where(function ($query) {
                                         $query
-                                            ->where('quantity_actual', '<=', 0)
+                                            ->where('quantity_actual', '<', 0)
                                             ->orWhereNull('quantity_actual');
                                     })
                                     ->where(function ($query) {
                                         $query
-                                            ->where('quantity_returns', '<=', 0)
+                                            ->where('quantity_returns', '<', 0)
                                             ->orWhereNull('quantity_returns');
                                     });
                             })
