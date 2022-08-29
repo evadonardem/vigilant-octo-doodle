@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Breadcrumb, Button, Card, Form, Jumbotron } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
+import CommonDropdownSelectSingleStoreCategory from './CommonDropdownSelectSingleStoreCategory';
+import CommonDropdownSelectSingleStoreLocation from './CommonDropdownSelectSingleStoreLocation';
 
 const END_POINT = `${apiBaseUrl}/reports/item-sales-monitoring`;
 
@@ -83,8 +85,36 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                                         <Form.Label>To:</Form.Label>
                                         <Form.Control type="month" name="to"/>
                                     </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>By:</Form.Label>
+                                        <Form.Check
+											type="radio"
+											name="by"
+											label="Store"
+											value="store"
+											checked={reportType === 'store'}
+											onClick={this.handleChangeType}/>
+										<Form.Check
+											type="radio"
+											name="by"
+											label="Category"
+											value="category"
+											checked={reportType === 'category'}
+											onClick={this.handleChangeType}/>
+                                        <Form.Check
+											type="radio"
+											name="by"
+											label="Location"
+											value="location"
+											checked={reportType === 'location'}
+											onClick={this.handleChangeType}/>
+                                    </Form.Group>
                                     { reportType === 'store' && 
 										<CommonDropdownSelectSingleStore name="store_id"/> }
+									{ reportType === 'category' && 
+										<CommonDropdownSelectSingleStoreCategory name="category_id"/> }
+									{ reportType === 'location' && 
+										<CommonDropdownSelectSingleStoreLocation name="location_id"/> }
                                     <hr className="my-4"/>
                                     <Button type="submit">Generate CSV</Button>
                                 </Form>
