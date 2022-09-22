@@ -9,6 +9,8 @@ use Dingo\Api\Routing\Helpers;
 use App\Models\User;
 use App\Models\Delivery;
 use App\Models\OvertimeRate;
+use App\Models\PurchaseOrder;
+use Illuminate\Support\Facades\Log;
 
 class DailyTimeRecordController extends Controller
 {
@@ -30,6 +32,9 @@ class DailyTimeRecordController extends Controller
         $biometricId = $request->input('biometric_id');
         $startDate = Carbon::createFromFormat('Y-m-d', $request->input('start_date'));
         $endDate = Carbon::createFromFormat('Y-m-d', $request->input('end_date'));
+
+        // fetch deliveries (trips) from closed purchase orders
+        $deliveriesFromPurchaseOrders = $this->purchaseOrdersTripsBasedOnPeriod($startDate->format('Y-m-d'), $endDate->format('Y-m-d'));
 
         $meta = [
             'from' => $startDate->format('d M Y'),
@@ -203,6 +208,35 @@ class DailyTimeRecordController extends Controller
             }
         }
 
+        // register daily time record placeholders for deliveries from purchase orders
+        foreach ($deliveriesFromPurchaseOrders as $biometricId => $details) {
+            $deliveries = $details['deliveries'];
+
+            foreach ($deliveries as $coverageDate => $deliveryDetails) {
+                if (array_key_exists($biometricId, $dailyTimeRecord)) {
+                    if (
+                        !array_key_exists(
+                            $coverageDate,
+                            $dailyTimeRecord[$biometricId]['logs']
+                        )
+                    ) {
+                        $dailyTimeRecord[$biometricId]['logs'][$coverageDate] = [];
+                    }
+                } else {
+                    $dailyTimeRecord[$biometricId] = [
+                        'biometric_id' => $biometricId,
+                        'biometric_name' => $details['name'],
+                        'position' => $details['position'],
+                        'effective_per_hour_rate' => 0,
+                        'effective_per_delivery_rate' => $deliveryDetails->effective_per_delivery_rate,
+                        'logs' => [
+                            $coverageDate => []
+                        ],
+                    ];
+                }
+            }
+        }
+
         $dailyTimeRecord = array_values($dailyTimeRecord);
 
         foreach ($dailyTimeRecord as &$details) {
@@ -368,6 +402,12 @@ class DailyTimeRecordController extends Controller
                         ->first();
                 }
                 $totalDeliveries = $delivery ? $delivery->no_of_deliveries : 0;
+
+                $deliveryFromPO = $deliveriesFromPurchaseOrders[$user->biometric_id] ?? null;
+                if ($deliveryFromPO && array_key_exists($date->format('Y-m-d'), $deliveryFromPO['deliveries'])) {
+                    $totalDeliveries += $deliveryFromPO['deliveries'][$date->format('Y-m-d')]->no_of_deliveries;
+                }
+
                 $totalDeliveriesAmount  = $totalDeliveries * ($perDeliveryRateAmount ? $perDeliveryRateAmount->amount : 0);
 
                 $meta['duration_total_hours'] += $totalInHours;
@@ -403,5 +443,83 @@ class DailyTimeRecordController extends Controller
         }
 
         return response()->json(['data' => $dailyTimeRecord]);
+    }
+
+    private function purchaseOrdersTripsBasedOnPeriod($from, $to)
+    {
+        $purchaseOrders = PurchaseOrder::with('assignedStaff')
+            ->where('purchase_order_status_id', 3)
+            ->where(function ($query) use ($from, $to) {
+                $query
+                    ->where(function ($query) use ($from, $to) {
+                        $query
+                            ->where('from', '>=', $from)
+                            ->where('from', '<=', $to);
+                    })
+                    ->orWhere(function ($query) use ($from, $to) {
+                        $query
+                            ->where('to', '>=', $from)
+                            ->where('to', '<=', $to);
+                    });
+            })
+            ->get()
+            ->map(function ($purchaseOrder) use ($from, $to) {
+                $purchaseOrder->from = $purchaseOrder->from < $from ? $from : $purchaseOrder->from;
+                $purchaseOrder->to = $purchaseOrder->to > $to ? $to : $purchaseOrder->to;
+                return (object) [
+                    'coverage_date' => $purchaseOrder->to,
+                    'no_of_deliveries' => $purchaseOrder->trips,
+                    'assigned_staff' => $purchaseOrder->assignedStaff->map(function ($staff) {
+                        $staff->position = $staff->roles()->orderBy('created_at', 'desc')->first()->id;
+                        return $staff;
+                    }),
+                ];
+            });
+
+        $allAssignedStaff = $purchaseOrders->map(function ($purchaseOrder) {
+            return $purchaseOrder->assigned_staff;
+        })->flatten(1)->unique()->keyBy('biometric_id');
+
+        $allAssignedStaff->each(function ($staff) use ($purchaseOrders) {
+            $filteredPurchaseOrders = $purchaseOrders->filter(function ($purchaseOrder) use ($staff) {
+                return $purchaseOrder->assigned_staff->where('biometric_id', $staff->biometric_id)->isNotEmpty();
+            })->map(function ($purchaseOrder) {
+                return (object) [
+                    'coverage_date' => $purchaseOrder->coverage_date,
+                    'no_of_deliveries' => $purchaseOrder->no_of_deliveries,
+                ];
+            });
+
+            $ratesQuery = $staff->rates();
+            $staff->deliveries = $filteredPurchaseOrders->groupBy('coverage_date')->map(function ($purchaseOrders) use ($ratesQuery) {
+                $coverageDate = $purchaseOrders->first()->coverage_date;
+                $perDeliveryRateAmount = $ratesQuery
+                    ->whereHas('type', function ($query) {
+                        $query->where('code', 'per_delivery');
+                    })
+                    ->where(
+                        'effectivity_date',
+                        '<=',
+                        $coverageDate
+                    )
+                    ->orderBy('effectivity_date', 'desc')
+                    ->first();
+                if (!$perDeliveryRateAmount) {
+                    $perDeliveryRateAmount = $ratesQuery
+                        ->whereHas('type', function ($query) {
+                            $query->where('code', 'per_delivery');
+                        })
+                        ->orderBy('effectivity_date', 'desc')
+                        ->first();
+                }
+                return (object) [
+                    'coverage_date' => $coverageDate,
+                    'no_of_deliveries' => $purchaseOrders->sum('no_of_deliveries'),
+                    'effective_per_delivery_rate' => $perDeliveryRateAmount->amount ?? 0,
+                ];
+            })->toArray();
+        });
+
+        return $allAssignedStaff->toArray();
     }
 }
