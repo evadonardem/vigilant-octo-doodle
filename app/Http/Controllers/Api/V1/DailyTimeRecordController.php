@@ -27,14 +27,17 @@ class DailyTimeRecordController extends Controller
             'biometric_id',
             'start_date',
             'end_date',
+            'include_deliveries_from_purchase_orders',
         ]);
 
         $biometricId = $request->input('biometric_id');
         $startDate = Carbon::createFromFormat('Y-m-d', $request->input('start_date'));
         $endDate = Carbon::createFromFormat('Y-m-d', $request->input('end_date'));
+        $includeDeliveriesFromPurchaseOrders = $request->input('include_deliveries_from_purchase_orders');
 
         // fetch deliveries (trips) from closed purchase orders
-        $deliveriesFromPurchaseOrders = $this->purchaseOrdersTripsBasedOnPeriod($startDate->format('Y-m-d'), $endDate->format('Y-m-d'));
+        $deliveriesFromPurchaseOrders = $includeDeliveriesFromPurchaseOrders
+            ? $this->purchaseOrdersTripsBasedOnPeriod($startDate->format('Y-m-d'), $endDate->format('Y-m-d')) : [];
 
         $meta = [
             'from' => $startDate->format('d M Y'),
