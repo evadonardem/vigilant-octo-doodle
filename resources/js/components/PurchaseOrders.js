@@ -18,6 +18,7 @@ export default class PurchaseOrders extends Component {
         this.handleSubmitNewPurchaseOrder = this.handleSubmitNewPurchaseOrder.bind(this);
         this.handleCloseDeletePurchaseOrderModal = this.handleCloseDeletePurchaseOrderModal.bind(this);
         this.handleSubmitDeletePurchaseOrderModal = this.handleSubmitDeletePurchaseOrderModal.bind(this);
+        this.handleTabSelected = this.handleTabSelected.bind(this);
 
         this.state = {
             showDeletePurchaseOrderModal: false,
@@ -29,12 +30,20 @@ export default class PurchaseOrders extends Component {
             purchaseOrdersClosed: {
                 folder: '',
             },
+            purchaseOrdersTabSelected: 'pending',
         };
     }
 
     componentDidMount() {
         const token = cookie.load('token');
+        const purchaseOrdersTabSelected = cookie.load('purchase-orders-tab-selected');
+        const purchaseOrdersClosedFolderSelected = cookie.load('purchase-orders-closed-folder-selected');
         const self = this;
+
+        self.setState({
+            ...self.state,
+            purchaseOrdersTabSelected,
+        });
 
         /**
          * Purchase Orders (Pending)
@@ -79,20 +88,6 @@ export default class PurchaseOrders extends Component {
                     }
                 }
             ]
-        });
-
-        $(document).on('click', '.data-table-wrapper .open', function(e) {
-            e.preventDefault();
-            const purchasePeriodId = e.currentTarget.getAttribute('data-purchase-order-id');
-            location.href = `${appBaseUrl}/#/purchase-order-details/${purchasePeriodId}`;
-        });
-
-        $(document).on('click', '.data-table-wrapper .delete', function(e) {
-            const purchasePeriodId = e.currentTarget.getAttribute('data-purchase-order-id');
-            self.setState({
-                showDeletePurchaseOrderModal: true,
-                purchasePeriodId,
-            });
         });
 
         /**
@@ -174,7 +169,7 @@ export default class PurchaseOrders extends Component {
                 }
             ]
         });
-        $(`.${PURCHASE_ORDERS_CLOSED_FOLDERS_TABLE}`).DataTable({
+        const purchaseOrdersClosedFoldersDT = $(`.${PURCHASE_ORDERS_CLOSED_FOLDERS_TABLE}`).DataTable({
             ajax: {
                 type: 'get',
                 url: `${END_POINT}-folders?filters[status]=3&token=${token}`,
@@ -209,6 +204,22 @@ export default class PurchaseOrders extends Component {
             ]
         });
 
+        $(document).on('click', '.data-table-wrapper .open', function(e) {
+            e.preventDefault();
+            const purchasePeriodId = e.currentTarget.getAttribute('data-purchase-order-id');
+            const { purchaseOrdersTabSelected } = self.state;
+            location.href = `${appBaseUrl}/#/purchase-order-details/${purchasePeriodId}`;
+            cookie.save('purchase-orders-tab-selected', purchaseOrdersTabSelected);
+        });
+
+        $(document).on('click', '.data-table-wrapper .delete', function(e) {
+            const purchasePeriodId = e.currentTarget.getAttribute('data-purchase-order-id');
+            self.setState({
+                showDeletePurchaseOrderModal: true,
+                purchasePeriodId,
+            });
+        });
+
         $(document).on('click', '.data-table-wrapper .open-folder', function(e) {
             e.preventDefault();
             const purchaseOrderFolder = e.currentTarget.getAttribute('data-purchase-order-folder');
@@ -218,8 +229,15 @@ export default class PurchaseOrders extends Component {
                 purchaseOrdersClosed: {
                     folder: purchaseOrderFolder,
                 },
-            })
+            });
+            cookie.save('purchase-orders-closed-folder-selected', purchaseOrderFolder);
         });
+
+        if (purchaseOrdersTabSelected === 'closed' && purchaseOrdersClosedFolderSelected) {
+            purchaseOrdersClosedFoldersDT.on('draw', function () {
+                $(`.data-table-wrapper .open-folder[data-purchase-order-folder="${purchaseOrdersClosedFolderSelected}"]`).trigger('click');
+            });
+        }
     }
 
     handleSubmitNewPurchaseOrder(e) {
@@ -296,6 +314,15 @@ export default class PurchaseOrders extends Component {
             });
     }
 
+    handleTabSelected(key) {
+        const self = this;
+        self.setState({
+            ...self.state,
+            purchaseOrdersTabSelected: key,
+        });
+        cookie.save('purchase-orders-tab-selected', key);
+    }
+
     render() {
         const {
             showDeletePurchaseOrderModal,
@@ -304,6 +331,7 @@ export default class PurchaseOrders extends Component {
             deletePurchaseOrderErrorBodyText,
             updateAvailableLocations,
             purchaseOrdersClosed,
+            purchaseOrdersTabSelected,
         } = this.state;
 
         return (
@@ -312,7 +340,7 @@ export default class PurchaseOrders extends Component {
                     <Breadcrumb.Item active><span><i className="fa fa-folder"></i> Purchase Orders</span></Breadcrumb.Item>
                 </Breadcrumb>
 
-                <Tabs defaultActiveKey="pending">
+                <Tabs activeKey={purchaseOrdersTabSelected} onSelect={this.handleTabSelected}>
                     <Tab eventKey="pending" title="Pending">
                         <Card border="warning" className="mt-4">
                             <Card.Body>
