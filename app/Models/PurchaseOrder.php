@@ -72,6 +72,7 @@ class PurchaseOrder extends Model
             ->belongsToMany(User::class, 'purchase_order_assigned_staff')
             ->withPivot([
                 'id',
+                'include_deliveries_for_pay_periods',
             ])
             ->distinct();
     }
