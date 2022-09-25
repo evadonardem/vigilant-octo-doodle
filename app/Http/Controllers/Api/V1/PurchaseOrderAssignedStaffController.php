@@ -51,6 +51,19 @@ class PurchaseOrderAssignedStaffController extends Controller
 
         return response()->noContent();
     }
+    
+    public function update(Request $request, PurchaseOrder $purchaseOrder, PurchaseOrderAssignedStaff $purchaseOrderAssignedStaff)
+    {
+        if ($purchaseOrder->assignedStaff->where('pivot.id', $purchaseOrderAssignedStaff->id)->isEmpty()) {
+			abort(422, 'Staff is not assigned to purchase order.');
+		}
+		
+		$attributes = $request->only(['include_deliveries_for_pay_periods']);
+		$purchaseOrderAssignedStaff->fill($attributes);
+		$purchaseOrderAssignedStaff->save();
+        
+        return response()->noContent();
+    }
 
     /**
      * Remove the specified resource from storage.

@@ -465,6 +465,12 @@ class DailyTimeRecordController extends Controller
                             ->where('to', '<=', $to);
                     });
             })
+            ->whereHas('assignedStaff', function ($query) {
+				$query->where('include_deliveries_for_pay_periods', '=', 1);
+			})
+			->with(['assignedStaff' => function ($query) {
+				$query->where('include_deliveries_for_pay_periods', '=', 1);
+			}])
             ->get()
             ->map(function ($purchaseOrder) use ($from, $to) {
                 $purchaseOrder->from = $purchaseOrder->from < $from ? $from : $purchaseOrder->from;

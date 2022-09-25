@@ -61,6 +61,7 @@ $api->version('v1', function ($api) {
 
         $api->get('purchase-orders/{purchaseOrder}/assigned-staff', 'App\Http\Controllers\Api\V1\PurchaseOrderAssignedStaffController@index');
         $api->post('purchase-orders/{purchaseOrder}/assigned-staff', 'App\Http\Controllers\Api\V1\PurchaseOrderAssignedStaffController@store');
+        $api->patch('purchase-orders/{purchaseOrder}/assigned-staff/{purchaseOrderAssignedStaff}', 'App\Http\Controllers\Api\V1\PurchaseOrderAssignedStaffController@update');
         $api->delete('purchase-orders/{purchaseOrder}/assigned-staff/{purchaseOrderAssignedStaff}', 'App\Http\Controllers\Api\V1\PurchaseOrderAssignedStaffController@destroy');
 
         $api->get('purchase-order-expense-types', 'App\Http\Controllers\Api\V1\PurchaseOrderExpenseController@indexPurchaseOrderExpenseTypes');
