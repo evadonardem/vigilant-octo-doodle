@@ -7,6 +7,7 @@ use App\Models\Item;
 use App\Models\PurchaseOrder;
 use App\Models\Store;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use stdClass;
 
@@ -20,7 +21,8 @@ class DeliverySalesMonitoringController extends Controller
     public function index(Request $request)
     {
 		$isGenerateCsvReport = $request->has('generate') && $request->input('generate') === 'csv';
-		
+        $sortBy = $request->has('sort_by') ? $request->input('sort_by') : '';
+
         $purchaseOrdersQuery = PurchaseOrder::where('purchase_order_status_id', '=', 3)
             ->where('to', '>=', $request->input('from'))
             ->where('to', '<=', $request->input('to'));
@@ -77,10 +79,10 @@ class DeliverySalesMonitoringController extends Controller
                     } else {
                         $newDeliveryReceipt = $this->createNewDeliveryReceipt($purchaseOrder, $item);
                         $newDeliveryReceipt->stores = collect();
-                        
+
                         $store = Store::findOrFail($item->pivot->store_id);
                         $store->loadMissing('category');
-                        
+
                         $item->quantity_actual = $item->pivot->quantity_actual;
                         $item->effective_price = $this->getStoreEffectiveItemPrice($store->id, $item->id, $purchaseOrder->to);
                         $item->amount = number_format(
@@ -149,7 +151,7 @@ class DeliverySalesMonitoringController extends Controller
 				]
 			]);
 		}
-		
+
 		$filename = Str::slug('DSR ' . $request->input('from') . ' to ' . $request->input('to') . ($searchStore ? ' ' . $searchStore->code : '')) . '.csv';
 		$headers = [
 			'Content-type' => 'text/csv',
@@ -162,8 +164,10 @@ class DeliverySalesMonitoringController extends Controller
 			'BL No.',
 			'DR No.',
 			'DR Date',
-			'Customer',
+            'Customer ID',
+			'Customer Name',
 			'Location',
+            'Prod. ID',
 			'Prod. Name',
 			'Prod. Qty.',
 			'Prod. Unt. Price',
@@ -172,38 +176,57 @@ class DeliverySalesMonitoringController extends Controller
 			'Billed',
 		];
 
-        $callback = function() use($columns, $booklets) {
+        $csvData = [];
+        $booklets->each(function ($booklet) use (&$csvData) {
+            $bookletNo = $booklet->id;
+            $booklet->deliveryReceipts->each(function ($deliveryReceipt) use (&$csvData, $bookletNo) {
+                $deliveryReceiptNo = $deliveryReceipt->id;
+                $deliveryFromTo = $deliveryReceipt->purchase_order['from'] . ' to ' . $deliveryReceipt->purchase_order['to'];
+                $location = $deliveryReceipt->purchase_order['location'];
+                $deliveryReceipt->stores->each(function ($store) use (&$csvData, $bookletNo, $deliveryReceiptNo, $deliveryFromTo, $location) {
+                    // $customer = "({$store->code}) {$store->name}";
+                    $category = $store->category ? $store->category->name : '';
+                    $store->items->each(function ($item) use (&$csvData, $bookletNo, $deliveryReceiptNo, $deliveryFromTo, $location, $store, $category) {
+                        $csvData[] = [
+                            'BL No.' => $bookletNo,
+                            'DR No.' => $deliveryReceiptNo,
+                            'DR Date' => $deliveryFromTo,
+                            'Customer ID' => $store->code,
+                            'Customer Name' => $store->name,
+                            'Location' => $location,
+                            'Prod. ID' => $item->code,
+                            'Prod. Name' => $item->name,
+                            'Prod. Qty.' => $item->quantity_actual,
+                            'Prod. Unt. Price' => number_format($item->effective_price, 2, '.', ''),
+                            'Amnt.' => number_format($item->amount, 2, '.', ''),
+                            'Category' => $category,
+                            'Billed' => '',
+                        ];
+                    });
+                });
+            });
+        });
+
+        $csvData = collect($csvData);
+
+        if ($sortBy === 'store') {
+            $csvData = $csvData->sortBy('Customer Name')->values()->toArray();
+        } elseif ($sortBy === 'category') {
+            $csvData = $csvData->sortBy('Category')->values()->toArray();
+        } elseif ($sortBy === 'location') {
+            $csvData = $csvData->sortBy('Location')->values()->toArray();
+        } else {
+            $csvData = $csvData->toArray();
+        }
+
+        Log::debug($csvData);
+
+        $callback = function() use($columns, $csvData) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
-            $booklets->each(function ($booklet) use ($file) {
-				$bookletNo = $booklet->id;
-				$booklet->deliveryReceipts->each(function ($deliveryReceipt) use ($file, $bookletNo) {
-					$deliveryReceiptNo = $deliveryReceipt->id;
-					$deliveryFromTo = $deliveryReceipt->purchase_order['from'] . ' to ' . $deliveryReceipt->purchase_order['to'];
-					$location = $deliveryReceipt->purchase_order['location'];
-					$deliveryReceipt->stores->each(function ($store) use ($file, $bookletNo, $deliveryReceiptNo, $deliveryFromTo, $location) {
-						$customer = "({$store->code}) {$store->name}";
-						$category = $store->category ? $store->category->name : '';
-						$store->items->each(function ($item) use ($file, $bookletNo, $deliveryReceiptNo, $deliveryFromTo, $location, $customer, $category) {
-							$row = [
-								'BL No.' => $bookletNo,
-								'DR No.' => $deliveryReceiptNo,
-								'DR Date' => $deliveryFromTo,
-								'Customer' => $customer,
-								'Location' => $location,
-								'Prod. Name' => "({$item->code} {$item->name})",
-								'Prod. Qty.' => $item->quantity_actual,
-								'Prod. Unt. Price' => number_format($item->effective_price, 2, '.', ''),
-								'Amnt.' => number_format($item->amount, 2, '.', ''),
-								'Category' => $category,
-								'Billed' => '',
-							];
-							fputcsv($file, $row);
-						});
-					});	
-				});
-			});
-
+            foreach ($csvData as $row) {
+                fputcsv($file, $row);
+            }
             fclose($file);
         };
 
