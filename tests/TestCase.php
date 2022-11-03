@@ -14,7 +14,7 @@ abstract class TestCase extends BaseTestCase
         $user->password = Hash::make('123456');
         $user->save();
 
-        $response = $this->post('/api/login', [
+        $response = $this->post('api/login', [
             'biometric_id' => $user->biometric_id,
             'password' => '123456',
         ]);
