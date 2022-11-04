@@ -148,6 +148,10 @@ $api->version('v1', function ($api) {
         });
     });
 
+    $api->group(['prefix' => 'common', 'middleware' => ['bindings']], function ($api) {
+        $api->get('/ratings', 'App\Http\Controllers\Api\V1\RatingController@index');
+    });
+
     // Utilities
     $api->get('sync-admin-users', 'App\Http\Controllers\Api\V1\BiometricUsersController@syncAdminUsers');
     $api->get('sync-all-users', 'App\Http\Controllers\Api\V1\BiometricUsersController@syncAllUsers');
