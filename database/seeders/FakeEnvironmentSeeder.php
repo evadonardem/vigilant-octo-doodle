@@ -4,7 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\Item;
+use App\Models\JobContract;
 use App\Models\Location;
+use App\Models\Promodiser;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderAssignedStaff;
 use App\Models\PurchaseOrderExpense;
@@ -12,7 +14,6 @@ use App\Models\PurchaseOrderStoreItem;
 use App\Models\SalesInvoice;
 use App\Models\SalesInvoiceItem;
 use App\Models\Store;
-use App\Models\StoreItem;
 use App\Models\StoreItemPrice;
 use App\Models\User;
 use Carbon\Carbon;
@@ -35,7 +36,9 @@ class FakeEnvironmentSeeder extends Seeder
 				(new SalesInvoice)->getTable(),
 				(new PurchaseOrder)->getTable(),
 				(new PurchaseOrderExpense)->getTable(),
+                (new JobContract())->getTable(),
 				(new Store)->getTable(),
+                (new Promodiser)->getTable(),
 				(new Item)->getTable(),
 				(new Category)->getTable(),
 				(new Location)->getTable(),
@@ -44,23 +47,33 @@ class FakeEnvironmentSeeder extends Seeder
 				DB::table($table)->delete();
 			}
 		});
-		
+
 		// create fake items
 		$items = Item::factory(10)->create();
-		
+
 		// create fake categories
 		$categories = Category::factory(10)->create();
-		
+
 		// create fake locations
 		$locations = Location::factory(5)->create();
-		
+
 		// create fake stores
         $stores = Store::factory()
 			->count(10)
 			->state(new Sequence(
-				fn ($sequence) => ['category_id' => $categories->random()->id, 'location_id' => $locations->random()->id],
+				fn () => ['category_id' => $categories->random()->id, 'location_id' => $locations->random()->id],
 			))
+            ->has(Promodiser::factory()->count(10))
 			->create();
+        $stores->each(function ($store) {
+            $store->promodisers->each(function ($promodiser) {
+                JobContract::factory()->create([
+                    'promodiser_id' => $promodiser->id,
+                    'start_date' => Carbon::now()->subMonths(random_int(1, 6)),
+                    'end_date' => null,
+                ]);
+            });
+        });
 
 		// create fake store items
         $stores->each(fn($store) => (
@@ -96,7 +109,7 @@ class FakeEnvironmentSeeder extends Seeder
 				]);
 			}
 		});
-        
+
         // set purchase orders status approved
         $purchaseOrders->where('purchase_order_status_id', 1)->random(50)->each(function ($purchaseOrder) {
 			PurchaseOrderAssignedStaff::factory()->create([
@@ -107,7 +120,7 @@ class FakeEnvironmentSeeder extends Seeder
 			$purchaseOrder->purchase_order_status_id = 2;
 			$purchaseOrder->save();
 		});
-		
+
 		// set purchase orders status closed
 		$purchaseOrders->where('purchase_order_status_id', 2)->random(25)->each(function ($purchaseOrder, $index1) {
 			$purchaseOrder->items->each(function ($item, $index2) use ($index1) {
@@ -119,7 +132,7 @@ class FakeEnvironmentSeeder extends Seeder
 			$purchaseOrder->purchase_order_status_id = 3;
 			$purchaseOrder->save();
 		});
-		
+
 		// create fake sales invoices
 		for ($countBooklets = 4, $i = 0, $perBooklet = 25, $vatRate = 0.10715; $i < $countBooklets; $i++) {
 			$salesInvoices = SalesInvoice::factory()
