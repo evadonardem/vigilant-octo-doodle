@@ -14,6 +14,6 @@ class RatingController extends Controller
      */
     public function index()
     {
-        //
+
     }
 }
