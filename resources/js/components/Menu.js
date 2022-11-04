@@ -37,6 +37,7 @@ import PurchaseOrderDetails from './PurchaseOrderDetails';
 import Reports from './Reports';
 import ReportsDeliverySalesMonitoring from './ReportsDeliverySalesMonitoring';
 import ReportsDeliveryReceiptMonitoring from './ReportsDeliveryReceiptMonitoring';
+import ReportsDeliveryTripsSummary from './ReportsDeliveryTripsSummary';
 import ReportsItemSalesMonitoring from './ReportsItemSalesMonitoring';
 import ReportsSalesInvoiceMonitoring from './ReportsSalesInvoiceMonitoring';
 import ReportsStockCardsMonitoring from './ReportsStockCardsMonitoring';
@@ -198,6 +199,7 @@ export default class Menu extends Component {
                     <Route path={'/reports-stock-cards-monitoring'} component={ReportsStockCardsMonitoring}></Route>
                     <Route path={'/reports-promodisers-summary'} component={ReportsPromodisersSummary}></Route>
                     <Route path={'/reports-item-sales'} component={ReportsItemSalesMonitoring}></Route>
+                    <Route path={'/reports-delivery-trips-summary'} component={ReportsDeliveryTripsSummary}></Route>
 
                     <Route path={'/trends-store'} component={TrendsStore}></Route>
                     <Route path={'/trends-item'} component={TrendsItem}></Route>
