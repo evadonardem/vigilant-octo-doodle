@@ -10,10 +10,12 @@ const END_POINT = `${apiBaseUrl}/reports/item-sales-monitoring`;
 export default class ReportsDeliverySalesMonitoring extends Component {
     constructor(props) {
         super(props);
-        this.handleChangeType = this.handleChangeType.bind(this); 
+        this.handleChangeSalesBy = this.handleChangeSalesBy.bind(this);
+        this.handleChangeType = this.handleChangeType.bind(this);
         this.handleGenerateCsvReport = this.handleGenerateCsvReport.bind(this);
         this.state = {
 			reportType: 'store',
+            salesBy: 'quantity',
 			token: null,
 		};
     }
@@ -26,7 +28,16 @@ export default class ReportsDeliverySalesMonitoring extends Component {
 			token,
 		});
     }
-    
+
+    handleChangeSalesBy(e) {
+		const self = this;
+		const salesBy = e.target.value;
+		self.setState({
+			...self.state,
+			salesBy,
+		});
+	}
+
     handleChangeType(e) {
 		const self = this;
 		const reportType = e.target.value;
@@ -60,7 +71,7 @@ export default class ReportsDeliverySalesMonitoring extends Component {
 	}
 
     render() {
-        const { reportType } = this.state;
+        const { reportType, salesBy } = this.state;
 
         return (
             <div className="container-fluid my-4">
@@ -86,6 +97,23 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                                         <Form.Control type="month" name="to"/>
                                     </Form.Group>
                                     <Form.Group>
+                                        <Form.Label>Sales by:</Form.Label>
+                                        <Form.Check
+											type="radio"
+											name="sales_by"
+											label="Quantity"
+											value="quantity"
+											checked={salesBy === 'quantity'}
+											onClick={this.handleChangeSalesBy}/>
+										<Form.Check
+											type="radio"
+											name="sales_by"
+											label="Amount"
+											value="amount"
+											checked={salesBy === 'amount'}
+											onClick={this.handleChangeSalesBy}/>
+                                    </Form.Group>
+                                    <Form.Group>
                                         <Form.Label>By:</Form.Label>
                                         <Form.Check
 											type="radio"
@@ -109,11 +137,11 @@ export default class ReportsDeliverySalesMonitoring extends Component {
 											checked={reportType === 'location'}
 											onClick={this.handleChangeType}/>
                                     </Form.Group>
-                                    { reportType === 'store' && 
+                                    { reportType === 'store' &&
 										<CommonDropdownSelectSingleStore name="store_id"/> }
-									{ reportType === 'category' && 
+									{ reportType === 'category' &&
 										<CommonDropdownSelectSingleStoreCategory name="category_id"/> }
-									{ reportType === 'location' && 
+									{ reportType === 'location' &&
 										<CommonDropdownSelectSingleStoreLocation name="location_id"/> }
                                     <hr className="my-4"/>
                                     <Button type="submit">Generate CSV</Button>

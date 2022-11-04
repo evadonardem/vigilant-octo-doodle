@@ -25,22 +25,23 @@ class ItemSalesMonitoringController extends Controller
 		$from = Carbon::createFromFormat('Y-m', $request->input('from'))->firstOfMonth();
 		$to = Carbon::createFromFormat('Y-m', $request->input('to'))->endOfMonth();
 		$filterBy = $request->has('by') ? $request->input('by') : 'store';
+        $salesBy = $request->has('sales_by') ? $request->input('sales_by') : 'quantity';
 		$isGenerateCsvReport = $request->has('generate') && $request->input('generate') === 'csv';
 		$reportType = $request->has('report_type') ? $request->input('report_type') : null;
 		$filenameSegment = '';
-		
+
         $salesInvoicesQuery = SalesInvoice::where('to', '>=', $from->format('Y-m-d'))
             ->where('to', '<=', $to->format('Y-m-d'));
 
         $storeId = null;
         $searchStore = null;
-        
+
         $categoryId = null;
         $searchCategory = null;
-        
+
         $locationId = null;
         $searchLocation = null;
-        
+
         if ($filterBy === 'store' && $request->input('store_id')) {
 			$storeId = $request->input('store_id');
 			$searchStore = Store::findOrFail($storeId);
@@ -116,22 +117,22 @@ class ItemSalesMonitoringController extends Controller
 			}
 		}
 
-        $salesInvoices = $salesInvoicesQuery->get(); 
-        
+        $salesInvoices = $salesInvoicesQuery->get();
+
         if (!$isGenerateCsvReport) {
 			return response()->json([]);
 		}
-		
-		
+
+
         $salesInvoices = $salesInvoices->map(function ($salesInvoice) {
 			$salesInvoice->from = Carbon::createFromFormat('Y-m-d', $salesInvoice->from)->format('Y-m');
 			$salesInvoice->to = Carbon::createFromFormat('Y-m-d', $salesInvoice->to)->format('Y-m');
 			return $salesInvoice;
 		});
-		
+
 		// group sales invoices by year and month
 		$salesInvoicesGroupByYearAndMonth = $salesInvoices->groupBy('to');
-		
+
 		// consolidate related stores sorted by store location, category, and name.
         $stores = $salesInvoices
 			->map(function ($salesInvoice) {
@@ -145,7 +146,7 @@ class ItemSalesMonitoringController extends Controller
 			->sortBy('category.name')
 			->sortBy('location.name')
 			->values();
-		
+
 		// consolidate store sales by year and month
 		foreach ($stores as &$store) {
 			$_from = clone $from;
@@ -159,7 +160,7 @@ class ItemSalesMonitoringController extends Controller
 						return $salesInvoice->items;
 					})->flatten(1)->values()
 					: null;
-				
+
 				$items = [];
 				if (!is_null($salesInvoiceItems) && $salesInvoiceItems->isNotEmpty()) {
 					// filter sales invoice items by store and group by item
@@ -168,11 +169,12 @@ class ItemSalesMonitoringController extends Controller
 						})->groupBy('item_id');
 					$items = $salesInvoiceItemsGroupByItem->map(function ($salesInvoiceItems) {
 							$item = $salesInvoiceItems->first()->item->only(['id', 'code', 'name']);
+                            $item['total_quantity'] = $salesInvoiceItems->sum('quantity');
 							$item['total_sales'] = $salesInvoiceItems->sum('total_amount');
 							return $item;
 						})->sortBy('code')->values()->toArray();
 				}
-				
+
 				$yearMonthSales = [
 					'id' => $_from->format('y M'),
 					'items' => $items,
@@ -180,15 +182,15 @@ class ItemSalesMonitoringController extends Controller
 				$store->sales->push($yearMonthSales);
 				$_from->addMonthsNoOverflow(1);
 			};
-			
+
 			$store->sales = $store->sales->keyBy('id')->map(function ($yearMonthSales) {
 				unset($yearMonthSales['id']);
 				return $yearMonthSales;
 			})->toArray();
 		}
-		
-		$filename = Str::slug('ISR ' . $reportType . ' ' . $filenameSegment . ' ' . $request->input('from') . ' to ' . $request->input('to')) . '.csv';
-		
+
+		$filename = Str::slug('ISR By ' . $salesBy . ' ' . $reportType . ' ' . $filenameSegment . ' ' . $request->input('from') . ' to ' . $request->input('to')) . '.csv';
+
 		$headers = [
 			'Content-type' => 'text/csv',
 			'Content-Disposition' => "attachment; filename=$filename",
@@ -196,21 +198,21 @@ class ItemSalesMonitoringController extends Controller
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
             'Expires' => "0",
 		];
-		
-		$callback = function() use ($stores) {
+
+		$callback = function() use ($stores, $salesBy) {
 			$file = fopen('php://output', 'w');
-			
+
 			// initialize csv map
 			$csvMap = [
 				'Location' => null,
 				'Category' => null,
 				'Store' => null,
 			];
-			
+
 			foreach ($stores as $store) {
 				$sales = $store->sales;
 				foreach ($sales as $key => $yearMonthSales) {
-					if (!isset($csvMap[$key])) {
+					if (!array_key_exists($key, $csvMap)) {
 						$csvMap[$key] = collect();
 					}
 					foreach ($yearMonthSales['items'] as $item) {
@@ -218,7 +220,7 @@ class ItemSalesMonitoringController extends Controller
 					}
 				}
 			}
-			
+
 			foreach ($sales as $key => $yearMonthSales) {
 				if ($csvMap[$key]->isEmpty()) {
 					unset($csvMap[$key]);
@@ -226,7 +228,7 @@ class ItemSalesMonitoringController extends Controller
 				}
 				$csvMap[$key] = $csvMap[$key]->sortBy('code')->pluck('code')->unique()->values()->toArray();
 			}
-			
+
 			// populate csv line headers
 			$lineHeader1 = [];
 			$lineHeader2 = [];
@@ -251,7 +253,7 @@ class ItemSalesMonitoringController extends Controller
 			}
 			fputcsv($file, $lineHeader1);
 			fputcsv($file, $lineHeader2);
-			
+
 			foreach ($stores as $store) {
 				$row = [];
 				foreach ($csvMap as $key => $value) {
@@ -263,23 +265,25 @@ class ItemSalesMonitoringController extends Controller
 						$row[] = "({$store['code']}) {$store['name']}";
 					} else {
 						$storeSales = $store->sales;
-						$arr = array_map(function ($itemCode) use ($key, $storeSales) {
+						$arr = array_map(function ($itemCode) use ($key, $storeSales, $salesBy) {
+                            $totalQuantity = 0;
 							$totalSales = 0;
 							$storeYearMonthSales = isset($storeSales[$key]) ? $storeSales[$key] : null;
 							if ($storeYearMonthSales && count($storeYearMonthSales['items']) > 0) {
 								$storeYearMonthSalesItems = collect($storeYearMonthSales['items'])->keyBy('code');
 								$targetItem = $storeYearMonthSalesItems->get($itemCode);
+                                $totalQuantity = $targetItem ? $targetItem['total_quantity'] : 0;
 								$totalSales = $targetItem ? $targetItem['total_sales'] : 0;
 							}
-							return $totalSales;
+							return $salesBy === 'quantity' ? $totalQuantity : $totalSales;
 						}, $value);
 						$row = array_merge($row, $arr);
 					}
 				}
-				
+
 				fputcsv($file, $row);
 			};
-			
+
 			fclose($file);
 		};
 

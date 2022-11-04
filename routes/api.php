@@ -135,6 +135,7 @@ $api->version('v1', function ($api) {
         $api->get('stock-cards-monitoring-available-items', 'App\Http\Controllers\Api\V1\StockCardsMonitoringController@availableItems');
         $api->get('promodisers-summary', 'App\Http\Controllers\Api\V1\PromodisersSummaryController@index');
         $api->get('item-sales-monitoring', 'App\Http\Controllers\Api\V1\ItemSalesMonitoringController@index');
+        $api->get('delivery-trips-summary', 'App\Http\Controllers\Api\V1\DeliveryTripsController@index');
     });
 
     $api->group(['prefix' => 'stock-cards', 'middleware' => ['api.auth', 'bindings']], function ($api) {
