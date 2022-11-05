@@ -127,6 +127,11 @@ $api->version('v1', function ($api) {
         $api->get('stores/{store}/item-pricing/{effectivityDate}', 'App\Http\Controllers\Api\V1\StoreItemController@itemPricing');
     });
 
+    $api->group(['prefix' => 'promodisers', 'middleware' => ['api.auth', 'bindings']], function ($api) {
+        $api->post('/{promodiser}/ratings', 'App\Http\Controllers\Api\V1\PromodiserRatingController@store');
+        $api->post('/{promodiser}/payments', 'App\Http\Controllers\Api\V1\PromodiserPaymentController@store');
+    });
+
     $api->group(['prefix' => 'reports', 'middleware' =>['api.auth', 'bindings']], function ($api) {
         $api->get('delivery-sales-monitoring', 'App\Http\Controllers\Api\V1\DeliverySalesMonitoringController@index');
         $api->get('delivery-receipt-monitoring', 'App\Http\Controllers\Api\V1\DeliveryReceiptMonitoringController@index');
@@ -147,6 +152,10 @@ $api->version('v1', function ($api) {
             $api->get('/', 'App\Http\Controllers\Api\V1\StockCardDetailController@index');
             $api->post('/', 'App\Http\Controllers\Api\V1\StockCardDetailController@store');
         });
+    });
+
+    $api->group(['prefix' => 'common', 'middleware' => ['bindings']], function ($api) {
+        $api->get('/ratings', 'App\Http\Controllers\Api\V1\RatingController@index');
     });
 
     // Utilities

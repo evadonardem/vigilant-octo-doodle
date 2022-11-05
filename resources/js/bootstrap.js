@@ -31,10 +31,18 @@ try {
     window.exportButtonsBase = [
         {
             extend: 'csvHtml5',
+            exportOptions: {
+                columns: "thead th:not(.noExport)",
+                orthogonal: 'export',
+            },
             footer: true,
         },
         {
             extend: 'pdfHtml5',
+            exportOptions: {
+                columns: "thead th:not(.noExport)",
+                orthogonal: 'export',
+            },
             orientation: 'landscape',
             pageSize: 'legal',
             customize : window.pdfExportCommonSettings,

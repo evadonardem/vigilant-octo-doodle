@@ -2,59 +2,34 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Promodiser;
+use App\Http\Requests\GetPromodisersSummaryRequest;
+use App\Http\Resources\PromodiserResource;
+use App\Services\PromodiserService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class PromodisersSummaryController extends Controller
 {
+    public function __construct(
+        private PromodiserService $service
+    ) {}
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(GetPromodisersSummaryRequest $request)
     {
-        $currentDate = Carbon::now('Asia/Manila')->format('Y-m-d');
-        $promodisers = Promodiser::whereHas(
-            'jobContracts',
-            function ($query) use ($currentDate) {
-                $query
-                    ->where(function ($query) use ($currentDate) {
-                        $query
-                            ->whereDate('start_date', '<=', $currentDate)
-                            ->whereNull('end_date');
-                    })
-                    ->orwhere(function ($query) use ($currentDate) {
-                        $query
-                            ->where('start_date', '<=', $currentDate)
-                            ->where('end_date', '>=', $currentDate)
-                            ->whereNotNull('end_date');
-                    });
-            }
-        )
-            ->with(['jobContracts' => function ($query) use ($currentDate) {
-                $query
-                    ->where(function ($query) use ($currentDate) {
-                        $query
-                            ->where('start_date', '<=', $currentDate)
-                            ->whereNull('end_date');
-                    })
-                    ->orWhere(function ($query) use ($currentDate) {
-                        $query
-                            ->where('start_date', '<=', $currentDate)
-                            ->where('end_date', '>=', $currentDate)
-                            ->whereNotNull('end_date');
-                    });
-            }])
-            ->with('store.location')
-            ->get()
-            ->sortBy('name', SORT_FLAG_CASE)
-            ->sortBy('store.name', SORT_FLAG_CASE)
-            ->sortBy('store.location.name', SORT_FLAG_CASE)
-            ->values();
+        $filterBy = $request->input('filters.instance_type') ?? '';
+        $instanceId = $request->input('filters.instance_id') ?? 0;
+        $paymentType = $request->input('filters.payment_type') ?? '';
+        $paymentSchedule = Carbon::parse($request->input('filters.payment_year_month')) ?? null;
+        $paymentFrom = $paymentSchedule ? $paymentSchedule->startOfMonth()->format('Y-m-d') : null;
+        $paymentTo = $paymentSchedule ? $paymentSchedule->endOfMonth()->format('Y-m-d') : null;
 
-        return response()->json(['data' => $promodisers]);
+        $promodisers = $this->service->getAllActivePromodisers($filterBy, $instanceId, $paymentType, $paymentFrom, $paymentTo);
+        return PromodiserResource::collection($promodisers);
     }
 }
