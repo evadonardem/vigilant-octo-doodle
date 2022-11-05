@@ -13,7 +13,7 @@ class Promodiser extends Model
         'name',
         'contact_no',
     ];
-    
+
     public function store()
     {
         return $this->belongsTo(Store::class);
@@ -22,5 +22,12 @@ class Promodiser extends Model
     public function jobContracts()
     {
         return $this->hasMany(JobContract::class);
+    }
+
+    public function ratings()
+    {
+        return $this->belongsToMany(Rating::class, PromodiserRating::class)
+            ->withTimestamps()
+            ->orderByPivot('created_at', 'desc');
     }
 }

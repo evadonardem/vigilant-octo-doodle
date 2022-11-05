@@ -15,13 +15,13 @@ class PromodiserResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
+            'id' => (int)$this->id,
             'name' => $this->name,
             'contact_no' => $this->contact_no,
-            'store_id' => $this->store_id,
+            'store_id' => (int)$this->store_id,
             'store' => $this->store,
             'current_job_contract' => $this->currentJobContract,
-            'latest_rating' => null,
+            'latest_rating' => new PromodiserRatingResource($this->ratings->first()),
         ];
     }
 }

@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class RatingResource extends JsonResource
+class PromodiserRatingResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,9 +15,10 @@ class RatingResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => (int)$this->id,
+            'id' => (int) $this->id,
             'title' => $this->title,
-            'score' => (int)$this->score,
+            'score' => $this->score,
+            'latest_date_rated' => $this->pivot->created_at->timezone('Asia/Manila')->format('Y-m-d h:i:s A'),
         ];
     }
 }

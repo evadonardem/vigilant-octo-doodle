@@ -31,10 +31,16 @@ try {
     window.exportButtonsBase = [
         {
             extend: 'csvHtml5',
+            exportOptions: {
+                orthogonal: 'export',
+            },
             footer: true,
         },
         {
             extend: 'pdfHtml5',
+            exportOptions: {
+                orthogonal: 'export',
+            },
             orientation: 'landscape',
             pageSize: 'legal',
             customize : window.pdfExportCommonSettings,

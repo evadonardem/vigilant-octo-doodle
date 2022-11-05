@@ -4,6 +4,9 @@ namespace App\Repositories;
 
 use App\Models\Promodiser;
 use Carbon\Carbon;
+use Exception;
+use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Support\Facades\Log;
 
 class PromodiserRepository
 {
@@ -11,10 +14,10 @@ class PromodiserRepository
         private Promodiser $model
     ) {}
 
-    public function getAllActivePromodisers()
+    public function getAllActivePromodisers(?string $filterBy, ?int $instanceId, ?string $paymentType, ?string $paymentSchedule)
     {
         $currentDate = Carbon::now('Asia/Manila')->format('Y-m-d');
-        return $this->model
+        $queryAllActivePromodisers = $this->model
             ->whereHas(
                 'jobContracts',
                 function ($query) use ($currentDate) {
@@ -31,8 +34,25 @@ class PromodiserRepository
                                 ->whereNotNull('end_date');
                         });
                 }
-            )
-            ->with(['jobContracts' => function ($query) use ($currentDate) {
+            );
+
+        if ($instanceId) {
+            if ($filterBy === 'store') {
+                $queryAllActivePromodisers->where('store_id', '=', $instanceId);
+            } elseif ($filterBy === 'category') {
+                $queryAllActivePromodisers->whereHas('store.category', function ($query) use ($instanceId) {
+                    $query->where('id', '=', $instanceId);
+                });
+            } else {
+                if ($filterBy === 'location') {
+                    $queryAllActivePromodisers->whereHas('store.location', function ($query) use ($instanceId) {
+                        $query->where('id', '=', $instanceId);
+                    });
+                }
+            }
+        }
+
+        return $queryAllActivePromodisers->with(['jobContracts' => function ($query) use ($currentDate) {
                 $query
                     ->where(function ($query) use ($currentDate) {
                         $query
@@ -46,11 +66,25 @@ class PromodiserRepository
                             ->whereNotNull('end_date');
                     });
             }])
+            ->with('store.category')
             ->with('store.location')
+            ->with('ratings')
             ->get()
             ->sortBy('name', SORT_FLAG_CASE)
             ->sortBy('store.name', SORT_FLAG_CASE)
             ->sortBy('store.location.name', SORT_FLAG_CASE)
             ->values();
+    }
+
+    public function savePromodiserRating(Promodiser $promodiser, int $ratingId)
+    {
+        try {
+            $promodiser->ratings()->attach($ratingId);
+        } catch (QueryExecuted | Exception $e) {
+            Log::debug($e->getMessage());
+            return false;
+        }
+
+        return true;
     }
 }
