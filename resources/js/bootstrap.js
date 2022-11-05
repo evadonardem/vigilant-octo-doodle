@@ -32,6 +32,7 @@ try {
         {
             extend: 'csvHtml5',
             exportOptions: {
+                columns: "thead th:not(.noExport)",
                 orthogonal: 'export',
             },
             footer: true,
@@ -39,6 +40,7 @@ try {
         {
             extend: 'pdfHtml5',
             exportOptions: {
+                columns: "thead th:not(.noExport)",
                 orthogonal: 'export',
             },
             orientation: 'landscape',

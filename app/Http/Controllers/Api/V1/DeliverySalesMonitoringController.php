@@ -219,8 +219,6 @@ class DeliverySalesMonitoringController extends Controller
             $csvData = $csvData->toArray();
         }
 
-        Log::debug($csvData);
-
         $callback = function() use($columns, $csvData) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);

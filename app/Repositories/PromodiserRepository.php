@@ -14,7 +14,7 @@ class PromodiserRepository
         private Promodiser $model
     ) {}
 
-    public function getAllActivePromodisers(?string $filterBy, ?int $instanceId, ?string $paymentType, ?string $paymentSchedule)
+    public function getAllActivePromodisers(?string $filterBy, ?int $instanceId, ?string $paymentType, ?string $paymentFrom, ?string $paymentTo)
     {
         $currentDate = Carbon::now('Asia/Manila')->format('Y-m-d');
         $queryAllActivePromodisers = $this->model
@@ -47,6 +47,26 @@ class PromodiserRepository
                 if ($filterBy === 'location') {
                     $queryAllActivePromodisers->whereHas('store.location', function ($query) use ($instanceId) {
                         $query->where('id', '=', $instanceId);
+                    });
+                }
+            }
+        }
+
+        if ($paymentType && $paymentFrom && $paymentTo) {
+            if ($paymentType === 'paid') {
+                $queryAllActivePromodisers->whereHas('payments', function ($query) use ($paymentFrom, $paymentTo) {
+                    $query->where([
+                        'from' => $paymentFrom,
+                        'to' => $paymentTo,
+                    ]);
+                });
+            } else {
+                if ($paymentType === 'unpaid') {
+                    $queryAllActivePromodisers->whereDoesntHave('payments', function ($query) use ($paymentFrom, $paymentTo) {
+                        $query->where([
+                            'from' => $paymentFrom,
+                            'to' => $paymentTo,
+                        ]);
                     });
                 }
             }

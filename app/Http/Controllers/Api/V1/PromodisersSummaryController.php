@@ -25,9 +25,11 @@ class PromodisersSummaryController extends Controller
         $filterBy = $request->input('filters.instance_type') ?? '';
         $instanceId = $request->input('filters.instance_id') ?? 0;
         $paymentType = $request->input('filters.payment_type') ?? '';
-        $paymentSchedule = Carbon::parse($request->input('filters.payment_year_month'))->endOfMonth()->format('Y-m-d')  ?? '';
+        $paymentSchedule = Carbon::parse($request->input('filters.payment_year_month')) ?? null;
+        $paymentFrom = $paymentSchedule ? $paymentSchedule->startOfMonth()->format('Y-m-d') : null;
+        $paymentTo = $paymentSchedule ? $paymentSchedule->endOfMonth()->format('Y-m-d') : null;
 
-        $promodisers = $this->service->getAllActivePromodisers($filterBy, $instanceId, $paymentType, $paymentSchedule);
+        $promodisers = $this->service->getAllActivePromodisers($filterBy, $instanceId, $paymentType, $paymentFrom, $paymentTo);
         return PromodiserResource::collection($promodisers);
     }
 }

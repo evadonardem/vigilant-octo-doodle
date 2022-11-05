@@ -12,9 +12,9 @@ class PromodiserService
         private PromodiserRepository $repository
     ) {}
 
-    public function getAllActivePromodisers(?string $filterBy, ?int $instanceId, ?string $paymentType, ?string $paymentSchedule)
+    public function getAllActivePromodisers(?string $filterBy, ?int $instanceId, ?string $paymentType, ?string $paymentFrom, ?string $paymentTo)
     {
-        $allActivePromodisers = $this->repository->getAllActivePromodisers($filterBy, $instanceId, $paymentType, $paymentSchedule);
+        $allActivePromodisers = $this->repository->getAllActivePromodisers($filterBy, $instanceId, $paymentType, $paymentFrom, $paymentTo);
 
         $allActivePromodisers->each(function ($promodiser) {
             $promodiser->currentJobContract = $promodiser->jobContracts->first();

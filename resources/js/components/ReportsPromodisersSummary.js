@@ -22,12 +22,13 @@ export default class ReportsPromodisersSummary extends Component {
     constructor(props) {
         super(props);
 
-        this.updatePromodisersSummary = this.updatePromodisersSummary.bind(this);
+        this.getCurrentState = this.getCurrentState.bind(this);
         this.handleChangeInstanceType = this.handleChangeInstanceType.bind(this);
         this.handleChangeInstance = this.handleChangeInstance.bind(this);
         this.handleChangeMonitorPayment = this.handleChangeMonitorPayment.bind(this);
         this.handleChangeMonitorPaymentType = this.handleChangeMonitorPaymentType.bind(this);
         this.handleChangeMonitorPaymentYearMonth = this.handleChangeMonitorPaymentYearMonth.bind(this);
+        this.updatePromodisersSummary = this.updatePromodisersSummary.bind(this);
 
         this.state = {
             isMonitoryPayment: false,
@@ -166,6 +167,41 @@ export default class ReportsPromodisersSummary extends Component {
                                 return latestDateRated;
                             }
                         },
+                        {
+                            'data': null,
+                            'render': function (data, type, row) {
+                                const currentState = self.getCurrentState();
+                                const { isMonitoryPayment, monitorPaymentType, monitorPaymentYearMonth } = currentState;
+
+                                if (isMonitoryPayment) {
+                                    if (monitorPaymentType === 'paid') {
+                                        return `<div>
+                                            ${type === 'display' ? `<i class="text-success fa fa-icon fa-lg fa-check-circle"></i>&nbsp;` : ''}
+                                            ${monitorPaymentYearMonth} (${String(monitorPaymentType).toUpperCase()})
+                                        </div>`;
+                                    } else {
+                                        if (type === 'display') {
+                                            return `<div
+                                                class="btn-group"
+                                                role="group">
+                                                <input class="form-control" readonly value="${monitorPaymentYearMonth} (${String(monitorPaymentType).toUpperCase()})"/>
+                                                <button
+                                                    type="button"
+                                                    class="promodiser-payment-mark-as-paid btn btn-primary"
+                                                    data-promodiser-id=${row.id}
+                                                    data-payment-year-month=${monitorPaymentYearMonth}>
+                                                    <i class="fa fa-icon fa-check"></i>
+                                                </button>
+                                            </div>`;
+                                        } else {
+                                            return `${monitorPaymentYearMonth} (${String(monitorPaymentType).toUpperCase()})`;
+                                        }
+                                    }
+                                }
+
+                                return 'N/A';
+                            }
+                        },
                     ],
 
                     aoColumnDefs: [
@@ -186,6 +222,7 @@ export default class ReportsPromodisersSummary extends Component {
                 datatable.column(0).visible(false);
                 datatable.column(1).visible(true);
                 datatable.column(2).visible(false);
+                datatable.column(9).visible(false);
                 datatable.order([[1, 'asc']]);
 
                 $(`.${PROMODISERS_SUMMARY_DT}`).on( 'dblclick', 'tbody td', function () {
@@ -215,6 +252,16 @@ export default class ReportsPromodisersSummary extends Component {
                         promodiserRating.show();
                     }
                 });
+
+                $(`.${PROMODISERS_SUMMARY_DT}`).on( 'click', 'tbody td', function () {
+                    const markAsPaid = $('.promodiser-payment-mark-as-paid:visible', $(this));
+                    if (markAsPaid.length) {
+                        const promodiserId = markAsPaid.data('promodiser-id');
+                        const paymentYearMonth = markAsPaid.data('payment-year-month');
+                        axios.post(`${END_POINT_PROMODISERS}/${promodiserId}/payments?token=${token}`, {data: {payment_year_month: paymentYearMonth}})
+                            .then(() => datatable.ajax.reload().draw());
+                    }
+                });
             });
     }
 
@@ -225,36 +272,14 @@ export default class ReportsPromodisersSummary extends Component {
             .destroy(true);
     }
 
-    updatePromodisersSummary(instanceType, instanceId, paymentType, paymentYearMonth) {
+    getCurrentState() {
         const self = this;
-        const { token } = self.state;
-        const filtersMonitorPayment = paymentType ? `&filters[payment_type]=${paymentType}&filters[payment_year_month]=${paymentYearMonth}` : '';
-        const table = $('.data-table-wrapper')
-            .find(`table.${PROMODISERS_SUMMARY_DT}`)
-            .DataTable();
-            table.ajax.url(`${END_POINT}?filters[instance_type]=${instanceType}&filters[instance_id]=${instanceId ?? 0}${filtersMonitorPayment}&token=${token}`);
-            table.ajax.reload().draw();
-
-        if (instanceType === 'store') {
-            table.column(0).visible(false);
-            table.column(1).visible(true);
-            table.column(2).visible(false);
-            table.order([[1, 'asc']]);
-        } else if (instanceType === 'category') {
-            table.column(0).visible(false);
-            table.column(1).visible(false);
-            table.column(2).visible(true);
-            table.order([[2, 'asc']]);
-        } else if (instanceType === 'location') {
-            table.column(0).visible(true);
-            table.column(1).visible(false);
-            table.column(2).visible(false);
-            table.order([[0, 'asc']]);
-        }
+        return self.state;
     }
 
     handleChangeInstanceType(e) {
 		const self = this;
+        const { monitorPaymentType, monitorPaymentYearMonth } = self.state;
         const instanceType = e.target.value;
         self.setState({
 			...self.state,
@@ -263,12 +288,13 @@ export default class ReportsPromodisersSummary extends Component {
                 instanceId: null,
             },
 		});
-        this.updatePromodisersSummary(instanceType, null, null, null);
+        this.updatePromodisersSummary(instanceType, null, monitorPaymentType, monitorPaymentYearMonth);
 	}
 
     handleChangeInstance(e) {
         const self = this;
-        const { instanceType } = self.state.searchFilters;
+        const { monitorPaymentType, monitorPaymentYearMonth, searchFilters } = self.state;
+        const { instanceType } = searchFilters;
         const instanceId = e ? e.value : null;
         self.setState({
 			...self.state,
@@ -277,7 +303,7 @@ export default class ReportsPromodisersSummary extends Component {
                 instanceId,
             },
 		});
-        this.updatePromodisersSummary(instanceType, instanceId, null, null);
+        this.updatePromodisersSummary(instanceType, instanceId, monitorPaymentType, monitorPaymentYearMonth);
     }
 
     handleChangeMonitorPayment(e) {
@@ -321,6 +347,40 @@ export default class ReportsPromodisersSummary extends Component {
 		});
 
         this.updatePromodisersSummary(instanceType, instanceId, monitorPaymentType, monitorPaymentYearMonth);
+    }
+
+    updatePromodisersSummary(instanceType, instanceId, paymentType, paymentYearMonth) {
+        const self = this;
+        const { token } = self.state;
+        const filtersMonitorPayment = paymentType ? `&filters[payment_type]=${paymentType}&filters[payment_year_month]=${paymentYearMonth}` : '';
+        const table = $('.data-table-wrapper')
+            .find(`table.${PROMODISERS_SUMMARY_DT}`)
+            .DataTable();
+            table.ajax.url(`${END_POINT}?filters[instance_type]=${instanceType}&filters[instance_id]=${instanceId ?? 0}${filtersMonitorPayment}&token=${token}`);
+            table.ajax.reload().draw();
+
+        if (instanceType === 'store') {
+            table.column(0).visible(false);
+            table.column(1).visible(true);
+            table.column(2).visible(false);
+            table.order([[1, 'asc']]);
+        } else if (instanceType === 'category') {
+            table.column(0).visible(false);
+            table.column(1).visible(false);
+            table.column(2).visible(true);
+            table.order([[2, 'asc']]);
+        } else if (instanceType === 'location') {
+            table.column(0).visible(true);
+            table.column(1).visible(false);
+            table.column(2).visible(false);
+            table.order([[0, 'asc']]);
+        }
+
+        if (paymentType) {
+            table.column(9).visible(true);
+        } else {
+            table.column(9).visible(false);
+        }
     }
 
     render() {
@@ -428,7 +488,8 @@ export default class ReportsPromodisersSummary extends Component {
                                         <th scope="col">Current Rate</th>
                                         <th scope="col">Job Contract</th>
                                         <th scope="col" width="15%">Rating</th>
-                                        <th scope="col">Date Rated</th>
+                                        <th scope="col" width="15%">Date Rated</th>
+                                        <th scope="col" width="15%">Payment</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>

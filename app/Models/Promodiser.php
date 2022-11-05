@@ -30,4 +30,9 @@ class Promodiser extends Model
             ->withTimestamps()
             ->orderByPivot('created_at', 'desc');
     }
+
+    public function payments()
+    {
+        return $this->hasMany(PromodiserPayment::class);
+    }
 }

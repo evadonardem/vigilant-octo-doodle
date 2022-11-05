@@ -129,6 +129,7 @@ $api->version('v1', function ($api) {
 
     $api->group(['prefix' => 'promodisers', 'middleware' => ['api.auth', 'bindings']], function ($api) {
         $api->post('/{promodiser}/ratings', 'App\Http\Controllers\Api\V1\PromodiserRatingController@store');
+        $api->post('/{promodiser}/payments', 'App\Http\Controllers\Api\V1\PromodiserPaymentController@store');
     });
 
     $api->group(['prefix' => 'reports', 'middleware' =>['api.auth', 'bindings']], function ($api) {
