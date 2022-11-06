@@ -226,7 +226,7 @@ class ItemSalesMonitoringController extends Controller
             foreach ($stores as $store) {
                 $sales = $store->sales;
                 foreach ($sales as $key => $yearMonthSales) {
-                    if ($csvMap[$key]->isEmpty()) {
+                    if (array_key_exists($key, $csvMap) && $csvMap[$key]->isEmpty()) {
                         unset($csvMap[$key]);
                         continue;
                     }
@@ -237,7 +237,9 @@ class ItemSalesMonitoringController extends Controller
             foreach ($stores as $store) {
                 $sales = $store->sales;
                 foreach ($sales as $key => $yearMonthSales) {
-                    $csvMap[$key] = $csvMap[$key]->sortBy('code')->pluck('code')->unique()->values()->toArray();
+                    if (array_key_exists($key, $csvMap)) {
+                        $csvMap[$key] = $csvMap[$key]->sortBy('code')->pluck('code')->unique()->values()->toArray();
+                    }
                 }
             }
 
