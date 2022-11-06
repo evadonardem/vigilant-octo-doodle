@@ -222,24 +222,14 @@ class ItemSalesMonitoringController extends Controller
 				}
 			}
 
-            // remove empty data set
-            foreach ($stores as $store) {
-                $sales = $store->sales;
-                foreach ($sales as $key => $yearMonthSales) {
-                    if (array_key_exists($key, $csvMap) && $csvMap[$key]->isEmpty()) {
+            // remove empty dataset / covnert dataset to array
+            foreach ($csvMap as $key => $dataset) {
+                if (!in_array($key, ['Location', 'Category', 'Store'])) {
+                    if ($dataset->isEmpty()) {
                         unset($csvMap[$key]);
                         continue;
                     }
-                }
-            }
-
-            // convert data set to array
-            foreach ($stores as $store) {
-                $sales = $store->sales;
-                foreach ($sales as $key => $yearMonthSales) {
-                    if (array_key_exists($key, $csvMap)) {
-                        $csvMap[$key] = $csvMap[$key]->sortBy('code')->pluck('code')->unique()->values()->toArray();
-                    }
+                    $csvMap[$key] = $dataset->sortBy('code')->pluck('code')->unique()->values()->toArray();
                 }
             }
 
