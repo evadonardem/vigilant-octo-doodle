@@ -221,13 +221,16 @@ class ItemSalesMonitoringController extends Controller
 				}
 			}
 
-			foreach ($sales as $key => $yearMonthSales) {
-				if ($csvMap[$key]->isEmpty()) {
-					unset($csvMap[$key]);
-					continue;
-				}
-				$csvMap[$key] = $csvMap[$key]->sortBy('code')->pluck('code')->unique()->values()->toArray();
-			}
+            foreach ($stores as $store) {
+                $sales = $store->sales;
+                foreach ($sales as $key => $yearMonthSales) {
+                    if ($csvMap[$key]->isEmpty()) {
+                        unset($csvMap[$key]);
+                        continue;
+                    }
+                    $csvMap[$key] = $csvMap[$key]->sortBy('code')->pluck('code')->unique()->values()->toArray();
+                }
+            }
 
 			// populate csv line headers
 			$lineHeader1 = [];

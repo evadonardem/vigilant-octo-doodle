@@ -138,8 +138,8 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                             {
                                 searchFilters &&
                                 <Card.Header>
-                                    <h4>Delivery Sales Monitoring</h4>
-                                    {searchFilters.store ? `(${searchFilters.store.code}) ${searchFilters.store.name}` : `All Stores`} | From: {searchFilters.from} To: {searchFilters.to}
+                                    <h4>Delivery Trips Summary</h4>
+                                    From: {searchFilters.from} To: {searchFilters.to}
                                 </Card.Header>
                             }
                             <Card.Body>
