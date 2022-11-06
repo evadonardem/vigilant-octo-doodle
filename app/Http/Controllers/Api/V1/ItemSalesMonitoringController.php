@@ -209,6 +209,7 @@ class ItemSalesMonitoringController extends Controller
 				'Store' => null,
 			];
 
+            // arrange data set
 			foreach ($stores as $store) {
 				$sales = $store->sales;
 				foreach ($sales as $key => $yearMonthSales) {
@@ -221,6 +222,7 @@ class ItemSalesMonitoringController extends Controller
 				}
 			}
 
+            // remove empty data set
             foreach ($stores as $store) {
                 $sales = $store->sales;
                 foreach ($sales as $key => $yearMonthSales) {
@@ -228,6 +230,13 @@ class ItemSalesMonitoringController extends Controller
                         unset($csvMap[$key]);
                         continue;
                     }
+                }
+            }
+
+            // convert data set to array
+            foreach ($stores as $store) {
+                $sales = $store->sales;
+                foreach ($sales as $key => $yearMonthSales) {
                     $csvMap[$key] = $csvMap[$key]->sortBy('code')->pluck('code')->unique()->values()->toArray();
                 }
             }
