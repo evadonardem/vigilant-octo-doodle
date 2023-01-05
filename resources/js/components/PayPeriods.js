@@ -42,7 +42,7 @@ export default class PayPeriods extends Component {
                 },
                 dataSrc: (response) => {
                     const { data } = response;
-                    
+
                     return data;
                 },
             },
@@ -56,6 +56,12 @@ export default class PayPeriods extends Component {
                 {
                     'data': null,
                     'render': function (data, type, row) {
+                        return `<i class="fa fa-lg fa-${row.include_deliveries_from_purchase_orders ? 'check-square-o' : 'square-o'}"></i>`;
+                    }
+                },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
                         const openBtn = '<a href="#" class="open btn btn-primary" data-pay-period-id="' + row.id + '"><i class="fa fa-folder-open"></i></a>';
                         const deleteBtn = '<a href="#" class="delete btn btn-warning" data-toggle="modal" data-target="#deleteModal" data-pay-period-id="' + row.id + '"><i class="fa fa-trash"></i></a>';
 
@@ -64,7 +70,7 @@ export default class PayPeriods extends Component {
                 }
             ]
         });
-    
+
         $(document).on('click', '.data-table-wrapper .open', function(e) {
             e.preventDefault();
             const payPeriodId = e.currentTarget.getAttribute('data-pay-period-id');
@@ -87,10 +93,10 @@ export default class PayPeriods extends Component {
         const form = $(e.target);
         const data = $(form).serialize();
         const actionEndPoint = `${apiBaseUrl}/pay-periods?token=${token}`;
-        
+
         axios.post(actionEndPoint, data)
             .then((response) => {
-                table.ajax.reload(null, false);            
+                table.ajax.reload(null, false);
                 form[0].reset();
             })
             .catch((error) => {
@@ -183,25 +189,34 @@ export default class PayPeriods extends Component {
                                                         <Form.Control type="date" name="to"></Form.Control>
                                                         <div className="invalid-feedback"></div>
                                                     </Form.Group>
+                                                    <Form.Group>
+                                                        <Form.Check
+                                                            type="checkbox"
+                                                            defaultChecked={true}
+                                                            name="include_deliveries_from_purchase_orders"
+                                                            label="Include deliveries from purchase orders"/>
+                                                        <div className="invalid-feedback"></div>
+                                                    </Form.Group>
                                                     <hr/>
                                                     <Button type="submit" block>Create</Button>
                                                 </Form>
                                             </Card.Body>
-                                        </Card>                                        
+                                        </Card>
                                     </div>
                                     <div className="col-md-9">
                                         <table ref="payPeriodsList" className="table table-striped table-pay-periods" style={{width: 100+'%'}}>
                                             <thead>
                                                 <tr>
                                                 <th scope="col">From</th>
-                                                <th scope="col">To</th>                                        
-                                                <th scope="col"></th>                                        
+                                                <th scope="col">To</th>
+                                                <th scope="col">Include deliveries from purchase orders</th>
+                                                <th scope="col"></th>
                                                 </tr>
                                             </thead>
                                             <tbody></tbody>
                                         </table>
-                                    </div>                                    
-                                </div>                                                                
+                                    </div>
+                                </div>
                             </Card.Body>
                         </Card>
                     </div>

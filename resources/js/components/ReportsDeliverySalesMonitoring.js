@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Breadcrumb, Button, Card, Form, Jumbotron } from 'react-bootstrap';
 import cookie from 'react-cookies';
+import Select from 'react-select';
 import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
 
 const END_POINT = `${apiBaseUrl}/reports/delivery-sales-monitoring`;
@@ -12,10 +13,20 @@ export default class ReportsDeliverySalesMonitoring extends Component {
     constructor(props) {
         super(props);
         this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
+        this.handleSelectCsvReportSortBy = this.handleSelectCsvReportSortBy.bind(this);
+        this.handleGenerateCsvReport = this.handleGenerateCsvReport.bind(this);
 
         this.state = {
             searchFilters: null,
             booklets: [],
+            csvFilters: null,
+            csvSortBy: [
+                { value: "", label: "Default" },
+                { value: "store", label: "Store" },
+                { value: "category", label: "Category" },
+                { value: "location", label: "Location" },
+            ],
+            selectedCsvSortBy: { value: "", label: "Default" },
         };
     }
 
@@ -232,6 +243,7 @@ export default class ReportsDeliverySalesMonitoring extends Component {
             .find(`table.${DT_DELIVERY_SALES_MONITORING}`)
             .DataTable();
         const data = $(e.currentTarget).serialize();
+        const csvFilters = data;
 
         axios.get(`${END_POINT}?${data}&token=${token}`)
             .then((response) => {
@@ -240,17 +252,50 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                 self.setState({
                     ...self.state,
                     searchFilters,
-                    booklets
+                    booklets,
+                    csvFilters,
                 });
                 table.clear();
                 table.rows.add(booklets).draw();
             });
     }
 
+    handleSelectCsvReportSortBy(e) {
+        const self = this;
+        self.setState({
+            ...self.state,
+            selectedCsvSortBy: e,
+        });
+    }
+
+    handleGenerateCsvReport(e) {
+		e.preventDefault();
+		const self = this;
+		const token = cookie.load('token');
+		const { csvFilters, selectedCsvSortBy: sortBy } = self.state;
+		axios.get(`${END_POINT}?${csvFilters}&generate=csv&sort_by=${sortBy.value}&token=${token}`, {
+			responseType: 'arraybuffer',
+		})
+		.then(response => {
+			const filename = response.headers['content-disposition'].split('filename=')[1].split('.')[0];
+			const extension = response.headers['content-disposition'].split('.')[1].split(';')[0];
+			const blob = new Blob(
+				[response.data],
+				{ type: 'text/csv' }
+			);
+			const link = document.createElement('a');
+			link.href = window.URL.createObjectURL(blob);
+			link.download = `${filename}.${extension}`;
+			link.click();
+		});
+	}
+
     render() {
         const {
-            searchFilters,
             booklets,
+            searchFilters,
+            csvSortBy,
+            selectedCsvSortBy,
         } = this.state;
 
         return (
@@ -262,12 +307,12 @@ export default class ReportsDeliverySalesMonitoring extends Component {
 
                 <div className="row">
                     <div className="col-md-3">
-                        <Card>
-                            <Card.Header>
-                                <i className="fa fa-filter"></i> Search Filters
-                            </Card.Header>
-                            <Card.Body>
-                                <Form onSubmit={this.handleSearchSubmit}>
+                        <Form onSubmit={this.handleSearchSubmit}>
+                            <Card>
+                                <Card.Header>
+                                    <i className="fa fa-filter"></i> Search Filters
+                                </Card.Header>
+                                <Card.Body>
                                     <Form.Group>
                                         <Form.Label>From:</Form.Label>
                                         <Form.Control type="date" name="from"/>
@@ -277,11 +322,25 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                                         <Form.Control type="date" name="to"/>
                                     </Form.Group>
                                     <CommonDropdownSelectSingleStore name="store_id"/>
-                                    <hr className="my-4"/>
-                                    <Button type="submit">Generate Report</Button>
-                                </Form>
-                            </Card.Body>
-                        </Card>
+                                </Card.Body>
+                                <Card.Footer>
+                                    <Button type="submit" className="pull-right">Generate Report</Button>
+                                </Card.Footer>
+                            </Card>
+                        </Form>
+                        { booklets.length > 0 &&
+                            <Card className="my-4">
+                                <Card.Header>
+                                    <i className="fa fa-icon fa-download"></i> Export Generated Report
+                                </Card.Header>
+                                <Card.Body>
+                                    <Form.Label>Sort by: </Form.Label>
+                                    <Select options={csvSortBy} value={selectedCsvSortBy} onChange={this.handleSelectCsvReportSortBy}/><br/>
+                                </Card.Body>
+                                <Card.Footer>
+                                    <Button onClick={this.handleGenerateCsvReport} className="pull-right">Download CSV</Button>
+                                </Card.Footer>
+                            </Card> }
                     </div>
                     <div className="col-md-9">
                         <Card>

@@ -22,8 +22,8 @@ class StoreItemPriceFactory extends Factory
     public function definition()
     {
         return [
-            'effectivity_date' => $this->faker->date('Y-m-d'),
-            'amount' => $this->faker->randomFloat(2, 0, 999999),
+            'effectivity_date' => $this->faker->unique()->date('Y-m-d'),
+            'amount' => $this->faker->randomFloat(2, 100, 999),
         ];
     }
 }

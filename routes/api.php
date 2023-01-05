@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,6 +61,7 @@ $api->version('v1', function ($api) {
 
         $api->get('purchase-orders/{purchaseOrder}/assigned-staff', 'App\Http\Controllers\Api\V1\PurchaseOrderAssignedStaffController@index');
         $api->post('purchase-orders/{purchaseOrder}/assigned-staff', 'App\Http\Controllers\Api\V1\PurchaseOrderAssignedStaffController@store');
+        $api->patch('purchase-orders/{purchaseOrder}/assigned-staff/{purchaseOrderAssignedStaff}', 'App\Http\Controllers\Api\V1\PurchaseOrderAssignedStaffController@update');
         $api->delete('purchase-orders/{purchaseOrder}/assigned-staff/{purchaseOrderAssignedStaff}', 'App\Http\Controllers\Api\V1\PurchaseOrderAssignedStaffController@destroy');
 
         $api->get('purchase-order-expense-types', 'App\Http\Controllers\Api\V1\PurchaseOrderExpenseController@indexPurchaseOrderExpenseTypes');
@@ -127,6 +127,11 @@ $api->version('v1', function ($api) {
         $api->get('stores/{store}/item-pricing/{effectivityDate}', 'App\Http\Controllers\Api\V1\StoreItemController@itemPricing');
     });
 
+    $api->group(['prefix' => 'promodisers', 'middleware' => ['api.auth', 'bindings']], function ($api) {
+        $api->post('/{promodiser}/ratings', 'App\Http\Controllers\Api\V1\PromodiserRatingController@store');
+        $api->post('/{promodiser}/payments', 'App\Http\Controllers\Api\V1\PromodiserPaymentController@store');
+    });
+
     $api->group(['prefix' => 'reports', 'middleware' =>['api.auth', 'bindings']], function ($api) {
         $api->get('delivery-sales-monitoring', 'App\Http\Controllers\Api\V1\DeliverySalesMonitoringController@index');
         $api->get('delivery-receipt-monitoring', 'App\Http\Controllers\Api\V1\DeliveryReceiptMonitoringController@index');
@@ -134,6 +139,8 @@ $api->version('v1', function ($api) {
         $api->get('stock-cards-monitoring', 'App\Http\Controllers\Api\V1\StockCardsMonitoringController@index');
         $api->get('stock-cards-monitoring-available-items', 'App\Http\Controllers\Api\V1\StockCardsMonitoringController@availableItems');
         $api->get('promodisers-summary', 'App\Http\Controllers\Api\V1\PromodisersSummaryController@index');
+        $api->get('item-sales-monitoring', 'App\Http\Controllers\Api\V1\ItemSalesMonitoringController@index');
+        $api->get('delivery-trips-summary', 'App\Http\Controllers\Api\V1\DeliveryTripsController@index');
     });
 
     $api->group(['prefix' => 'stock-cards', 'middleware' => ['api.auth', 'bindings']], function ($api) {
@@ -145,6 +152,10 @@ $api->version('v1', function ($api) {
             $api->get('/', 'App\Http\Controllers\Api\V1\StockCardDetailController@index');
             $api->post('/', 'App\Http\Controllers\Api\V1\StockCardDetailController@store');
         });
+    });
+
+    $api->group(['prefix' => 'common', 'middleware' => ['bindings']], function ($api) {
+        $api->get('/ratings', 'App\Http\Controllers\Api\V1\RatingController@index');
     });
 
     // Utilities

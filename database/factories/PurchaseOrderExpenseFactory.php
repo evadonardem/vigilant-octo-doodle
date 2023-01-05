@@ -22,7 +22,8 @@ class PurchaseOrderExpenseFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'name' => $this->faker->unique()->numerify('EXP-####'),
+            'amount_original' => $this->faker->randomFloat(2, 0, 999),
         ];
     }
 }

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PayPeriod extends Model
 {
-    protected $fillable = ['from', 'to'];
+    protected $fillable = ['from', 'to', 'include_deliveries_from_purchase_orders'];
 
     public function commonDeductions()
     {

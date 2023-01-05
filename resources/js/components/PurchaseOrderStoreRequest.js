@@ -188,7 +188,7 @@ export default class PurchaseOrderStoreRequest extends Component {
                         <Breadcrumb.Item active>Store Request</Breadcrumb.Item>
                     </Breadcrumb>
                 }
-                { purchaseOrder && +purchaseOrder.status.id === 1 &&
+                { purchaseOrder && (+purchaseOrder.status.id === 1 || +purchaseOrder.status.id === 2) &&
                     <Card>
                         <Card.Header>
                             <p>

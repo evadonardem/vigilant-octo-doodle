@@ -14,7 +14,7 @@ class JobContractFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'rate' => random_int(350, 700),
         ];
     }
 }

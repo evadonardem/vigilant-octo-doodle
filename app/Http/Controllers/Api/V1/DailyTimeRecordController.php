@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Services\DeliveryService;
 use Carbon\Carbon;
 use Dingo\Api\Routing\Helpers;
 use App\Models\User;
 use App\Models\Delivery;
 use App\Models\OvertimeRate;
+use App\Models\PurchaseOrder;
+use Illuminate\Support\Facades\Log;
 
 class DailyTimeRecordController extends Controller
 {
@@ -25,11 +28,18 @@ class DailyTimeRecordController extends Controller
             'biometric_id',
             'start_date',
             'end_date',
+            'include_deliveries_from_purchase_orders',
         ]);
 
         $biometricId = $request->input('biometric_id');
         $startDate = Carbon::createFromFormat('Y-m-d', $request->input('start_date'));
         $endDate = Carbon::createFromFormat('Y-m-d', $request->input('end_date'));
+        $includeDeliveriesFromPurchaseOrders = $request->input('include_deliveries_from_purchase_orders');
+
+        // fetch deliveries (trips) from closed purchase orders
+        $deliveryService = resolve(DeliveryService::class);
+        $deliveriesFromPurchaseOrders = $includeDeliveriesFromPurchaseOrders
+            ? $deliveryService->getAllTripsByPeriod($startDate->format('Y-m-d'), $endDate->format('Y-m-d')) : [];
 
         $meta = [
             'from' => $startDate->format('d M Y'),
@@ -203,6 +213,35 @@ class DailyTimeRecordController extends Controller
             }
         }
 
+        // register daily time record placeholders for deliveries from purchase orders
+        foreach ($deliveriesFromPurchaseOrders as $biometricId => $details) {
+            $deliveries = $details['deliveries'];
+
+            foreach ($deliveries as $coverageDate => $deliveryDetails) {
+                if (array_key_exists($biometricId, $dailyTimeRecord)) {
+                    if (
+                        !array_key_exists(
+                            $coverageDate,
+                            $dailyTimeRecord[$biometricId]['logs']
+                        )
+                    ) {
+                        $dailyTimeRecord[$biometricId]['logs'][$coverageDate] = [];
+                    }
+                } else {
+                    $dailyTimeRecord[$biometricId] = [
+                        'biometric_id' => $biometricId,
+                        'biometric_name' => $details['name'],
+                        'position' => $details['position'],
+                        'effective_per_hour_rate' => 0,
+                        'effective_per_delivery_rate' => $deliveryDetails->effective_per_delivery_rate,
+                        'logs' => [
+                            $coverageDate => []
+                        ],
+                    ];
+                }
+            }
+        }
+
         $dailyTimeRecord = array_values($dailyTimeRecord);
 
         foreach ($dailyTimeRecord as &$details) {
@@ -368,6 +407,12 @@ class DailyTimeRecordController extends Controller
                         ->first();
                 }
                 $totalDeliveries = $delivery ? $delivery->no_of_deliveries : 0;
+
+                $deliveryFromPO = $deliveriesFromPurchaseOrders[$user->biometric_id] ?? null;
+                if ($deliveryFromPO && array_key_exists($date->format('Y-m-d'), $deliveryFromPO['deliveries'])) {
+                    $totalDeliveries += $deliveryFromPO['deliveries'][$date->format('Y-m-d')]->no_of_deliveries;
+                }
+
                 $totalDeliveriesAmount  = $totalDeliveries * ($perDeliveryRateAmount ? $perDeliveryRateAmount->amount : 0);
 
                 $meta['duration_total_hours'] += $totalInHours;

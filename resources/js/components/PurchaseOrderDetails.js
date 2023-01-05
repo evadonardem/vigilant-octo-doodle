@@ -160,7 +160,7 @@ export default class PurchaseOrderDetails extends Component {
                 {
                     'data': null,
                     'render': function (data, type, row) {
-                        if (+data.purchase_order_status.id === 1) {
+                        if (+data.purchase_order_status.id === 1 || +data.purchase_order_status.id === 2) {
                             const editBtn = `<a
                                 href="#/purchase-order/${data.pivot.purchase_order_id}/store-request/${data.pivot.store_id}"
                                 class="btn btn-primary">
@@ -423,7 +423,7 @@ export default class PurchaseOrderDetails extends Component {
                             {
                                 'data': null,
                                 'render': function (data, type, row) {
-                                    if (+data.purchase_order_status.id === 1) {
+                                    if (+data.purchase_order_status.id === 1 || +data.purchase_order_status.id === 2) {
                                         const deleteBtn = `<a
                                             href="#"
                                             data-purchase-order-id=${data.pivot.purchase_order_id}
@@ -539,6 +539,21 @@ export default class PurchaseOrderDetails extends Component {
                 {
                     'data': null,
                     'render': function (data, type, row) {
+						return `<div class="form-check">
+							<input
+								class="form-check-input include-deliveries-to-pay-periods"
+								type="checkbox"
+								id="includeDeliveriesForPayPeriods"
+								data-purchase-order-id=${purchaseOrderId}
+                                data-purchase-order-assigned-staff-id=${data.pivot.id}
+								${data.pivot.include_deliveries_for_pay_periods ? 'checked' : ''}/>
+							<label class="form-check-label" for="includeDeliveriesForPayPeriods"></label>
+						</div>`;
+                    }
+                },
+                {
+                    'data': null,
+                    'render': function (data, type, row) {
                         if (data.can_delete) {
                             const deleteBtn = `<a
                                 href="#"
@@ -562,6 +577,29 @@ export default class PurchaseOrderDetails extends Component {
             searching: false,
         });
     
+		$(document).on('click', '.data-table-wrapper .include-deliveries-to-pay-periods', function (e) {
+			const purchaseOrderId = e.target.getAttribute('data-purchase-order-id');
+			const purchaseOrderAssignedStaffId = e.target.getAttribute('data-purchase-order-assigned-staff-id');
+			const isChecked = e.target.checked;
+			const data = { include_deliveries_for_pay_periods: isChecked };
+			
+			axios.patch(`${END_POINT}/${purchaseOrderId}/assigned-staff/${purchaseOrderAssignedStaffId}?token=${token}`, data)
+                .catch((error) => {
+                    const {
+                        data,
+                        status,
+                    } = error.response;
+    
+                    if (+status === 422) {
+                        const { message: generalMessage } = data;
+                        self.setState({
+                            ...self.state,
+                            error: { generalMessage },
+                        });
+                    }
+                });
+		});
+		
         $(document).on('click', '.data-table-wrapper .delete-po-assigned-staff', function (e) {
             e.preventDefault();
     
@@ -1221,7 +1259,7 @@ export default class PurchaseOrderDetails extends Component {
                                             <tbody></tbody>
                                         </table>
                                     </Card.Body>
-                                    { purchaseOrder.status.id  === 1 &&
+                                    { (purchaseOrder.status.id  === 1 || purchaseOrder.status.id  === 2) &&
                                         <Card.Footer>
                                             <div className='pull-right'>
                                                 <Link to={`/purchase-order/${purchaseOrder.id}/store-request`}>
@@ -1244,6 +1282,7 @@ export default class PurchaseOrderDetails extends Component {
                                                             <tr>
                                                                 <th scope="col">ID</th>
                                                                 <th scope="col">Name</th>
+                                                                <th scope="col">Include Deliveries to Pay Periods</th>
                                                                 <th scope="col"></th>
                                                             </tr>
                                                         </thead>

@@ -70,6 +70,7 @@ class PayPeriodController extends Controller
         $logs = $this->api->get('daily-time-record', [
             'start_date' => $startDate->format('Y-m-d'),
             'end_date' => $endDate->format('Y-m-d'),
+            'include_deliveries_from_purchase_orders' => $payPeriod->include_deliveries_from_purchase_orders,
         ]);
         $data = $logs['data'];
 
@@ -109,11 +110,13 @@ class PayPeriodController extends Controller
         $attributes = $request->only([
             'from',
             'to',
+            'include_deliveries_from_purchase_orders',
         ]);
 
         PayPeriod::create([
             'from' => $attributes['from'],
-            'to' => $attributes['to']
+            'to' => $attributes['to'],
+            'include_deliveries_from_purchase_orders' => isset($attributes['include_deliveries_from_purchase_orders']),
         ]);
 
         return response()->noContent();

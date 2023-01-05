@@ -22,7 +22,8 @@ class PromodiserFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'name' => $this->faker->name,
+            'contact_no' => $this->faker->phoneNumber,
         ];
     }
 }
