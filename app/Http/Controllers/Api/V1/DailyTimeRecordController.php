@@ -121,10 +121,11 @@ class DailyTimeRecordController extends Controller
                     $dailyTimeRecord[$log['biometric_id']] = [
                         'biometric_id' => $user->biometric_id,
                         'biometric_name' => $user->name,
-                        'position' => $user->roles()
+                        /*'position' => $user->roles()
                             ->orderBy('created_at', 'desc')
                             ->first()
-                            ->id,
+                            ->id,*/
+                        'position' => 'TODO',
                         'effective_per_hour_rate' => $perHourRateAmount
                             ? $perHourRateAmount->amount : '0.00',
                         'effective_per_delivery_rate' => $perDeliveryRateAmount
@@ -190,10 +191,11 @@ class DailyTimeRecordController extends Controller
                 $dailyTimeRecord[$delivery->user->biometric_id] = [
                     'biometric_id' => $delivery->user->biometric_id,
                     'biometric_name' => $delivery->user->name,
-                    'position' => $delivery->user->roles()
+                    /*'position' => $delivery->user->roles()
                         ->orderBy('created_at', 'desc')
                         ->first()
-                        ->id,
+                        ->id,*/
+                    'position' => 'TODO',
                     'effective_per_hour_rate' => 0,
                     'effective_per_delivery_rate' => $perDeliveryRateAmount
                         ? $perDeliveryRateAmount->amount : 0,
@@ -231,6 +233,9 @@ class DailyTimeRecordController extends Controller
                     $dailyTimeRecord[$biometricId] = [
                         'biometric_id' => $biometricId,
                         'biometric_name' => $details['name'],
+                        /**
+                         * @todo double check usage
+                         */
                         'position' => $details['position'],
                         'effective_per_hour_rate' => 0,
                         'effective_per_delivery_rate' => $deliveryDetails->effective_per_delivery_rate,

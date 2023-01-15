@@ -26,10 +26,14 @@ class BiometricUsersController extends Controller
         $users = User::orderBy('name', 'asc')->get();
         $users->each(function ($user) {
             if ($user->roles->count() > 0) {
-                $user->role = $user->roles()
+				/**
+				 * @todo will be replaced by user title
+				 */
+                /*$user->role = $user->roles()
                        ->orderBy('user_roles.created_at', 'desc')
                        ->first()
-                       ->id;
+                       ->id;*/
+                $user->role = null;
             } else {
                 $user->role = null;
             }

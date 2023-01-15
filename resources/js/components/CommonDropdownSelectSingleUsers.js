@@ -25,7 +25,7 @@ export default class CommonDropdownSelectSingleUsers extends Component {
             axios.get(apiBaseUrl + '/biometric/users?token=' + token + buildFilters)
                 .then((response) => {
                     const { data: users } = response.data;
-                    const options = users.map((user) => { return { value: user.biometric_id, label: `${user.name} (${user.role})` } });
+                    const options = users.map((user) => { return { value: user.biometric_id, label: `${user.name}` } });
                     self.setState({ options });
                 })
                 .catch((error) => {

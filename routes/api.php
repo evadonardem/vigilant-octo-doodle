@@ -104,7 +104,7 @@ $api->version('v1', function ($api) {
         );
     });
 
-    $api->group(['prefix' => 'biometric', 'middleware' => 'api.auth'], function ($api) {
+    $api->group(['prefix' => 'biometric', 'middleware' => ['api.auth', 'role:Super Admin']], function ($api) {
         $api->get('info', 'App\Http\Controllers\Api\V1\BiometricInfoController@index');
         $api->resource('users', 'App\Http\Controllers\Api\V1\BiometricUsersController');
         $api->get('users/{userId}/rates', 'App\Http\Controllers\Api\V1\RateController@index');
