@@ -27,7 +27,7 @@ class NavigationMenuController extends Controller
 				'label' => 'Logs',
 				'icon' => 'fa fa-calendar',
 				'to' => '/logs',
-				'is_visible' => $user && $user->hasRole('Super Admin'),
+				'is_visible' => true,
 			],
 			[
 				'label' => 'Compensation and Benefits',

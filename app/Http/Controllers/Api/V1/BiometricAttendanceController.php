@@ -7,13 +7,25 @@ use App\Http\Controllers\Controller;
 use App\ZKLib\ZKLibrary;
 use Dingo\Api\Routing\Helpers;
 use App\Models\AttendanceLog;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class BiometricAttendanceController extends Controller
 {
     use Helpers;
 
     private $zk = null;
+    
+    public function __construct(
+		User $currentUser,
+		bool $isSuperAdmin = false
+    )
+    {
+		$user = request()->user();
+		$this->currentUser = $user;
+		$this->isSuperAdmin = $user->hasRole('Super Admin');
+	}
 
     /**
      * Display a listing of the resource.
@@ -68,19 +80,25 @@ class BiometricAttendanceController extends Controller
           ->format('Y-m-d H:i:s');
 
         $logsQry = AttendanceLog::whereBetween('biometric_timestamp', [$startDate, $endDate]);
+        
+        if ($this->isSuperAdmin) {
+			Log::debug('Filtering attendance logs as super admin.');
+			if ($biometricIds) {
+				$biometricIdsChunks = array_chunk($biometricIds, 10);
+				$logsQry->where(function ($query) use ($biometricIdsChunks) {
+					foreach ($biometricIdsChunks as $chunk) {
+						$query->orWhereIn('biometric_id', $chunk);
+					}
+				});
+			}
 
-        if ($biometricIds) {
-            $biometricIdsChunks = array_chunk($biometricIds, 10);
-            $logsQry->where(function ($query) use ($biometricIdsChunks) {
-                foreach ($biometricIdsChunks as $chunk) {
-                    $query->orWhereIn('biometric_id', $chunk);
-                }
-            });
-        }
-
-        if ($name) {
-            $logsQry->where('biometric_name', 'like', '%' . $name . '%');
-        }
+			if ($name) {
+				$logsQry->where('biometric_name', 'like', '%' . $name . '%');
+			}	
+		} else {
+			Log::debug('Filtering attendance logs as standard user.');
+			$logsQry->where('biometric_id', $this->currentUser->biometric_id); 
+		}
 
         $logs = $logsQry->orderBy('biometric_timestamp', 'asc')->get();
 
