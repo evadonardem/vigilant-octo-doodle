@@ -162,4 +162,15 @@ $api->version('v1', function ($api) {
     $api->get('sync-admin-users', 'App\Http\Controllers\Api\V1\BiometricUsersController@syncAdminUsers');
     $api->get('sync-all-users', 'App\Http\Controllers\Api\V1\BiometricUsersController@syncAllUsers');
     $api->get('device-users', 'App\Http\Controllers\Api\V1\BiometricUsersController@deviceUsers');
+
+
+    // Roles and Permissions
+    $api->group(['prefix' => 'user', 'middleware' => ['api.auth', 'bindings']], function ($api) {
+        $api->get('/roles', function () {
+            return 'roles';
+        });
+        $api->get('/permissions', function () {
+            return 'permissions';
+        });
+    });
 });

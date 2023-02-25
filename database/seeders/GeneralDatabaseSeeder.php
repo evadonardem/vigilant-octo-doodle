@@ -20,33 +20,6 @@ class GeneralDatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $roles = [
-          'STAFF' => '',
-          'DRIVER' => '',
-        ];
-
-        foreach ($roles as $id => $description) {
-            $role = Role::where('id', $id)->first();
-            if (!$role) {
-                Role::create([
-                  'id' => $id,
-                  'description' => $description
-                ]);
-            }
-        }
-
-        $users = User::all();
-        $users->each(function ($user) {
-            if ($user->roles->count() == 0) {
-                $user->roles()->sync([
-                  'STAFF' => [
-                    'created_at' => '1970-02-02',
-                    'updated_at' => '1970-02-02'
-                  ]
-                ]);
-            }
-        });
-
         $rateTypes = RateType::all();
         if ($rateTypes->count() == 0) {
             RateType::create([
