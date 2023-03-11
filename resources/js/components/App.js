@@ -1,75 +1,73 @@
-import React, { Component } from 'react';
+import React, { createContext, useState } from 'react';
 import cookie from 'react-cookies';
 import ReactDOM from 'react-dom';
 import { HashRouter } from 'react-router-dom';
 import Root from './Root';
 import Login from './Login';
 
-export default class App extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            isLoggedIn: false,
-            signedInUser: null
-        };
-        this.logIn = this.logIn.bind(this);
-    }
+export const Auth = createContext(null);
 
-    componentDidMount() {
-        const token = cookie.load('token');
-        const self = this;
+export default function App() {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [signedInUser, setSignedInUser] = useState(null);
+    const [userRoles, setUserRoles] = useState([]);
+    const [userPermissions, setUserPermissions] = useState([]);
 
-        if (token) {
-            axios.post(apiBaseUrl + '/me?token=' + token, {})
-            .then((response) => {
-                const { data } = response;
-                const { name: signedInUser } = data;
+    function hasRole(name) {
+        return !!_.find(userRoles, (role) => role.name === name);
+    };
 
-                self.setState({ isLoggedIn: true, signedInUser });
-            })
-            .catch((error) => {
-                self.setState({ isLoggedIn: false, signedInUser: null });
-            });
-        }
-    }
-
-    logIn(biometricId, password) {
-        const self = this;
+    function logIn(biometricId, password) {
         axios.post(apiBaseUrl + '/login', { biometric_id: biometricId, password })
             .then((response) => {
                 const { data } = response;
                 const { token } = data;
                 cookie.save('token', token);
-                
+                setIsLoggedIn(true);
+
                 axios.post(apiBaseUrl + '/me?token=' + token, {})
                     .then((response) => {
                         const { data } = response;
                         const { name: signedInUser } = data;
-                        self.setState({ isLoggedIn: true, signedInUser });
+                        setSignedInUser(signedInUser);
                     })
-                    .catch((error) => {
-                        self.setState({ isLoggedIn: false, signedInUser: null });
+                    .catch(() => {
+                        setIsLoggedIn(false);
+                        setSignedInUser(null);
+                    });
+                axios.get(`${apiBaseUrl}/user/roles?token=${token}`)
+                    .then((response) => {
+                        const { data: roles } = response.data;
+                        setUserRoles(roles);
+                    });
+                axios.get(`${apiBaseUrl}/user/permissions?token=${token}`)
+                    .then((response) => {
+                        const { data: permissions } = response.data;
+                        setUserPermissions(permissions);
                     });
             })
-            .catch((error) => {
-                self.setState({ isLoggedIn: false, signedInUser: null });
+            .catch(() => {
+                setIsLoggedIn(false);
+                setSignedInUser(null);
             });
-    }
+    };
 
-    render() {
-        const { isLoggedIn, signedInUser } = this.state;
-        return (
-            <div>
-                { isLoggedIn && 
-                <HashRouter>
-                    <Root signedInUser={signedInUser}></Root>
-                </HashRouter> }
+    return (
+        <>
+            {isLoggedIn &&
+                <Auth.Provider value={{
+                    user: signedInUser,
+                    hasRole,
+                }}>
+                    <HashRouter>
+                        <Root signedInUser={signedInUser}></Root>
+                    </HashRouter>
+                </Auth.Provider>}
 
-                { !isLoggedIn && 
-                    <Login logIn={this.logIn} /> }
-            </div>
-        );
-    }
+            {!isLoggedIn &&
+                <Login logIn={logIn} />}
+        </>
+    );
 }
 
 if (document.getElementById('app')) {

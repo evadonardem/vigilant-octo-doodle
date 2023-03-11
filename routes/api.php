@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\NavigationMenuController;
+use App\Http\Controllers\Api\V1\UserPermissionController;
+use App\Http\Controllers\Api\V1\UserRoleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,20 +19,26 @@
 $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', function ($api) {
-    $api->get('/', function () {
-        return 'TAD API';
-    });
+    // Ping
+    $api->get('/', fn () => config('app.name'));
 
-    $api->post('login', 'App\Http\Controllers\Api\V1\AuthController@login');
-
-    $api->group(['prefix' => 'navigation-menu', 'middleware' => 'api.auth'], function ($api) {
-        $api->get('/', 'App\Http\Controllers\Api\V1\NavigationMenuController@index');
-    });
-
+    // Authentication
+    $api->post('login', [AuthController::class, 'login']);
     $api->group(['middleware' => 'api.auth'], function ($api) {
-        $api->post('logout', 'App\Http\Controllers\Api\V1\AuthController@logout');
-        $api->post('refresh', 'App\Http\Controllers\Api\V1\AuthController@refresh');
-        $api->post('me', 'App\Http\Controllers\Api\V1\AuthController@me');
+        $api->post('logout', [AuthController::class, 'logout']);
+        $api->post('refresh', [AuthController::class, 'refresh']);
+        $api->post('me', [AuthController::class, 'me']);
+    });
+
+    // Roles and Permissions
+    $api->group(['prefix' => 'user', 'middleware' => ['api.auth', 'bindings']], function ($api) {
+        $api->get('/roles', [UserRoleController::class, 'index']);
+        $api->get('/permissions', [UserPermissionController::class, 'index']);
+    });
+
+    // Navigation Menu
+    $api->group(['prefix' => 'navigation-menu', 'middleware' => 'api.auth'], function ($api) {
+        $api->get('/', [NavigationMenuController::class, 'index']);
     });
 
     $api->group(['middleware' => ['api.auth', 'bindings']], function ($api) {
@@ -162,15 +172,4 @@ $api->version('v1', function ($api) {
     $api->get('sync-admin-users', 'App\Http\Controllers\Api\V1\BiometricUsersController@syncAdminUsers');
     $api->get('sync-all-users', 'App\Http\Controllers\Api\V1\BiometricUsersController@syncAllUsers');
     $api->get('device-users', 'App\Http\Controllers\Api\V1\BiometricUsersController@deviceUsers');
-
-
-    // Roles and Permissions
-    $api->group(['prefix' => 'user', 'middleware' => ['api.auth', 'bindings']], function ($api) {
-        $api->get('/roles', function () {
-            return 'roles';
-        });
-        $api->get('/permissions', function () {
-            return 'permissions';
-        });
-    });
 });
