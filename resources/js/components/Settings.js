@@ -1,72 +1,49 @@
 import React, { Component } from 'react';
 import { Jumbotron, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import Option from './Generic/Option';
 
-import { Document, Page } from '@react-pdf/renderer';
+export default function Settings() {
+    const options = [
+        {
+            icon: "users",
+            title: "User Roles",
+            description: null,
+            to: "settings-user-roles",
+        },
+        {
+            icon: "calendar",
+            title: "Overtime Rates",
+            description: null,
+            to: "settings-overtime-rates",
+        },
+        {
+            icon: "list",
+            title: "Items Registry",
+            description: null,
+            to: "settings-items",
+        },
+        {
+            icon: "shopping-basket",
+            title: "Stores Registry",
+            description: null,
+            to: "settings-stores",
+        },
+        {
+            icon: "users",
+            title: "Roles and Permissions",
+            description: "User roles and permissions setting.",
+            to: "settings-roles-and-permissions",
+        }
+    ];
 
-export default class Settings extends Component {
-    render() {
-        return (
-            <div className="container-fluid my-4">
-                <div className="row">
-                    <div className="col-md-6">
-                        <Jumbotron className="bg-primary text-white">
-                            <h1 className="text-center">
-                                <i className="fa fa-users"></i><br/>
-                                User Roles
-                            </h1>
-                            <hr className="my-4"/>
-                            <p className="lead text-center">
-                                <Link to={'settings-user-roles'}>
-                                    <Button variant="primary" size="lg">Continue &raquo;</Button>
-                                </Link>
-                            </p>
-                        </Jumbotron>
-                    </div>
-                    <div className="col-md-6">
-                        <Jumbotron className="bg-primary text-white">
-                            <h1 className="text-center">
-                                <i className="fa fa-calendar"></i><br/>
-                                Overtime Rates
-                            </h1>
-                            <hr className="my-4"/>
-                            <p className="lead text-center">
-                                <Link to={'settings-overtime-rates'}>
-                                    <Button variant="primary" size="lg">Continue &raquo;</Button>
-                                </Link>
-                            </p>
-                        </Jumbotron>
-                    </div>
-                    <div className="col-md-6">
-                        <Jumbotron className="bg-primary text-white">
-                            <h1 className="text-center">
-                                <i className="fa fa-list"></i><br/>
-                                Items Registry
-                            </h1>
-                            <hr className="my-4"/>
-                            <p className="lead text-center">
-                                <Link to={'settings-items'}>
-                                    <Button variant="primary" size="lg">Continue &raquo;</Button>
-                                </Link>
-                            </p>
-                        </Jumbotron>
-                    </div>
-                    <div className="col-md-6">
-                        <Jumbotron className="bg-primary text-white">
-                            <h1 className="text-center">
-                                <i className="fa fa-shopping-basket"></i><br/>
-                                Stores Registry
-                            </h1>
-                            <hr className="my-4"/>
-                            <p className="lead text-center">
-                                <Link to={'settings-stores'}>
-                                    <Button variant="primary" size="lg">Continue &raquo;</Button>
-                                </Link>
-                            </p>
-                        </Jumbotron>
-                    </div>
-                </div>
+    return <>
+        <div className="container-fluid my-4">
+            <div className="row">
+                {options.map(({ icon, title, description, to } = options) => <div className="col-md-6">
+                    <Option icon={icon} title={title} description={description} to={to} />
+                </div>)}
             </div>
-        );
-    }
+        </div>
+    </>;
 }

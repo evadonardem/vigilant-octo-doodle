@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\NavigationMenuController;
+use App\Http\Controllers\Api\V1\RoleController;
 use App\Http\Controllers\Api\V1\UserPermissionController;
 use App\Http\Controllers\Api\V1\UserRoleController;
 
@@ -123,7 +124,7 @@ $api->version('v1', function ($api) {
     });
 
     $api->group(['prefix' => 'settings', 'middleware' =>['api.auth', 'bindings']], function ($api) {
-        $api->resource('roles', 'App\Http\Controllers\Api\V1\RolesController');
+        //$api->resource('roles', 'App\Http\Controllers\Api\V1\RolesController');
         $api->resource('deduction-types', 'App\Http\Controllers\Api\V1\DeductionTypesController');
         $api->resource('overtime-rates', 'App\Http\Controllers\Api\V1\OvertimeRateController');
         $api->get('overtime-rate-types', 'App\Http\Controllers\Api\V1\OvertimeRateTypeController@index');
@@ -135,6 +136,8 @@ $api->version('v1', function ($api) {
         $api->resource('stores/{store}/promodisers/{promodiser}/job-contracts', 'App\Http\Controllers\Api\V1\StorePromodiserJobContractController');
         $api->resource('stores/{store}/items', 'App\Http\Controllers\Api\V1\StoreItemController');
         $api->get('stores/{store}/item-pricing/{effectivityDate}', 'App\Http\Controllers\Api\V1\StoreItemController@itemPricing');
+
+        $api->get('roles', [RoleController::class, 'index']);
     });
 
     $api->group(['prefix' => 'promodisers', 'middleware' => ['api.auth', 'bindings']], function ($api) {

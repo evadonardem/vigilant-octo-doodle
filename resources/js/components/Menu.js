@@ -51,6 +51,7 @@ import ReportsPromodisersSummary from './ReportsPromodisersSummary';
 import PurchaseOrderStoreRequest from './PurchaseOrderStoreRequest';
 import SalesInvoiceStoreItemsShow from './SalesInvoiceStoreItemsShow';
 import SettingsStoreItemPricing from './SettingsStoreItemPricing';
+import RolesAndPermissions from './Settings/RolesAndPermissions';
 
 export default class Menu extends Component {
     constructor(props) {
@@ -207,9 +208,11 @@ export default class Menu extends Component {
                     <Route path={'/stock-cards-create'} component={StockCardsCreate}></Route>
                     <Route path={'/stock-card-details/:stockCardId'} component={StockCardsShow}></Route>
 
+                    <Route path={'/user-rate-history/:userId'} component={UserRateHistory}></Route>
+                    <Route path={'/user-roles-and-permissions/:userId'} component={RolesAndPermissions}></Route>
+
                     <Route path={'/settings-user-roles'} component={SettingsUserRoles}></Route>
                     <Route path={'/settings-overtime-rates'} component={SettingsOvertimeRates}></Route>
-                    <Route path={'/user-rate-history/:userId'} component={UserRateHistory}></Route>
                     <Route path={'/settings-items'} component={SettingsItems}></Route>
                     <Route path={'/settings-stores'} component={SettingsStores}></Route>
                     <Route path={'/settings-store-details/:storeId'} component={SettingStoreDetails}></Route>

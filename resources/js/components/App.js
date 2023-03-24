@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import cookie from 'react-cookies';
 import ReactDOM from 'react-dom';
 import { HashRouter } from 'react-router-dom';
@@ -9,32 +9,21 @@ export const Auth = createContext(null);
 
 export default function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [user, setUser] = useState(null);
     const [signedInUser, setSignedInUser] = useState(null);
     const [userRoles, setUserRoles] = useState([]);
     const [userPermissions, setUserPermissions] = useState([]);
+    const [errorMessage, setErrorMessage] = useState('');
 
-    function hasRole(name) {
-        return !!_.find(userRoles, (role) => role.name === name);
-    };
-
-    function logIn(biometricId, password) {
-        axios.post(apiBaseUrl + '/login', { biometric_id: biometricId, password })
+    const authorize = () => {
+        const token = cookie.load('token');
+        axios.post(`${apiBaseUrl}/me?token=${token}`, {})
             .then((response) => {
                 const { data } = response;
-                const { token } = data;
-                cookie.save('token', token);
+                const { name: signedInUser } = data;
                 setIsLoggedIn(true);
-
-                axios.post(apiBaseUrl + '/me?token=' + token, {})
-                    .then((response) => {
-                        const { data } = response;
-                        const { name: signedInUser } = data;
-                        setSignedInUser(signedInUser);
-                    })
-                    .catch(() => {
-                        setIsLoggedIn(false);
-                        setSignedInUser(null);
-                    });
+                setUser(data);
+                setSignedInUser(signedInUser);
                 axios.get(`${apiBaseUrl}/user/roles?token=${token}`)
                     .then((response) => {
                         const { data: roles } = response.data;
@@ -52,11 +41,30 @@ export default function App() {
             });
     };
 
+    const hasRole = (name) => !!_.find(userRoles, (role) => role.name === name);
+
+    const handleSubmit = ({ biometricId, password } = e) => {
+        axios.post(apiBaseUrl + '/login', { biometric_id: biometricId, password })
+            .then((response) => {
+                const { data } = response;
+                const { token } = data;
+                cookie.save('token', token);
+                authorize();
+            })
+            .catch(() => {
+                setIsLoggedIn(false);
+                setSignedInUser(null);
+                setErrorMessage('Invalid Biometric ID or password.');
+            });
+    };
+
+    useEffect(() => authorize(), []);;
+
     return (
         <>
-            {isLoggedIn &&
+            {isLoggedIn && user && (userRoles || userPermissions) &&
                 <Auth.Provider value={{
-                    user: signedInUser,
+                    user,
                     hasRole,
                 }}>
                     <HashRouter>
@@ -65,7 +73,7 @@ export default function App() {
                 </Auth.Provider>}
 
             {!isLoggedIn &&
-                <Login logIn={logIn} />}
+                <Login onSubmit={handleSubmit} errorMessage={errorMessage} />}
         </>
     );
 }

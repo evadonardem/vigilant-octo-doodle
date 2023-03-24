@@ -59,10 +59,11 @@ export default class Users extends Component {
                     'data': null,
                     'render': function (data, type, row) {
                         const historyBtn = '<a href="#" class="rate-history btn btn-secondary" data-user-id="' + row.id + '"><i class="fa fa-history"></i></a>';
+                        const rolesAndPermissionsBtn = '<a href="#" class="roles-and-permissions btn btn-secondary" data-user-id="' + row.id + '"><i class="fa fa-id-card"></i></a>';
                         const editBtn = '<a href="#" class="edit btn btn-primary" data-toggle="modal" data-target="#addEditBiometricUserModal" data-user-id="' + row.id + '" data-biometric-id="' + row.biometric_id + '" data-name="' + row.name + '" data-role="' + row.role + '" data-per-hour-rate-amount="' + row.current_per_hour_rate_amount + '" data-per-delivery-rate-amount="' + row.current_per_delivery_rate_amount + '"><i class="fa fa-edit"></i></a>';
                         const deleteBtn = '<a href="#" class="delete btn btn-warning" data-toggle="modal" data-target="#deleteModal" data-user-id="' + row.id + '" data-biometric-id="' + row.biometric_id + '" data-name="' + row.name + '"><i class="fa fa-trash"></i></a>';
 
-                        return `${historyBtn}&nbsp;${editBtn}&nbsp;${deleteBtn}`;
+                        return `${historyBtn}&nbsp;${rolesAndPermissionsBtn}&nbsp;${editBtn}&nbsp;${deleteBtn}`;
                     }
                 }
             ]
@@ -72,6 +73,12 @@ export default class Users extends Component {
             e.preventDefault();
             const userId = e.currentTarget.getAttribute('data-user-id');
             location.href = `${appBaseUrl}/#/user-rate-history/${userId}`;
+        });
+
+        $(document).on('click', '.data-table-wrapper .roles-and-permissions', function(e) {
+            e.preventDefault();
+            const userId = e.currentTarget.getAttribute('data-user-id');
+            location.href = `${appBaseUrl}/#/user-roles-and-permissions/${userId}`;
         });
 
         $(document).on('click', '.data-table-wrapper .edit', function(e) {

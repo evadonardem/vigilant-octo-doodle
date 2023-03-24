@@ -3,68 +3,41 @@ import { Jumbotron, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 import { Auth } from './App';
+import Option from './Generic/Option';
 
 export default function Dashboard() {
     const { hasRole } = useContext(Auth);
+    let allowedAccess = hasRole("Super Admin");
 
     return (
         <div className="container-fluid my-4">
+
             <div className="row">
                 <div className="col-md-6">
-                    <Jumbotron>
-                        <h1 className="text-center">
-                            <i className="fa fa-calendar"></i><br />
-                            Attendance Logs
-                        </h1>
-                        <hr className="my-4" />
-                        <p className="lead text-center">
-                            <Link to={'attendance-logs'}>
-                                <Button variant="primary" size="lg">Continue &raquo;</Button>
-                            </Link>
-                        </p>
-                    </Jumbotron>
+                    <Option
+                        icon="calendar"
+                        title="Attendance Logs"
+                        description="Time logs from biometric device."
+                        to="attendance-logs" />
                 </div>
                 <div className="col-md-6">
-                    <Jumbotron>
-                        <h1 className="text-center">
-                            <i className="fa fa-clock-o"></i><br />
-                            Daily Time Record
-                        </h1>
-                        <hr className="my-4" />
-                        <p className="lead text-center">
-                            <Link to={'daily-time-record'}>
-                                <Button variant="primary" size="lg">Continue &raquo;</Button>
-                            </Link>
-                        </p>
-                    </Jumbotron>
+                    <Option
+                        icon="clock-o"
+                        title="Daily Time Record"
+                        description="Consolidated daily time record."
+                        to="daily-time-record" />
                 </div>
-                {hasRole("Super Admin") && <div className="col-md-6">
-                    <Jumbotron>
-                        <h1 className="text-center">
-                            <i className="fa fa-users"></i><br />
-                            Biometric Users
-                        </h1>
-                        <hr className="my-4" />
-                        <p className="lead text-center">
-                            <Link to={'users'}>
-                                <Button variant="primary" size="lg">Continue &raquo;</Button>
-                            </Link>
-                        </p>
-                    </Jumbotron>
+                {allowedAccess && <div className="col-md-6">
+                    <Option
+                        icon="fa-users"
+                        title="Biometric Users"
+                        to="users" />
                 </div>}
-                {hasRole("Super Admin") && <div className="col-md-6">
-                    <Jumbotron>
-                        <h1 className="text-center">
-                            <i className="fa fa-cogs"></i><br />
-                            General Settings
-                        </h1>
-                        <hr className="my-4" />
-                        <p className="lead text-center">
-                            <Link to={'settings'}>
-                                <Button variant="primary" size="lg">Continue &raquo;</Button>
-                            </Link>
-                        </p>
-                    </Jumbotron>
+                {allowedAccess && <div className="col-md-6">
+                    <Option
+                        icon="fa-cogs"
+                        title="General Settings"
+                        to="settings" />
                 </div>}
             </div>
         </div >
