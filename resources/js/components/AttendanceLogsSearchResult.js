@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Card, Jumbotron } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import sanitize from 'sanitize-filename';
 
@@ -57,7 +57,7 @@ export default class AttendanceLogsSearchResult extends Component {
 
         const user = `User: ${ biometricId ? `${biometricId} ${biometricName}` : 'All' }`;
         const label = `${user}${user ? ' ' : ''}From: ${startDate} To: ${endDate}`;
-        
+
         return `Attendance Logs ${label}`;
     }
 
@@ -93,12 +93,10 @@ export default class AttendanceLogsSearchResult extends Component {
             <div>
                 {
                     (!startDate || !endDate) &&
-                    <Jumbotron>
-                        <p className="text-center">
-                            <i className="fa fa-5x fa-info-circle"/><br/>
-                            Start by filtering records to search.
-                        </p>
-                    </Jumbotron>
+                    <p className="text-center">
+                        <i className="fa fa-5x fa-info-circle" /><br />
+                        Start by filtering records to search.
+                    </p>
                 }
 
                 <Card style={{ display: (hideTable ? 'none' : '') }}>

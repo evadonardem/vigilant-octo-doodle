@@ -2,7 +2,7 @@ import axios from 'axios';
 import cookie from 'react-cookies';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import {
     Nav,
@@ -95,20 +95,21 @@ export default class Menu extends Component {
         let submenuIndex = 0;
         let routeIndex = 0;
         return (
-            <div>
-                <Navbar bg="dark" expand="lg" variant="dark">
-                    <Navbar.Brand href="#">{brand && brand}</Navbar.Brand>
-                    <Navbar.Toggle aria-controls="basic-navbar-nav"/>
-                    <Navbar.Collapse id="basic-navbar-nav">
-                        <Nav className="mr-auto">
-                            { links && links.map((link) => {
+            <Router>
+                <div>
+                    <Navbar bg="dark" expand="lg" variant="dark">
+                        <Navbar.Brand href="#">{brand && brand}</Navbar.Brand>
+                        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                        <Navbar.Collapse id="basic-navbar-nav">
+                            <Nav className="mr-auto">
+                                {links && links.map((link) => {
                                     if (link.links) {
                                         const dropdownItems = link.links && link.links.map((dropdownLink) =>
-                                        <NavDropdown.Item
-                                            key={'menu-' + menuIndex + '-dropdown-item-' + submenuIndex++}
-                                            href={dropdownLink.url}>
-                                            {dropdownLink.label}
-                                        </NavDropdown.Item>);
+                                            <NavDropdown.Item
+                                                key={'menu-' + menuIndex + '-dropdown-item-' + submenuIndex++}
+                                                href={dropdownLink.url}>
+                                                {dropdownLink.label}
+                                            </NavDropdown.Item>);
                                         return (
                                             <NavDropdown key={'menu-' + menuIndex + '-dropdown'} title={link.label} id="collapsible-nav-dropdown">
                                                 {dropdownItems}
@@ -120,106 +121,108 @@ export default class Menu extends Component {
                                         </Link>);
                                     }
                                 }
-                            ) }
-                        </Nav>
-                        <Nav>
-                            <NavDropdown title={signedInUser}>
-                                <NavDropdown.Item
-                                    href="#">
-                                    <i className="fa fa-key"> Change password</i>
-                                </NavDropdown.Item>
-                                <NavDropdown.Item
-                                    href="#" onClick={this.handleLogout}>
-                                    <i className="fa fa-sign-out"> Sign-out</i>
-                                </NavDropdown.Item>
-                            </NavDropdown>
-                        </Nav>
-                    </Navbar.Collapse>
-                </Navbar>
-                <Switch>
-                    <Route key={'route-default'} exact path={'/'} component={Dashboard}></Route>
-                    { links && links.map((link) => {
-                        let routeToComponent = null;
-                        switch(link.to) {
-                            case '/dashboard':
-                                routeToComponent = <Dashboard />;
-                                break;
-                            case '/logs':
-                                routeToComponent = <Logs />;
-                                break;
-                            case '/compensation-and-benefits':
-                                routeToComponent = <CompensationAndBenefits />;
-                                break;
-                            case '/purchase-orders':
-                                routeToComponent = <PurchaseOrders />;
-                                break;
-                            case '/sales-invoices':
-                                routeToComponent = <SalesInvoices />;
-                                break;
-                            case '/reports':
-                                routeToComponent = <Reports />;
-                                break;
-                            case '/trends':
-                                routeToComponent = <Trends />;
-                                break;
-                            case '/stock-cards':
-                                routeToComponent = <StockCards />;
-                                break;
-                            case '/users':
-                                routeToComponent = <Users />;
-                                break;
-                            case '/settings':
-                                routeToComponent = <Settings />;
-                                break;
-                            default:
-                                routeToComponent = <Dashboard />
+                                )}
+                            </Nav>
+                            <Nav>
+                                <NavDropdown title={signedInUser}>
+                                    <NavDropdown.Item
+                                        href="#">
+                                        <i className="fa fa-key"> Change password</i>
+                                    </NavDropdown.Item>
+                                    <NavDropdown.Item
+                                        href="#" onClick={this.handleLogout}>
+                                        <i className="fa fa-sign-out"> Sign-out</i>
+                                    </NavDropdown.Item>
+                                </NavDropdown>
+                            </Nav>
+                        </Navbar.Collapse>
+                    </Navbar>
+                    <Routes>
+                        <Route key={'route-default'} exact path={'/'} component={Dashboard}></Route>
+                        {links && links.map((link) => {
+                            let routeToComponent = null;
+                            switch (link.to) {
+                                case '/dashboard':
+                                    routeToComponent = <Dashboard />;
+                                    break;
+                                case '/logs':
+                                    routeToComponent = <Logs />;
+                                    break;
+                                case '/compensation-and-benefits':
+                                    routeToComponent = <CompensationAndBenefits />;
+                                    break;
+                                case '/purchase-orders':
+                                    routeToComponent = <PurchaseOrders />;
+                                    break;
+                                case '/sales-invoices':
+                                    routeToComponent = <SalesInvoices />;
+                                    break;
+                                case '/reports':
+                                    routeToComponent = <Reports />;
+                                    break;
+                                case '/trends':
+                                    routeToComponent = <Trends />;
+                                    break;
+                                case '/stock-cards':
+                                    routeToComponent = <StockCards />;
+                                    break;
+                                case '/users':
+                                    routeToComponent = <Users />;
+                                    break;
+                                case '/settings':
+                                    routeToComponent = <Settings />;
+                                    break;
+                                default:
+                                    routeToComponent = <Dashboard />
+                            }
+
+                            return (<Route key={'route-' + routeIndex++} path={link.to} component={() => routeToComponent}>
+                            </Route>);
                         }
+                        )}
+                        <Route path={'/daily-time-record'} component={DailyTimeRecord}></Route>
+                        <Route path={'/attendance-logs'} component={AttendanceLogs}></Route>
+                        <Route path={'/manual-logs'} component={ManualLogs}></Route>
+                        <Route path={'/deliveries'} component={Deliveries}></Route>
 
-                        return (<Route key={'route-' + routeIndex++} path={link.to} component={() => routeToComponent}>
-                        </Route>); }
-                    )}
-                    <Route path={'/daily-time-record'} component={DailyTimeRecord}></Route>
-                    <Route path={'/attendance-logs'} component={AttendanceLogs}></Route>
-                    <Route path={'/manual-logs'} component={ManualLogs}></Route>
-                    <Route path={'/deliveries'} component={Deliveries}></Route>
+                        <Route path={'/pay-periods'} component={PayPeriods}></Route>
+                        <Route path={'/pay-period-details/:payPeriodId'} component={PayPeriodDetails}></Route>
+                        <Route path={'/thirteenth-month-pay-periods'} component={ThirteenthMonthPayPeriods}></Route>
+                        <Route path={'/thirteenth-month-pay-period-details/:thirteenthMonthPayPeriodId'} component={ThirteenthMonthPayPeriodDetails}></Route>
+                        <Route path={'/purchase-order-details/:purchaseOrderId'} component={PurchaseOrderDetails}></Route>
+                        <Route path={'/purchase-order/:purchaseOrderId/store-request/:storeId?'} component={PurchaseOrderStoreRequest}></Route>
 
-                    <Route path={'/pay-periods'} component={PayPeriods}></Route>
-                    <Route path={'/pay-period-details/:payPeriodId'} component={PayPeriodDetails}></Route>
-                    <Route path={'/thirteenth-month-pay-periods'} component={ThirteenthMonthPayPeriods}></Route>
-                    <Route path={'/thirteenth-month-pay-period-details/:thirteenthMonthPayPeriodId'} component={ThirteenthMonthPayPeriodDetails}></Route>
-                    <Route path={'/purchase-order-details/:purchaseOrderId'} component={PurchaseOrderDetails}></Route>
-                    <Route path={'/purchase-order/:purchaseOrderId/store-request/:storeId?'} component={PurchaseOrderStoreRequest}></Route>
+                        <Route path={'/sales-invoices-create'} component={SalesInvoicesCreate}></Route>
+                        <Route path={'/sales-invoice-details/:salesInvoiceId'} component={SalesInvoicesShow}></Route>
+                        <Route path={'/sales-invoice-store-items/:salesInvoiceId'} component={SalesInvoiceStoreItemsShow}></Route>
 
-                    <Route path={'/sales-invoices-create'} component={SalesInvoicesCreate}></Route>
-                    <Route path={'/sales-invoice-details/:salesInvoiceId'} component={SalesInvoicesShow}></Route>
-                    <Route path={'/sales-invoice-store-items/:salesInvoiceId'} component={SalesInvoiceStoreItemsShow}></Route>
+                        <Route path={'/reports-delivery-sales-monitoring'} component={ReportsDeliverySalesMonitoring}></Route>
+                        <Route path={'/reports-delivery-receipt-monitoring'} component={ReportsDeliveryReceiptMonitoring}></Route>
+                        <Route path={'/reports-sales-invoice-monitoring'} component={ReportsSalesInvoiceMonitoring}></Route>
+                        <Route path={'/reports-stock-cards-monitoring'} component={ReportsStockCardsMonitoring}></Route>
+                        <Route path={'/reports-promodisers-summary'} component={ReportsPromodisersSummary}></Route>
+                        <Route path={'/reports-item-sales'} component={ReportsItemSalesMonitoring}></Route>
+                        <Route path={'/reports-delivery-trips-summary'} component={ReportsDeliveryTripsSummary}></Route>
 
-                    <Route path={'/reports-delivery-sales-monitoring'} component={ReportsDeliverySalesMonitoring}></Route>
-                    <Route path={'/reports-delivery-receipt-monitoring'} component={ReportsDeliveryReceiptMonitoring}></Route>
-                    <Route path={'/reports-sales-invoice-monitoring'} component={ReportsSalesInvoiceMonitoring}></Route>
-                    <Route path={'/reports-stock-cards-monitoring'} component={ReportsStockCardsMonitoring}></Route>
-                    <Route path={'/reports-promodisers-summary'} component={ReportsPromodisersSummary}></Route>
-                    <Route path={'/reports-item-sales'} component={ReportsItemSalesMonitoring}></Route>
-                    <Route path={'/reports-delivery-trips-summary'} component={ReportsDeliveryTripsSummary}></Route>
+                        <Route path={'/trends-store'} component={TrendsStore}></Route>
+                        <Route path={'/trends-item'} component={TrendsItem}></Route>
 
-                    <Route path={'/trends-store'} component={TrendsStore}></Route>
-                    <Route path={'/trends-item'} component={TrendsItem}></Route>
+                        <Route path={'/stock-cards-create'} component={StockCardsCreate}></Route>
+                        <Route path={'/stock-card-details/:stockCardId'} component={StockCardsShow}></Route>
 
-                    <Route path={'/stock-cards-create'} component={StockCardsCreate}></Route>
-                    <Route path={'/stock-card-details/:stockCardId'} component={StockCardsShow}></Route>
+                        <Route path={'/user-rate-history/:userId'} component={UserRateHistory}></Route>
+                        <Route path={'/user-roles-and-permissions/:userId'} component={RolesAndPermissions}></Route>
 
-                    <Route path={'/user-rate-history/:userId'} component={UserRateHistory}></Route>
-                    <Route path={'/user-roles-and-permissions/:userId'} component={RolesAndPermissions}></Route>
-
-                    <Route path={'/settings-user-roles'} component={SettingsUserRoles}></Route>
-                    <Route path={'/settings-overtime-rates'} component={SettingsOvertimeRates}></Route>
-                    <Route path={'/settings-items'} component={SettingsItems}></Route>
-                    <Route path={'/settings-stores'} component={SettingsStores}></Route>
-                    <Route path={'/settings-store-details/:storeId'} component={SettingStoreDetails}></Route>
-                    <Route path={'/settings-store-item-pricing/:storeId'} component={SettingsStoreItemPricing}></Route>
-                    <Route path={'/settings-store-promodiser-job-histories/:storeId/:promodiserId'} component={SettingStorePromodiserJobHistory}></Route>
-                </Switch>
-            </div>
+                        <Route path={'/settings-user-roles'} component={SettingsUserRoles}></Route>
+                        <Route path={'/settings-overtime-rates'} component={SettingsOvertimeRates}></Route>
+                        <Route path={'/settings-items'} component={SettingsItems}></Route>
+                        <Route path={'/settings-stores'} component={SettingsStores}></Route>
+                        <Route path={'/settings-store-details/:storeId'} component={SettingStoreDetails}></Route>
+                        <Route path={'/settings-store-item-pricing/:storeId'} component={SettingsStoreItemPricing}></Route>
+                        <Route path={'/settings-store-promodiser-job-histories/:storeId/:promodiserId'} component={SettingStorePromodiserJobHistory}></Route>
+                    </Routes>
+                </div>
+            </Router>
         );
     }
 }

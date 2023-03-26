@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Breadcrumb, Button, Card, Container, Form, Jumbotron } from 'react-bootstrap';
+import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import CommonDeleteModal from './CommonDeleteModal';
 

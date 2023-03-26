@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Card, Jumbotron } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import sanitize from 'sanitize-filename';
 
@@ -69,20 +69,20 @@ export default class DailyTimeRecordSearchResult extends Component {
         });
 
         const format = (d) => {
-            const header = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px; width: 100%;">'+
-                '<tr>'+
-                    '<td>ID:</td>'+
-                    '<td>'+d.biometric_id+'</td>'+
-                    '<td>NAME:</td>'+
-                    '<td>'+d.biometric_name+'</td>'+
-                '</tr>'+
-                '<tr>'+
-                    '<td>POSITION:</td>'+
-                    '<td>'+d.position+'</td>'+
-                    '<td>COVERAGE:</td>'+
-                    '<td>'+d.meta.from+' - '+d.meta.to+'</td>'+
-                '</tr>'+
-            '</table>';
+            const header = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px; width: 100%;">' +
+                '<tr>' +
+                '<td>ID:</td>' +
+                '<td>' + d.biometric_id + '</td>' +
+                '<td>NAME:</td>' +
+                '<td>' + d.biometric_name + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td>POSITION:</td>' +
+                '<td>' + d.position + '</td>' +
+                '<td>COVERAGE:</td>' +
+                '<td>' + d.meta.from + ' - ' + d.meta.to + '</td>' +
+                '</tr>' +
+                '</table>';
             const entries = `<table class="table">
                 <thead>
                     <th>Day</th>
@@ -97,24 +97,24 @@ export default class DailyTimeRecordSearchResult extends Component {
                     <th>Remarks</th>
                 </thead>
                 <tbody>
-                ${d.logs.map((log)=>{
-                    const logTotalAmount = parseFloat(+log.total_amount + +log.total_amount_overtime).toFixed(2);
-                    return `<tr>
+                ${d.logs.map((log) => {
+                const logTotalAmount = parseFloat(+log.total_amount + +log.total_amount_overtime).toFixed(2);
+                return `<tr>
                         <td>${log.date}</td>
                         <td>${log.time_in_out.map((entry) => {
-                            if (entry.hasOwnProperty('in') && entry.hasOwnProperty('out')) {
-                                let detail = `<em>In: ${entry.in}<br/>Out: ${entry.out}</em><br/>`;
-                                detail += '<ul>';
-                                if (+entry.amount > 0) {
-                                    detail += `<li>${entry.hours} Hrs. @ Php. ${entry.per_hour_rate_amount}/Hr. = Php. ${entry.amount}</li>`;
-                                }
-                                if (+entry.amount_overtime > 0) {
-                                    detail += `<li>(OT) ${entry.hours_overtime} Hrs. @ Php. ${entry.per_hour_rate_amount_overtime}/Hr. = Php. ${entry.amount_overtime}</li>`;
-                                }
-                                return detail += '</ul>';
-                            }
-                            return `<em>In: ${entry.in}<br/>Out: ?</em><br/>`;
-                        }).join('<br>')}</td>
+                    if (entry.hasOwnProperty('in') && entry.hasOwnProperty('out')) {
+                        let detail = `<em>In: ${entry.in}<br/>Out: ${entry.out}</em><br/>`;
+                        detail += '<ul>';
+                        if (+entry.amount > 0) {
+                            detail += `<li>${entry.hours} Hrs. @ Php. ${entry.per_hour_rate_amount}/Hr. = Php. ${entry.amount}</li>`;
+                        }
+                        if (+entry.amount_overtime > 0) {
+                            detail += `<li>(OT) ${entry.hours_overtime} Hrs. @ Php. ${entry.per_hour_rate_amount_overtime}/Hr. = Php. ${entry.amount_overtime}</li>`;
+                        }
+                        return detail += '</ul>';
+                    }
+                    return `<em>In: ${entry.in}<br/>Out: ?</em><br/>`;
+                }).join('<br>')}</td>
                         <td class="text-right">${log.total_hours}</td>
                         <td class="text-right">${log.total_amount}</td>
                         <td class="text-right">${log.total_hours_overtime}</td>
@@ -124,7 +124,7 @@ export default class DailyTimeRecordSearchResult extends Component {
                         <td class="text-right">${log.total_deliveries_amount}</td>
                         <td>${log.remarks}</td>
                     </tr>`;
-                }).join('')}
+            }).join('')}
                 </tbody>
             </table>`;
 
@@ -146,9 +146,9 @@ export default class DailyTimeRecordSearchResult extends Component {
                 .find('table.table-daily-time-record')
                 .DataTable();
             var tr = $(this).closest('tr');
-            var row = refDataTable.row( tr );
+            var row = refDataTable.row(tr);
 
-            if ( row.child.isShown() ) {
+            if (row.child.isShown()) {
                 $(this).find('i').removeClass('fa-chevron-circle-up');
                 $(this).find('i').addClass('fa-chevron-circle-down');
                 row.child.hide();
@@ -157,7 +157,7 @@ export default class DailyTimeRecordSearchResult extends Component {
             else {
                 $(this).find('i').removeClass('fa-chevron-circle-down');
                 $(this).find('i').addClass('fa-chevron-circle-up');
-                row.child( format(row.data()) ).show();
+                row.child(format(row.data())).show();
                 tr.addClass('shown');
             }
         });
@@ -172,8 +172,7 @@ export default class DailyTimeRecordSearchResult extends Component {
             .off();
     }
 
-    initExportTitle()
-    {
+    initExportTitle() {
         const {
             biometricId,
             biometricName,
@@ -181,14 +180,13 @@ export default class DailyTimeRecordSearchResult extends Component {
             endDate
         } = this.props;
 
-        const user = `User: ${ biometricId ? `${biometricId} ${biometricName}` : 'All' }`;
+        const user = `User: ${biometricId ? `${biometricId} ${biometricName}` : 'All'}`;
         const label = `${user}${user ? ' ' : ''}From: ${startDate} To: ${endDate}`;
 
         return `Attendance Logs ${label}`;
     }
 
-    initExportFilename()
-    {
+    initExportFilename() {
         return sanitize(this.initExportTitle());
     }
 
@@ -219,24 +217,22 @@ export default class DailyTimeRecordSearchResult extends Component {
             <div>
                 {
                     (!startDate || !endDate) &&
-                    <Jumbotron>
-                        <p className="text-center">
-                            <i className="fa fa-5x fa-info-circle"/><br/>
-                            Start by filtering records to search.
-                        </p>
-                    </Jumbotron>
+                    <p className="text-center">
+                        <i className="fa fa-5x fa-info-circle" /><br />
+                        Start by filtering records to search.
+                    </p>
                 }
 
                 <Card style={{ display: (hideTable ? 'none' : '') }}>
                     <Card.Header>
-                        <h4><i className="fa fa-search"/> Search Result</h4>
-                        User: { biometricId ? `${biometricId} ${biometricName}` : 'All' } From: {startDate} To: {endDate}
+                        <h4><i className="fa fa-search" /> Search Result</h4>
+                        User: {biometricId ? `${biometricId} ${biometricName}` : 'All'} From: {startDate} To: {endDate}
                     </Card.Header>
                     <Card.Body>
                         <table
                             ref="dailyTimeRecordSearchResult"
                             className="table table-striped table-daily-time-record"
-                            style={{width: 100+'%'}}>
+                            style={{ width: 100 + '%' }}>
                             <thead>
                                 <tr>
                                     <th></th>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Breadcrumb, Button, Card, Form, Jumbotron } from 'react-bootstrap';
+import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import Select from 'react-select';
 import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
@@ -59,9 +59,9 @@ export default class ReportsDeliverySalesMonitoring extends Component {
             footerCallback: function (row, data, start, end, display) {
                 const api = this.api();
 
-                const intVal = function ( i ) {
+                const intVal = function (i) {
                     return typeof i === 'string'
-                        ? i.replace(/[\$,]/g, '')*1
+                        ? i.replace(/[\$,]/g, '') * 1
                         : typeof i === 'number' ? i : 0;
                 };
 
@@ -140,9 +140,9 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                 .find(`table.${DT_DELIVERY_SALES_MONITORING}`)
                 .DataTable();
             var tr = $(this).closest('tr');
-            var row = refDataTable.row( tr );
+            var row = refDataTable.row(tr);
 
-            if ( row.child.isShown() ) {
+            if (row.child.isShown()) {
                 $(this).find('i').removeClass('fa-chevron-circle-up');
                 $(this).find('i').addClass('fa-chevron-circle-down');
                 row.child.hide();
@@ -151,7 +151,7 @@ export default class ReportsDeliverySalesMonitoring extends Component {
             else {
                 $(this).find('i').removeClass('fa-chevron-circle-down');
                 $(this).find('i').addClass('fa-chevron-circle-up');
-                row.child( format(row.data()) ).show();
+                row.child(format(row.data())).show();
                 tr.addClass('shown');
                 if (row.child.isShown()) {
                     const data = row.data();
@@ -191,8 +191,8 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                                 .find(`table.${DT_DELIVERY_SALES_MONITORING_DELIVERY_RECEIPTS}`)
                                 .DataTable();
                             const tr = $(this).closest('tr');
-                            const row = refDataTable.row( tr );
-                            if ( row.child.isShown() ) {
+                            const row = refDataTable.row(tr);
+                            if (row.child.isShown()) {
                                 $(this).find('i').removeClass('fa-chevron-circle-up');
                                 $(this).find('i').addClass('fa-chevron-circle-down');
                                 row.child.hide();
@@ -200,7 +200,7 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                             } else {
                                 $(this).find('i').removeClass('fa-chevron-circle-down');
                                 $(this).find('i').addClass('fa-chevron-circle-up');
-                                row.child( formatDeliveryReceiptDetails(row.data()) ).show();
+                                row.child(formatDeliveryReceiptDetails(row.data())).show();
                                 tr.addClass('shown');
 
                                 const data = row.data();
@@ -269,26 +269,26 @@ export default class ReportsDeliverySalesMonitoring extends Component {
     }
 
     handleGenerateCsvReport(e) {
-		e.preventDefault();
-		const self = this;
-		const token = cookie.load('token');
-		const { csvFilters, selectedCsvSortBy: sortBy } = self.state;
-		axios.get(`${END_POINT}?${csvFilters}&generate=csv&sort_by=${sortBy.value}&token=${token}`, {
-			responseType: 'arraybuffer',
-		})
-		.then(response => {
-			const filename = response.headers['content-disposition'].split('filename=')[1].split('.')[0];
-			const extension = response.headers['content-disposition'].split('.')[1].split(';')[0];
-			const blob = new Blob(
-				[response.data],
-				{ type: 'text/csv' }
-			);
-			const link = document.createElement('a');
-			link.href = window.URL.createObjectURL(blob);
-			link.download = `${filename}.${extension}`;
-			link.click();
-		});
-	}
+        e.preventDefault();
+        const self = this;
+        const token = cookie.load('token');
+        const { csvFilters, selectedCsvSortBy: sortBy } = self.state;
+        axios.get(`${END_POINT}?${csvFilters}&generate=csv&sort_by=${sortBy.value}&token=${token}`, {
+            responseType: 'arraybuffer',
+        })
+            .then(response => {
+                const filename = response.headers['content-disposition'].split('filename=')[1].split('.')[0];
+                const extension = response.headers['content-disposition'].split('.')[1].split(';')[0];
+                const blob = new Blob(
+                    [response.data],
+                    { type: 'text/csv' }
+                );
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = `${filename}.${extension}`;
+                link.click();
+            });
+    }
 
     render() {
         const {
@@ -315,32 +315,32 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                                 <Card.Body>
                                     <Form.Group>
                                         <Form.Label>From:</Form.Label>
-                                        <Form.Control type="date" name="from"/>
+                                        <Form.Control type="date" name="from" />
                                     </Form.Group>
                                     <Form.Group>
                                         <Form.Label>To:</Form.Label>
-                                        <Form.Control type="date" name="to"/>
+                                        <Form.Control type="date" name="to" />
                                     </Form.Group>
-                                    <CommonDropdownSelectSingleStore name="store_id"/>
+                                    <CommonDropdownSelectSingleStore name="store_id" />
                                 </Card.Body>
                                 <Card.Footer>
                                     <Button type="submit" className="pull-right">Generate Report</Button>
                                 </Card.Footer>
                             </Card>
                         </Form>
-                        { booklets.length > 0 &&
+                        {booklets.length > 0 &&
                             <Card className="my-4">
                                 <Card.Header>
                                     <i className="fa fa-icon fa-download"></i> Export Generated Report
                                 </Card.Header>
                                 <Card.Body>
                                     <Form.Label>Sort by: </Form.Label>
-                                    <Select options={csvSortBy} value={selectedCsvSortBy} onChange={this.handleSelectCsvReportSortBy}/><br/>
+                                    <Select options={csvSortBy} value={selectedCsvSortBy} onChange={this.handleSelectCsvReportSortBy} /><br />
                                 </Card.Body>
                                 <Card.Footer>
                                     <Button onClick={this.handleGenerateCsvReport} className="pull-right">Download CSV</Button>
                                 </Card.Footer>
-                            </Card> }
+                            </Card>}
                     </div>
                     <div className="col-md-9">
                         <Card>
@@ -352,33 +352,30 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                                 </Card.Header>
                             }
                             <Card.Body>
-                                <div style={!searchFilters ? {display: 'none'} : null}>
-                                    <table className={`table table-striped ${DT_DELIVERY_SALES_MONITORING}`} style={{width: 100+'%'}}>
+                                <div style={!searchFilters ? { display: 'none' } : null}>
+                                    <table className={`table table-striped ${DT_DELIVERY_SALES_MONITORING}`} style={{ width: 100 + '%' }}>
                                         <thead>
                                             <tr>
-                                            <th scope="col"></th>
-                                            <th scope="col">Booklet No.</th>
-                                            <th scope="col">Sales Amount</th>
+                                                <th scope="col"></th>
+                                                <th scope="col">Booklet No.</th>
+                                                <th scope="col">Sales Amount</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
                                         <tfoot>
                                             <tr>
                                                 <th scope="col"></th>
-                                                <th scope="col" style={{textAlign: 'right'}}>Total:</th>
-                                                <th scope="col" style={{textAlign: 'right'}}></th>
+                                                <th scope="col" style={{ textAlign: 'right' }}>Total:</th>
+                                                <th scope="col" style={{ textAlign: 'right' }}></th>
                                             </tr>
                                         </tfoot>
                                     </table>
                                 </div>
-                                { !searchFilters &&
-                                    <Jumbotron className="mb-0">
-                                        <p className="text-center">
-                                            <i className="fa fa-5x fa-info-circle"/><br/>
-                                            Start by filtering records to search.
-                                        </p>
-                                    </Jumbotron>
-                                }
+                                {!searchFilters &&
+                                    <p className="text-center">
+                                        <i className="fa fa-5x fa-info-circle" /><br />
+                                        Start by filtering records to search.
+                                    </p>}
                             </Card.Body>
                         </Card>
                     </div>

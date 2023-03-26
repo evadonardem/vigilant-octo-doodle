@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { ButtonGroup } from 'react-bootstrap';
 import { Breadcrumb, Button, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import NumberFormat from 'react-number-format';
+import { NumericFormat } from 'react-number-format';
 import cookie from 'react-cookies';
 
 import CommonDeleteModal from './CommonDeleteModal';
@@ -23,7 +23,7 @@ export default class SalesInvoices extends Component {
         super(props);
         this.handleCloseDeleteSalesInvoiceModal = this.handleCloseDeleteSalesInvoiceModal.bind(this);
         this.handleSubmitDeleteSalesInvoiceModal = this.handleSubmitDeleteSalesInvoiceModal.bind(this);
-        
+
         this.state = {
             token: '',
             showDeleteSalesInvoiceModal: false,
@@ -85,10 +85,10 @@ export default class SalesInvoices extends Component {
                     }
                 }
             ],
-            columnDefs: [                
+            columnDefs: [
                 {
                     targets: [6, 7, 8, 9],
-                    createdCell: (td, cellData, rowData, row, col) => 
+                    createdCell: (td, cellData, rowData, row, col) =>
                         ReactDOM.render(<NumberFormat
                             value={cellData}
                             displayType="text"
@@ -142,7 +142,7 @@ export default class SalesInvoices extends Component {
                 });
             })
             .catch((error) => {
-                
+
             });
     }
 
@@ -172,7 +172,7 @@ export default class SalesInvoices extends Component {
                         <table className={`table table-striped ${SALES_INVOICES_TABLE}`} style={{width: 100+'%'}}>
                             <thead>
                                 <tr>
-                                    <th scope="col">Date Countered</th>                                    
+                                    <th scope="col">Date Countered</th>
                                     <th scope="col">From</th>
                                     <th scope="col">To</th>
                                     <th scope="col">Booklet No.</th>

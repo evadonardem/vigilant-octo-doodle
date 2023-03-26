@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Breadcrumb, Button, Card, Form, Jumbotron } from 'react-bootstrap';
+import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import cookie from 'react-cookies';
 
 const END_POINT = `${apiBaseUrl}/reports/delivery-trips-summary`;
@@ -26,7 +26,7 @@ export default class ReportsDeliverySalesMonitoring extends Component {
             return `delivery_trips_summary_from_${searchFilters.from}_to_${searchFilters.to}`;
         }
         return 'delivery_trips_summary';
-    };
+    }
 
     getExportTitle() {
         const self = this;
@@ -35,7 +35,7 @@ export default class ReportsDeliverySalesMonitoring extends Component {
             return `Delivery Trips Summary From ${searchFilters.from} To ${searchFilters.to}`;
         }
         return 'Delivery Trips Summary';
-    };
+    }
 
     componentDidMount() {
         const self = this;
@@ -117,14 +117,14 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                                 </Card.Header>
                                 <Card.Body>
 
-                                        <Form.Group>
-                                            <Form.Label>From:</Form.Label>
-                                            <Form.Control type="date" name="from"/>
-                                        </Form.Group>
-                                        <Form.Group>
-                                            <Form.Label>To:</Form.Label>
-                                            <Form.Control type="date" name="to"/>
-                                        </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>From:</Form.Label>
+                                        <Form.Control type="date" name="from" />
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Label>To:</Form.Label>
+                                        <Form.Control type="date" name="to" />
+                                    </Form.Group>
 
                                 </Card.Body>
                                 <Card.Footer>
@@ -143,28 +143,25 @@ export default class ReportsDeliverySalesMonitoring extends Component {
                                 </Card.Header>
                             }
                             <Card.Body>
-                                <div style={!searchFilters ? {display: 'none'} : null}>
-                                    <table className={`table table-striped ${DT_DELIVERY_TRIPS_SUMMARY}`} style={{width: 100+'%'}}>
+                                <div style={!searchFilters ? { display: 'none' } : null}>
+                                    <table className={`table table-striped ${DT_DELIVERY_TRIPS_SUMMARY}`} style={{ width: 100 + '%' }}>
                                         <thead>
                                             <tr>
-                                            <th scope="col">Biometric ID</th>
-                                            <th scope="col">Staff Name</th>
-                                            <th scope="col">Coverage Date</th>
-                                            <th scope="col">No. of Trips</th>
-                                            <th scope="col">References</th>
+                                                <th scope="col">Biometric ID</th>
+                                                <th scope="col">Staff Name</th>
+                                                <th scope="col">Coverage Date</th>
+                                                <th scope="col">No. of Trips</th>
+                                                <th scope="col">References</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
                                     </table>
                                 </div>
-                                { !searchFilters &&
-                                    <Jumbotron className="mb-0">
-                                        <p className="text-center">
-                                            <i className="fa fa-5x fa-info-circle"/><br/>
-                                            Start by filtering records to search.
-                                        </p>
-                                    </Jumbotron>
-                                }
+                                {!searchFilters &&
+                                    <p className="text-center">
+                                        <i className="fa fa-5x fa-info-circle" /><br />
+                                        Start by filtering records to search.
+                                    </p>}
                             </Card.Body>
                         </Card>
                     </div>

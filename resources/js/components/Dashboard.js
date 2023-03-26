@@ -1,6 +1,4 @@
-import React, { useContext, useState } from 'react';
-import { Jumbotron, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import React, { useContext } from 'react';
 
 import { Auth } from './App';
 import Option from './Generic/Option';

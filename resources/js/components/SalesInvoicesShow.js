@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import cookie from 'react-cookies';
 import { Badge, Breadcrumb, Button, Card, Form } from 'react-bootstrap';
-import NumberFormat from 'react-number-format';
+import { NumericFormat } from 'react-number-format';
 import { Link } from 'react-router-dom';
 
 import CommonDeleteModal from './CommonDeleteModal';
@@ -33,7 +33,7 @@ export default class SalesInvoicesShow extends Component {
         this.state = {
             token: '',
             salesInvoice: null,
-            selectedCategory: null,        
+            selectedCategory: null,
             deleteSalesInvoiceItem: {
                 showConfirmation: false,
                 salesInvoiceItemId: null,
@@ -52,7 +52,7 @@ export default class SalesInvoicesShow extends Component {
             token,
             salesInvoiceId,
         });
-        
+
         axios.get(`${END_POINT}/${salesInvoiceId}?token=${token}`)
             .then((response) => {
                 const { data: salesInvoice } = response.data;
@@ -73,12 +73,12 @@ export default class SalesInvoicesShow extends Component {
                             let json = jQuery.parseJSON(data);
                             json.recordsTotal = json.total;
                             json.recordsFiltered = json.total;
-        
+
                             return JSON.stringify(json);
                         },
                         dataSrc: (response) => {
                             const { data } = response;
-        
+
                             return data;
                         },
                     },
@@ -95,9 +95,9 @@ export default class SalesInvoicesShow extends Component {
                         { 'data': 'total_amount' },
                         {
                             'data': null,
-                            'render': function (data, type, row) {                    
+                            'render': function (data, type, row) {
                                 const deleteBtn = '<a href="#" class="delete btn btn-warning" data-toggle="modal" data-target="#deleteModal" data-sales-invoice-item-id="' + row.id + '"><i class="fa fa-trash"></i></a>';
-                                return `<div class="btn-group" role="group">                        
+                                return `<div class="btn-group" role="group">
                                     ${deleteBtn}
                                 </div>`;
                             }
@@ -106,16 +106,16 @@ export default class SalesInvoicesShow extends Component {
                     columnDefs: [
                         {
                             targets: [2],
-                            createdCell: (td, cellData, rowData, row, col) => 
+                            createdCell: (td, cellData, rowData, row, col) =>
                                 ReactDOM.render(<NumberFormat
                                     value={cellData}
-                                    displayType="text"                                
+                                    displayType="text"
                                     thousandSeparator/>, td),
                             className: "text-right",
                         },
                         {
                             targets: [3, 4],
-                            createdCell: (td, cellData, rowData, row, col) => 
+                            createdCell: (td, cellData, rowData, row, col) =>
                                 ReactDOM.render(<NumberFormat
                                     value={cellData}
                                     displayType="text"
@@ -127,7 +127,7 @@ export default class SalesInvoicesShow extends Component {
                         },
                     ],
                 });
-        
+
                 $(document).on('click', '.data-table-wrapper .delete', function(e) {
                     const salesInvoiceItemId = e.currentTarget.getAttribute('data-sales-invoice-item-id');
                     self.setState({
@@ -142,7 +142,7 @@ export default class SalesInvoicesShow extends Component {
 
             })
             .catch(() => {
-                
+
             });
     }
 
@@ -181,9 +181,9 @@ export default class SalesInvoicesShow extends Component {
                         ...self.state.deleteSalesInvoiceItem,
                         showConfirmation: false,
                         salesInvoiceItemId: null,
-                    },      
+                    },
                 });
-                
+
                 axios.get(`${END_POINT}/${salesInvoiceId}?token=${token}`)
                     .then((response) => {
                         const { data: salesInvoice } = response.data;
@@ -201,7 +201,7 @@ export default class SalesInvoicesShow extends Component {
                     });
             })
             .catch((error) => {
-                
+
             });
     }
 
@@ -223,7 +223,7 @@ export default class SalesInvoicesShow extends Component {
                         <Breadcrumb>
                             {
                                 BREADCRUMB_ITEMS.map(({icon, label, link} = item) =>
-                                    <Breadcrumb.Item href={link ?? ''} active={!Boolean(link)}>
+                                    <Breadcrumb.Item href={link ?? ''} active={!link}>
                                         <span>
                                             <i className={`fa ${icon}`}></i>&nbsp;
                                             {label.replace('{salesInvoiceId}', salesInvoice.id)}
@@ -313,7 +313,7 @@ export default class SalesInvoicesShow extends Component {
                                                     selectedValue={selectedCategory}
                                                     readOnly/>
                                             </div>
-                                        </div>                                        
+                                        </div>
                                     </Card.Body>
                                 </Card>
                                 <Card className="mt-4">
@@ -330,10 +330,10 @@ export default class SalesInvoicesShow extends Component {
                                             <thead>
                                                 <tr>
                                                     <th scope="col">Store</th>
-                                                    <th scope="col">Item</th>                            
+                                                    <th scope="col">Item</th>
                                                     <th scope="col">Quantity</th>
                                                     <th scope="col">Price</th>
-                                                    <th scope="col">Total Amount</th>                                                
+                                                    <th scope="col">Total Amount</th>
                                                     <th></th>
                                                 </tr>
                                             </thead>
@@ -384,7 +384,7 @@ export default class SalesInvoicesShow extends Component {
                                                 <tr>
                                                     <th>Total Amount Due</th>
                                                     <td>:</td>
-                                                    <td align="right">                                                                
+                                                    <td align="right">
                                                         <NumberFormat
                                                             value={salesInvoice.total_amount_due}
                                                             displayType="text"

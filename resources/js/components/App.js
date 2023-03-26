@@ -58,7 +58,7 @@ export default function App() {
             });
     };
 
-    useEffect(() => authorize(), []);;
+    useEffect(() => authorize(), []);
 
     return (
         <>

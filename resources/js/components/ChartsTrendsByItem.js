@@ -2,12 +2,11 @@ import React, { Component } from 'react';
 import cookie from 'react-cookies';
 import { Button, Card, Form } from 'react-bootstrap';
 import { Bar, Line } from 'react-chartjs-2';
-import NumberFormat from 'react-number-format';
+import { NumericFormat } from 'react-number-format';
 import CommonDropdownSelectSingleItem from './CommonDropdownSelectSingleItem';
 import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
 import CommonDropdownSelectSingleStoreCategory from './CommonDropdownSelectSingleStoreCategory';
 import CommonDropdownSelectSingleStoreLocation from './CommonDropdownSelectSingleStoreLocation';
-import { Jumbotron } from 'react-bootstrap';
 
 export default class ChartsTrendsByItem extends Component {
     constructor(props) {
@@ -80,7 +79,7 @@ export default class ChartsTrendsByItem extends Component {
             selectedLocation: null,
             dataSales: null,
             dataDeliveries: null,
-        });        
+        });
     }
 
     handleChangeItems(e) {
@@ -149,7 +148,7 @@ export default class ChartsTrendsByItem extends Component {
             entityIds = selectedStore
                 ? selectedStore.map((store) => store.value).join(',')
                 : '';
-                    
+
         } else if (by === 'category') {
             entityType = 'categories';
             entityIds = selectedCategory
@@ -220,8 +219,8 @@ export default class ChartsTrendsByItem extends Component {
             selectedCategory: null,
             selectedLocation: null,
             dataSales: null,
-            dataDeliveries: null,            
-        });        
+            dataDeliveries: null,
+        });
     }
 
     render() {
@@ -271,21 +270,19 @@ export default class ChartsTrendsByItem extends Component {
             <div className="container-fluid my-4">
                 <Card>
                     <Card.Body>
-                        <Jumbotron>
-                            <h1 className="display-3"><i className="fa fa-bar-chart"></i> Item Trends</h1>
-                            <p className="lead">
-                                { !dataSales && 
-                                    'Generate item sales by store, category, or location.' }
-                                { dataSales &&
-                                    `From: ${from} To: ${to} | ${ selectedItems && selectedItems.length > 0 
-                                        ? selectedItems.map((item) => item.label).join(',')
-                                        : 'All Items' } | ${ selectedEntities.length > 0
+                        <h1 className="display-3"><i className="fa fa-bar-chart"></i> Item Trends</h1>
+                        <p className="lead">
+                            {!dataSales &&
+                                'Generate item sales by store, category, or location.'}
+                            {dataSales &&
+                                `From: ${from} To: ${to} | ${selectedItems && selectedItems.length > 0
+                                    ? selectedItems.map((item) => item.label).join(',')
+                                    : 'All Items'} | ${selectedEntities.length > 0
                                         ? selectedEntities.join(',')
-                                        : `All ${by}` }` }
-                            </p>
-                        </Jumbotron>
-                        { (dataSales || dataDeliveries) &&
-                            <div className="row">                            
+                                        : `All ${by}`}`}
+                        </p>
+                        {(dataSales || dataDeliveries) &&
+                            <div className="row">
                                 <div className="col-md-12">
                                     <Button
                                         type="button"
@@ -293,80 +290,80 @@ export default class ChartsTrendsByItem extends Component {
                                         variant="secondary"
                                         onClick={this.handleBack}>Back</Button>
                                 </div>
-                            </div> }
-                        { dataSales &&
+                            </div>}
+                        {dataSales &&
                             <>
                                 <Card className="mb-4">
                                     <Card.Header>
                                         <i className="fa fa-money"></i> Sales
                                     </Card.Header>
                                     <Card.Body>
-                                        { chartType === 'line' &&
-                                            <Line data={dataSales} options={options}/> }
-                                        { chartType === 'bar' &&
-                                            <Bar data={dataSales} options={options}/> }                                                        
+                                        {chartType === 'line' &&
+                                            <Line data={dataSales} options={options} />}
+                                        {chartType === 'bar' &&
+                                            <Bar data={dataSales} options={options} />}
                                     </Card.Body>
                                     <Card.Footer>
-                                        <table className="table table-striped my-4" style={{width: 100+'%'}}>
+                                        <table className="table table-striped my-4" style={{ width: 100 + '%' }}>
                                             <thead>
                                                 <th></th>
-                                                { dataSales.labels.map((label) => <th>{label}</th>) }
+                                                {dataSales.labels.map((label) => <th>{label}</th>)}
                                             </thead>
                                             <tbody>
-                                                { dataSales.datasets.map(({ label, data } = dataset) => <tr>
+                                                {dataSales.datasets.map(({ label, data } = dataset) => <tr>
                                                     <th>{label}</th>
-                                                    { data.map((value) => <td>
+                                                    {data.map((value) => <td>
                                                         <NumberFormat
                                                             value={value}
                                                             displayType="text"
                                                             prefix="Php"
                                                             decimalScale="2"
                                                             fixedDecimalScale
-                                                            thousandSeparator/>
-                                                    </td>) }
-                                                </tr>) }
+                                                            thousandSeparator />
+                                                    </td>)}
+                                                </tr>)}
                                             </tbody>
                                         </table>
                                     </Card.Footer>
                                 </Card>
-                            </> }
-                        
-                        { dataDeliveries &&
+                            </>}
+
+                        {dataDeliveries &&
                             <>
                                 <Card className="mb-4">
                                     <Card.Header>
                                         <i className="fa fa-truck"></i> Deliveries
                                     </Card.Header>
                                     <Card.Body>
-                                        { chartType === 'line' &&
-                                            <Line data={dataDeliveries} options={options}/> }
-                                        { chartType === 'bar' &&
-                                            <Bar data={dataDeliveries} options={options}/> }                                                        
+                                        {chartType === 'line' &&
+                                            <Line data={dataDeliveries} options={options} />}
+                                        {chartType === 'bar' &&
+                                            <Bar data={dataDeliveries} options={options} />}
                                     </Card.Body>
                                     <Card.Footer>
-                                        <table className="table table-striped my-4" style={{width: 100+'%'}}>
+                                        <table className="table table-striped my-4" style={{ width: 100 + '%' }}>
                                             <thead>
                                                 <th></th>
-                                                { dataDeliveries.labels.map((label) => <th>{label}</th>) }
+                                                {dataDeliveries.labels.map((label) => <th>{label}</th>)}
                                             </thead>
                                             <tbody>
-                                                { dataDeliveries.datasets.map(({ label, data } = dataset) => <tr>
+                                                {dataDeliveries.datasets.map(({ label, data } = dataset) => <tr>
                                                     <th>{label}</th>
-                                                    { data.map((value) => <td>
+                                                    {data.map((value) => <td>
                                                         <NumberFormat
                                                             value={value}
                                                             displayType="text"
-                                                            thousandSeparator/>
-                                                    </td>) }
-                                                </tr>) }
+                                                            thousandSeparator />
+                                                    </td>)}
+                                                </tr>)}
                                             </tbody>
                                         </table>
                                     </Card.Footer>
                                 </Card>
-                            </> }
-                            
+                            </>}
+
                         {!(dataSales || dataDeliveries) &&
-                            <>                                
+                            <>
                                 <Form onSubmit={this.handleGenerateChart}>
                                     <Card>
                                         <Card.Body>
@@ -376,14 +373,14 @@ export default class ChartsTrendsByItem extends Component {
                                                     type="radio"
                                                     label="Line"
                                                     value="line"
-                                                    checked={chartType==='line'}
-                                                    onClick={this.handleClickChartTypeOption}/>
+                                                    checked={chartType === 'line'}
+                                                    onClick={this.handleClickChartTypeOption} />
                                                 <Form.Check
                                                     type="radio"
                                                     label="Bar"
                                                     value="bar"
-                                                    checked={chartType==='bar'}
-                                                    onClick={this.handleClickChartTypeOption}/>                                                
+                                                    checked={chartType === 'bar'}
+                                                    onClick={this.handleClickChartTypeOption} />
                                                 <div className="invalid-feedback"></div>
                                             </Form.Group>
                                             <Form.Group>
@@ -392,7 +389,7 @@ export default class ChartsTrendsByItem extends Component {
                                                     type="month"
                                                     name="from"
                                                     value={from}
-                                                    onChange={this.handleDateChange}/>
+                                                    onChange={this.handleDateChange} />
                                                 <div className="invalid-feedback"></div>
                                             </Form.Group>
                                             <Form.Group>
@@ -401,61 +398,61 @@ export default class ChartsTrendsByItem extends Component {
                                                     type="month"
                                                     name="to"
                                                     value={to}
-                                                    onChange={this.handleDateChange}/>
+                                                    onChange={this.handleDateChange} />
                                                 <div className="invalid-feedback"></div>
                                             </Form.Group>
                                             <CommonDropdownSelectSingleItem
                                                 name="items"
                                                 handleChange={this.handleChangeItems}
                                                 selectedStore={selectedItems}
-                                                isMulti/>
+                                                isMulti />
                                             <Form.Group>
                                                 <Form.Label>Sales by:</Form.Label>
                                                 <Form.Check
                                                     type="radio"
                                                     label="Store"
                                                     value="store"
-                                                    checked={by==='store'}
-                                                    onClick={this.handleClickSalesByOption}/>
+                                                    checked={by === 'store'}
+                                                    onClick={this.handleClickSalesByOption} />
                                                 <Form.Check
                                                     type="radio"
                                                     label="Category"
                                                     value="category"
-                                                    checked={by==='category'}
-                                                    onClick={this.handleClickSalesByOption}/>
+                                                    checked={by === 'category'}
+                                                    onClick={this.handleClickSalesByOption} />
                                                 <Form.Check
                                                     type="radio"
                                                     label="Location"
                                                     value="location"
-                                                    checked={by==='location'}
-                                                    onClick={this.handleClickSalesByOption}/>
+                                                    checked={by === 'location'}
+                                                    onClick={this.handleClickSalesByOption} />
                                                 <div className="invalid-feedback"></div>
                                             </Form.Group>
-                                            { by === 'store' && 
+                                            {by === 'store' &&
                                                 <CommonDropdownSelectSingleStore
                                                     name="stores"
                                                     handleChange={this.handleChangeStore}
                                                     selectedStore={selectedStore}
-                                                    isMulti/> }
-                                            { by === 'category' && 
+                                                    isMulti />}
+                                            {by === 'category' &&
                                                 <CommonDropdownSelectSingleStoreCategory
                                                     handleChange={this.handleChangeCategory}
                                                     selectedValue={selectedCategory}
-                                                    isMulti/> }
-                                            { by === 'location' && 
+                                                    isMulti />}
+                                            {by === 'location' &&
                                                 <CommonDropdownSelectSingleStoreLocation
                                                     handleChange={this.handleChangeLocation}
                                                     selectedValue={selectedLocation}
-                                                    isMulti/> }
+                                                    isMulti />}
                                         </Card.Body>
                                         <Card.Footer>
                                             <Button type="submit" block>Generate</Button>
                                         </Card.Footer>
                                     </Card>
                                 </Form>
-                            </> }
+                            </>}
                     </Card.Body>
-                </Card>            
+                </Card>
             </div>
         );
     }

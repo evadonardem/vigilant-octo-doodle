@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Breadcrumb, Button, Card, Form, Jumbotron } from 'react-bootstrap';
+import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
 import CommonDropdownSelectSingleStoreCategory from './CommonDropdownSelectSingleStoreCategory';
@@ -20,7 +20,7 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
         this.handleGenerateCsvReport = this.handleGenerateCsvReport.bind(this);
 
         this.state = {
-			booklets: [],
+            booklets: [],
             csvFilters: null,
             reportType: 'store',
             searchFilters: null,
@@ -44,21 +44,21 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
                 },
                 { data: 'id' },
                 {
-					data: 'quantity_original',
-					render: $.fn.dataTable.render.number(','),
-				},
+                    data: 'quantity_original',
+                    render: $.fn.dataTable.render.number(','),
+                },
                 {
-					data: 'quantity_actual',
-					render: $.fn.dataTable.render.number(','),
-				},
+                    data: 'quantity_actual',
+                    render: $.fn.dataTable.render.number(','),
+                },
                 {
-					data: 'quantity_bad_orders',
-					render: $.fn.dataTable.render.number(','),
-				},
+                    data: 'quantity_bad_orders',
+                    render: $.fn.dataTable.render.number(','),
+                },
                 {
-					data: 'quantity_returns',
-					render: $.fn.dataTable.render.number(','),
-				},
+                    data: 'quantity_returns',
+                    render: $.fn.dataTable.render.number(','),
+                },
             ],
             columnDefs: [
                 {
@@ -69,26 +69,26 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
             footerCallback: function (row, data, start, end, display) {
                 const api = this.api();
 
-                const intVal = function ( i ) {
+                const intVal = function (i) {
                     return typeof i === 'string'
-                        ? i.replace(/[\$,]/g, '')*1
+                        ? i.replace(/[\$,]/g, '') * 1
                         : typeof i === 'number' ? i : 0;
                 };
 
-				const numberFormat = $.fn.dataTable.render.number(',').display;
-				const offset = 2;
-				for (let i = 0; i < 4; i++) {
-					const totalQuantity = api
-						.column(offset + i)
-						.data()
-						.reduce(
-							function (a, b) {
-								return intVal(a) + intVal(b);
-							},
-							0
-						);                    
+                const numberFormat = $.fn.dataTable.render.number(',').display;
+                const offset = 2;
+                for (let i = 0; i < 4; i++) {
+                    const totalQuantity = api
+                        .column(offset + i)
+                        .data()
+                        .reduce(
+                            function (a, b) {
+                                return intVal(a) + intVal(b);
+                            },
+                            0
+                        );
                     $(api.column(offset + i).footer()).html(numberFormat(totalQuantity));
-				}
+                }
             },
             ordering: false,
             paging: false,
@@ -178,9 +178,9 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
                 .find(`table.${DT_DELIVERY_RECEIPT_MONITORING}`)
                 .DataTable();
             var tr = $(this).closest('tr');
-            var row = refDataTable.row( tr );
+            var row = refDataTable.row(tr);
 
-            if ( row.child.isShown() ) {
+            if (row.child.isShown()) {
                 $(this).find('i').removeClass('fa-chevron-circle-up');
                 $(this).find('i').addClass('fa-chevron-circle-down');
                 row.child.hide();
@@ -189,7 +189,7 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
             else {
                 $(this).find('i').removeClass('fa-chevron-circle-down');
                 $(this).find('i').addClass('fa-chevron-circle-up');
-                row.child( format(row.data()) ).show();
+                row.child(format(row.data())).show();
                 tr.addClass('shown');
                 if (row.child.isShown()) {
                     const data = row.data();
@@ -206,52 +206,52 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
                             { data: 'id' },
                             { data: 'purchase_order.code' },
                             {
-								data: 'quantity_original',
-								render: $.fn.dataTable.render.number(','),
-							},
+                                data: 'quantity_original',
+                                render: $.fn.dataTable.render.number(','),
+                            },
                             {
-								data: 'quantity_actual',
-								render: $.fn.dataTable.render.number(','),
-							},
+                                data: 'quantity_actual',
+                                render: $.fn.dataTable.render.number(','),
+                            },
                             {
-								data: 'quantity_bad_orders',
-								render: $.fn.dataTable.render.number(','),
-							},
+                                data: 'quantity_bad_orders',
+                                render: $.fn.dataTable.render.number(','),
+                            },
                             {
-								data: 'quantity_returns',
-								render: $.fn.dataTable.render.number(','),
-							},
+                                data: 'quantity_returns',
+                                render: $.fn.dataTable.render.number(','),
+                            },
                         ],
                         columnDefs: [
-							{
-								targets: [3, 4, 5, 6],
-								className: 'dt-right',
-							},
-						],
-						footerCallback: function (row, data, start, end, display) {
-							const api = this.api();
+                            {
+                                targets: [3, 4, 5, 6],
+                                className: 'dt-right',
+                            },
+                        ],
+                        footerCallback: function (row, data, start, end, display) {
+                            const api = this.api();
 
-							const intVal = function ( i ) {
-								return typeof i === 'string'
-									? i.replace(/[\$,]/g, '')*1
-									: typeof i === 'number' ? i : 0;
-							};
+                            const intVal = function (i) {
+                                return typeof i === 'string'
+                                    ? i.replace(/[\$,]/g, '') * 1
+                                    : typeof i === 'number' ? i : 0;
+                            };
 
-							const numberFormat = $.fn.dataTable.render.number(',').display;
-							const offset = 3;
-							for (let i = 0; i < 4; i++) {
-								const totalQuantity = api
-									.column(offset + i)
-									.data()
-									.reduce(
-										function (a, b) {
-											return intVal(a) + intVal(b);
-										},
-										0
-									);                    
-								$(api.column(offset + i).footer()).html(numberFormat(totalQuantity));
-							}
-						},
+                            const numberFormat = $.fn.dataTable.render.number(',').display;
+                            const offset = 3;
+                            for (let i = 0; i < 4; i++) {
+                                const totalQuantity = api
+                                    .column(offset + i)
+                                    .data()
+                                    .reduce(
+                                        function (a, b) {
+                                            return intVal(a) + intVal(b);
+                                        },
+                                        0
+                                    );
+                                $(api.column(offset + i).footer()).html(numberFormat(totalQuantity));
+                            }
+                        },
                         ordering: false,
                         paging: false,
                         searching: false,
@@ -264,8 +264,8 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
                                 .find(`table.${DT_DELIVERY_RECEIPT_MONITORING_DELIVERY_RECEIPTS}`)
                                 .DataTable();
                             const tr = $(this).closest('tr');
-                            const row = refDataTable.row( tr );
-                            if ( row.child.isShown() ) {
+                            const row = refDataTable.row(tr);
+                            if (row.child.isShown()) {
                                 $(this).find('i').removeClass('fa-chevron-circle-up');
                                 $(this).find('i').addClass('fa-chevron-circle-down');
                                 row.child.hide();
@@ -273,7 +273,7 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
                             } else {
                                 $(this).find('i').removeClass('fa-chevron-circle-down');
                                 $(this).find('i').addClass('fa-chevron-circle-up');
-                                row.child( formatDeliveryReceiptDetails(row.data()) ).show();
+                                row.child(formatDeliveryReceiptDetails(row.data())).show();
                                 tr.addClass('shown');
 
                                 const data = row.data();
@@ -287,52 +287,52 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
                                             { data: 'code' },
                                             { data: 'name' },
                                             {
-												data: 'quantity_original',
-												render: $.fn.dataTable.render.number(','),
-											},
-											{
-												data: 'quantity_actual',
-												render: $.fn.dataTable.render.number(','),
-											},
-											{
-												data: 'quantity_bad_orders',
-												render: $.fn.dataTable.render.number(','),
-											},
-											{
-												data: 'quantity_returns',
-												render: $.fn.dataTable.render.number(','),
-											},
-										],
-										columnDefs: [
-											{
-												targets: [2, 3, 4, 5],
-												className: 'dt-right',
-											},
-										],
-										footerCallback: function (row, data, start, end, display) {
-											const api = this.api();
+                                                data: 'quantity_original',
+                                                render: $.fn.dataTable.render.number(','),
+                                            },
+                                            {
+                                                data: 'quantity_actual',
+                                                render: $.fn.dataTable.render.number(','),
+                                            },
+                                            {
+                                                data: 'quantity_bad_orders',
+                                                render: $.fn.dataTable.render.number(','),
+                                            },
+                                            {
+                                                data: 'quantity_returns',
+                                                render: $.fn.dataTable.render.number(','),
+                                            },
+                                        ],
+                                        columnDefs: [
+                                            {
+                                                targets: [2, 3, 4, 5],
+                                                className: 'dt-right',
+                                            },
+                                        ],
+                                        footerCallback: function (row, data, start, end, display) {
+                                            const api = this.api();
 
-											const intVal = function ( i ) {
-												return typeof i === 'string'
-													? i.replace(/[\$,]/g, '')*1
-													: typeof i === 'number' ? i : 0;
-											};
+                                            const intVal = function (i) {
+                                                return typeof i === 'string'
+                                                    ? i.replace(/[\$,]/g, '') * 1
+                                                    : typeof i === 'number' ? i : 0;
+                                            };
 
-											const numberFormat = $.fn.dataTable.render.number(',').display;
-											const offset = 2;
-											for (let i = 0; i < 4; i++) {
-												const totalQuantity = api
-													.column(offset + i)
-													.data()
-													.reduce(
-														function (a, b) {
-															return intVal(a) + intVal(b);
-														},
-														0
-													);                    
-												$(api.column(offset + i).footer()).html(numberFormat(totalQuantity));
-											}
-										},
+                                            const numberFormat = $.fn.dataTable.render.number(',').display;
+                                            const offset = 2;
+                                            for (let i = 0; i < 4; i++) {
+                                                const totalQuantity = api
+                                                    .column(offset + i)
+                                                    .data()
+                                                    .reduce(
+                                                        function (a, b) {
+                                                            return intVal(a) + intVal(b);
+                                                        },
+                                                        0
+                                                    );
+                                                $(api.column(offset + i).footer()).html(numberFormat(totalQuantity));
+                                            }
+                                        },
                                         ordering: false,
                                         paging: false,
                                         searching: false,
@@ -343,7 +343,7 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
                 }
             }
         });
-        
+
         $(`.${DT_DELIVERY_RECEIPT_MONITORING_SUMMARY}`).DataTable({
             data: summary,
             buttons: [],
@@ -351,21 +351,21 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
                 { data: 'code' },
                 { data: 'name' },
                 {
-					data: 'quantity_original',
-					render: $.fn.dataTable.render.number(','),
-				},
+                    data: 'quantity_original',
+                    render: $.fn.dataTable.render.number(','),
+                },
                 {
-					data: 'quantity_actual',
-					render: $.fn.dataTable.render.number(','),
-				},
+                    data: 'quantity_actual',
+                    render: $.fn.dataTable.render.number(','),
+                },
                 {
-					data: 'quantity_bad_orders',
-					render: $.fn.dataTable.render.number(','),
-				},
+                    data: 'quantity_bad_orders',
+                    render: $.fn.dataTable.render.number(','),
+                },
                 {
-					data: 'quantity_returns',
-					render: $.fn.dataTable.render.number(','),
-				},
+                    data: 'quantity_returns',
+                    render: $.fn.dataTable.render.number(','),
+                },
             ],
             columnDefs: [
                 {
@@ -376,45 +376,45 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
             footerCallback: function (row, data, start, end, display) {
                 const api = this.api();
 
-                const intVal = function ( i ) {
+                const intVal = function (i) {
                     return typeof i === 'string'
-                        ? i.replace(/[\$,]/g, '')*1
+                        ? i.replace(/[\$,]/g, '') * 1
                         : typeof i === 'number' ? i : 0;
                 };
-                
+
                 const numberFormat = $.fn.dataTable.render.number(',').display;
-				const offset = 2;
-				for (let i = 0; i < 4; i++) {
-					const totalQuantity = api
-						.column(offset + i)
-						.data()
-						.reduce(
-							function (a, b) {
-								return intVal(a) + intVal(b);
-							},
-							0
-						);                    
+                const offset = 2;
+                for (let i = 0; i < 4; i++) {
+                    const totalQuantity = api
+                        .column(offset + i)
+                        .data()
+                        .reduce(
+                            function (a, b) {
+                                return intVal(a) + intVal(b);
+                            },
+                            0
+                        );
                     $(api.column(offset + i).footer()).html(numberFormat(totalQuantity));
-				}
+                }
             },
             ordering: false,
             paging: false,
             searching: false,
         });
     }
-    
+
     handleChangeType(e) {
-		const self = this;
-		const reportType = e.target.value;
-		self.setState({
-			...self.state,
-			booklets: [],
-			csvFilters: null,
-			searchFilters: null,
-			summary: [],
-			reportType,
-		});
-	}
+        const self = this;
+        const reportType = e.target.value;
+        self.setState({
+            ...self.state,
+            booklets: [],
+            csvFilters: null,
+            searchFilters: null,
+            summary: [],
+            reportType,
+        });
+    }
 
     handleSearchSubmit(e) {
         e.preventDefault();
@@ -446,34 +446,34 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
                 tableSummary.rows.add(summary).draw();
             });
     }
-    
+
     handleGenerateCsvReport(e) {
-		e.preventDefault();
-		const reportType = e.target.getAttribute('data-report-type');
-		const self = this;
-		const token = cookie.load('token');
-		const { csvFilters } = self.state;
-		axios.get(`${END_POINT}?${csvFilters}&generate=csv&report_type=${reportType}&token=${token}`, {
-			responseType: 'arraybuffer',
-		})
-		.then(response => {
-			const filename = response.headers['content-disposition'].split('filename=')[1].split('.')[0];
-			const extension = response.headers['content-disposition'].split('.')[1].split(';')[0];
-			const blob = new Blob(
-				[response.data],
-				{ type: 'text/csv' }
-			);
-			const link = document.createElement('a');
-			link.href = window.URL.createObjectURL(blob);
-			link.download = `${filename}.${extension}`;
-			link.click();
-		});
-	}
+        e.preventDefault();
+        const reportType = e.target.getAttribute('data-report-type');
+        const self = this;
+        const token = cookie.load('token');
+        const { csvFilters } = self.state;
+        axios.get(`${END_POINT}?${csvFilters}&generate=csv&report_type=${reportType}&token=${token}`, {
+            responseType: 'arraybuffer',
+        })
+            .then(response => {
+                const filename = response.headers['content-disposition'].split('filename=')[1].split('.')[0];
+                const extension = response.headers['content-disposition'].split('.')[1].split(';')[0];
+                const blob = new Blob(
+                    [response.data],
+                    { type: 'text/csv' }
+                );
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = `${filename}.${extension}`;
+                link.click();
+            });
+    }
 
     render() {
         const {
-			booklets,
-			reportType,
+            booklets,
+            reportType,
             searchFilters,
         } = this.state;
 
@@ -494,43 +494,43 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
                                 <Form onSubmit={this.handleSearchSubmit}>
                                     <Form.Group>
                                         <Form.Label>From:</Form.Label>
-                                        <Form.Control type="date" name="from"/>
+                                        <Form.Control type="date" name="from" />
                                     </Form.Group>
                                     <Form.Group>
                                         <Form.Label>To:</Form.Label>
-                                        <Form.Control type="date" name="to"/>
+                                        <Form.Control type="date" name="to" />
                                     </Form.Group>
                                     <Form.Group>
                                         <Form.Label>By:</Form.Label>
                                         <Form.Check
-											type="radio"
-											name="by"
-											label="Store"
-											value="store"
-											checked={reportType === 'store'}
-											onClick={this.handleChangeType}/>
-										<Form.Check
-											type="radio"
-											name="by"
-											label="Category"
-											value="category"
-											checked={reportType === 'category'}
-											onClick={this.handleChangeType}/>
+                                            type="radio"
+                                            name="by"
+                                            label="Store"
+                                            value="store"
+                                            checked={reportType === 'store'}
+                                            onClick={this.handleChangeType} />
                                         <Form.Check
-											type="radio"
-											name="by"
-											label="Location"
-											value="location"
-											checked={reportType === 'location'}
-											onClick={this.handleChangeType}/>
+                                            type="radio"
+                                            name="by"
+                                            label="Category"
+                                            value="category"
+                                            checked={reportType === 'category'}
+                                            onClick={this.handleChangeType} />
+                                        <Form.Check
+                                            type="radio"
+                                            name="by"
+                                            label="Location"
+                                            value="location"
+                                            checked={reportType === 'location'}
+                                            onClick={this.handleChangeType} />
                                     </Form.Group>
-                                    { reportType === 'store' && 
-										<CommonDropdownSelectSingleStore name="store_id"/> }
-									{ reportType === 'category' && 
-										<CommonDropdownSelectSingleStoreCategory name="category_id"/> }
-									{ reportType === 'location' && 
-										<CommonDropdownSelectSingleStoreLocation name="location_id"/> }
-                                    <hr className="my-4"/>
+                                    {reportType === 'store' &&
+                                        <CommonDropdownSelectSingleStore name="store_id" />}
+                                    {reportType === 'category' &&
+                                        <CommonDropdownSelectSingleStoreCategory name="category_id" />}
+                                    {reportType === 'location' &&
+                                        <CommonDropdownSelectSingleStoreLocation name="location_id" />}
+                                    <hr className="my-4" />
                                     <Button type="submit">Generate Report</Button>
                                 </Form>
                             </Card.Body>
@@ -552,90 +552,87 @@ export default class ReportsDeliveryReceiptMonitoring extends Component {
                                 </Card.Header>
                             }
                             <Card.Body>
-                                <div style={!searchFilters ? {display: 'none'} : null}>
-									<Card>
-										<Card.Header>
-											<b>Full Detail</b> (Per Booklet)
-										</Card.Header>
-										<Card.Body>
-											<div className="row">
-												<div className="col-md-12">
-													<Button className="pull-right" onClick={this.handleGenerateCsvReport} data-report-type="full">
-														<i className="fa fa-icon fa-download"></i> CSV
-													</Button>
-												</div>
-											</div>
-											<table className={`table table-striped ${DT_DELIVERY_RECEIPT_MONITORING}`} style={{width: 100+'%'}}>
-												<thead>
-													<tr>
-													<th scope="col"></th>
-													<th scope="col">Booklet No.</th>
-													<th scope="col">Qty. (Original)</th>
-													<th scope="col">Qty. (Actual)</th>
-													<th scope="col">Qty. (Bad Orders)</th>
-													<th scope="col">Qty. (Returns)</th>
-													</tr>
-												</thead>
-												<tbody></tbody>
-												<tfoot>
-													<tr>
-														<th scope="col"></th>
-														<th scope="col" style={{textAlign: 'right'}}>Total:</th>
-														<th scope="col" style={{textAlign: 'right'}}></th>
-														<th scope="col" style={{textAlign: 'right'}}></th>
-														<th scope="col" style={{textAlign: 'right'}}></th>
-														<th scope="col" style={{textAlign: 'right'}}></th>
-													</tr>
-												</tfoot>
-											</table>
-										</Card.Body>
-									</Card>
+                                <div style={!searchFilters ? { display: 'none' } : null}>
+                                    <Card>
+                                        <Card.Header>
+                                            <b>Full Detail</b> (Per Booklet)
+                                        </Card.Header>
+                                        <Card.Body>
+                                            <div className="row">
+                                                <div className="col-md-12">
+                                                    <Button className="pull-right" onClick={this.handleGenerateCsvReport} data-report-type="full">
+                                                        <i className="fa fa-icon fa-download"></i> CSV
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                            <table className={`table table-striped ${DT_DELIVERY_RECEIPT_MONITORING}`} style={{ width: 100 + '%' }}>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col"></th>
+                                                        <th scope="col">Booklet No.</th>
+                                                        <th scope="col">Qty. (Original)</th>
+                                                        <th scope="col">Qty. (Actual)</th>
+                                                        <th scope="col">Qty. (Bad Orders)</th>
+                                                        <th scope="col">Qty. (Returns)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th scope="col"></th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}>Total:</th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}></th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}></th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}></th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </Card.Body>
+                                    </Card>
                                     <Card className="mt-4">
-										<Card.Header>
-											<b>Summary</b> (Per Item)
-										</Card.Header>
-										<Card.Body>
-											<div className="row">
-												<div className="col-md-12">
-													<Button className="pull-right" onClick={this.handleGenerateCsvReport} data-report-type="summary">
-														<i className="fa fa-icon fa-download"></i> CSV
-													</Button>
-												</div>
-											</div>
-											<table className={`table table-striped ${DT_DELIVERY_RECEIPT_MONITORING_SUMMARY}`} style={{width: 100+'%'}}>
-												<thead>
-													<tr>
-													<th scope="col">Code</th>
-													<th scope="col">Name</th>
-													<th scope="col">Qty. (Original)</th>
-													<th scope="col">Qty. (Actual)</th>
-													<th scope="col">Qty. (Bad Orders)</th>
-													<th scope="col">Qty. (Returns)</th>
-													</tr>
-												</thead>
-												<tbody></tbody>
-												<tfoot>
-													<tr>
-														<th scope="col"></th>
-														<th scope="col" style={{textAlign: 'right'}}>Total:</th>
-														<th scope="col" style={{textAlign: 'right'}}></th>
-														<th scope="col" style={{textAlign: 'right'}}></th>
-														<th scope="col" style={{textAlign: 'right'}}></th>
-														<th scope="col" style={{textAlign: 'right'}}></th>
-													</tr>
-												</tfoot>
-											</table>
-										</Card.Body>
+                                        <Card.Header>
+                                            <b>Summary</b> (Per Item)
+                                        </Card.Header>
+                                        <Card.Body>
+                                            <div className="row">
+                                                <div className="col-md-12">
+                                                    <Button className="pull-right" onClick={this.handleGenerateCsvReport} data-report-type="summary">
+                                                        <i className="fa fa-icon fa-download"></i> CSV
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                            <table className={`table table-striped ${DT_DELIVERY_RECEIPT_MONITORING_SUMMARY}`} style={{ width: 100 + '%' }}>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Code</th>
+                                                        <th scope="col">Name</th>
+                                                        <th scope="col">Qty. (Original)</th>
+                                                        <th scope="col">Qty. (Actual)</th>
+                                                        <th scope="col">Qty. (Bad Orders)</th>
+                                                        <th scope="col">Qty. (Returns)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th scope="col"></th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}>Total:</th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}></th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}></th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}></th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </Card.Body>
                                     </Card>
                                 </div>
-                                { !searchFilters &&
-                                    <Jumbotron className="mb-0">
-                                        <p className="text-center">
-                                            <i className="fa fa-5x fa-info-circle"/><br/>
-                                            Start by filtering records to search.
-                                        </p>
-                                    </Jumbotron>
-                                }
+                                {!searchFilters &&
+                                    <p className="text-center">
+                                        <i className="fa fa-5x fa-info-circle" /><br />
+                                        Start by filtering records to search.
+                                    </p>}
                             </Card.Body>
                         </Card>
                     </div>

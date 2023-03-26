@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Breadcrumb, Button, Alert, Card, Form, Jumbotron } from 'react-bootstrap';
+import { Breadcrumb, Button, Alert, Card, Form } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import CommonDropdownSelectSingleStoreLocation from './CommonDropdownSelectSingleStoreLocation';
 
@@ -18,7 +18,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
             searchFilters: null,
             availableFields: [],
             storeStockCards: [],
-            selectedStoreLocation: {},            
+            selectedStoreLocation: {},
             inventoryTypes: [
                 {
                     label: 'Diser\'s Inventory',
@@ -74,7 +74,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
         axios.get(`${END_POINT_AVAILABLE_ITEMS}?${data}&token=${token}`)
             .then((response) => {
                 const { data: availableFields } = response.data;
-                
+
                 axios.get(`${END_POINT}?${data}&token=${token}`)
                     .then((response) => {
                         const { data: storeStockCards, meta } = response.data;
@@ -99,22 +99,22 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                 { data: 'store.name' },
                             ];
                             availableFields.forEach((field) => {
-                                columns.push({ data: `${field.code}_${inventoryType.table}`});
-                            });                            
-    
+                                columns.push({ data: `${field.code}_${inventoryType.table}` });
+                            });
+
                             const table = $(`.${DT_SALES_INVOICES_MONITORING}-${inventoryType.table}`).DataTable({
                                 data: storeStockCards,
-                                buttons: [],                
+                                buttons: [],
                                 ordering: false,
                                 paging: false,
                                 searching: false,
                                 columns,
                                 footerCallback: function (row, data, start, end, display) {
                                     const api = this.api();
-                    
-                                    const intVal = function ( i ) {
+
+                                    const intVal = function (i) {
                                         return typeof i === 'string'
-                                            ? i.replace(/[\$,]/g, '')*1
+                                            ? i.replace(/[\$,]/g, '') * 1
                                             : typeof i === 'number' ? i : 0;
                                     };
 
@@ -130,7 +130,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                                 0
                                             );
                                         $(api.column(columnIndex).footer()).html(total);
-                                    });                                    
+                                    });
                                 }
                             });
                         });
@@ -151,7 +151,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                     ...self.state,
                     availableFields,
                     errors: null,
-                });                
+                });
             })
             .catch((error) => {
                 if (error.response) {
@@ -178,7 +178,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
         const {
             availableFields,
             searchFilters,
-            selectedStoreLocation,            
+            selectedStoreLocation,
             inventoryTypes,
             drawReport,
             errors,
@@ -196,32 +196,32 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                 <Breadcrumb>
                     <Breadcrumb.Item href="#/reports"><i className="fa fa-book"></i> Reports</Breadcrumb.Item>
                     <Breadcrumb.Item active>Stock Cards Monitoring</Breadcrumb.Item>
-                </Breadcrumb>                
+                </Breadcrumb>
                 <div className="row my-4">
-                    <div className="col-md-3">                        
+                    <div className="col-md-3">
                         <Card>
                             <Card.Header>
                                 <i className="fa fa-filter"></i> Search Filters
                             </Card.Header>
                             <Card.Body>
-                                <Form onSubmit={this.handleSearchSubmit}>                                    
+                                <Form onSubmit={this.handleSearchSubmit}>
                                     <Form.Group>
                                         <Form.Label>From:</Form.Label>
-                                        <Form.Control type="date" name="from"/>
+                                        <Form.Control type="date" name="from" />
                                     </Form.Group>
                                     <Form.Group>
                                         <Form.Label>To:</Form.Label>
-                                        <Form.Control type="date" name="to"/>
+                                        <Form.Control type="date" name="to" />
                                     </Form.Group>
-                                    <CommonDropdownSelectSingleStoreLocation                                    
+                                    <CommonDropdownSelectSingleStoreLocation
                                         name="location_id"
                                         handleChange={this.handleStoreLocationChange}
-                                        selectedStoreLocation={selectedStoreLocation}/>
-                                    <hr className="my-4"/>
-                                    { errs.length > 0 &&
+                                        selectedStoreLocation={selectedStoreLocation} />
+                                    <hr className="my-4" />
+                                    {errs.length > 0 &&
                                         <Alert variant="danger">
-                                            { errs.map((e, idx) => <li key={idx}>{e}</li>) }
-                                        </Alert>                        
+                                            {errs.map((e, idx) => <li key={idx}>{e}</li>)}
+                                        </Alert>
                                     }
                                     <Button type="submit" block>Generate Report</Button>
                                 </Form>
@@ -238,14 +238,14 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                 </Card.Header>
                             }
                             <Card.Body>
-                                { drawReport &&
+                                {drawReport &&
                                     <>
-                                        { inventoryTypes.map((inventoryType, idx) => <Card key={idx} className="mb-4">
+                                        {inventoryTypes.map((inventoryType, idx) => <Card key={idx} className="mb-4">
                                             <Card.Header>
                                                 {inventoryType.label}
                                             </Card.Header>
                                             <Card.Body>
-                                                <table className={`table table-striped ${DT_SALES_INVOICES_MONITORING}-${inventoryType.table}`} style={{width: 100+'%'}}>
+                                                <table className={`table table-striped ${DT_SALES_INVOICES_MONITORING}-${inventoryType.table}`} style={{ width: 100 + '%' }}>
                                                     <thead>
                                                         <tr>
                                                             <th>Store</th>
@@ -261,17 +261,15 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                                     </tfoot>
                                                 </table>
                                             </Card.Body>
-                                        </Card>) }
+                                        </Card>)}
                                     </>
                                 }
-                                { !searchFilters &&
-                                    <Jumbotron className="mb-0">
-                                        <p className="text-center">
-                                            <i className="fa fa-5x fa-info-circle"/><br/>
-                                            Start by filtering records to search.
-                                        </p>
-                                    </Jumbotron>
-                                }
+                                {!searchFilters &&
+
+                                    <p className="text-center">
+                                        <i className="fa fa-5x fa-info-circle" /><br />
+                                        Start by filtering records to search.
+                                    </p>}
                             </Card.Body>
                         </Card>
                     </div>

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 import { v4 as uuidv4 } from 'uuid';
-import NumberFormat from 'react-number-format';
+import { NumericFormat } from 'react-number-format';
 
 const styles = StyleSheet.create({
     page: {
@@ -64,7 +64,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
         } = this.props;
 
         let itemsTotal = {};
-        
+
         const slicePercentage = 60;
 		let columnSize = 0;
 		if (+purchaseOrder.status.id === 3) {

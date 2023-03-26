@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Card, Jumbotron } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import sanitize from 'sanitize-filename';
 import CommonDeleteModal from './CommonDeleteModal';
@@ -61,7 +61,7 @@ export default class DeliveriesSearchResult extends Component {
                 {
                     'data': null,
                     'render': function (data, type, row) {
-                        const editBtn = '<a href="#" class="edit btn btn-primary" data-toggle="modal" data-target="#AddEditDeliveryModal" data-delivery-id="' + row.id + '" data-biometric-id="' + row.user.biometric_id + '" data-name="' + row.user.name + '" data-delivery-date="' + row.delivery_date + '" data-no-of-deliveries="' + row.no_of_deliveries + '" data-remarks="' + row.remarks +'"><i class="fa fa-edit"></i></a>';
+                        const editBtn = '<a href="#" class="edit btn btn-primary" data-toggle="modal" data-target="#AddEditDeliveryModal" data-delivery-id="' + row.id + '" data-biometric-id="' + row.user.biometric_id + '" data-name="' + row.user.name + '" data-delivery-date="' + row.delivery_date + '" data-no-of-deliveries="' + row.no_of_deliveries + '" data-remarks="' + row.remarks + '"><i class="fa fa-edit"></i></a>';
                         const deleteBtn = '<a href="#" class="delete btn btn-warning" data-toggle="modal" data-target="#deleteModal" data-delivery-id="' + row.id + '" data-biometric-id="' + row.user.biometric_id + '" data-name="' + row.user.name + '" data-delivery-date="' + row.delivery_date + '"><i class="fa fa-trash"></i></a>';
 
                         return `${editBtn}&nbsp;${deleteBtn}`;
@@ -74,7 +74,7 @@ export default class DeliveriesSearchResult extends Component {
             order: [[2, 'asc']]
         });
 
-        $(document).on('click', '.data-table-wrapper .edit', function(e) {
+        $(document).on('click', '.data-table-wrapper .edit', function (e) {
             const userBiometricId = e.currentTarget.getAttribute('data-biometric-id');
             const userName = e.currentTarget.getAttribute('data-name');
             const deliveryId = e.currentTarget.getAttribute('data-delivery-id');
@@ -94,7 +94,7 @@ export default class DeliveriesSearchResult extends Component {
             });
         });
 
-        $(document).on('click', '.data-table-wrapper .delete', function(e) {
+        $(document).on('click', '.data-table-wrapper .delete', function (e) {
             const userBiometricId = e.currentTarget.getAttribute('data-biometric-id');
             const userName = e.currentTarget.getAttribute('data-name');
             const deliveryId = e.currentTarget.getAttribute('data-delivery-id');
@@ -116,8 +116,7 @@ export default class DeliveriesSearchResult extends Component {
             .destroy(true);
     }
 
-    initExportTitle()
-    {
+    initExportTitle() {
         const {
             biometricId,
             biometricName,
@@ -125,14 +124,13 @@ export default class DeliveriesSearchResult extends Component {
             endDate
         } = this.props;
 
-        const user = `User: ${ biometricId ? `${biometricId} ${biometricName}` : 'All' }`;
+        const user = `User: ${biometricId ? `${biometricId} ${biometricName}` : 'All'}`;
         const label = `${user}${user ? ' ' : ''}From: ${startDate} To: ${endDate}`;
 
         return `Deliveries ${label}`;
     }
 
-    initExportFilename()
-    {
+    initExportFilename() {
         return sanitize(this.initExportTitle());
     }
 
@@ -202,7 +200,7 @@ export default class DeliveriesSearchResult extends Component {
                             .find('.invalid-feedback')
                             .text(errors[key][0]);
                     }
-               }
+                }
             });
     }
 
@@ -295,21 +293,19 @@ export default class DeliveriesSearchResult extends Component {
             <div>
                 {
                     (!startDate || !endDate) &&
-                    <Jumbotron>
-                        <p className="text-center">
-                            <i className="fa fa-5x fa-info-circle"/><br/>
-                            Start by filtering records to search.
-                        </p>
-                    </Jumbotron>
+                    <p className="text-center">
+                        <i className="fa fa-5x fa-info-circle" /><br />
+                        Start by filtering records to search.
+                    </p>
                 }
 
                 <Card style={{ display: (hideTable ? 'none' : '') }}>
                     <Card.Header>
-                        <h4><i className="fa fa-search"/> Search Result</h4>
-                        User: { biometricId ? `${biometricId} ${biometricName}` : 'All' } From: {startDate} To: {endDate}
+                        <h4><i className="fa fa-search" /> Search Result</h4>
+                        User: {biometricId ? `${biometricId} ${biometricName}` : 'All'} From: {startDate} To: {endDate}
                     </Card.Header>
                     <Card.Body>
-                        <table ref="deliveriesSearcherResult" className="table table-striped table-deliveries" style={{width: 100+'%'}}>
+                        <table ref="deliveriesSearcherResult" className="table table-striped table-deliveries" style={{ width: 100 + '%' }}>
                             <thead>
                                 <tr>
                                     <th scope="col">Biometric ID</th>
@@ -338,7 +334,7 @@ export default class DeliveriesSearchResult extends Component {
                     handleSubmit={this.handleSubmitAddEditDeliveryModal}
                     isError={isErrorAddEditDelivery}
                     errorHeaderTitle={errorHeaderTitleAddEditDelivery}
-                    errorBodyText={errorBodyTextAddEditDelivery}/>
+                    errorBodyText={errorBodyTextAddEditDelivery} />
 
                 <CommonDeleteModal
                     isShow={showDeleteDeliveryModal}
@@ -348,7 +344,7 @@ export default class DeliveriesSearchResult extends Component {
                     handleSubmit={this.handleSubmitDeleteDeliveryModal}
                     isDeleteError={isDeleteUserError}
                     deleteErrorHeaderTitle={deleteUserErrorHeaderTitle}
-                    deleteErrorBodyText={deleteUserErrorBodyText}/>
+                    deleteErrorBodyText={deleteUserErrorBodyText} />
             </div>
         );
     }
