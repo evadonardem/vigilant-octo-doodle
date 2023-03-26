@@ -1,9 +1,11 @@
 import React, { useContext, useState } from 'react';
-import { Auth } from './App';
-import CommonSearchFilters from './CommonSearchFilters';
-import DailyTimeRecordSearchResult from './DailyTimeRecordSearchResult';
+import CommonSearchFilters from '../../CommonSearchFilters';
+import AttendanceLogsSearchResult from './AttendanceLogsSearchResult';
+import { Auth } from '../../App';
+import { Breadcrumb, Col, Row } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
-export default function DailyTimeRecord() {
+export default function AttendanceLogs() {
     const { user, hasRole } = useContext(Auth);
     const isAdmin = hasRole('Super Admin');
     const [biometricId, setBiometricId] = useState(isAdmin ? '' : user.biometric_id);
@@ -33,27 +35,32 @@ export default function DailyTimeRecord() {
     };
 
     return (
-        <div className="container-fluid my-4">
-            <h1><i className="fa fa-clock-o"></i> Daily Time Record</h1>
+        <>
+            <Breadcrumb>
+                <Breadcrumb.Item linkProps={{ to: "/logs" }} linkAs={Link}>
+                    <i className="fa fa-folder-open"></i> Logs
+                </Breadcrumb.Item>
+                <Breadcrumb.Item active>Attendance Logs</Breadcrumb.Item>
+            </Breadcrumb>
 
-            <hr className="my-4"/>
+            <hr className="my-4" />
 
-            <div className="row">
-                <div className="col-md-3">
+            <Row>
+                <Col md="3">
                     <CommonSearchFilters
                         handleSubmit={handleSearchSubmit}
                         withUserSelection={isAdmin}
-                        searchErrors={searchErrors}/>
-                </div>
-                <div className="col-md-9">
-                    <DailyTimeRecordSearchResult
+                        searchErrors={searchErrors} />
+                </Col>
+                <Col md="9">
+                    <AttendanceLogsSearchResult
                         biometricId={biometricId}
                         biometricName={biometricName}
                         startDate={startDate}
                         endDate={endDate}
-                        handleSearchResultErrors={handleSearchResultErrors}/>
-                </div>
-            </div>
-        </div>
+                        handleSearchResultErrors={handleSearchResultErrors} />
+                </Col>
+            </Row>
+        </>
     );
 }

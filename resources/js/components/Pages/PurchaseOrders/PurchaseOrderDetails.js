@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { Alert, Badge, Breadcrumb, Button, Card, Form, Modal } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import { v4 as uuidv4 } from 'uuid';
-import CommonDeleteModal from './CommonDeleteModal';
-import CommonDropdownSelectSingleUsers from './CommonDropdownSelectSingleUsers';
-import CommonDropdownSelectSingleExpenseCode from './CommonDropdownSelectSingleExpenseCode';
+import CommonDeleteModal from '../../CommonDeleteModal';
+import CommonDropdownSelectSingleUsers from '../../CommonDropdownSelectSingleUsers';
+import CommonDropdownSelectSingleExpenseCode from '../../CommonDropdownSelectSingleExpenseCode';
 
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import PurchaseOrderDetailsPdfDocument from './PurchaseOrderDetailsPdfDocument';
@@ -67,7 +67,7 @@ export default class PurchaseOrderDetails extends Component {
                 this.initDataTables(purchaseOrderId);
             })
             .catch(() => {
-                
+
             });
 
         axios.get(`${END_POINT}/${purchaseOrderId}/stores?include=items&token=${token}`)
@@ -79,7 +79,7 @@ export default class PurchaseOrderDetails extends Component {
                 });
             })
             .catch(() => {
-                
+
             });
 
         axios.get(`${END_POINT}/${purchaseOrderId}/assigned-staff?token=${token}`)
@@ -104,7 +104,7 @@ export default class PurchaseOrderDetails extends Component {
                 });
             })
             .catch(() => {
-                
+
             });
     }
 
@@ -118,7 +118,7 @@ export default class PurchaseOrderDetails extends Component {
     initDataTables(purchaseOrderId) {
         const self = this;
         const { token } = self.state;
-    
+
         const poStoresDataTable = $(`.${PO_STORES_DT}`).DataTable({
             ajax: {
                 type: 'get',
@@ -144,7 +144,7 @@ export default class PurchaseOrderDetails extends Component {
                     'data': null,
                     'render': function (data, type, row) {
                         const {promodisers} = data;
-    
+
                         if (promodisers) {
                             return promodisers.map((promodiser) => {
                                 return `<p>
@@ -153,7 +153,7 @@ export default class PurchaseOrderDetails extends Component {
                                 </p>`;
                             }).join('');
                         }
-    
+
                         return null;
                     }
                 },
@@ -175,10 +175,10 @@ export default class PurchaseOrderDetails extends Component {
                                 class="delete-po-store btn btn-warning">
                                     <i class="fa fa-trash"></i>
                             </a>`;
-    
+
                             return `<div class="btn-group">${editBtn}${deleteBtn}</div>`;
                         }
-    
+
                         return null;
                     }
                 },
@@ -186,19 +186,19 @@ export default class PurchaseOrderDetails extends Component {
             ordering: false,
             paging: false,
             rowReorder: {
-                dataSrc: 'sort_order',                
+                dataSrc: 'sort_order',
             },
             searching: false,
         });
-    
+
         $(document).on('click', '.data-table-wrapper .delete-po-store', function (e) {
             e.preventDefault();
-    
+
             const purchaseOrderId = $(this).data('purchase-order-id');
             const storeId = $(this).data('store-id');
             const storeCode = $(this).data('store-code');
             const storeName = $(this).data('store-name');
-    
+
             self.setState({
                 ...self.state,
                 deleteModal: {
@@ -210,7 +210,7 @@ export default class PurchaseOrderDetails extends Component {
                 }
             })
         });
-    
+
         const format = (d) => {
             return `<div class="card">
                 <div class="card-header">
@@ -239,7 +239,7 @@ export default class PurchaseOrderDetails extends Component {
                 </div>
             </div>`;
         };
-    
+
         // Add event listener for opening and closing details
         $('tbody', $(`.${PO_STORES_DT}`)).on('click', 'td.details-control', function () {
             var refDataTable = $('.data-table-wrapper')
@@ -247,7 +247,7 @@ export default class PurchaseOrderDetails extends Component {
                 .DataTable();
             var tr = $(this).closest('tr');
             var row = refDataTable.row( tr );
-    
+
             if ( row.child.isShown() ) {
                 $(this).find('i').removeClass('fa-chevron-circle-up');
                 $(this).find('i').addClass('fa-chevron-circle-down');
@@ -259,7 +259,7 @@ export default class PurchaseOrderDetails extends Component {
                 $(this).find('i').addClass('fa-chevron-circle-up');
                 row.child( format(row.data()) ).show();
                 tr.addClass('shown');
-    
+
                 if ( row.child.isShown() ) {
                     tr.next().find(`table.${PO_STORE_ITEMS_DT}`).DataTable({
                         ajax: {
@@ -269,12 +269,12 @@ export default class PurchaseOrderDetails extends Component {
                                 let json = jQuery.parseJSON(data);
                                 json.recordsTotal = json.total;
                                 json.recordsFiltered = json.total;
-    
+
                                 return JSON.stringify(json);
                             },
                             dataSrc: (response) => {
                                 const { data } = response;
-    
+
                                 return data;
                             },
                         },
@@ -299,10 +299,10 @@ export default class PurchaseOrderDetails extends Component {
                                             data-item-id=${data.id}
                                             data-type="quantity_original"
                                             value="${data.pivot.quantity_original}"/>`;
-    
+
                                         return `${input}`;
                                     }
-    
+
                                     return data.pivot.quantity_original;
                                 }
                             },
@@ -318,10 +318,10 @@ export default class PurchaseOrderDetails extends Component {
                                             data-item-id=${data.id}
                                             data-type="quantity_actual"
                                             value="${data.pivot.quantity_actual}"/>`;
-    
+
                                         return `${input}`;
                                     }
-    
+
                                     return data.pivot.quantity_actual;
                                 }
                             },
@@ -337,10 +337,10 @@ export default class PurchaseOrderDetails extends Component {
                                             data-item-id=${data.id}
                                             data-type="quantity_bad_orders"
                                             value="${data.pivot.quantity_bad_orders}"/>`;
-    
+
                                         return `${input}`;
                                     }
-    
+
                                     return data.pivot.quantity_bad_orders;
                                 }
                             },
@@ -356,10 +356,10 @@ export default class PurchaseOrderDetails extends Component {
                                             data-item-id=${data.id}
                                             data-type="quantity_returns"
                                             value="${data.pivot.quantity_returns}"/>`;
-    
+
                                         return `${input}`;
                                     }
-    
+
                                     return data.pivot.quantity_returns;
                                 }
                             },
@@ -375,10 +375,10 @@ export default class PurchaseOrderDetails extends Component {
                                             data-item-id=${data.id}
                                             data-type="delivery_receipt_no"
                                             value="${data.pivot.delivery_receipt_no}"/>`;
-    
+
                                         return `${input}`;
                                     }
-    
+
                                     return data.pivot.delivery_receipt_no;
                                 }
                             },
@@ -394,10 +394,10 @@ export default class PurchaseOrderDetails extends Component {
                                             data-item-id=${data.id}
                                             data-type="booklet_no"
                                             value="${data.pivot.booklet_no}"/>`;
-    
+
                                         return `${input}`;
                                     }
-    
+
                                     return data.pivot.booklet_no;
                                 }
                             },
@@ -413,10 +413,10 @@ export default class PurchaseOrderDetails extends Component {
                                             data-item-id=${data.id}
                                             data-type="remarks"
                                             value="${data.pivot.remarks}"/>`;
-    
+
                                         return `${input}`;
                                     }
-    
+
                                     return data.pivot.remarks;
                                 }
                             },
@@ -434,16 +434,16 @@ export default class PurchaseOrderDetails extends Component {
                                             class="delete-po-store-item btn btn-warning">
                                                 <i class="fa fa-trash"></i>
                                         </a>`;
-    
+
                                         return `${deleteBtn}`;
                                     }
-    
+
                                     return null;
                                 }
                             },
                         ]
                     });
-    
+
                     $(document).on('change', '.data-table-wrapper .update-po-store-item', function(e) {
                         const purchaseOrderId = $(this).data('purchase-order-id');
                         const storeId = $(this).data('store-id');
@@ -452,7 +452,7 @@ export default class PurchaseOrderDetails extends Component {
                         const quantity = $(this).val();
                         const postData = {};
                         postData[quantityType] = quantity;
-    
+
                         axios.patch(`${END_POINT}/${purchaseOrderId}/stores/${storeId}/items/${itemId}?token=${token}`, postData)
                             .then(() => {
                                 axios.get(`${END_POINT}/${purchaseOrderId}/stores?include=items&token=${token}`)
@@ -464,23 +464,23 @@ export default class PurchaseOrderDetails extends Component {
                                         });
                                     })
                                     .catch(() => {
-                                        
+
                                     });
                             })
                             .catch(() => {
-                                
+
                             });
                     });
-    
+
                     $(document).on('click', '.data-table-wrapper .delete-po-store-item', function (e) {
                         e.preventDefault();
-    
+
                         const purchaseOrderId = $(this).data('purchase-order-id');
                         const storeId = $(this).data('store-id');
                         const itemId = $(this).data('item-id');
                         const itemCode = $(this).data('item-code');
                         const itemName = $(this).data('item-name');
-    
+
                         self.setState({
                             ...self.state,
                             deleteModal: {
@@ -495,7 +495,7 @@ export default class PurchaseOrderDetails extends Component {
                 }
             }
         });
-    
+
         poStoresDataTable.on('row-reorder', (e, diff, edit) => {
             poStoresDataTable.one('draw', function () {
                 let storesSortOrder = [];
@@ -506,7 +506,7 @@ export default class PurchaseOrderDetails extends Component {
                         storesSortOrder.push({
                             store_id,
                             sort_order,
-                        });  
+                        });
                     });
                     axios.post(
                         `${END_POINT}/${purchaseOrderId}/stores-sort-order?token=${token}`,
@@ -518,10 +518,10 @@ export default class PurchaseOrderDetails extends Component {
                         .catch(() => {
                             location.reload();
                         });
-            });        
+            });
         });
-    
-    
+
+
         $(`.${PO_ASSIGNED_STAFF_DT}`).DataTable({
             ajax: {
                 type: 'get',
@@ -564,10 +564,10 @@ export default class PurchaseOrderDetails extends Component {
                                 class="delete-po-assigned-staff btn btn-warning">
                                     <i class="fa fa-trash"></i>
                             </a>`;
-    
+
                             return `${deleteBtn}`;
                         }
-    
+
                         return null;
                     }
                 },
@@ -576,20 +576,20 @@ export default class PurchaseOrderDetails extends Component {
             paging: false,
             searching: false,
         });
-    
+
 		$(document).on('click', '.data-table-wrapper .include-deliveries-to-pay-periods', function (e) {
 			const purchaseOrderId = e.target.getAttribute('data-purchase-order-id');
 			const purchaseOrderAssignedStaffId = e.target.getAttribute('data-purchase-order-assigned-staff-id');
 			const isChecked = e.target.checked;
 			const data = { include_deliveries_for_pay_periods: isChecked };
-			
+
 			axios.patch(`${END_POINT}/${purchaseOrderId}/assigned-staff/${purchaseOrderAssignedStaffId}?token=${token}`, data)
                 .catch((error) => {
                     const {
                         data,
                         status,
                     } = error.response;
-    
+
                     if (+status === 422) {
                         const { message: generalMessage } = data;
                         self.setState({
@@ -599,15 +599,15 @@ export default class PurchaseOrderDetails extends Component {
                     }
                 });
 		});
-		
+
         $(document).on('click', '.data-table-wrapper .delete-po-assigned-staff', function (e) {
             e.preventDefault();
-    
+
             const purchaseOrderId = $(this).data('purchase-order-id');
             const purchaseOrderAssignedStaffId = $(this).data('purchase-order-assigned-staff-id');
             const biometricId = $(this).data('biometric-id');
             const staffName = $(this).data('staff-name');
-    
+
             self.setState({
                 ...self.state,
                 deleteModal: {
@@ -619,7 +619,7 @@ export default class PurchaseOrderDetails extends Component {
                 }
             })
         });
-    
+
         const poExpensesDataTable = $(`.${PO_EXPENSES_DT}`).DataTable({
             ajax: {
                 type: 'get',
@@ -646,10 +646,10 @@ export default class PurchaseOrderDetails extends Component {
                                 data-type="amount_actual"
                                 style="text-align: right;"
                                 value="${data.amount_actual}"/>`;
-    
+
                             return `${input}`;
                         }
-    
+
                         return data.amount_actual;
                     }
                 },
@@ -665,10 +665,10 @@ export default class PurchaseOrderDetails extends Component {
                                 class="delete-po-expense btn btn-warning">
                                     <i class="fa fa-trash"></i>
                             </a>`;
-    
+
                             return `${deleteBtn}`;
                         }
-    
+
                         return null;
                     }
                 },
@@ -726,10 +726,10 @@ export default class PurchaseOrderDetails extends Component {
             paging: false,
             searching: false,
         });
-    
+
         $(document).on('change', '.data-table-wrapper .update-po-allocated-expense', function (e) {
             e.preventDefault();
-    
+
             const token = cookie.load('token');
             const purchaseOrderId = $(this).data('purchase-order-id');
             const purchaseOrderExpenseId = $(this).data('purchase-order-expense-id');
@@ -737,7 +737,7 @@ export default class PurchaseOrderDetails extends Component {
             const value = $(this).val();
             let data = {};
             data[type] = value;
-    
+
             axios.patch(`${END_POINT}/${purchaseOrderId}/expenses/${purchaseOrderExpenseId}?token=${token}`, data)
                 .then(() => {
                     /**
@@ -753,7 +753,7 @@ export default class PurchaseOrderDetails extends Component {
                             });
                         })
                         .catch(() => {
-                            
+
                         });
                     poExpensesDataTable.ajax.reload(null, false);
                 })
@@ -762,7 +762,7 @@ export default class PurchaseOrderDetails extends Component {
                         data,
                         status,
                     } = error.response;
-    
+
                     if (+status === 422) {
                         const { message: generalMessage } = data;
                         self.setState({
@@ -772,14 +772,14 @@ export default class PurchaseOrderDetails extends Component {
                     }
                 });
         });
-    
+
         $(document).on('click', '.data-table-wrapper .delete-po-expense', function (e) {
             e.preventDefault();
-    
+
             const purchaseOrderId = $(this).data('purchase-order-id');
             const purchaseOrderExpenseId = $(this).data('purchase-order-expense-id');
             const expenseName = $(this).data('expense-name');
-    
+
             self.setState({
                 ...self.state,
                 deleteModal: {
@@ -836,7 +836,7 @@ export default class PurchaseOrderDetails extends Component {
                         });
                     })
                     .catch(() => {
-                        
+
                     });
             })
             .catch((error) => {
@@ -894,7 +894,7 @@ export default class PurchaseOrderDetails extends Component {
                         });
                     })
                     .catch(() => {
-                        
+
                     });
             })
             .catch((error) => {
@@ -1102,7 +1102,7 @@ export default class PurchaseOrderDetails extends Component {
             purchaseOrderStores,
             purchaseOrderAssignedStaff,
             purchaseOrderExpenses,
-            purchaseOrderExpensesMeta,        
+            purchaseOrderExpensesMeta,
             selectedUser,
             error,
             deleteModal,
@@ -1193,7 +1193,7 @@ export default class PurchaseOrderDetails extends Component {
                             </Card.Header>
                             <Card.Body>
                                 <Card.Title>
-                                    <Alert variant={currentStatusVariant}>                                        
+                                    <Alert variant={currentStatusVariant}>
                                         <div className="row">
                                             <div className="col-md-5">
                                                 <Form.Group>
@@ -1237,7 +1237,7 @@ export default class PurchaseOrderDetails extends Component {
                                                     <Form.Control type="text" value={purchaseOrder.trips} readOnly></Form.Control>
                                                 </Form.Group>
                                             </div>
-                                        </div>                                        
+                                        </div>
                                     </Alert>
                                 </Card.Title>
 

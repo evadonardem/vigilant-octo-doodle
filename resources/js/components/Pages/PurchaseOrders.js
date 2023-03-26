@@ -3,8 +3,8 @@ import React, { Component } from 'react';
 import { Breadcrumb, Button, ButtonGroup, Card, Form, Tab, Tabs } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import { v4 as uuidv4 } from 'uuid';
-import CommonDeleteModal from './CommonDeleteModal';
-import CommonDropdownSelectSingleLocation from './CommonDropdownSelectSingleLocation';
+import CommonDeleteModal from '../CommonDeleteModal';
+import CommonDropdownSelectSingleLocation from '../CommonDropdownSelectSingleLocation';
 
 const END_POINT = `${apiBaseUrl}/purchase-orders`;
 const PURCHASE_ORDERS_PENDING_TABLE = 'table-purchase-orders-pending';

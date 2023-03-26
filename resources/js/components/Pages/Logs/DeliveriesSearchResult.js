@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Card } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import sanitize from 'sanitize-filename';
-import CommonDeleteModal from './CommonDeleteModal';
+import CommonDeleteModal from '../../CommonDeleteModal';
 import AddEditDeliveryModal from './AddEditDeliveryModal';
 
 export default class DeliveriesSearchResult extends Component {

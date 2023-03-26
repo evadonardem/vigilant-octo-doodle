@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import cookie from 'react-cookies';
 import { Button, Card, Form } from 'react-bootstrap';
 import { v4 as uuidv4 } from 'uuid';
-import CommonDropdownSelectSingleUsers from './CommonDropdownSelectSingleUsers';
+import CommonDropdownSelectSingleUsers from '../../CommonDropdownSelectSingleUsers';
 
 export default class ManualLogs extends Component {
     constructor(props) {
@@ -45,7 +45,7 @@ export default class ManualLogs extends Component {
             })
             .catch(() => {
                 location.href = `${appBaseUrl}`;
-            });        
+            });
     }
 
     render() {
@@ -99,18 +99,18 @@ export default class ManualLogs extends Component {
                                         <div className="invalid-feedback"></div>
                                     </Form.Group>
                                     {
-                                        selectedLogType === 'delivery' && 
+                                        selectedLogType === 'delivery' &&
                                         <div>
                                             <Form.Group>
                                                 <Form.Label>No.of Deliveries:</Form.Label>
-                                                <Form.Control type="number" name="no_of_deliveries"/>                                        
+                                                <Form.Control type="number" name="no_of_deliveries"/>
                                             </Form.Group>
                                             <Form.Group>
                                                 <Form.Label>Remarks:</Form.Label>
-                                                <Form.Control as="textarea" rows="3" name="remarks"/>                                        
+                                                <Form.Control as="textarea" rows="3" name="remarks"/>
                                             </Form.Group>
                                         </div>
-                                    }                                    
+                                    }
                                     <Form.Group>
                                         <Form.Control type="hidden" name="type" value={`${selectedLogType}_log`}/>
                                         <Button type="submit" className="pull-right">Add</Button>
@@ -120,7 +120,7 @@ export default class ManualLogs extends Component {
                         </Card>
                     </div>
                     <div className="col-md-6">
-                        
+
                     </div>
                 </div>
             </div>

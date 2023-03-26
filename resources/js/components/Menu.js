@@ -9,16 +9,9 @@ import {
     Navbar,
     NavDropdown
 } from 'react-bootstrap';
-import AttendanceLogs from './AttendanceLogs';
 import CompensationAndBenefits from './CompensationAndBenefits';
-import Dashboard from './Dashboard';
-import DailyTimeRecord from './DailyTimeRecord';
-import Deliveries from './Deliveries';
-import Logs from './Logs';
-import ManualLogs from './ManualLogs';
 import PayPeriodDetails from './PayPeriodDetails';
 import PayPeriods from './PayPeriods';
-import PurchaseOrders from './PurchaseOrders';
 import SalesInvoices from './SalesInvoices';
 import SalesInvoicesCreate from './SalesInvoicesCreate';
 import SalesInvoicesShow from './SalesInvoicesShow';
@@ -33,7 +26,6 @@ import ThirteenthMonthPayPeriods from './ThirteenthMonthPayPeriods';
 import ThirteenthMonthPayPeriodDetails from './ThirteenthMonthPayPeriodDetails';
 import UserRateHistory from './UserRateHistory';
 import Users from './Users';
-import PurchaseOrderDetails from './PurchaseOrderDetails';
 import Reports from './Reports';
 import ReportsDeliverySalesMonitoring from './ReportsDeliverySalesMonitoring';
 import ReportsDeliveryReceiptMonitoring from './ReportsDeliveryReceiptMonitoring';
@@ -48,11 +40,9 @@ import StockCardsCreate from './StockCardsCreate';
 import StockCardsShow from './StockCardsShow';
 import SettingStorePromodiserJobHistory from './SettingsStorePromodiserJobHistory';
 import ReportsPromodisersSummary from './ReportsPromodisersSummary';
-import PurchaseOrderStoreRequest from './PurchaseOrderStoreRequest';
 import SalesInvoiceStoreItemsShow from './SalesInvoiceStoreItemsShow';
 import SettingsStoreItemPricing from './SettingsStoreItemPricing';
 import RolesAndPermissions from './Settings/RolesAndPermissions';
-
 export default class Menu extends Component {
     constructor(props) {
         super(props);
@@ -138,21 +128,11 @@ export default class Menu extends Component {
                         </Navbar.Collapse>
                     </Navbar>
                     <Routes>
-                        <Route key={'route-default'} exact path={'/'} component={Dashboard}></Route>
                         {links && links.map((link) => {
                             let routeToComponent = null;
                             switch (link.to) {
-                                case '/dashboard':
-                                    routeToComponent = <Dashboard />;
-                                    break;
-                                case '/logs':
-                                    routeToComponent = <Logs />;
-                                    break;
                                 case '/compensation-and-benefits':
                                     routeToComponent = <CompensationAndBenefits />;
-                                    break;
-                                case '/purchase-orders':
-                                    routeToComponent = <PurchaseOrders />;
                                     break;
                                 case '/sales-invoices':
                                     routeToComponent = <SalesInvoices />;
@@ -172,25 +152,20 @@ export default class Menu extends Component {
                                 case '/settings':
                                     routeToComponent = <Settings />;
                                     break;
-                                default:
-                                    routeToComponent = <Dashboard />
                             }
 
-                            return (<Route key={'route-' + routeIndex++} path={link.to} component={() => routeToComponent}>
-                            </Route>);
+                            return <Route
+                                key={'route-' + routeIndex++}
+                                path={link.to}
+                                element={() => routeToComponent}/>;
                         }
                         )}
-                        <Route path={'/daily-time-record'} component={DailyTimeRecord}></Route>
-                        <Route path={'/attendance-logs'} component={AttendanceLogs}></Route>
-                        <Route path={'/manual-logs'} component={ManualLogs}></Route>
-                        <Route path={'/deliveries'} component={Deliveries}></Route>
 
                         <Route path={'/pay-periods'} component={PayPeriods}></Route>
                         <Route path={'/pay-period-details/:payPeriodId'} component={PayPeriodDetails}></Route>
                         <Route path={'/thirteenth-month-pay-periods'} component={ThirteenthMonthPayPeriods}></Route>
                         <Route path={'/thirteenth-month-pay-period-details/:thirteenthMonthPayPeriodId'} component={ThirteenthMonthPayPeriodDetails}></Route>
-                        <Route path={'/purchase-order-details/:purchaseOrderId'} component={PurchaseOrderDetails}></Route>
-                        <Route path={'/purchase-order/:purchaseOrderId/store-request/:storeId?'} component={PurchaseOrderStoreRequest}></Route>
+
 
                         <Route path={'/sales-invoices-create'} component={SalesInvoicesCreate}></Route>
                         <Route path={'/sales-invoice-details/:salesInvoiceId'} component={SalesInvoicesShow}></Route>

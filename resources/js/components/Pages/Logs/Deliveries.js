@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button } from 'react-bootstrap';
-import CommonSearchFilters from './CommonSearchFilters';
+import CommonSearchFilters from '../../CommonSearchFilters';
 import DeliveriesSearchResult from './DeliveriesSearchResult';
 
 export default class Deliveries extends Component {

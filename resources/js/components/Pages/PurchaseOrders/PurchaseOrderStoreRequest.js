@@ -4,7 +4,7 @@ import { Badge, Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import cookie from 'react-cookies';
 import { v4 as uuidv4 } from 'uuid';
-import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
+import CommonDropdownSelectSingleStore from '../../CommonDropdownSelectSingleStore';
 
 const END_POINT = `${apiBaseUrl}/purchase-orders`;
 const END_POINT_SETTINGS = `${apiBaseUrl}/settings`;
@@ -17,7 +17,7 @@ export default class PurchaseOrderStoreRequest extends Component {
 
         this.handleChangeSelectSingleStore = this.handleChangeSelectSingleStore.bind(this);
         this.handleChangeItemQuantity = this.handleChangeItemQuantity.bind(this);
-        
+
         this.state = {
             purchaseOrder: null,
             selectedStore: null,
@@ -67,7 +67,7 @@ export default class PurchaseOrderStoreRequest extends Component {
                         ...self.state,
                         purchaseOrder,
                     });
-                }                
+                }
             })
             .catch(() => {
             });
@@ -144,7 +144,7 @@ export default class PurchaseOrderStoreRequest extends Component {
 
         // cancel  previous ajax if exists
         if (ajaxRequest) {
-            ajaxRequest.cancel(); 
+            ajaxRequest.cancel();
         }
 
         // creates a new token for upcomming ajax (overwrite the previous one)

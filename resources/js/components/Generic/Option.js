@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export default function Option({ icon, title, description, to } = props) {
     return <>
-        <Card>
+        <Card bg="primary" className="mb-3">
             <Card.Body>
                 <h1 className="text-center">
                     <i className={`fa fa-${icon}`}></i><br />
@@ -16,7 +16,7 @@ export default function Option({ icon, title, description, to } = props) {
                 <hr className="my-4" />
                 <p className="lead text-center">
                     <Link to={to}>
-                        <Button variant="primary" size="lg">Continue &raquo;</Button>
+                        <Button variant="secondary" size="lg">Continue &raquo;</Button>
                     </Link>
                 </p>
             </Card.Body>

@@ -1,9 +1,11 @@
 import React, { useContext, useState } from 'react';
-import CommonSearchFilters from './CommonSearchFilters';
-import AttendanceLogsSearchResult from './AttendanceLogsSearchResult';
-import { Auth } from './App';
+import { Breadcrumb, Col, Row } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { Auth } from '../../App';
+import CommonSearchFilters from '../../CommonSearchFilters';
+import DailyTimeRecordSearchResult from './DailyTimeRecordSearchResult';
 
-export default function AttendanceLogs() {
+export default function DailyTimeRecord() {
     const { user, hasRole } = useContext(Auth);
     const isAdmin = hasRole('Super Admin');
     const [biometricId, setBiometricId] = useState(isAdmin ? '' : user.biometric_id);
@@ -33,27 +35,32 @@ export default function AttendanceLogs() {
     };
 
     return (
-        <div className="container-fluid my-4">
-            <h1><i className="fa fa-calendar"></i> Attendance Logs</h1>
+        <>
+            <Breadcrumb>
+                <Breadcrumb.Item linkProps={{ to: "/logs" }} linkAs={Link}>
+                    <i className="fa fa-folder-open"></i> Logs
+                </Breadcrumb.Item>
+                <Breadcrumb.Item active>Daily Time Record</Breadcrumb.Item>
+            </Breadcrumb>
 
             <hr className="my-4" />
 
-            <div className="row">
-                <div className="col-md-3">
+            <Row>
+                <Col md="3">
                     <CommonSearchFilters
                         handleSubmit={handleSearchSubmit}
                         withUserSelection={isAdmin}
                         searchErrors={searchErrors} />
-                </div>
-                <div className="col-md-9">
-                    <AttendanceLogsSearchResult
+                </Col>
+                <Col md="9">
+                    <DailyTimeRecordSearchResult
                         biometricId={biometricId}
                         biometricName={biometricName}
                         startDate={startDate}
                         endDate={endDate}
                         handleSearchResultErrors={handleSearchResultErrors} />
-                </div>
-            </div>
-        </div>
+                </Col>
+            </Row>
+        </>
     );
 }

@@ -1,9 +1,8 @@
 import React, { useContext } from 'react';
+import { Auth } from '../App';
+import Option from '../Generic/Option';
 
-import { Auth } from './App';
-import Option from './Generic/Option';
-
-export default function Dashboard() {
+const Dashboard = () => {
     const { hasRole } = useContext(Auth);
     let allowedAccess = hasRole("Super Admin");
 
@@ -16,28 +15,30 @@ export default function Dashboard() {
                         icon="calendar"
                         title="Attendance Logs"
                         description="Time logs from biometric device."
-                        to="attendance-logs" />
+                        to="/attendance-logs" />
                 </div>
                 <div className="col-md-6">
                     <Option
                         icon="clock-o"
                         title="Daily Time Record"
                         description="Consolidated daily time record."
-                        to="daily-time-record" />
+                        to="/daily-time-record" />
                 </div>
                 {allowedAccess && <div className="col-md-6">
                     <Option
                         icon="fa-users"
                         title="Biometric Users"
-                        to="users" />
+                        to="/users" />
                 </div>}
                 {allowedAccess && <div className="col-md-6">
                     <Option
                         icon="fa-cogs"
                         title="General Settings"
-                        to="settings" />
+                        to="/settings" />
                 </div>}
             </div>
         </div >
     );
 }
+
+export default Dashboard;
