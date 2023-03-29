@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Alert, Button, ButtonGroup, Modal, Form } from 'react-bootstrap';
-import CommonDropdownSelectSingleRoles from './CommonDropdownSelectSingleRoles';
+import CommonDropdownSelectSingleRoles from '../../../CommonDropdownSelectSingleRoles';
 
 export default class AddEditUserModal extends Component {
     constructor(props) {
@@ -62,7 +62,7 @@ export default class AddEditUserModal extends Component {
                                     <Form.Control type="text" name="name" maxLength="25" defaultValue={userName}></Form.Control>
                                     <div className="invalid-feedback"></div>
                                 </Form.Group>
-                                <CommonDropdownSelectSingleRoles name="role" selectedRole={currentSelectedRole} handleChange={this.handleChangeRole}/>                            
+                                <CommonDropdownSelectSingleRoles name="role" selectedRole={currentSelectedRole} handleChange={this.handleChangeRole}/>
                             </div>
                         }
                         {
@@ -84,7 +84,7 @@ export default class AddEditUserModal extends Component {
                                 <Button variant="secondary" onClick={handleClose}>
                                     Cancel
                                 </Button>
-                            </ButtonGroup>                            
+                            </ButtonGroup>
                         </Modal.Footer>
                     }
                 </Form>

@@ -34,7 +34,7 @@ const Layout = ({ brand, handleLogout, links, signedInUser } = props) => {
                                         return (
                                             <NavDropdown
                                                 key={'menu-' + menuIndex++ + '-dropdown'}
-                                                title={link.label}
+                                                title={<span><i className={link.icon}></i> {link.label}</span>}
                                                 id="collapsible-nav-dropdown">
                                                 {dropdownItems}
                                             </NavDropdown>
@@ -48,14 +48,14 @@ const Layout = ({ brand, handleLogout, links, signedInUser } = props) => {
                                 )}
                             </Nav>
                             <Nav>
-                                <NavDropdown title={signedInUser}>
+                                <NavDropdown title={<span><i className="fa fa-user"></i> {signedInUser}</span>}>
                                     <NavDropdown.Item
                                         href="#">
                                         <i className="fa fa-key"> Change password</i>
                                     </NavDropdown.Item>
                                     <NavDropdown.Item
                                         href="#" onClick={handleLogout}>
-                                        <i className="fa fa-sign-out"> Sign-o'ut</i>
+                                        <i className="fa fa-sign-out"> Sign-out</i>
                                     </NavDropdown.Item>
                                 </NavDropdown>
                             </Nav>

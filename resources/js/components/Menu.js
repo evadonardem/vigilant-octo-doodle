@@ -25,7 +25,6 @@ import StockCards from './StockCards';
 import ThirteenthMonthPayPeriods from './ThirteenthMonthPayPeriods';
 import ThirteenthMonthPayPeriodDetails from './ThirteenthMonthPayPeriodDetails';
 import UserRateHistory from './UserRateHistory';
-import Users from './Users';
 import Reports from './Reports';
 import ReportsDeliverySalesMonitoring from './ReportsDeliverySalesMonitoring';
 import ReportsDeliveryReceiptMonitoring from './ReportsDeliveryReceiptMonitoring';
@@ -145,9 +144,6 @@ export default class Menu extends Component {
                                     break;
                                 case '/stock-cards':
                                     routeToComponent = <StockCards />;
-                                    break;
-                                case '/users':
-                                    routeToComponent = <Users />;
                                     break;
                                 case '/settings':
                                     routeToComponent = <Settings />;

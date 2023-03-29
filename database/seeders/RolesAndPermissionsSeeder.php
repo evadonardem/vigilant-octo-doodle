@@ -18,13 +18,21 @@ class RolesAndPermissionsSeeder extends Seeder
     {
 		// Reset cached roles and permissions
 		app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-		
+
 		// Roles and permissions master list
 		$rolesAndPermissions = collect([
 			'Super Admin' => [],
-			'Warehouse Inventory Encoder' => [
-				'Create or update warehouse inventory',
-				'View list of created warehouse inventories',
+            'Manage Purchase Order' => [
+                'Create purchase order',
+                'Update purchase order',
+                'Delete purchase order',
+                'View purchase order',
+            ],
+			'Manage Warehouse Inventory' => [
+				'Create warehouse inventory',
+                'Update warehouse inventory',
+                'Delete warehouse inventory',
+                'View warehouse inventory',
 			],
 		])->map(function ($permissions, $role) {
 			return [
@@ -34,12 +42,12 @@ class RolesAndPermissionsSeeder extends Seeder
 				})
 			];
 		});
-		
+
 		// Register roles and permissions
 		$rolesAndPermissions->each(function ($role) {
 			$permissions = $role['permissions'];
-			unset($role['permissions']);		
-			
+			unset($role['permissions']);
+
 			$existRole = Role::where('name', $role)->first();
 			$newRole = $existRole ?? Role::create($role);
 			$permissions->each(function ($permission) use ($newRole) {
@@ -51,6 +59,6 @@ class RolesAndPermissionsSeeder extends Seeder
 					$newRole->givePermissionTo($existPermission);
 				}
 			});
-		});    
+		});
     }
 }

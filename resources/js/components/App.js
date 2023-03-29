@@ -1,11 +1,9 @@
 import React, { createContext, useEffect, useState } from 'react';
 import cookie from 'react-cookies';
 import * as ReactDOM from 'react-dom/client';
-import { BrowserRouter, HashRouter, Route, Routes } from 'react-router-dom';
-import Root from './Root';
+import { HashRouter, Route, Routes } from 'react-router-dom';
 import Login from './Login';
 import Layout from './Pages/Layout';
-import PageNotFound from './Pages/Logs';
 import Dashboard from './Pages/Dashboard';
 import Logs from './Pages/Logs';
 import DailyTimeRecord from './Pages/Logs/DailyTimeRecord';
@@ -15,6 +13,10 @@ import ManualLogs from './Pages/Logs/ManualLogs';
 import PurchaseOrders from './Pages/PurchaseOrders';
 import PurchaseOrderDetails from './Pages/PurchaseOrders/PurchaseOrderDetails';
 import PurchaseOrderStoreRequest from './Pages/PurchaseOrders/PurchaseOrderStoreRequest';
+import Users from './Pages/Settings/Users';
+import RateHistory from './Pages/Settings/Users/RateHistory';
+import Settings from './Pages/Settings';
+import RolesAndPermissions from './Pages/Settings/Users/RolesAndPermissions';
 
 export const Auth = createContext(null);
 
@@ -92,7 +94,7 @@ export default function App() {
 
     return (
         <>
-            <BrowserRouter basename="/gogfmc-stg/public/">
+            <HashRouter>
                 {isLoggedIn && user && (userRoles || userPermissions) &&
                     <Auth.Provider value={{
                         user,
@@ -100,7 +102,6 @@ export default function App() {
                     }}>
                         <Routes>
                             <Route
-                                path="/"
                                 element={<Layout brand={brand} handleLogout={handleLogout} links={links} signedInUser={signedInUser}/>}>
                                 {links && links.map((link) => {
                                     let routeToComponent = null;
@@ -133,9 +134,9 @@ export default function App() {
                                         // case '/users':
                                         //     routeToComponent = <Users />;
                                         //     break;
-                                        // case '/settings':
-                                        //     routeToComponent = <Settings />;
-                                        //     break;
+                                        case 'settings':
+                                            routeToComponent = <Settings />;
+                                            break;
                                         default:
                                             routeToComponent = <Dashboard />
                                     }
@@ -155,10 +156,15 @@ export default function App() {
 
                                 <Route path={'/purchase-order-details/:purchaseOrderId'} element={<PurchaseOrderDetails />}></Route>
                                 <Route path={'/purchase-order/:purchaseOrderId/store-request/:storeId?'} element={<PurchaseOrderStoreRequest />}></Route>
+
+                                // Setttings
+                                <Route path="/settings-users" element={<Users />}></Route>
+                                <Route path="/settings-users-rate-history/:userId" element={<RateHistory />}></Route>
+                                <Route path="/settings/users/:userId/roles-and-permissions" element={<RolesAndPermissions />}></Route>
                             </Route>
                         </Routes>
                     </Auth.Provider>}
-            </BrowserRouter>
+            </HashRouter>
 
             {!isLoggedIn &&
                 <Login onSubmit={handleSubmit} errorMessage={errorMessage} />}

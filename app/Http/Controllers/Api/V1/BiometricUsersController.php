@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
+use App\Http\Resources\UserResource;
+use App\Repositories\RoleRepository;
 use App\ZKLib\ZKLibrary;
 use App\Models\User;
 use App\Models\AttendanceLog;
@@ -15,6 +17,10 @@ use Illuminate\Support\Facades\Hash;
 class BiometricUsersController extends Controller
 {
     private $zk = null;
+
+    public function __construct(
+        protected RoleRepository $roleRepository
+    ) {}
 
     /**
      * Display a listing of the resource.
@@ -96,7 +102,25 @@ class BiometricUsersController extends Controller
     {
         $user = User::findOrFail($id);
 
-        return response()->json(['data' => $user]);
+        if ($request->user()->hasRole('Super Admin') && $request->input('include.roles_and_permissions')) {
+            $roles = $this->roleRepository->getAllRoles()->map(function ($role) use ($user) {
+                return [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                    'has_role' => $role->users->contains('id', $user->id),
+                    'permissions' => $role->permissions->map(function ($permission) use ($user) {
+                        return [
+                            'id' => $permission->id,
+                            'name' => $permission->name,
+                            'has_permission' => $permission->users->contains('id', $user->id),
+                        ];
+                    }),
+                ];
+            });
+            $request->merge(['roles' => $roles]);
+        }
+
+        return new UserResource($user);
     }
 
     /**

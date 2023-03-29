@@ -25,7 +25,7 @@ class NavigationMenuController extends Controller
 			],
 			[
 				'label' => 'Logs',
-				'icon' => 'fa fa-calendar',
+				'icon' => 'fa fa-clipboard',
 				'to' => 'logs',
 				'is_visible' => true,
                 'links' => [
@@ -45,13 +45,13 @@ class NavigationMenuController extends Controller
                         'label' => 'Delivery Logs',
                         'icon' => 'fa fa-truck',
                         'to' => 'deliveries',
-                        'is_visible' => true,
+                        'is_visible' => $user && $user->hasRole('Super Admin'),
                     ],
                     [
                         'label' => 'Manual Logs',
                         'icon' => 'fa fa-calendar-plus-o',
                         'to' => 'manual-logs',
-                        'is_visible' => true,
+                        'is_visible' => $user && $user->hasRole('Super Admin'),
                     ],
                 ]
 			],
@@ -106,16 +106,30 @@ class NavigationMenuController extends Controller
 			// 	'to' => '/users',
 			// 	'is_visible' => $user && $user->hasRole('Super Admin'),
 			// ],
-			// [
-			// 	'label' => 'Settings',
-			// 	'icon' => 'fa fa-cogs',
-			// 	'to' => '/settings',
-			// 	'is_visible' => $user && $user->hasRole('Super Admin'),
-			// ],
+			[
+				'label' => 'Settings',
+				'icon' => 'fa fa-cogs',
+				'to' => 'settings',
+				'is_visible' => $user && $user->hasRole('Super Admin'),
+                'links' => [
+                    [
+                        'label' => 'Users',
+                        'icon' => 'fa fa-users',
+                        'to' => 'settings-users',
+                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                    ]
+                ]
+			],
 		]);
 
 		$links = $links->where('is_visible', true)->map(function ($link) {
 			unset($link['is_visible']);
+            if (isset($link['links']) && !empty($link['links'])) {
+                $link['links'] = collect($link['links'])->where('is_visible', true)->map(function ($link) {
+                    unset($link['is_visible']);
+                    return $link;
+                })->values()->toArray();
+            }
 			return $link;
 		})->values()->toArray();
 
