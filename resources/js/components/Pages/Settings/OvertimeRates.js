@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import { v4 as uuidv4 } from 'uuid';
 import cookie from 'react-cookies';
-import CommonDeleteModal from './CommonDeleteModal';
-import CommonDropdownSelectSingleOvertimeRateTypes from './CommonDropdownSelectSingleOvertimeRateTypes';
+import CommonDeleteModal from '../../CommonDeleteModal';
+import CommonDropdownSelectSingleOvertimeRateTypes from '../../CommonDropdownSelectSingleOvertimeRateTypes';
 
-export default class SettingsOvertimeRates extends Component {
+export default class OvertimeRates extends Component {
     constructor(props) {
         super(props);
         this.handleSubmitNewOvertimeRate = this.handleSubmitNewOvertimeRate.bind(this);

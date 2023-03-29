@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import cookie from 'react-cookies';
-import CommonDeleteModal from './CommonDeleteModal';
+import CommonDeleteModal from '../../CommonDeleteModal';
 
 const END_POINT = `${apiBaseUrl}/settings/items`;
 
-export default class SettingsItems extends Component {
+export default class ItemsRegistry extends Component {
     constructor(props) {
         super(props);
         this.handleSubmitNewItem = this.handleSubmitNewItem.bind(this);

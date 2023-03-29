@@ -17,6 +17,9 @@ import Users from './Pages/Settings/Users';
 import RateHistory from './Pages/Settings/Users/RateHistory';
 import Settings from './Pages/Settings';
 import RolesAndPermissions from './Pages/Settings/Users/RolesAndPermissions';
+import OvertimeRates from './Pages/Settings/OvertimeRates';
+import ItemsRegistry from './Pages/Settings/ItemsRegistry';
+import StoresRegistry from './Pages/Settings/StoresRegistry';
 
 export const Auth = createContext(null);
 
@@ -64,6 +67,7 @@ export default function App() {
     };
 
     const hasRole = (name) => !!_.find(userRoles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(userPermissions, (permission) => permission.name === name);
 
     const handleLogout = (e) => {
         const token = cookie.load('token');
@@ -99,6 +103,7 @@ export default function App() {
                     <Auth.Provider value={{
                         user,
                         hasRole,
+                        hasPermission,
                     }}>
                         <Routes>
                             <Route
@@ -107,10 +112,10 @@ export default function App() {
                                     let routeToComponent = null;
 
                                     switch (link.to) {
-                                        case 'dashboard':
+                                        case '/dashboard':
                                             routeToComponent = <Dashboard />;
                                             break;
-                                        case 'logs':
+                                        case '/logs':
                                             routeToComponent = <Logs />;
                                             break;
                                         // case '/compensation-and-benefits':
@@ -134,7 +139,7 @@ export default function App() {
                                         // case '/users':
                                         //     routeToComponent = <Users />;
                                         //     break;
-                                        case 'settings':
+                                        case '/settings':
                                             routeToComponent = <Settings />;
                                             break;
                                         default:
@@ -148,7 +153,6 @@ export default function App() {
                                 })}
                                 <Route key={'route-default'} index element={<Dashboard />}></Route>
 
-
                                 <Route path={'/daily-time-record'} element={<DailyTimeRecord />}></Route>
                                 <Route path={'/attendance-logs'} element={<AttendanceLogs />}></Route>
                                 <Route path={'/deliveries'} element={<Deliveries />}></Route>
@@ -158,9 +162,13 @@ export default function App() {
                                 <Route path={'/purchase-order/:purchaseOrderId/store-request/:storeId?'} element={<PurchaseOrderStoreRequest />}></Route>
 
                                 // Setttings
-                                <Route path="/settings-users" element={<Users />}></Route>
+                                <Route path="/settings/users" element={<Users />}></Route>
                                 <Route path="/settings-users-rate-history/:userId" element={<RateHistory />}></Route>
                                 <Route path="/settings/users/:userId/roles-and-permissions" element={<RolesAndPermissions />}></Route>
+
+                                <Route path="/settings/overtime-rates" element={<OvertimeRates />}></Route>
+                                <Route path="/settings/items-registry" element={<ItemsRegistry />}></Route>
+                                <Route path="/settings/stores-registry" element={<StoresRegistry />}></Route>
                             </Route>
                         </Routes>
                     </Auth.Provider>}

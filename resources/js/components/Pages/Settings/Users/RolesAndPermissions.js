@@ -43,7 +43,7 @@ const RolesAndPermissions = () => {
             <Breadcrumb.Item linkProps={{ to: "/settings" }} linkAs={Link}>
                 <i className="fa fa-cogs"></i> Settings
             </Breadcrumb.Item>
-            <Breadcrumb.Item linkProps={{ to: "/settings-users" }} linkAs={Link}>
+            <Breadcrumb.Item linkProps={{ to: "/settings/users" }} linkAs={Link}>
                 <i className="fa fa-users"></i> Users
             </Breadcrumb.Item>
             <Breadcrumb.Item active>

@@ -1,11 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Breadcrumb, Button, Card } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import { Link } from 'react-router-dom';
+import { Auth } from '../../App';
 import CommonDeleteModal from '../../CommonDeleteModal';
 import AddEditUserModal from './Users/AddEditUserModal';
 
 const Users = () => {
+    const { hasRole, hasPermission } = useContext(Auth);
+    const allowedToCreateUser = hasRole('Super Admin') || hasPermission("Create or register new user");
+    const allowedToUpdateUser = hasRole('Super Admin') || hasPermission("Update existing user");
+    const allowedToDeleteUser = hasRole('Super Admin') || hasPermission("Delete or unregister user");
+    const allowedToViewUser = hasRole('Super Admin') || hasPermission("View registered user");
+
+    const allowedToManageUserRateHistory = hasRole('Super Admin');
+    const allowedToManageUserRolesAndPermissions = hasRole('Super Admin');
+
     const [showAddEditUserModal, setShowAddEditUserModal] = useState(false);
     const [isEditUser, setIsEditUser] = useState(false);
     const [userId, setUserId] = useState(null);
@@ -21,9 +31,12 @@ const Users = () => {
     const [errorHeaderTitleAddEditUser, setErrorHeaderTitleAddEditUser] = useState('');
     const [errorBodyTextAddEditUser, setErrorBodyTextAddEditUser] = useState('');
 
+    if (!(allowedToCreateUser || allowedToUpdateUser || allowedToViewUser)) {
+        location.href = appBaseUrl;
+    }
+
     const loadUsersList = () => {
         const token = cookie.load('token');
-
         const exportButtons = window.exportButtonsBase;
         const exportFilename = 'Users';
         const exportTitle = 'Users';
@@ -51,7 +64,21 @@ const Users = () => {
                         return `<div class="btn-group">${historyBtn}${rolesAndPermissionsBtn}${editBtn}${deleteBtn}</div>`;
                     }
                 }
-            ]
+            ],
+            drawCallback: function () {
+                if (!allowedToManageUserRateHistory) {
+                    $(document).find('.data-table-wrapper .rate-history').remove();
+                }
+                if (!allowedToManageUserRolesAndPermissions) {
+                    $(document).find('.data-table-wrapper .roles-and-permissions').remove();
+                }
+                if (!allowedToUpdateUser) {
+                    $(document).find('.data-table-wrapper .edit').remove();
+                }
+                if (!allowedToDeleteUser) {
+                    $(document).find('.data-table-wrapper .delete').remove();
+                }
+            }
         });
 
         $(document).on('click', '.data-table-wrapper .rate-history', function(e) {
@@ -190,11 +217,12 @@ const Users = () => {
             <div className="row">
                 <div className="col-md-12">
                     <Card>
-                        <Card.Header>
-                            <Button variant='primary' onClick={handleShowAddEditUserModal}>
-                                <i className="fa fa-plus"></i> Add New User
-                            </Button>
-                        </Card.Header>
+                        {allowedToCreateUser &&
+                            <Card.Header>
+                                <Button variant='primary' onClick={handleShowAddEditUserModal}>
+                                    <i className="fa fa-plus"></i> Add New User
+                                </Button>
+                            </Card.Header>}
                         <Card.Body>
                             <table className="table table-striped table-users" style={{ width: 100 + '%' }}>
                                 <thead>

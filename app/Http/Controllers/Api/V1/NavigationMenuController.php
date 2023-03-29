@@ -20,37 +20,37 @@ class NavigationMenuController extends Controller
 			[
 				'label' => 'Dashboard',
 				'icon' => 'fa fa-dashboard',
-				'to' => 'dashboard',
+				'to' => '/dashboard',
 				'is_visible' => true,
 			],
 			[
 				'label' => 'Logs',
 				'icon' => 'fa fa-clipboard',
-				'to' => 'logs',
+				'to' => '/logs',
 				'is_visible' => true,
                 'links' => [
                     [
                         'label' => 'Attendance Logs',
                         'icon' => 'fa fa-calendar',
-                        'to' => 'attendance-logs',
+                        'to' => '/attendance-logs',
                         'is_visible' => true,
                     ],
                     [
                         'label' => 'Daily Time Record',
                         'icon' => 'fa fa-clock-o',
-                        'to' => 'daily-time-record',
+                        'to' => '/daily-time-record',
                         'is_visible' => true,
                     ],
                     [
                         'label' => 'Delivery Logs',
                         'icon' => 'fa fa-truck',
-                        'to' => 'deliveries',
+                        'to' => '/deliveries',
                         'is_visible' => $user && $user->hasRole('Super Admin'),
                     ],
                     [
                         'label' => 'Manual Logs',
                         'icon' => 'fa fa-calendar-plus-o',
-                        'to' => 'manual-logs',
+                        'to' => '/manual-logs',
                         'is_visible' => $user && $user->hasRole('Super Admin'),
                     ],
                 ]
@@ -109,15 +109,43 @@ class NavigationMenuController extends Controller
 			[
 				'label' => 'Settings',
 				'icon' => 'fa fa-cogs',
-				'to' => 'settings',
-				'is_visible' => $user && $user->hasRole('Super Admin'),
+				'to' => '/settings',
+				'is_visible' => $user && (
+                    $user->hasRole('Super Admin') ||
+                    $user->can('Create or register new user') ||
+                    $user->can('Update existing user') ||
+                    $user->can('View registered user')
+                ),
                 'links' => [
                     [
-                        'label' => 'Users',
+                        'label' => 'Users Registry',
                         'icon' => 'fa fa-users',
-                        'to' => 'settings-users',
+                        'to' => '/settings/users',
+                        'is_visible' => $user && (
+                            $user->hasRole('Super Admin') ||
+                            $user->can('Create or register new user') ||
+                            $user->can('Update existing user') ||
+                            $user->can('View registered user')
+                        ),
+                    ],
+                    [
+                        'label' => 'Overtime Rates',
+                        'icon' => 'fa fa-calendar',
+                        'to' => '/settings/overtime-rates',
                         'is_visible' => $user && $user->hasRole('Super Admin'),
-                    ]
+                    ],
+                    [
+                        'label' => 'Items Registry',
+                        'icon' => 'fa fa-list',
+                        'to' => '/settings/items-registry',
+                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                    ],
+                    [
+                        'label' => 'Stores Registry',
+                        'icon' => 'fa fa-shopping-basket',
+                        'to' => '/settings/stores-registry',
+                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                    ],
                 ]
 			],
 		]);

@@ -2,14 +2,14 @@ import React, { Component } from 'react';
 import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import { v4 as uuidv4 } from 'uuid';
-import CommonDeleteModal from './CommonDeleteModal';
-import CommonDropdownSelectSingleStoreCategory from './CommonDropdownSelectSingleStoreCategory';
-import CommonDropdownSelectSingleStoreLocation from './CommonDropdownSelectSingleStoreLocation';
+import CommonDeleteModal from '../../CommonDeleteModal';
+import CommonDropdownSelectSingleStoreCategory from '../../CommonDropdownSelectSingleStoreCategory';
+import CommonDropdownSelectSingleStoreLocation from '../../CommonDropdownSelectSingleStoreLocation';
 
 const END_POINT_STORE_CATEGORIES = `${apiBaseUrl}/settings/store-categories`;
-const DT_STORE_CATEGORIES = 'table-store-categories'; 
-const DT_STORES = 'table-stores'; 
-export default class SettingsStores extends Component {
+const DT_STORE_CATEGORIES = 'table-store-categories';
+const DT_STORES = 'table-stores';
+export default class StoresRegistry extends Component {
     constructor(props) {
         super(props);
         this.handleSubmitNewStore = this.handleSubmitNewStore.bind(this);
@@ -170,10 +170,10 @@ export default class SettingsStores extends Component {
                             data-category-id="${row.id}"
                             data-category-name="${row.name}">
                                 <i class="fa fa-folder-open"></i>
-                            </a>`;                        
+                            </a>`;
 
                         return `<div class="btn-group" role="group">
-                            ${openBtn}                            
+                            ${openBtn}
                         </div>`;
                     }
                 }
@@ -318,10 +318,10 @@ export default class SettingsStores extends Component {
                 </Breadcrumb>
 
                 <div className="row">
-                    <div className="col-md-3">                    
+                    <div className="col-md-3">
                         <Card>
                             <Card.Header><i className='fa fa-folder'></i> Store Categories</Card.Header>
-                            <Card.Body>                                
+                            <Card.Body>
                                 <table className={`table table-striped ${DT_STORE_CATEGORIES}`} style={{width: 100+'%'}}>
                                     <thead>
                                         <tr>
@@ -381,7 +381,7 @@ export default class SettingsStores extends Component {
                                             <th scope="col">Code</th>
                                             <th scope="col">Name</th>
                                             <th scope="col">Category</th>
-                                            <th scope="col">Location</th>                                        
+                                            <th scope="col">Location</th>
                                             <th scope="col">Address</th>
                                             <th scope="col">Tags</th>
                                             <th scope="col"></th>
@@ -389,7 +389,7 @@ export default class SettingsStores extends Component {
                                         </thead>
                                         <tbody></tbody>
                                     </table>
-                                </div>                                
+                                </div>
                             </Card.Body>
                         </Card>
                     </div>
