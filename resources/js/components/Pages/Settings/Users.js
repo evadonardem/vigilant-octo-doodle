@@ -1,13 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Breadcrumb, Button, Card } from 'react-bootstrap';
 import cookie from 'react-cookies';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Auth } from '../../App';
 import CommonDeleteModal from '../../CommonDeleteModal';
 import AddEditUserModal from './Users/AddEditUserModal';
 
 const Users = () => {
-    const { hasRole, hasPermission } = useContext(Auth);
+    const { hasRole, hasPermission } = useSelector((state) => state.authenticate.user);
+
     const allowedToCreateUser = hasRole('Super Admin') || hasPermission("Create or register new user");
     const allowedToUpdateUser = hasRole('Super Admin') || hasPermission("Update existing user");
     const allowedToDeleteUser = hasRole('Super Admin') || hasPermission("Delete or unregister user");

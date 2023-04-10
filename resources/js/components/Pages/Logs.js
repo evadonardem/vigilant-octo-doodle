@@ -1,9 +1,8 @@
-import { useContext } from "react";
-import { Auth } from "../App";
+import { useSelector } from "react-redux";
 import Option from "../Generic/Option";
 
 const Logs = () => {
-    const { hasRole } = useContext(Auth);
+    const { hasRole } = useSelector((state) => state.authenticate.user);
     let allowedAccess = hasRole("Super Admin");
 
     let options = [

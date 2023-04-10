@@ -1,7 +1,6 @@
-import React, { createContext, useEffect, useState } from 'react';
-import cookie from 'react-cookies';
+import React, { useEffect } from 'react';
 import * as ReactDOM from 'react-dom/client';
-import { HashRouter, Route, Routes } from 'react-router-dom';
+import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import Login from './Login';
 import Layout from './Pages/Layout';
 import Dashboard from './Pages/Dashboard';
@@ -21,161 +20,111 @@ import OvertimeRates from './Pages/Settings/OvertimeRates';
 import ItemsRegistry from './Pages/Settings/ItemsRegistry';
 import StoresRegistry from './Pages/Settings/StoresRegistry';
 
-export const Auth = createContext(null);
+import { store } from '../state/store';
+import { Provider, useDispatch, useSelector } from 'react-redux';
+import { authorize } from '../state/authenticate';
+import Loader from './Generic/Loader';
 
 export default function App() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [user, setUser] = useState(null);
-    const [signedInUser, setSignedInUser] = useState(null);
-    const [userRoles, setUserRoles] = useState([]);
-    const [userPermissions, setUserPermissions] = useState([]);
-    const [brand, setBrand] = useState(null);
-    const [links, setLinks] = useState(null);
-    const [errorMessage, setErrorMessage] = useState('');
+    const dispatch = useDispatch();
+    const {
+        brand,
+        isLoading,
+        isLoggedIn,
+        links,
+        signedInUser
+    } = useSelector((state) => state.authenticate);
 
-    const authorize = () => {
-        const token = cookie.load('token');
-        axios.post(`${apiBaseUrl}/me?token=${token}`, {})
-            .then((response) => {
-                const { data } = response;
-                const { name: signedInUser } = data;
-                setIsLoggedIn(true);
-                setUser(data);
-                setSignedInUser(signedInUser);
-                axios.get(`${apiBaseUrl}/user/roles?token=${token}`)
-                    .then((response) => {
-                        const { data: roles } = response.data;
-                        setUserRoles(roles);
-                    });
-                axios.get(`${apiBaseUrl}/user/permissions?token=${token}`)
-                    .then((response) => {
-                        const { data: permissions } = response.data;
-                        setUserPermissions(permissions);
-                    });
-                axios.get(`${apiBaseUrl}/navigation-menu?token=${token}`)
-                    .then((response) => {
-                        const { data } = response.data;
-                        const { brand, links } = data;
-                        setBrand(brand);
-                        setLinks(links);
-                    });
-            })
-            .catch(() => {
-                setIsLoggedIn(false);
-                setSignedInUser(null);
-            });
-    };
-
-    const hasRole = (name) => !!_.find(userRoles, (role) => role.name === name);
-    const hasPermission = (name) => !!_.find(userPermissions, (permission) => permission.name === name);
-
-    const handleLogout = (e) => {
-        const token = cookie.load('token');
-        axios.post(apiBaseUrl + '/logout?token=' + token, { })
-            .then(() => {
-                location.reload();
-            }).catch(() => {
-                location.reload();
-            });
-    }
-
-    const handleSubmit = ({ biometricId, password } = e) => {
-        axios.post(apiBaseUrl + '/login', { biometric_id: biometricId, password })
-            .then((response) => {
-                const { data } = response;
-                const { token } = data;
-                cookie.save('token', token);
-                authorize();
-            })
-            .catch(() => {
-                setIsLoggedIn(false);
-                setSignedInUser(null);
-                setErrorMessage('Invalid Biometric ID or password.');
-            });
-    };
-
-    useEffect(() => authorize(), []);
+    useEffect(() => {
+        dispatch(authorize());
+    }, []);
 
     return (
         <>
             <HashRouter>
-                {isLoggedIn && user && (userRoles || userPermissions) &&
-                    <Auth.Provider value={{
-                        user,
-                        hasRole,
-                        hasPermission,
-                    }}>
-                        <Routes>
-                            <Route
-                                element={<Layout brand={brand} handleLogout={handleLogout} links={links} signedInUser={signedInUser}/>}>
-                                {links && links.map((link) => {
-                                    let routeToComponent = null;
+                {!isLoading && isLoggedIn &&
+                    <Routes>
+                        <Route
+                            element={<Layout brand={brand} links={links} signedInUser={signedInUser} />}>
+                            {links && links.map((link) => {
+                                let routeToComponent = null;
 
-                                    switch (link.to) {
-                                        case '/dashboard':
-                                            routeToComponent = <Dashboard />;
-                                            break;
-                                        case '/logs':
-                                            routeToComponent = <Logs />;
-                                            break;
-                                        // case '/compensation-and-benefits':
-                                        //     routeToComponent = <CompensationAndBenefits />;
-                                        //     break;
-                                        case '/purchase-orders':
-                                             routeToComponent = <PurchaseOrders />;
-                                             break;
-                                        // case '/sales-invoices':
-                                        //     routeToComponent = <SalesInvoices />;
-                                        //     break;
-                                        // case '/reports':
-                                        //     routeToComponent = <Reports />;
-                                        //     break;
-                                        // case '/trends':
-                                        //     routeToComponent = <Trends />;
-                                        //     break;
-                                        // case '/stock-cards':
-                                        //     routeToComponent = <StockCards />;
-                                        //     break;
-                                        // case '/users':
-                                        //     routeToComponent = <Users />;
-                                        //     break;
-                                        case '/settings':
-                                            routeToComponent = <Settings />;
-                                            break;
-                                        default:
-                                            routeToComponent = <Dashboard />
-                                    }
+                                switch (link.to) {
+                                    case '/dashboard':
+                                        routeToComponent = <Dashboard />;
+                                        break;
+                                    case '/logs':
+                                        routeToComponent = <Logs />;
+                                        break;
+                                    // case '/compensation-and-benefits':
+                                    //     routeToComponent = <CompensationAndBenefits />;
+                                    //     break;
+                                    case '/purchase-orders':
+                                        routeToComponent = <PurchaseOrders />;
+                                        break;
+                                    // case '/sales-invoices':
+                                    //     routeToComponent = <SalesInvoices />;
+                                    //     break;
+                                    // case '/reports':
+                                    //     routeToComponent = <Reports />;
+                                    //     break;
+                                    // case '/trends':
+                                    //     routeToComponent = <Trends />;
+                                    //     break;
+                                    // case '/stock-cards':
+                                    //     routeToComponent = <StockCards />;
+                                    //     break;
+                                    // case '/users':
+                                    //     routeToComponent = <Users />;
+                                    //     break;
+                                    case '/settings':
+                                        routeToComponent = <Settings />;
+                                        break;
+                                    default:
+                                        routeToComponent = <Dashboard />
+                                }
 
-                                    return <Route
-                                        key={`route-${link.to}`}
-                                        path={link.to}
-                                        element={routeToComponent}></Route>;
-                                })}
-                                <Route key={'route-default'} index element={<Dashboard />}></Route>
+                                return <Route
+                                    key={`route-${link.to}`}
+                                    path={link.to}
+                                    element={routeToComponent}></Route>;
+                            })}
+                            <Route key={'route-default'} index element={<Dashboard />}></Route>
 
-                                <Route path={'/daily-time-record'} element={<DailyTimeRecord />}></Route>
-                                <Route path={'/attendance-logs'} element={<AttendanceLogs />}></Route>
-                                <Route path={'/deliveries'} element={<Deliveries />}></Route>
-                                <Route path={'/manual-logs'} element={<ManualLogs />}></Route>
+                            {links && links.map((link) => link.to).includes('/logs') &&
+                                <>
+                                    <Route path={'/daily-time-record'} element={<DailyTimeRecord />}></Route>
+                                    <Route path={'/attendance-logs'} element={<AttendanceLogs />}></Route>
+                                    <Route path={'/deliveries'} element={<Deliveries />}></Route>
+                                    <Route path={'/manual-logs'} element={<ManualLogs />}></Route>
+                                </>}
 
-                                <Route path={'/purchase-order-details/:purchaseOrderId'} element={<PurchaseOrderDetails />}></Route>
-                                <Route path={'/purchase-order/:purchaseOrderId/store-request/:storeId?'} element={<PurchaseOrderStoreRequest />}></Route>
+                            {links && links.map((link) => link.to).includes('/purchase-orders') &&
+                                <>
+                                    <Route path={'/purchase-orders/:purchaseOrderId/details'} element={<PurchaseOrderDetails />}></Route>
+                                    <Route path={'/purchase-orders/:purchaseOrderId/store-request/:storeId?'} element={<PurchaseOrderStoreRequest />}></Route>
+                                </>}
 
-                                // Setttings
-                                <Route path="/settings/users" element={<Users />}></Route>
-                                <Route path="/settings-users-rate-history/:userId" element={<RateHistory />}></Route>
-                                <Route path="/settings/users/:userId/roles-and-permissions" element={<RolesAndPermissions />}></Route>
+                            {links && links.map((link) => link.to).includes('/settings') &&
+                                <>
+                                    <Route path="/settings/users" element={<Users />}></Route>
+                                    <Route path="/settings-users-rate-history/:userId" element={<RateHistory />}></Route>
+                                    <Route path="/settings/users/:userId/roles-and-permissions" element={<RolesAndPermissions />}></Route>
+                                    <Route path="/settings/overtime-rates" element={<OvertimeRates />}></Route>
+                                    <Route path="/settings/items-registry" element={<ItemsRegistry />}></Route>
+                                    <Route path="/settings/stores-registry" element={<StoresRegistry />}></Route>
+                                </>}
 
-                                <Route path="/settings/overtime-rates" element={<OvertimeRates />}></Route>
-                                <Route path="/settings/items-registry" element={<ItemsRegistry />}></Route>
-                                <Route path="/settings/stores-registry" element={<StoresRegistry />}></Route>
-                            </Route>
-                        </Routes>
-                    </Auth.Provider>}
+                            { /* fallback route for non-existing routes */ }
+                            <Route path="*" element={<Navigate to="/dashboard" />}></Route>
+                        </Route>
+                    </Routes>}
             </HashRouter>
 
-            {!isLoggedIn &&
-                <Login onSubmit={handleSubmit} errorMessage={errorMessage} />}
+            {!isLoading && !isLoggedIn &&
+                <Login />}
+
+            {isLoading && <Loader />}
         </>
     );
 }
@@ -183,5 +132,5 @@ export default function App() {
 if (document.getElementById('app')) {
     const rootElement = document.getElementById('app');
     const root = ReactDOM.createRoot(rootElement);
-    root.render(<App />);
+    root.render(<Provider store={store}><App /></Provider>);
 }

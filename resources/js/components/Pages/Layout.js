@@ -1,7 +1,10 @@
 import { Container, Nav, Navbar, NavDropdown, Offcanvas } from "react-bootstrap";
+import { useDispatch } from "react-redux";
 import { Link, Outlet } from "react-router-dom";
+import { logout } from "../../state/authenticate";
 
-const Layout = ({ brand, handleLogout, links, signedInUser } = props) => {
+const Layout = ({ brand, links, signedInUser } = props) => {
+    const dispatch = useDispatch();
     let menuIndex = 0;
     let submenuIndex = 0;
 
@@ -54,7 +57,7 @@ const Layout = ({ brand, handleLogout, links, signedInUser } = props) => {
                                         <i className="fa fa-key"> Change password</i>
                                     </NavDropdown.Item>
                                     <NavDropdown.Item
-                                        href="#" onClick={handleLogout}>
+                                        href="#" onClick={(e) => { e.preventDefault(); dispatch(logout()); }}>
                                         <i className="fa fa-sign-out"> Sign-out</i>
                                     </NavDropdown.Item>
                                 </NavDropdown>

@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { Alert, Button, Col, FloatingLabel, Form, Row } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
+import { login } from '../state/authenticate';
 
-export default function Login({ onSubmit, errorMessage } = props) {
+export default function Login() {
+    const { errorMessage } = useSelector((state) => state.authenticate);
+    const dispatch = useDispatch();
+
     const [biometricId, setBiometricId] = useState(null);
     const [password, setPassword] = useState(null);
 
@@ -15,14 +20,14 @@ export default function Login({ onSubmit, errorMessage } = props) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSubmit({ biometricId, password });
+        dispatch(login({ biometricId, password }));
     };
 
     return <>
-        <Row>
+        <Row className="vh-100 d-flex justify-content-center align-items-center">
             <Col md={3}></Col>
             <Col md={6}>
-                <Row className="d-flex align-items-center mt-4">
+                <Row>
                     <Col md={6}>
                         <h1 className="h3 mb-3 font-weight-normal text-center">
                             <i className="fa fa-5x fa-user"></i><br />

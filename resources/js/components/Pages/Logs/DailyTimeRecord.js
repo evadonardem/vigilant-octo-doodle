@@ -1,13 +1,16 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Breadcrumb, Col, Row } from 'react-bootstrap';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Auth } from '../../App';
 import CommonSearchFilters from '../../CommonSearchFilters';
 import DailyTimeRecordSearchResult from './DailyTimeRecordSearchResult';
 
 export default function DailyTimeRecord() {
-    const { user, hasRole } = useContext(Auth);
+    const { user } = useSelector((state) => state.authenticate);
+    const { hasRole } = user;
+
     const isAdmin = hasRole('Super Admin');
+
     const [biometricId, setBiometricId] = useState(isAdmin ? '' : user.biometric_id);
     const [biometricName, setBiometricName] = useState(isAdmin ? '' : user.name);
     const [startDate, setStartDate] = useState('');

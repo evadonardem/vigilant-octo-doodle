@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { Component } from 'react';
-import { Breadcrumb, Button, ButtonGroup, Card, Form, Tab, Tabs } from 'react-bootstrap';
+import { Breadcrumb, Button, Card, Form, Tab, Tabs } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import { v4 as uuidv4 } from 'uuid';
 import CommonDeleteModal from '../CommonDeleteModal';
@@ -208,7 +208,7 @@ export default class PurchaseOrders extends Component {
             e.preventDefault();
             const purchasePeriodId = e.currentTarget.getAttribute('data-purchase-order-id');
             const { purchaseOrdersTabSelected } = self.state;
-            location.href = `${appBaseUrl}/#/purchase-order-details/${purchasePeriodId}`;
+            location.href = `${appBaseUrl}/#/purchase-orders/${purchasePeriodId}/details`;
             cookie.save('purchase-orders-tab-selected', purchaseOrdersTabSelected);
         });
 

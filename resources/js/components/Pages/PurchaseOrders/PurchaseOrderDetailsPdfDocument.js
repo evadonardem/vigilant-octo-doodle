@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 import { v4 as uuidv4 } from 'uuid';
-import { NumericFormat } from 'react-number-format';
+import { NumberFormatBase } from 'react-number-format';
 
 const styles = StyleSheet.create({
     page: {
@@ -93,7 +93,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
 
                 return +purchaseOrder.status.id === 3
                     ? <View style={styles.tableRow}>
-						<NumberFormat
+						<NumberFormatBase
                             value={+item.quantity_original}
                             displayType="text"
                             thousandSeparator
@@ -103,7 +103,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                         <Text style={{flexGrow: 1, width: '13%'}}>{item.code}</Text>
                         <Text style={{flexGrow: 1, width: '13%'}}>{item.name}</Text>
                         { withUnitPriceAndTotalAmount ?
-							<NumberFormat
+							<NumberFormatBase
 								value={+item.effective_price}
 								displayType="text"
 								decimalScale="2"
@@ -113,7 +113,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
 									{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
 								}>{value}</Text>}/> : null }
 						{ withUnitPriceAndTotalAmount ?
-							<NumberFormat
+							<NumberFormatBase
 								value={+item.total_amount}
 								displayType="text"
 								decimalScale="2"
@@ -122,21 +122,21 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
 								renderText={(value) => <Text style={
 									{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
 								}>{value}</Text>}/> : null }
-                        <NumberFormat
+                        <NumberFormatBase
                             value={+item.quantity_actual}
                             displayType="text"
                             thousandSeparator
                             renderText={(value) => <Text style={
                                 {flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
                             }>{value}</Text>}/>
-                        <NumberFormat
+                        <NumberFormatBase
                             value={+item.quantity_bad_orders}
                             displayType="text"
                             thousandSeparator
                             renderText={(value) => <Text style={
                                 {flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
                             }>{value}</Text>}/>
-                        <NumberFormat
+                        <NumberFormatBase
                             value={+item.quantity_returns}
                             displayType="text"
                             thousandSeparator
@@ -148,7 +148,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                         <Text style={{flexGrow: 1, width: '14%'}}>{item.remarks}</Text>
                     </View>
                     : <View style={styles.tableRow}>
-						<NumberFormat
+						<NumberFormatBase
                             value={+item.quantity_original}
                             displayType="text"
                             thousandSeparator
@@ -158,7 +158,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                         <Text style={{flexGrow: 1, width: `${columnSize}%`}}>{item.code}</Text>
                         <Text style={{flexGrow: 1, width: `${columnSize}%`}}>{item.name}</Text>
                         { withUnitPriceAndTotalAmount ?
-							<NumberFormat
+							<NumberFormatBase
 								value={+item.effective_price}
 								displayType="text"
 								decimalScale="2"
@@ -168,7 +168,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
 									{flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
 								}>{value}</Text>}/> : null }
 						{ withUnitPriceAndTotalAmount ?
-							<NumberFormat
+							<NumberFormatBase
 								value={+item.total_amount}
 								displayType="text"
 								decimalScale="2"
@@ -226,7 +226,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
             items.push(
                 +purchaseOrder.status.id === 3
                     ? <View key={itemTotal.id} style={styles.tableHeading}>
-						<NumberFormat
+						<NumberFormatBase
                             value={+itemTotal.totalQuantityOriginal}
                             displayType="text"
                             thousandSeparator
@@ -239,21 +239,21 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
 							<Text style={{flexGrow: 1, width: `${columnSize}%`}}></Text> : null }
                         { withUnitPriceAndTotalAmount ?
 							<Text style={{flexGrow: 1, width: `${columnSize}%`}}></Text> : null }
-                        <NumberFormat
+                        <NumberFormatBase
                             value={+itemTotal.totalQuantityActual}
                             displayType="text"
                             thousandSeparator
                             renderText={(value) => <Text style={
                                 {flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
                             }>{value}</Text>}/>
-                        <NumberFormat
+                        <NumberFormatBase
                             value={+itemTotal.totalQuantityBadOrders}
                             displayType="text"
                             thousandSeparator
                             renderText={(value) => <Text style={
                                 {flexGrow: 1, width: `${columnSize}%`, textAlign: 'right', paddingRight: 10}
                             }>{value}</Text>}/>
-                        <NumberFormat
+                        <NumberFormatBase
                             value={+itemTotal.totalQuantityReturns}
                             displayType="text"
                             thousandSeparator
@@ -265,7 +265,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                         <Text style={{flexGrow: 1, width: '14%'}}></Text>
                     </View>
                     : <View key={itemTotal.id} style={styles.tableHeading}>
-						<NumberFormat
+						<NumberFormatBase
                             value={+itemTotal.totalQuantityOriginal}
                             displayType="text"
                             thousandSeparator
@@ -342,7 +342,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
             expenses = purchaseOrderExpenses.map((expense) => {
                 return <View key={uuidv4()} style={styles.tableRow}>
                     <Text style={{flexGrow: 1, width: '20%'}}>{expense.name}</Text>
-                    <NumberFormat
+                    <NumberFormatBase
 						value={+expense.amount_original}
 						displayType="text"
 						decimalScale="2"
@@ -353,7 +353,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
 						}>{value}</Text>}/>
                     {
                         +purchaseOrder.status.id === 3 &&
-                        <NumberFormat
+                        <NumberFormatBase
 							value={+expense.amount_actual}
 							displayType="text"
 							decimalScale="2"
@@ -386,7 +386,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                     purchaseOrderExpensesMeta &&
                     <View key={uuidv4()} style={styles.tableRow}>
                         <Text style={{flexGrow: 1, width: '20%'}}></Text>
-                        <NumberFormat
+                        <NumberFormatBase
 							value={+purchaseOrderExpensesMeta.total_amount_original}
 							displayType="text"
 							decimalScale="2"
@@ -397,7 +397,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
 							}>{value}</Text>}/>
                         {
                             +purchaseOrder.status.id === 3 &&
-                            <NumberFormat
+                            <NumberFormatBase
 								value={+purchaseOrderExpensesMeta.total_amount_actual}
 								displayType="text"
 								decimalScale="2"
@@ -413,7 +413,7 @@ export default class PurchaseOrderDetailsPdfDocument extends Component {
                 {
                     +purchaseOrder.status.id === 3 && purchaseOrderExpensesMeta &&
                     <View key={uuidv4()} style={styles.sectionHeading}>
-                        <NumberFormat
+                        <NumberFormatBase
 							value={+purchaseOrderExpensesMeta.change}
 							displayType="text"
 							decimalScale="2"
