@@ -28,8 +28,8 @@ export const authorize = createAsyncThunk(
         const { data: navigationMenu } = requestNavigationMenu.data;
         const { brand, links } = navigationMenu;
 
-        user['hasRole'] = (name) => !!_.find(roles, (role) => role.name === name);
-        user['hasPermission'] = (name) => !!_.find(permissions, (permission) => permission.name === name);
+        user['roles'] = roles;
+        user['permissions'] = permissions;
 
         return {
             isLoading: false,

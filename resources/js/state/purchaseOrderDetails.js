@@ -207,8 +207,8 @@ export const updatePurchaseOrder = createAsyncThunk(
                 purchaseOrder,
             };
         } catch (error) {
-            const { message: errorMessage } = error.response.data;
-            return rejectWithValue({ errorMessage });
+            const { message: errorMessage } = error.response ? error.response.data : error;
+            return rejectWithValue({ errorMessage: errorMessage });
         }
     },
 );
@@ -526,7 +526,7 @@ export const purchaseOrderDetailsSlice = createSlice({
             };
         });
         builder.addCase(updatePurchaseOrder.rejected, (state, action) => {
-            const { errorMessage } = action.payload;
+            const { errorMessage } = action.payload ? action.payload : { errorMessage: '' };
             return {
                 ...state,
                 errorMessage,

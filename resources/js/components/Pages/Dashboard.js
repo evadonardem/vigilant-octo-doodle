@@ -4,7 +4,11 @@ import { useSelector } from 'react-redux';
 import Option from '../Generic/Option';
 
 const Dashboard = () => {
-    const { hasRole, hasPermission } = useSelector((state) => state.authenticate.user);
+    const { roles, permissions } = useSelector((state) => state.authenticate.user);
+
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name)
+
     const isSuperAdmin = hasRole("Super Admin");
     const canAccessPurchaseOrders = isSuperAdmin ||
         hasPermission("Create purchase order") ||

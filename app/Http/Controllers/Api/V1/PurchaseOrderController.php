@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StorePurchaseOrderRequest;
 use App\Models\Item;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderExpense;
@@ -190,7 +191,7 @@ class PurchaseOrderController extends Controller
                     $item->effective_price = $effectivePrice;
                     $item->total_amount = $totalAmount;
                 });
-                
+
                 $store->items = $items;
             }
         });
@@ -240,7 +241,7 @@ class PurchaseOrderController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StorePurchaseOrderRequest $request)
     {
         $attributes = $request->only(['location', 'from', 'to']);
         $attributes['location'] = strtoupper($attributes['location']);
@@ -275,9 +276,9 @@ class PurchaseOrderController extends Controller
                 'store_id' => $attributes['store_id'],
                 'item_id' => $attributes['item_id'],
             ])->first();
-            
+
             if (!$attributes['quantity_original']) {
-                $existingPurchaseOrderStoreItem->delete();    
+                $existingPurchaseOrderStoreItem->delete();
             } else {
                 $existingPurchaseOrderStoreItem->quantity_original = $attributes['quantity_original'];
                 $existingPurchaseOrderStoreItem->save();
@@ -428,7 +429,7 @@ class PurchaseOrderController extends Controller
 
         foreach ($poStores as $poStore) {
             $poStore->pivot->delete();
-        }        
+        }
 
         PurchaseOrderStoresSortOrder::where([
             'purchase_order_id' => $purchaseOrder->id,

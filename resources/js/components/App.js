@@ -29,10 +29,9 @@ export default function App() {
     const dispatch = useDispatch();
     const {
         brand,
-        isLoading,
         isLoggedIn,
         links,
-        signedInUser
+    signedInUser
     } = useSelector((state) => state.authenticate);
 
     useEffect(() => {
@@ -42,7 +41,7 @@ export default function App() {
     return (
         <>
             <HashRouter>
-                {!isLoading && isLoggedIn &&
+                {isLoggedIn &&
                     <Routes>
                         <Route
                             element={<Layout brand={brand} links={links} signedInUser={signedInUser} />}>
@@ -121,10 +120,7 @@ export default function App() {
                     </Routes>}
             </HashRouter>
 
-            {!isLoading && !isLoggedIn &&
-                <Login />}
-
-            {isLoading && <Loader />}
+            {!isLoggedIn && <Login />}
         </>
     );
 }

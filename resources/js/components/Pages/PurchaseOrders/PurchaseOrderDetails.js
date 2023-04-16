@@ -844,55 +844,13 @@ const PurchaseOrderDetails = () => {
                     </Breadcrumb>
                     <Card className="my-4">
                         <Card.Header>
-                            <div className='row'>
-                                <div className='col-md-6'>
-                                    <p>
-                                        <Badge variant='primary'>PO: {purchaseOrder.code}</Badge>&nbsp;
-                                        <Badge variant={currentStatusVariant}>
-                                            {purchaseOrder.status ? purchaseOrder.status.name : ''}
-                                        </Badge>
-                                    </p>
-                                    <h4>Purchase Order &raquo; Details</h4>
-                                </div>
-                                <div className='col-md-6'>
-                                    <ButtonGroup className="pull-right">
-                                        <PDFDownloadLink
-                                            key="po-with-price-total-amount"
-                                            document={<PurchaseOrderDetailsPdfDocument
-                                                purchaseOrder={purchaseOrder}
-                                                purchaseOrderStores={purchaseOrderStores}
-                                                purchaseOrderAssignedStaff={purchaseOrderAssignedStaff}
-                                                purchaseOrderExpenses={purchaseOrderExpenses}
-                                                purchaseOrderExpensesMeta={purchaseOrderExpensesMeta}
-                                                withUnitPriceAndTotalAmount={true} />}
-                                            fileName={`PO-${purchaseOrder.code}.pdf`}
-                                            className="btn btn-secondary">
-                                            {({ loading }) => (
-                                                loading
-                                                    ? "Loading document..."
-                                                    : <span><i className="fa fa-download"></i> PO (w/ Price & Total Amt.)</span>
-                                            )}
-                                        </PDFDownloadLink>
-                                        <PDFDownloadLink
-                                            key="po-without-price-total-amount"
-                                            document={<PurchaseOrderDetailsPdfDocument
-                                                purchaseOrder={purchaseOrder}
-                                                purchaseOrderStores={purchaseOrderStores}
-                                                purchaseOrderAssignedStaff={purchaseOrderAssignedStaff}
-                                                purchaseOrderExpenses={purchaseOrderExpenses}
-                                                purchaseOrderExpensesMeta={purchaseOrderExpensesMeta}
-                                                withUnitPriceAndTotalAmount={false} />}
-                                            fileName={`PO-${purchaseOrder.code}.pdf`}
-                                            className="btn btn-secondary">
-                                            {({ loading }) => (
-                                                loading
-                                                    ? "Loading document..."
-                                                    : <span><i className="fa fa-download"></i> PO (w/o Price & Total Amt.)</span>
-                                            )}
-                                        </PDFDownloadLink>
-                                    </ButtonGroup>
-                                </div>
-                            </div>
+                            <p>
+                                <Badge variant='primary'>PO: {purchaseOrder.code}</Badge>&nbsp;
+                                <Badge variant={currentStatusVariant}>
+                                    {purchaseOrder.status ? purchaseOrder.status.name : ''}
+                                </Badge>
+                            </p>
+                            <h4>Purchase Order &raquo; Details</h4>
                         </Card.Header>
                         <Card.Body>
                             <Card.Title>
@@ -1051,21 +1009,53 @@ const PurchaseOrderDetails = () => {
                             </div>
 
                         </Card.Body>
-                        {
-                            purchaseOrder && +purchaseOrder.status.id !== 3 &&
-                            <Card.Footer>
-                                <div className="pull-right">
-                                    <Button
-                                        key={`${purchaseOrder.id}-${nextStatusId}`}
-                                        onClick={handleClickUpdatePurchaseOrderStatus}
-                                        data-purchase-order-id={purchaseOrder.id}
-                                        data-purchase-order-status-id={nextStatusId}
-                                        variant={nextStatusButtonVariant}>
-                                        {nextStatus}
-                                    </Button>
-                                </div>
-                            </Card.Footer>
-                        }
+                        <Card.Footer>
+                            <ButtonGroup className="pull-right">
+                                <PDFDownloadLink
+                                    key="po-with-price-total-amount"
+                                    document={<PurchaseOrderDetailsPdfDocument
+                                        purchaseOrder={purchaseOrder}
+                                        purchaseOrderStores={purchaseOrderStores}
+                                        purchaseOrderAssignedStaff={purchaseOrderAssignedStaff}
+                                        purchaseOrderExpenses={purchaseOrderExpenses}
+                                        purchaseOrderExpensesMeta={purchaseOrderExpensesMeta}
+                                        withUnitPriceAndTotalAmount={true} />}
+                                    fileName={`PO-${purchaseOrder.code}.pdf`}
+                                    className="btn btn-secondary">
+                                    {({ loading }) => (
+                                        loading
+                                            ? "Loading document..."
+                                            : <span><i className="fa fa-download"></i> PO (w/ Price & Total Amt.)</span>
+                                    )}
+                                </PDFDownloadLink>
+                                <PDFDownloadLink
+                                    key="po-without-price-total-amount"
+                                    document={<PurchaseOrderDetailsPdfDocument
+                                        purchaseOrder={purchaseOrder}
+                                        purchaseOrderStores={purchaseOrderStores}
+                                        purchaseOrderAssignedStaff={purchaseOrderAssignedStaff}
+                                        purchaseOrderExpenses={purchaseOrderExpenses}
+                                        purchaseOrderExpensesMeta={purchaseOrderExpensesMeta}
+                                        withUnitPriceAndTotalAmount={false} />}
+                                    fileName={`PO-${purchaseOrder.code}.pdf`}
+                                    className="btn btn-secondary">
+                                    {({ loading }) => (
+                                        loading
+                                            ? "Loading document..."
+                                            : <span><i className="fa fa-download"></i> PO (w/o Price & Total Amt.)</span>
+                                    )}
+                                </PDFDownloadLink>
+                                {purchaseOrder && +purchaseOrder.status.id !== 3 &&
+                                        <Button
+                                            key={`${purchaseOrder.id}-${nextStatusId}`}
+                                            onClick={handleClickUpdatePurchaseOrderStatus}
+                                            data-purchase-order-id={purchaseOrder.id}
+                                            data-purchase-order-status-id={nextStatusId}
+                                            variant={nextStatusButtonVariant}>
+                                            {nextStatus}
+                                        </Button>}
+                            </ButtonGroup>
+                        </Card.Footer>
                     </Card>
                 </>
             }
@@ -1076,12 +1066,12 @@ const PurchaseOrderDetails = () => {
                 handleClose={handleCloseDeleteModal}
                 handleSubmit={handleSubmitDeleteModal} />
 
-
-            <ToastContainer className="p-3 position-fixed" position="top-center">
-                <Toast bg="danger" onClose={() => dispatch(clearErrorMessage())} show={errorMessage} delay={3000} autohide>
-                    <Toast.Body className="text-center text-white">{errorMessage}</Toast.Body>
-                </Toast>
-            </ToastContainer>
+            {errorMessage &&
+                <ToastContainer className="p-3 position-fixed" position="top-center">
+                    <Toast bg="danger" onClose={() => dispatch(clearErrorMessage())} show={errorMessage} delay={3000} autohide>
+                        <Toast.Body className="text-center text-white">{errorMessage}</Toast.Body>
+                    </Toast>
+                </ToastContainer>}
         </>
     );
 }

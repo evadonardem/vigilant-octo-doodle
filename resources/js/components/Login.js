@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Alert, Button, Col, FloatingLabel, Form, Row } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../state/authenticate';
+import LoadingInline from './Generic/LoadingInline';
 
 export default function Login() {
-    const { errorMessage } = useSelector((state) => state.authenticate);
+    const { errorMessage, isLoading } = useSelector((state) => state.authenticate);
     const dispatch = useDispatch();
 
     const [biometricId, setBiometricId] = useState(null);
@@ -44,7 +45,11 @@ export default function Login() {
                                 <Form.Control placeholder="Password" type="password" onChange={handlePasswordChange} />
                             </FloatingLabel>
                             {errorMessage && <Alert variant="warning">{errorMessage}</Alert>}
-                            <Button type="submit" variant="primary" size="lg">Sign in</Button>
+                            <Button type="submit" variant="primary" size="lg" disabled={isLoading}>
+                                {isLoading
+                                    ? <LoadingInline/>
+                                    : "Sign in"}
+                            </Button>
                         </Form>
                     </Col>
                 </Row>
