@@ -35,7 +35,7 @@ export default class SettingStorePromodiserJobHistory extends Component {
                 showModal: false,
                 isDeleteError: false,
                 deleteErrorHeaderTitle: '',
-                deleteErrorBodyText: '',                
+                deleteErrorBodyText: '',
             },
             toPresent: false,
             token: null,
@@ -129,7 +129,7 @@ export default class SettingStorePromodiserJobHistory extends Component {
                 },
                 {
                     'data': null,
-                    'render': function (data, type, row) {                        
+                    'render': function (data, type, row) {
                         const deleteBtn = `<a
                             href="#"
                             class="delete btn btn-secondary"
@@ -157,7 +157,7 @@ export default class SettingStorePromodiserJobHistory extends Component {
                 },
             };
             payload.data.attributes[inputName] = inputValue;
-        
+
             axios.patch(`${END_POINT}/${storeId}/promodisers/${promodiserId}/job-contracts/${id}?token=${token}`, payload)
                 .then(() => {
                     $('[name=' + inputName + ']', tableRow).closest('td').find('.form-control').removeClass('is-invalid');
@@ -172,7 +172,7 @@ export default class SettingStorePromodiserJobHistory extends Component {
                         const { data } = response;
                         const { errors } = data;
                         for (const key in errors) {
-                            let attributeName = key.replace('data.attributes.', '');                        
+                            let attributeName = key.replace('data.attributes.', '');
                             $('[name=' + attributeName + ']', tableRow)
                                 .addClass('is-invalid')
                                 .closest('td')
@@ -241,7 +241,7 @@ export default class SettingStorePromodiserJobHistory extends Component {
                     ...self.state,
                     toPresent: false,
                 });
-                form.reset();                
+                form.reset();
             })
             .catch((error) => {
                 $('.form-control', form).removeClass('is-invalid');
@@ -250,7 +250,7 @@ export default class SettingStorePromodiserJobHistory extends Component {
                     const { data } = response;
                     const { errors } = data;
                     for (const key in errors) {
-                        let attributeName = key.replace('data.attributes.', '');                        
+                        let attributeName = key.replace('data.attributes.', '');
                         $('[name=' + attributeName + ']', form)
                             .addClass('is-invalid')
                             .closest('.form-group')
@@ -383,12 +383,12 @@ export default class SettingStorePromodiserJobHistory extends Component {
                                                 <div className="invalid-feedback"></div>
                                             </Form.Group>
                                             <hr/>
-                                            <Button type="submit" block>Register</Button>
+                                            <Button type="submit">Register</Button>
                                         </Form>
                                    </Card.Body>
                                </Card>
                            </div>
-                        </div> 
+                        </div>
                     </Card.Body>
                 </Card>
                 <CommonDeleteModal

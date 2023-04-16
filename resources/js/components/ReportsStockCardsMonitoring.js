@@ -223,7 +223,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                             {errs.map((e, idx) => <li key={idx}>{e}</li>)}
                                         </Alert>
                                     }
-                                    <Button type="submit" block>Generate Report</Button>
+                                    <Button type="submit">Generate Report</Button>
                                 </Form>
                             </Card.Body>
                         </Card>

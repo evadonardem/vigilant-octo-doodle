@@ -7,7 +7,9 @@ import CommonDeleteModal from '../../CommonDeleteModal';
 import AddEditUserModal from './Users/AddEditUserModal';
 
 const Users = () => {
-    const { hasRole, hasPermission } = useSelector((state) => state.authenticate.user);
+    const { roles, permissions } = useSelector((state) => state.authenticate.user);
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
 
     const allowedToCreateUser = hasRole('Super Admin') || hasPermission("Create or register new user");
     const allowedToUpdateUser = hasRole('Super Admin') || hasPermission("Update existing user");

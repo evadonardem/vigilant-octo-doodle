@@ -359,7 +359,7 @@ export default class StoresRegistry extends Component {
                                         <div className="invalid-feedback"></div>
                                     </Form.Group>
                                     <hr/>
-                                    <Button type="submit" block>Add</Button>
+                                    <Button type="submit">Add</Button>
                                 </Form>
                             </Card.Body>
                         </Card>

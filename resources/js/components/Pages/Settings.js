@@ -30,12 +30,10 @@ export default function Settings() {
     ];
 
     return <>
-        <div className="container-fluid my-4">
-            <div className="row">
-                {options.map(({ icon, title, description, to } = options) => <div key={to} className="col-md-6">
-                    <Option icon={icon} title={title} description={description} to={to} />
-                </div>)}
-            </div>
+        <div className="row">
+            {options.map(({ icon, title, description, to } = options) => <div key={to} className="col-md-6">
+                <Option icon={icon} title={title} description={description} to={to} />
+            </div>)}
         </div>
     </>;
 }

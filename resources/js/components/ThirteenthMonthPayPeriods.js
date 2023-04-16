@@ -184,7 +184,7 @@ export default class ThirteenthMonthPayPeriods extends Component {
                                                         <div className="invalid-feedback"></div>
                                                     </Form.Group>
                                                     <hr/>
-                                                    <Button type="submit" block>Create</Button>
+                                                    <Button type="submit">Create</Button>
                                                 </Form>
                                             </Card.Body>
                                         </Card>

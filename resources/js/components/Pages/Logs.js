@@ -2,7 +2,8 @@ import { useSelector } from "react-redux";
 import Option from "../Generic/Option";
 
 const Logs = () => {
-    const { hasRole } = useSelector((state) => state.authenticate.user);
+    const { roles } = useSelector((state) => state.authenticate.user);
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
     let allowedAccess = hasRole("Super Admin");
 
     let options = [
@@ -42,7 +43,7 @@ const Logs = () => {
                 {options
                     .filter(({ isVisible } = option) => isVisible)
                     .map(({ icon, title, description, to } = option) =>
-                        <div className="col-md-6">
+                        <div key={to} className="col-md-6">
                             <Option key={to} icon={icon} title={title} description={description} to={to} />
                         </div>)}
             </div>

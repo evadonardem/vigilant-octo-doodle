@@ -446,7 +446,7 @@ export default class ChartsTrendsByItem extends Component {
                                                     isMulti />}
                                         </Card.Body>
                                         <Card.Footer>
-                                            <Button type="submit" block>Generate</Button>
+                                            <Button type="submit">Generate</Button>
                                         </Card.Footer>
                                     </Card>
                                 </Form>

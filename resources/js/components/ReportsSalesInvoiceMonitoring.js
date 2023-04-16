@@ -531,7 +531,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                     {reportType === 'location' &&
                                         <CommonDropdownSelectSingleStoreLocation name="location_id" />}
                                     <hr className="my-4" />
-                                    <Button type="submit" block>Generate Report</Button>
+                                    <Button type="submit">Generate Report</Button>
                                 </Form>
                             </Card.Body>
                         </Card>

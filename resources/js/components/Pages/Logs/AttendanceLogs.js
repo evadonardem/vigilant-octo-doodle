@@ -7,7 +7,8 @@ import { useSelector } from 'react-redux';
 
 export default function AttendanceLogs() {
     const { user } = useSelector((state) => state.authenticate);
-    const { hasRole } = user;
+    const { roles } = user;
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
 
     const isAdmin = hasRole('Super Admin');
 
