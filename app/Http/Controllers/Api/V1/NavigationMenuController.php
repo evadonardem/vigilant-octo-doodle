@@ -55,17 +55,22 @@ class NavigationMenuController extends Controller
                     ],
                 ]
 			],
-			// [
-			// 	'label' => 'Compensation and Benefits',
-			// 	'icon' => 'fa fa-gift',
-			// 	'to' => '/compensation-and-benefits',
-			// 	'is_visible' => $user && $user->hasRole('Super Admin'),
-			// ],
+			[
+				'label' => 'Compensation and Benefits',
+				'icon' => 'fa fa-gift',
+				'to' => '/compensation-and-benefits',
+				'is_visible' => $user && $user->hasRole('Super Admin'),
+			],
 			[
 				'label' => 'Purchase Orders',
 				'icon' => 'fa fa-folder',
 				'to' => '/purchase-orders',
-				'is_visible' => $user && $user->hasRole('Super Admin'),
+				'is_visible' => $user && (
+                    $user->hasRole('Super Admin') ||
+                    $user->can('Create purchase order') ||
+                    $user->can('View purchase order') ||
+                    $user->can('Update purchase order')
+                ),
 			],
 			// [
 			// 	'label' => 'Sales Invoices',
@@ -99,12 +104,6 @@ class NavigationMenuController extends Controller
 			// 		'Super Admin',
 			// 		'Warehouse Inventory Encoder',
 			// 	]),
-			// ],
-			// [
-			// 	'label' => 'Users',
-			// 	'icon' => 'fa fa-users',
-			// 	'to' => '/users',
-			// 	'is_visible' => $user && $user->hasRole('Super Admin'),
 			// ],
 			[
 				'label' => 'Settings',

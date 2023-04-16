@@ -35,6 +35,13 @@ const PurchaseOrderDetails = () => {
     const params = useParams();
     const { purchaseOrderId } = params;
 
+    const { roles, permissions } = useSelector((state) => state.authenticate.user);
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
+
+    const allowedToUpdatePurchaseOrder = hasRole('Super Admin') || hasPermission("Update purchase order");
+    const allowedToDeletePurchaseOrder = hasRole('Super Admin') || hasPermission("Delete purchase order");
+
     const {
         isLoading,
         purchaseOrder,
@@ -106,7 +113,7 @@ const PurchaseOrderDetails = () => {
                         if (+data.purchase_order_status.id === 1 || +data.purchase_order_status.id === 2) {
                             const editBtn = `<a
                                 href="#/purchase-orders/${data.pivot.purchase_order_id}/store-request/${data.pivot.store_id}"
-                                class="btn btn-primary">
+                                class="edit-po-store btn btn-primary">
                                     <i class="fa fa-edit"></i>
                             </a>`;
                             const deleteBtn = `<a
@@ -126,6 +133,14 @@ const PurchaseOrderDetails = () => {
                     }
                 },
             ],
+            drawCallback: () => {
+                if (!allowedToUpdatePurchaseOrder) {
+                    $(document).find('.data-table-wrapper .edit-po-store').remove();
+                }
+                if (!allowedToDeletePurchaseOrder) {
+                    $(document).find('.data-table-wrapper .delete-po-store').remove();
+                }
+            },
             ordering: false,
             paging: false,
             rowReorder: {
@@ -214,7 +229,7 @@ const PurchaseOrderDetails = () => {
                             type: 'get',
                             url: `${END_POINT}/${row.data().pivot.purchase_order_id}/stores/${row.data().id}/items?token=${token}`,
                             dataFilter: (data) => {
-                                let json = jQuery.parseJSON(data);
+                                let json = JSON.parse(data);
                                 json.recordsTotal = json.total;
                                 json.recordsFiltered = json.total;
 
@@ -389,7 +404,13 @@ const PurchaseOrderDetails = () => {
                                     return null;
                                 }
                             },
-                        ]
+                        ],
+                        drawCallback: () => {
+                            if (!allowedToDeletePurchaseOrder) {
+                                $(document).find('.data-table-wrapper .update-po-store-item').prop('readonly', true);
+                                $(document).find('.data-table-wrapper .delete-po-store-item').remove();
+                            }
+                        },
                     });
 
                     $(document).on('change', '.data-table-wrapper .update-po-store-item', function (e) {
@@ -518,6 +539,12 @@ const PurchaseOrderDetails = () => {
                     }
                 },
             ],
+            drawCallback: () => {
+                if (!allowedToDeletePurchaseOrder) {
+                    $(document).find('.data-table-wrapper .include-deliveries-to-pay-periods').prop('disabled', true);
+                    $(document).find('.data-table-wrapper .delete-po-assigned-staff').remove();
+                }
+            },
             ordering: false,
             paging: false,
             searching: false,
@@ -610,6 +637,12 @@ const PurchaseOrderDetails = () => {
                     className: 'dt-right',
                 }
             ],
+            drawCallback: () => {
+                if (!allowedToDeletePurchaseOrder) {
+                    $(document).find('.data-table-wrapper .update-po-allocated-expense').prop('readonly', true);
+                    $(document).find('.data-table-wrapper .delete-po-expense').remove();
+                }
+            },
             footerCallback: function (row, data, start, end, display) {
                 const api = this.api();
 
@@ -897,7 +930,7 @@ const PurchaseOrderDetails = () => {
                                         <tbody></tbody>
                                     </table>
                                 </Card.Body>
-                                {(purchaseOrder.status.id === 1 || purchaseOrder.status.id === 2) &&
+                                {allowedToUpdatePurchaseOrder && (purchaseOrder.status.id === 1 || purchaseOrder.status.id === 2) &&
                                     <Card.Footer>
                                         <div className='pull-right'>
                                             <Link to={`/purchase-orders/${purchaseOrder.id}/store-request`}>
@@ -927,7 +960,7 @@ const PurchaseOrderDetails = () => {
                                                     <tbody></tbody>
                                                 </table>
                                             </Card.Body>
-                                            {purchaseOrder && +purchaseOrder.status.id !== 3 &&
+                                            {allowedToUpdatePurchaseOrder && purchaseOrder && +purchaseOrder.status.id !== 3 &&
                                                 <Card.Footer>
                                                     <Form onSubmit={handleSubmitAssignStaff}>
                                                         <CommonDropdownSelectSingleUsers
@@ -964,7 +997,7 @@ const PurchaseOrderDetails = () => {
                                                     </tfoot>
                                                 </table>
                                             </Card.Body>
-                                            {purchaseOrder && +purchaseOrder.status.id !== 3 &&
+                                            {allowedToUpdatePurchaseOrder && purchaseOrder && +purchaseOrder.status.id !== 3 &&
                                                 <Card.Footer>
                                                     <Form onSubmit={handleSubmitExpense}>
                                                         <CommonDropdownSelectSingleExpenseCode
@@ -1022,7 +1055,7 @@ const PurchaseOrderDetails = () => {
                                             : <span><i className="fa fa-download"></i> PO (w/o Price & Total Amt.)</span>
                                     )}
                                 </PDFDownloadLink>
-                                {purchaseOrder && +purchaseOrder.status.id !== 3 &&
+                                {allowedToUpdatePurchaseOrder && purchaseOrder && +purchaseOrder.status.id !== 3 &&
                                         <Button
                                             key={`${purchaseOrder.id}-${nextStatusId}`}
                                             onClick={handleClickUpdatePurchaseOrderStatus}

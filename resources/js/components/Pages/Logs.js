@@ -1,5 +1,6 @@
 import { useSelector } from "react-redux";
 import Option from "../Generic/Option";
+import { Col, Row } from "react-bootstrap";
 
 const Logs = () => {
     const { roles } = useSelector((state) => state.authenticate.user);
@@ -38,16 +39,14 @@ const Logs = () => {
     ];
 
     return (
-        <div className="container-fluid my-4">
-            <div className="row">
-                {options
-                    .filter(({ isVisible } = option) => isVisible)
-                    .map(({ icon, title, description, to } = option) =>
-                        <div key={to} className="col-md-6">
-                            <Option key={to} icon={icon} title={title} description={description} to={to} />
-                        </div>)}
-            </div>
-        </div>
+        <Row>
+            {options
+                .filter(({ isVisible } = option) => isVisible)
+                .map(({ icon, title, description, to } = option) =>
+                    <Col key={to} md={6}>
+                        <Option key={to} icon={icon} title={title} description={description} to={to}/>
+                    </Col>)}
+        </Row>
     );
 }
 

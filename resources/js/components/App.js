@@ -19,11 +19,14 @@ import RolesAndPermissions from './Pages/Settings/Users/RolesAndPermissions';
 import OvertimeRates from './Pages/Settings/OvertimeRates';
 import ItemsRegistry from './Pages/Settings/ItemsRegistry';
 import StoresRegistry from './Pages/Settings/StoresRegistry';
-
 import { store } from '../state/store';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { authorize } from '../state/authenticate';
-import Loader from './Generic/Loader';
+import CompensationAndBenefits from './Pages/CompensationAndBenefits';
+import PayPeriods from './Pages/CompensationAndBenefits/PayPeriods';
+import PayPeriodDetails from './Pages/CompensationAndBenefits/PayPeriodDetails';
+import ThirteenthMonthPayPeriods from './Pages/CompensationAndBenefits/ThirteenthMonthPayPeriods';
+import ThirteenthMonthPayPeriodDetails from './Pages/CompensationAndBenefits/ThirteenthMonthPayPeriodDetails';
 
 export default function App() {
     const dispatch = useDispatch();
@@ -55,9 +58,9 @@ export default function App() {
                                     case '/logs':
                                         routeToComponent = <Logs />;
                                         break;
-                                    // case '/compensation-and-benefits':
-                                    //     routeToComponent = <CompensationAndBenefits />;
-                                    //     break;
+                                    case '/compensation-and-benefits':
+                                        routeToComponent = <CompensationAndBenefits />;
+                                        break;
                                     case '/purchase-orders':
                                         routeToComponent = <PurchaseOrders />;
                                         break;
@@ -96,6 +99,14 @@ export default function App() {
                                     <Route path={'/attendance-logs'} element={<AttendanceLogs />}></Route>
                                     <Route path={'/deliveries'} element={<Deliveries />}></Route>
                                     <Route path={'/manual-logs'} element={<ManualLogs />}></Route>
+                                </>}
+
+                            {links && links.map((link) => link.to).includes('/compensation-and-benefits') &&
+                                <>
+                                    <Route path={'/pay-periods'} element={<PayPeriods/>}></Route>
+                                    <Route path={'/pay-period-details/:payPeriodId'} element={<PayPeriodDetails/>}></Route>
+                                    <Route path={'/thirteenth-month-pay-periods'} element={<ThirteenthMonthPayPeriods/>}></Route>
+                                    <Route path={'/thirteenth-month-pay-period-details/:thirteenthMonthPayPeriodId'} element={<ThirteenthMonthPayPeriodDetails/>}></Route>
                                 </>}
 
                             {links && links.map((link) => link.to).includes('/purchase-orders') &&

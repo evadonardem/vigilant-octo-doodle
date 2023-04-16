@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Button, Card, Form } from 'react-bootstrap';
 import cookie from 'react-cookies';
-import CommonDeleteModal from './CommonDeleteModal';
+import CommonDeleteModal from '../../CommonDeleteModal';
 
-export default class PayPeriods extends Component {
+export default class ThirteenthMonthPayPeriods extends Component {
     constructor(props) {
         super(props);
         this.handleSubmitNewPayPeriod = this.handleSubmitNewPayPeriod.bind(this);
@@ -32,7 +32,7 @@ export default class PayPeriods extends Component {
         $(this.refs.payPeriodsList).DataTable({
             ajax: {
                 type: 'get',
-                url: `${apiBaseUrl}/pay-periods?token=${token}`,
+                url: `${apiBaseUrl}/thirteenth-month-pay-periods?token=${token}`,
                 dataFilter: (data) => {
                     let json = jQuery.parseJSON(data);
                     json.recordsTotal = json.total;
@@ -56,12 +56,6 @@ export default class PayPeriods extends Component {
                 {
                     'data': null,
                     'render': function (data, type, row) {
-                        return `<i class="fa fa-lg fa-${row.include_deliveries_from_purchase_orders ? 'check-square-o' : 'square-o'}"></i>`;
-                    }
-                },
-                {
-                    'data': null,
-                    'render': function (data, type, row) {
                         const openBtn = '<a href="#" class="open btn btn-primary" data-pay-period-id="' + row.id + '"><i class="fa fa-folder-open"></i></a>';
                         const deleteBtn = '<a href="#" class="delete btn btn-warning" data-toggle="modal" data-target="#deleteModal" data-pay-period-id="' + row.id + '"><i class="fa fa-trash"></i></a>';
 
@@ -74,7 +68,7 @@ export default class PayPeriods extends Component {
         $(document).on('click', '.data-table-wrapper .open', function(e) {
             e.preventDefault();
             const payPeriodId = e.currentTarget.getAttribute('data-pay-period-id');
-            location.href = `${appBaseUrl}/#/pay-period-details/${payPeriodId}`;
+            location.href = `${appBaseUrl}/#/thirteenth-month-pay-period-details/${payPeriodId}`;
         });
 
         $(document).on('click', '.data-table-wrapper .delete', function(e) {
@@ -89,10 +83,10 @@ export default class PayPeriods extends Component {
     handleSubmitNewPayPeriod(e) {
         e.preventDefault();
         const token = cookie.load('token');
-        const table = $('.data-table-wrapper').find('table.table-pay-periods').DataTable();
+        const table = $('.data-table-wrapper').find('table.table-thirteenth-month-pay-periods').DataTable();
         const form = $(e.target);
         const data = $(form).serialize();
-        const actionEndPoint = `${apiBaseUrl}/pay-periods?token=${token}`;
+        const actionEndPoint = `${apiBaseUrl}/thirteenth-month-pay-periods?token=${token}`;
 
         axios.post(actionEndPoint, data)
             .then((response) => {
@@ -132,9 +126,9 @@ export default class PayPeriods extends Component {
         const self = this;
         const token = cookie.load('token');
         const { payPeriodId } = self.state;
-        const table = $('.data-table-wrapper').find('table.table-pay-periods').DataTable();
+        const table = $('.data-table-wrapper').find('table.table-thirteenth-month-pay-periods').DataTable();
 
-        axios.delete(`${apiBaseUrl}/pay-periods/${payPeriodId}?token=${token}`)
+        axios.delete(`${apiBaseUrl}/thirteenth-month-pay-periods/${payPeriodId}?token=${token}`)
             .then(() => {
                 table.ajax.reload(null, false);
                 self.setState({
@@ -165,7 +159,7 @@ export default class PayPeriods extends Component {
 
         return (
             <div className="container-fluid my-4">
-                <h1><i className="fa fa-address-card-o"></i> Pay Periods</h1>
+                <h1><i className="fa fa-gift"></i> 13<sup>th</sup> Month Pay Periods</h1>
 
                 <hr className="my-4"/>
 
@@ -181,20 +175,12 @@ export default class PayPeriods extends Component {
                                                 <Form onSubmit={this.handleSubmitNewPayPeriod}>
                                                     <Form.Group>
                                                         <Form.Label>From:</Form.Label>
-                                                        <Form.Control type="date" name="from"></Form.Control>
+                                                        <Form.Control type="month" name="from"></Form.Control>
                                                         <div className="invalid-feedback"></div>
                                                     </Form.Group>
                                                     <Form.Group>
                                                         <Form.Label>To:</Form.Label>
-                                                        <Form.Control type="date" name="to"></Form.Control>
-                                                        <div className="invalid-feedback"></div>
-                                                    </Form.Group>
-                                                    <Form.Group>
-                                                        <Form.Check
-                                                            type="checkbox"
-                                                            defaultChecked={true}
-                                                            name="include_deliveries_from_purchase_orders"
-                                                            label="Include deliveries from purchase orders"/>
+                                                        <Form.Control type="month" name="to"></Form.Control>
                                                         <div className="invalid-feedback"></div>
                                                     </Form.Group>
                                                     <hr/>
@@ -204,12 +190,11 @@ export default class PayPeriods extends Component {
                                         </Card>
                                     </div>
                                     <div className="col-md-9">
-                                        <table ref="payPeriodsList" className="table table-striped table-pay-periods" style={{width: 100+'%'}}>
+                                        <table ref="payPeriodsList" className="table table-striped table-thirteenth-month-pay-periods" style={{width: 100+'%'}}>
                                             <thead>
                                                 <tr>
                                                 <th scope="col">From</th>
                                                 <th scope="col">To</th>
-                                                <th scope="col">Include deliveries from purchase orders</th>
                                                 <th scope="col"></th>
                                                 </tr>
                                             </thead>

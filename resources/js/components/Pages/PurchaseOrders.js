@@ -1,11 +1,11 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { Accordion, Breadcrumb, Button, Card, Form } from 'react-bootstrap';
+import { Accordion, Breadcrumb, Button, Card, Col, Form, Row } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import { v4 as uuidv4 } from 'uuid';
 import CommonDeleteModal from '../CommonDeleteModal';
 import CommonDropdownSelectSingleLocation from '../CommonDropdownSelectSingleLocation';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { deletePurchaseOrder, storePurchaseOrder } from '../../state/purchaseOrders';
 
 const END_POINT = `${apiBaseUrl}/purchase-orders`;
@@ -16,10 +16,20 @@ const PURCHASE_ORDERS_CLOSED_TABLE = 'table-purchase-orders-closed';
 
 const PurchaseOrders = () => {
     const dispatch = useDispatch();
+    const { roles, permissions } = useSelector((state) => state.authenticate.user);
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
+
+    const allowedToCreatePurchaseOrder = hasRole('Super Admin') || hasPermission("Create purchase order");
+    const allowedToViewPurchaseOrder = hasRole('Super Admin') || hasPermission("View purchase order");
+    const allowedToUpdatePurchaseOrder = hasRole('Super Admin') || hasPermission("Update purchase order");
+    const allowedToDeletePurchaseOrder = hasRole('Super Admin') || hasPermission("Delete purchase order");
+
     const [purchaseOrdersTabSelected, setPurchaseOrdersTabSelected] = useState(cookie.load('purchase-orders-tab-selected') ?? 'pending');
     const [updateAvailableLocations, setUpdateAvailableLocations] = useState(uuidv4());
-    const [purchaseOrdersClosed, setPurchaseOrdersClosed] = useState({ folder: '' });
-
+    const [purchaseOrdersClosed, setPurchaseOrdersClosed] = useState({
+        folder: cookie.load('purchase-orders-closed-folder-selected') ?? '',
+    });
     const [confirmDeletePurchaseOrder, setConfirmDeletePurchaseOrder] = useState({
         showModal: false,
         purchaseOrderId: null,
@@ -70,7 +80,15 @@ const PurchaseOrders = () => {
                         </div>`;
                     }
                 }
-            ]
+            ],
+            drawCallback: function () {
+                if (!(allowedToViewPurchaseOrder || allowedToUpdatePurchaseOrder)) {
+                    $(document).find('.data-table-wrapper .open').remove();
+                }
+                if (!allowedToDeletePurchaseOrder) {
+                    $(document).find('.data-table-wrapper .delete').remove();
+                }
+            }
         });
 
         /**
@@ -184,7 +202,13 @@ const PurchaseOrders = () => {
                     },
                     class: 'text-center',
                 }
-            ]
+            ],
+            drawCallback: function () {
+                const { folder } = purchaseOrdersClosed;
+                if (!folder) {
+                    $(document).find('.data-table-wrapper .open-folder').first().trigger('click');
+                }
+            }
         });
 
         $(document).on('click', '.data-table-wrapper .open', function (e) {
@@ -206,18 +230,15 @@ const PurchaseOrders = () => {
             e.preventDefault();
             const purchaseOrderFolder = e.currentTarget.getAttribute('data-purchase-order-folder');
             purchaseOrdersClosedDataTable.ajax.url(`${END_POINT}?filters[status]=3&filters[folder]=${purchaseOrderFolder}&token=${token}`).load();
-            self.setState({
-                ...self.state,
-                purchaseOrdersClosed: {
-                    folder: purchaseOrderFolder,
-                },
+            setPurchaseOrdersClosed({
+                folder: purchaseOrderFolder,
             });
             cookie.save('purchase-orders-closed-folder-selected', purchaseOrderFolder);
         });
 
-        if (purchaseOrdersTabSelected === 'closed' && purchaseOrdersClosedFolderSelected) {
+        if (purchaseOrdersTabSelected === 'closed' && purchaseOrdersClosed) {
             purchaseOrdersClosedFoldersDT.on('draw', function () {
-                $(`.data-table-wrapper .open-folder[data-purchase-order-folder="${purchaseOrdersClosedFolderSelected}"]`).trigger('click');
+                $(`.data-table-wrapper .open-folder[data-purchase-order-folder="${purchaseOrdersClosed.folder}"]`).trigger('click');
             });
         }
     };
@@ -293,8 +314,8 @@ const PurchaseOrders = () => {
                     <Accordion.Body>
                         <Card border="warning" className="mt-4">
                             <Card.Body>
-                                <div className="row">
-                                    <div className="col-md-9">
+                                <Row>
+                                    <Col md={allowedToCreatePurchaseOrder ? 9 : 12}>
                                         <table className={`table table-striped ${PURCHASE_ORDERS_PENDING_TABLE}`} style={{ width: 100 + '%' }}>
                                             <thead>
                                                 <tr>
@@ -308,35 +329,36 @@ const PurchaseOrders = () => {
                                             </thead>
                                             <tbody></tbody>
                                         </table>
-                                    </div>
-                                    <div className="col-md-3">
-                                        <Card>
-                                            <Card.Header>New Purchase Order</Card.Header>
-                                            <Card.Body>
-                                                <Form noValidate onSubmit={handleSubmitNewPurchaseOrder}>
-                                                    <CommonDropdownSelectSingleLocation
-                                                        key={updateAvailableLocations}
-                                                        label="Location:"
-                                                        name="location"
-                                                        handleChange={null}
-                                                        handleInputChange={null} />
-                                                    <Form.Group>
-                                                        <Form.Label>From:</Form.Label>
-                                                        <Form.Control type="date" name="from" onChange={clearValidation}></Form.Control>
-                                                        <Form.Control.Feedback type="invalid"></Form.Control.Feedback>
-                                                    </Form.Group>
-                                                    <Form.Group>
-                                                        <Form.Label>To:</Form.Label>
-                                                        <Form.Control type="date" name="to" onChange={clearValidation}></Form.Control>
-                                                        <Form.Control.Feedback type="invalid"></Form.Control.Feedback>
-                                                    </Form.Group>
-                                                    <hr />
-                                                    <Button type="submit">Create</Button>
-                                                </Form>
-                                            </Card.Body>
-                                        </Card>
-                                    </div>
-                                </div>
+                                    </Col>
+                                    {allowedToCreatePurchaseOrder &&
+                                        <Col md={3}>
+                                            <Card>
+                                                <Card.Header>New Purchase Order</Card.Header>
+                                                <Card.Body>
+                                                    <Form noValidate onSubmit={handleSubmitNewPurchaseOrder}>
+                                                        <CommonDropdownSelectSingleLocation
+                                                            key={updateAvailableLocations}
+                                                            label="Location:"
+                                                            name="location"
+                                                            handleChange={null}
+                                                            handleInputChange={null} />
+                                                        <Form.Group>
+                                                            <Form.Label>From:</Form.Label>
+                                                            <Form.Control type="date" name="from" onChange={clearValidation}></Form.Control>
+                                                            <Form.Control.Feedback type="invalid"></Form.Control.Feedback>
+                                                        </Form.Group>
+                                                        <Form.Group>
+                                                            <Form.Label>To:</Form.Label>
+                                                            <Form.Control type="date" name="to" onChange={clearValidation}></Form.Control>
+                                                            <Form.Control.Feedback type="invalid"></Form.Control.Feedback>
+                                                        </Form.Group>
+                                                        <hr />
+                                                        <Button type="submit">Create</Button>
+                                                    </Form>
+                                                </Card.Body>
+                                            </Card>
+                                        </Col>}
+                                </Row>
                             </Card.Body>
                         </Card>
                     </Accordion.Body>

@@ -1,31 +1,22 @@
-import React, { Component } from 'react';
-import { Badge, Button, Card, Form, FormControl, InputGroup } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Badge, Breadcrumb, Button, ButtonGroup, Card, Form, FormControl, InputGroup } from 'react-bootstrap';
 import cookie from 'react-cookies';
-
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import PaySlipsPdfDocument from './PaySlipsPdfDocument';
+import { Link, useParams } from 'react-router-dom';
 
-export default class PayPeriodDetails extends Component {
-    constructor(props) {
-        super(props);
-        this.handleClickDeductionType = this.handleClickDeductionType.bind(this);
-        this.handleSubmitCommonDeductions = this.handleSubmitCommonDeductions.bind(this);
-        this.state = {
-            id: null,
-            from: null,
-            to: null,
-            commonDeductions: [],
-            deductionTypes: [],
-            payPeriod: [],
-        };
-    }
+const PayPeriodDetails = () => {
+    const params = useParams();
+    const { payPeriodId } = params;
+    const [id, setId] = useState(null);
+    const [from, setFrom] = useState(null);
+    const [to, setTo] = useState(null);
+    const [commonDeductions, setCommonDeductions] = useState([]);
+    const [deductionTypes, setDeductionTypes] = useState([]);
+    const [payPeriod, setPayPeriod] = useState([]);
 
-    componentDidMount() {
+    const init = () => {
         const token = cookie.load('token');
-        const self = this;
-        const { params } = self.props.match;
-        const { payPeriodId } = params;
-
         const exportButtons = window.exportButtonsBase;
         const exportFilename = 'Pay Period Summary';
         const exportTitle = 'Pay Period Summary';
@@ -33,7 +24,7 @@ export default class PayPeriodDetails extends Component {
         exportButtons[1].filename = exportFilename;
         exportButtons[1].title = exportTitle;
 
-        const table = $(this.refs.payPeriodSummary).DataTable({
+        const table = $('.table-pay-period-summary').DataTable({
             ajax: `${apiBaseUrl}/pay-periods/${payPeriodId}/details?token=${token}`,
             buttons: exportButtons,
             searching: true,
@@ -94,12 +85,12 @@ export default class PayPeriodDetails extends Component {
                 { orderable: false, targets: [0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] }
             ],
             order: [[2, 'asc']],
-            footerCallback: function (row, data, start, end, display) {
+            footerCallback: function () {
                 const api = this.api();
 
-                const intVal = function ( i ) {
+                const intVal = function (i) {
                     return typeof i === 'string'
-                        ? i.replace(/[\$,]/g, '')*1
+                        ? i.replace(/[\$,]/g, '') * 1
                         : typeof i === 'number' ? i : 0;
                 };
 
@@ -217,27 +208,9 @@ export default class PayPeriodDetails extends Component {
         });
 
         const format = (d) => {
-            const header = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px; width: 100%;">'+
-                '<tr>'+
-                    '<td>ID:</td>'+
-                    '<td>'+d.biometric_id+'</td>'+
-                    '<td>NAME:</td>'+
-                    '<td>'+d.biometric_name+'</td>'+
-                '</tr>'+
-                '<tr>'+
-                    '<td>POSITION:</td>'+
-                    '<td>'+d.position+'</td>'+
-                    '<td>COVERAGE:</td>'+
-                    '<td>'+d.meta.from+' - '+d.meta.to+'</td>'+
-                '</tr>'+
-            '</table>';
 
-            let payPeriodId = null;
             const deductions = d.deductions.map((deduction) => {
                 const deductionType = deduction.deduction_type;
-                payPeriodId = payPeriodId === null
-                    ? deduction.pay_period_id
-                    : payPeriodId;
                 return `<div class="input-group mb-3">
                     <div class="input-group-prepend w-50">
                         <span class="input-group-text" style="width: 100%;">${deductionType.title}</span>
@@ -362,14 +335,14 @@ export default class PayPeriodDetails extends Component {
         };
 
         // Add event listener for opening and closing details
-        $('tbody', $(this.refs.payPeriodSummary)).on('click', 'td.details-control', function () {
+        $('tbody', $('.table-pay-period-summary')).on('click', 'td.details-control', function () {
             var refDataTable = $('.data-table-wrapper')
                 .find('table.table-pay-period-summary')
                 .DataTable();
             var tr = $(this).closest('tr');
-            var row = refDataTable.row( tr );
+            var row = refDataTable.row(tr);
 
-            if ( row.child.isShown() ) {
+            if (row.child.isShown()) {
                 $(this).find('i').removeClass('fa-chevron-circle-up');
                 $(this).find('i').addClass('fa-chevron-circle-down');
                 row.child.hide();
@@ -378,7 +351,7 @@ export default class PayPeriodDetails extends Component {
             else {
                 $(this).find('i').removeClass('fa-chevron-circle-down');
                 $(this).find('i').addClass('fa-chevron-circle-up');
-                row.child( format(row.data()) ).show();
+                row.child(format(row.data())).show();
                 tr.addClass('shown');
             }
         });
@@ -388,18 +361,18 @@ export default class PayPeriodDetails extends Component {
             const form = $(e.target);
             const data = form.serialize();
             axios.post(`${apiBaseUrl}/update-user-pay-period-deductions?token=${token}`, data)
-                .then((response) => {
+                .then(() => {
                     table.ajax.reload();
                 })
                 .catch(() => {
                     location.href = `${appBaseUrl}`;
                 });
 
-            self.setState({ payPeriod: [] })
+            setPayPeriod([]);
             axios.get(`${apiBaseUrl}/pay-periods/${payPeriodId}/details?token=${token}`)
                 .then((response) => {
                     const { data: payPeriod } = response.data;
-                    self.setState({ payPeriod });
+                    setPayPeriod(payPeriod);
                 })
                 .catch(() => {
                     location.href = `${appBaseUrl}`;
@@ -409,12 +382,10 @@ export default class PayPeriodDetails extends Component {
         axios.get(`${apiBaseUrl}/pay-periods/${payPeriodId}?token=${token}`)
             .then((response) => {
                 const { data: payPeriod } = response.data;
-                self.setState({
-                    id: payPeriod.id,
-                    from: payPeriod.from,
-                    to: payPeriod.to,
-                    commonDeductions: payPeriod.common_deductions,
-                });
+                setId(payPeriod.id);
+                setFrom(payPeriod.from);
+                setTo(payPeriod.to);
+                setCommonDeductions(payPeriod.common_deductions);
             })
             .catch(() => {
                 location.href = `${appBaseUrl}`;
@@ -423,7 +394,7 @@ export default class PayPeriodDetails extends Component {
         axios.get(`${apiBaseUrl}/settings/deduction-types?token=${token}`)
             .then((response) => {
                 const { data: deductionTypes } = response.data;
-                self.setState({ deductionTypes });
+                setDeductionTypes(deductionTypes);
             })
             .catch(() => {
                 location.href = `${appBaseUrl}`;
@@ -432,14 +403,14 @@ export default class PayPeriodDetails extends Component {
         axios.get(`${apiBaseUrl}/pay-periods/${payPeriodId}/details?token=${token}`)
             .then((response) => {
                 const { data: payPeriod } = response.data;
-                self.setState({ payPeriod });
+                setPayPeriod(payPeriod);
             })
             .catch(() => {
                 location.href = `${appBaseUrl}`;
             });
-    }
+    };
 
-    handleClickDeductionType(e) {
+    const handleClickDeductionType = (e) => {
         const isChecked = e.target.checked;
         const deductionTypeCode = e.target.value;
         const targetElement = $('[name="' + deductionTypeCode + '_amount"]');
@@ -447,93 +418,70 @@ export default class PayPeriodDetails extends Component {
         if (!isChecked) {
             targetElement.val('');
         }
-    }
+    };
 
-    handleSubmitCommonDeductions(e) {
+    const handleSubmitCommonDeductions = (e) => {
         e.preventDefault();
         const token = cookie.load('token');
-        const self = this;
         const form = $(e.target);
         const data = form.serialize();
-        const { params } = self.props.match;
-        const { payPeriodId } = params;
 
         $('[type="submit"]', form).prop('disabled', true);
         axios.post(`${apiBaseUrl}/pay-periods/${payPeriodId}/common-deductions?token=${token}`, data)
-            .then((response) => {
+            .then(() => {
                 form[0].reset();
                 window.location.reload();
             })
-            .catch((error) => {
+            .catch(() => {
                 window.location.reload();
             });
-    }
+    };
 
-    render() {
-        const {
-            id,
-            from,
-            to,
-            commonDeductions,
-            deductionTypes,
-            payPeriod,
-        } = this.state;
+    useEffect(() => {
+        init();
+    }, []);
 
-        const deductionTypeOptions = deductionTypes.map((type) => {
-            return <InputGroup key={`deduction-type-${type.id}`} className="mb-3">
-                <InputGroup.Prepend>
-                    <InputGroup.Checkbox value={type.code} onClick={this.handleClickDeductionType}/>
-                </InputGroup.Prepend>
-                <InputGroup.Prepend>
-                    <InputGroup.Text>{type.title}</InputGroup.Text>
-                </InputGroup.Prepend>
-                <FormControl type="number" name={`${type.code}_amount`} placeholder="Default Amount" disabled />
-            </InputGroup>;
-        });
+    return (
+        <>
+            <Breadcrumb>
+                <Breadcrumb.Item linkProps={{ to: "/compensation-and-benefits" }} linkAs={Link}>
+                    <i className="fa fa-gift"></i> Compensation and Benefits
+                </Breadcrumb.Item>
+                <Breadcrumb.Item linkProps={{ to: "/pay-periods" }} linkAs={Link}>
+                    <i className="fa fa-address-card-o"></i> Pay Periods
+                </Breadcrumb.Item>
+                <Breadcrumb.Item active>From: {from} To: {to}</Breadcrumb.Item>
+            </Breadcrumb>
 
-        return (
-            <div className="container-fluid my-4">
-                <h1><i className="fa fa-address-card-o"></i> Pay Period Details</h1>
-                <p>
-                    <Badge variant="secondary">ID: {id}</Badge>&nbsp;
-                    <Badge variant="secondary">From: {from}</Badge>&nbsp;
-                    <Badge variant="secondary">To: {to}</Badge>
-                </p>
-                <hr className="my-4"/>
-                {
-                    commonDeductions.length === 0 &&
-                    <Card>
-                        <Card.Header>
-                            <i className="fa fa-cogs"></i>&nbsp;
-                            Setup Common Deductions
-                        </Card.Header>
-                        <Card.Body>
-                            <Form onSubmit={this.handleSubmitCommonDeductions}>
-                                {deductionTypeOptions}
-                                <hr/>
-                                <Button type="submit" className="pull-right">Next &gt;&gt;</Button>
-                            </Form>
-                        </Card.Body>
-                    </Card>
-                }
-                <Card className={commonDeductions.length > 0 ? 'visible' : 'invisible'}>
+            {
+                commonDeductions.length === 0 &&
+                <Card>
+                    <Card.Header>
+                        <i className="fa fa-cogs"></i>&nbsp;
+                        Setup Common Deductions
+                    </Card.Header>
                     <Card.Body>
-                        <div className="row">
-                            <div className="col-md-12">
-                                { payPeriod.length > 0 &&
-                                    <PDFDownloadLink document={<PaySlipsPdfDocument payPeriod={payPeriod} />} fileName={`payslips-${id}.pdf`} className="btn btn-primary pull-right">
-                                        {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Download Payslips')}
-                                    </PDFDownloadLink>
-                                }
-                            </div>
-                        </div>
-                        <hr className="my-4"/>
-                        <table
-                            ref="payPeriodSummary"
-                            className="table table-striped table-pay-period-summary"
-                            style={{width: 100+'%'}}>
-                            <thead>
-                                <tr>
+                        <Form onSubmit={handleSubmitCommonDeductions}>
+                            {deductionTypes && deductionTypes.map((type) =>
+                                <InputGroup key={`deduction-type-${type.id}`} className="mb-3">
+                                    <InputGroup.Checkbox value={type.code} onClick={handleClickDeductionType} />
+                                    <InputGroup.Text>{type.title}</InputGroup.Text>
+                                    <FormControl type="number" name={`${type.code}_amount`} placeholder="Default Amount" disabled />
+                                </InputGroup>
+                            )}
+                            <hr />
+                            <Button type="submit" className="pull-right">Next &gt;&gt;</Button>
+                        </Form>
+                    </Card.Body>
+                </Card>
+            }
+            <Card className={`${commonDeductions.length > 0 ? 'visible' : 'invisible'} mb-4`}>
+                <Card.Body>
+                    <table
+                        className="table table-striped table-pay-period-summary"
+                        style={{ width: 100 + '%' }}>
+                        <thead>
+                            <tr>
                                 <th></th>
                                 <th scope="col">Biometric ID</th>
                                 <th scope="col">Name</th>
@@ -550,29 +498,44 @@ export default class PayPeriodDetails extends Component {
                                 <th scope="col">Gross Amt.</th>
                                 <th scope="col">Total Deductions Amt.</th>
                                 <th scope="col">Net Amt.</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                            <tfoot>
-                                <tr>
-                                    <th colSpan="5"></th>
-                                    <th>Total:</th>
-                                    <th>0.000</th>
-                                    <th>0.00</th>
-                                    <th>0.000</th>
-                                    <th>0.00</th>
-                                    <th>0.00</th>
-                                    <th>0</th>
-                                    <th>0.00</th>
-                                    <th>0.00</th>
-                                    <th>0.00</th>
-                                    <th>0.00</th>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </Card.Body>
-                </Card>
-            </div>
-        );
-    }
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot>
+                            <tr>
+                                <th colSpan="5"></th>
+                                <th>Total:</th>
+                                <th>0.000</th>
+                                <th>0.00</th>
+                                <th>0.000</th>
+                                <th>0.00</th>
+                                <th>0.00</th>
+                                <th>0</th>
+                                <th>0.00</th>
+                                <th>0.00</th>
+                                <th>0.00</th>
+                                <th>0.00</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </Card.Body>
+                <Card.Footer>
+                    <ButtonGroup className="pull-right">
+                        {payPeriod.length > 0 &&
+                            <PDFDownloadLink
+                                document={<PaySlipsPdfDocument
+                                    payPeriod={payPeriod} />}
+                                fileName={`payslips-${id}.pdf`}
+                                className="btn btn-primary">
+                                {({ loading }) => (loading
+                                    ? 'Loading document...'
+                                    : <span><i className="fa fa-download"></i> Download Payslips</span>)}
+                            </PDFDownloadLink>}
+                    </ButtonGroup>
+                </Card.Footer>
+            </Card>
+        </>
+    );
 }
+
+export default PayPeriodDetails;
