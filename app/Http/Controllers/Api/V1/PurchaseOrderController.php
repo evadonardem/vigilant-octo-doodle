@@ -337,6 +337,10 @@ class PurchaseOrderController extends Controller
         $attributes = $request->all();
 
         if (array_key_exists('purchase_order_status_id', $attributes)) {
+            $purchaseOrderStoreItems = PurchaseOrderStoreItem::where('purchase_order_id', $purchaseOrder->id)->get();
+            if ($purchaseOrderStoreItems->count() === 0) {
+                abort(422, 'Cannot approve purchase order. Kindly add store request items.');
+            }
             if ($attributes['purchase_order_status_id'] == 3) {
                 $purchaseOrderStoreItems = PurchaseOrderStoreItem::where('purchase_order_id', $purchaseOrder->id)
                     ->where(function ($query) {
@@ -373,11 +377,6 @@ class PurchaseOrderController extends Controller
                     $purchaseOrderExpenses->count() > 0
                 ) {
                     abort(422, 'Cannot close purchase order. Kindly update required details.');
-                }
-            } else {
-                $purchaseOrderStoreItems = PurchaseOrderStoreItem::where('purchase_order_id', $purchaseOrder->id)->get();
-                if ($purchaseOrderStoreItems->count() == 0) {
-                    abort(422, 'Cannot approve purchase order. Kindly add store request items.');
                 }
             }
         }

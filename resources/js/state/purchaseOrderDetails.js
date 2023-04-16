@@ -187,14 +187,14 @@ export const deletePurchaseOrderStoreItem = createAsyncThunk(
 
 export const updatePurchaseOrder = createAsyncThunk(
     'update-purchase-order',
-    async ({ purchaseOrderId, serializedData } = payload, { rejectWithValue, signal}) => {
+    async ({ purchaseOrderId, updateData } = payload, { rejectWithValue, signal}) => {
         try {
             const source = axios.CancelToken.source();
             signal.addEventListener('abort', () => {
                 source.cancel();
             });
             const token = cookie.load('token');
-            await axios.patch(`${END_POINT}/${purchaseOrderId}?token=${token}`, serializedData, {
+            await axios.patch(`${END_POINT}/${purchaseOrderId}?token=${token}`, updateData, {
                 cancelToken: source.token,
             });
             const responsePurchaseOrderApi = await axios.get(`${END_POINT}/${purchaseOrderId}?token=${token}`, {

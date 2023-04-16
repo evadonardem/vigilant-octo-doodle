@@ -754,55 +754,32 @@ const PurchaseOrderDetails = () => {
             setUpdatePurchaseOrderPromise(null);
         }
 
-        const promise = dispatch(updatePurchaseOrder({ purchaseOrderId, serializedData: data }));
+        const promise = dispatch(updatePurchaseOrder({ purchaseOrderId, updateData: data }));
         setUpdatePurchaseOrderPromise(promise);
     }
 
     const handleClickUpdatePurchaseOrderStatus = (e) => {
-        const self = this;
-        const token = cookie.load('token');
         const purchaseOrderId = $(e.currentTarget).data('purchase-order-id');
         const purchaseOrderStatusId = $(e.currentTarget).data('purchase-order-status-id');
-
-        const table = $('.data-table-wrapper')
-            .find(`table.${PO_STORES_DT}`)
-            .DataTable();
-        const tableAssignedStaff = $('.data-table-wrapper')
-            .find(`table.${PO_ASSIGNED_STAFF_DT}`)
-            .DataTable();
-        const tableExpenses = $('.data-table-wrapper')
-            .find(`table.${PO_EXPENSES_DT}`)
-            .DataTable();
-
-        axios.patch(
-            `${END_POINT}/${purchaseOrderId}?token=${token}`,
-            { purchase_order_status_id: purchaseOrderStatusId }
-        )
-            .then((response) => {
-                const { data: purchaseOrder } = response.data;
-                self.setState({
-                    ...self.state,
-                    purchaseOrder
-                });
-                table.ajax.reload(null, false);
-                tableAssignedStaff.ajax.reload(null, false);
-                tableExpenses.ajax.reload(null, false);
-            })
-            .catch((error) => {
-                const {
-                    data,
-                    status,
-                } = error.response;
-                if (+status === 422) {
-                    const { message: generalMessage } = data;
-                    self.setState({
-                        ...self.state,
-                        error: { generalMessage },
-                    });
+        dispatch(updatePurchaseOrder({ purchaseOrderId, updateData: { purchase_order_status_id: purchaseOrderStatusId } }))
+            .then((action) => {
+                const { requestStatus } = action.meta;
+                if (requestStatus === 'fulfilled') {
+                    const table = $('.data-table-wrapper')
+                        .find(`table.${PO_STORES_DT}`)
+                        .DataTable();
+                    const tableAssignedStaff = $('.data-table-wrapper')
+                        .find(`table.${PO_ASSIGNED_STAFF_DT}`)
+                        .DataTable();
+                    const tableExpenses = $('.data-table-wrapper')
+                        .find(`table.${PO_EXPENSES_DT}`)
+                        .DataTable();
+                    table.ajax.reload(null, false);
+                    tableAssignedStaff.ajax.reload(null, false);
+                    tableExpenses.ajax.reload(null, false);
                 }
             });
     }
-
 
     useEffect(() => {
         init(purchaseOrderId);
