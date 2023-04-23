@@ -60,6 +60,20 @@ class NavigationMenuController extends Controller
 				'icon' => 'fa fa-gift',
 				'to' => '/compensation-and-benefits',
 				'is_visible' => $user && $user->hasRole('Super Admin'),
+                'links' => [
+                    [
+                        'label' => 'Pay Periods',
+                        'icon' => 'fa fa-id-card',
+                        'to' => '/compensation-and-benefits/pay-periods',
+                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                    ],
+                    [
+                        'label' => '13th Month Pay',
+                        'icon' => 'fa fa-id-card',
+                        'to' => '/compensation-and-benefits/thirteenth-month-pay-periods',
+                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                    ],
+                ],
 			],
 			[
 				'label' => 'Purchase Orders',

@@ -1,31 +1,39 @@
-import React, { Component } from 'react';
-import { Badge, Card } from 'react-bootstrap';
+import React, { Component, useEffect, useState } from 'react';
+import { Badge, Breadcrumb, Card } from 'react-bootstrap';
 import cookie from 'react-cookies';
+import { Link, useParams } from 'react-router-dom';
 import sanitize from 'sanitize-filename';
 
-export default class ThirteenthMonthPayPeriodDetails extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            id: null,
-            from: null,
-            to: null,
-            payPeriod: [],
-        };
+const ThirteenthMonthPayPeriodDetails = () => {
+    const params = useParams();
+    const { thirteenthMonthPayPeriodId } = params;
+    const [from, setFrom] = useState(null);
+    const [to, setTo] = useState(null);
+
+    const initExportTitle = () =>
+    {
+        const {
+            from,
+            to,
+        } = this.state;
+
+        return `13th Month Pay (From: ${from} To: ${to})`;
+    };
+
+    const initExportFilename = () =>
+    {
+        return sanitize(initExportTitle());
     }
 
-    componentDidMount() {
+    const init = () => {
         const token = cookie.load('token');
-        const self = this;
-        const { params } = self.props.match;
-        const { thirteenthMonthPayPeriodId } = params;
 
         const exportButtons = window.exportButtonsBase;
-        exportButtons[0].filename = () => { return this.initExportFilename(); };
-        exportButtons[1].filename = () => { return this.initExportFilename(); };
-        exportButtons[1].title = () => { return this.initExportTitle(); };
+        exportButtons[0].filename = () => initExportFilename();
+        exportButtons[1].filename = () => initExportFilename();
+        exportButtons[1].title = () => initExportTitle();
 
-        const table = $(this.refs.payPeriodSummary).DataTable({
+        const table = $('.table-pay-period-summary').DataTable({
             ajax: `${apiBaseUrl}/thirteenth-month-pay-periods/${thirteenthMonthPayPeriodId}/details?token=${token}`,
             buttons: exportButtons,
             searching: true,
@@ -120,83 +128,64 @@ export default class ThirteenthMonthPayPeriodDetails extends Component {
         axios.get(`${apiBaseUrl}/thirteenth-month-pay-periods/${thirteenthMonthPayPeriodId}?token=${token}`)
             .then((response) => {
                 const { data: payPeriod } = response.data;
-                self.setState({
-                    id: payPeriod.id,
-                    from: payPeriod.from,
-                    to: payPeriod.to,
-                });
+                setFrom(payPeriod.from);
+                setTo(payPeriod.to);
             })
             .catch(() => {
                 location.href = `${appBaseUrl}`;
             });
-    }
+    };
 
-    initExportTitle()
-    {
-        const {
-            from,
-            to,
-        } = this.state;
+    useEffect(() => {
+        init();
+    }, []);
 
-        return `13th Month Pay (From: ${from} To: ${to})`;
-    }
+    return (
+        <>
+            <Breadcrumb>
+                <Breadcrumb.Item linkProps={{ to: "/compensation-and-benefits" }} linkAs={Link}>
+                    <i className="fa fa-gift"></i> Compensation and Benefits
+                </Breadcrumb.Item>
+                <Breadcrumb.Item linkProps={{ to: "/compensation-and-benefits/thirteenth-month-pay-periods" }} linkAs={Link}>
+                    <i className="fa fa-id-card"></i> 13th Month Pay
+                </Breadcrumb.Item>
+                <Breadcrumb.Item active>From: {from} To: {to}</Breadcrumb.Item>
+            </Breadcrumb>
 
-    initExportFilename()
-    {
-        return sanitize(this.initExportTitle());
-    }
-
-    render() {
-        const {
-            id,
-            from,
-            to,
-            payPeriod,
-        } = this.state;
-
-        return (
-            <div className="container-fluid my-4">
-                <h1><i className="fa fa-gift"></i> 13<sup>th</sup> Month Pay</h1>
-                <p>
-                    <Badge variant="secondary">ID: {id}</Badge>&nbsp;
-                    <Badge variant="secondary">From: {from}</Badge>&nbsp;
-                    <Badge variant="secondary">To: {to}</Badge>
-                </p>
-                <hr className="my-4"/>
-                <Card>
-                    <Card.Body>
-                        <table
-                            ref="payPeriodSummary"
-                            className="table table-striped table-pay-period-summary"
-                            style={{width: 100+'%'}}>
-                            <thead>
-                                <tr>
-                                <th scope="col">Biometric ID</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Position</th>
-                                <th scope="col">Total Amt. (Reg.)</th>
-                                <th scope="col">Total Amt. (Deliveries)</th>
-                                <th scope="col">Gross Amt. (Reg. + Deliveries)</th>
-                                <th scope="col">13<sup>th</sup> Month Pay</th>
-                                <th scope="col">Signature</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                            <tfoot>
-                                <tr>
-                                    <th colSpan="2"></th>
-                                    <th>Total:</th>
-                                    <th>0.00</th>
-                                    <th>0.00</th>
-                                    <th>0.00</th>
-                                    <th>0.00</th>
-                                    <th>&nbsp;</th>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </Card.Body>
-                </Card>
-            </div>
-        );
-    }
+            <Card>
+                <Card.Body>
+                    <table
+                        className="table table-striped table-pay-period-summary"
+                        style={{width: 100+'%'}}>
+                        <thead>
+                            <tr>
+                            <th scope="col">Biometric ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Position</th>
+                            <th scope="col">Total Amt. (Reg.)</th>
+                            <th scope="col">Total Amt. (Deliveries)</th>
+                            <th scope="col">Gross Amt. (Reg. + Deliveries)</th>
+                            <th scope="col">13<sup>th</sup> Month Pay</th>
+                            <th scope="col">Signature</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot>
+                            <tr>
+                                <th colSpan="2"></th>
+                                <th>Total:</th>
+                                <th>0.00</th>
+                                <th>0.00</th>
+                                <th>0.00</th>
+                                <th>0.00</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </Card.Body>
+            </Card>
+        </>
+    );
 }
+
+export default ThirteenthMonthPayPeriodDetails;

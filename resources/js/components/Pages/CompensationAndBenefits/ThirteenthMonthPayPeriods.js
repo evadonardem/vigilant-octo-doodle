@@ -1,27 +1,19 @@
-import React, { Component } from 'react';
-import { Button, Card, Form } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import CommonDeleteModal from '../../CommonDeleteModal';
+import { Link } from 'react-router-dom';
 
-export default class ThirteenthMonthPayPeriods extends Component {
-    constructor(props) {
-        super(props);
-        this.handleSubmitNewPayPeriod = this.handleSubmitNewPayPeriod.bind(this);
-        this.handleCloseDeletePayPeriodModal = this.handleCloseDeletePayPeriodModal.bind(this);
-        this.handleSubmitDeletePayPeriodModal = this.handleSubmitDeletePayPeriodModal.bind(this);
+const ThirteenthMonthPayPeriods = () => {
 
-        this.state = {
-            showDeletePayPeriodModal: false,
-            payPeriodId: null,
-            isDeletePayPeriodError: false,
-            deletePayPeriodErrorHeaderTitle: '',
-            deletePayPeriodErrorBodyText: '',
-        };
-    }
+    const [showDeletePayPeriodModal, setShowDeletePayPeriodModal] = useState(false);
+    const [payPeriodId, setPayPeriodId] = useState(null);
+    const [isDeletePayPeriodError, setIsDeletePayPeriodError] = useState(false);
+    const [deletePayPeriodErrorHeaderTitle, setDeletePayPeriodErrorHeaderTitle] = useState('');
+    const [deletePayPeriodErrorBodyText, setDeletePayPeriodErrorBodyText] = useState('');
 
-    componentDidMount() {
+    const init = () => {
         const token = cookie.load('token');
-        const self = this;
         const exportButtons = window.exportButtonsBase;
         const exportFilename = 'PayPeriods';
         const exportTitle = 'Pay Periods';
@@ -29,7 +21,7 @@ export default class ThirteenthMonthPayPeriods extends Component {
         exportButtons[1].filename = exportFilename;
         exportButtons[1].title = exportTitle;
 
-        $(this.refs.payPeriodsList).DataTable({
+        $('.table-thirteenth-month-pay-periods').DataTable({
             ajax: {
                 type: 'get',
                 url: `${apiBaseUrl}/thirteenth-month-pay-periods?token=${token}`,
@@ -59,7 +51,7 @@ export default class ThirteenthMonthPayPeriods extends Component {
                         const openBtn = '<a href="#" class="open btn btn-primary" data-pay-period-id="' + row.id + '"><i class="fa fa-folder-open"></i></a>';
                         const deleteBtn = '<a href="#" class="delete btn btn-warning" data-toggle="modal" data-target="#deleteModal" data-pay-period-id="' + row.id + '"><i class="fa fa-trash"></i></a>';
 
-                        return `${openBtn} ${deleteBtn}`;
+                        return `<div class="btn-group">${openBtn}${deleteBtn}</div>`;
                     }
                 }
             ]
@@ -68,19 +60,18 @@ export default class ThirteenthMonthPayPeriods extends Component {
         $(document).on('click', '.data-table-wrapper .open', function(e) {
             e.preventDefault();
             const payPeriodId = e.currentTarget.getAttribute('data-pay-period-id');
-            location.href = `${appBaseUrl}/#/thirteenth-month-pay-period-details/${payPeriodId}`;
+            location.href = `${appBaseUrl}/#/compensation-and-benefits/thirteenth-month-pay-periods/${payPeriodId}/details`;
         });
 
         $(document).on('click', '.data-table-wrapper .delete', function(e) {
+            e.preventDefault();
             const payPeriodId = e.currentTarget.getAttribute('data-pay-period-id');
-            self.setState({
-                showDeletePayPeriodModal: true,
-                payPeriodId,
-            });
+            setShowDeletePayPeriodModal(true);
+            setPayPeriodId(payPeriodId);
         });
-    }
+    };
 
-    handleSubmitNewPayPeriod(e) {
+    const handleSubmitNewPayPeriod = (e) => {
         e.preventDefault();
         const token = cookie.load('token');
         const table = $('.data-table-wrapper').find('table.table-thirteenth-month-pay-periods').DataTable();
@@ -107,116 +98,109 @@ export default class ThirteenthMonthPayPeriods extends Component {
                     }
                }
             });
-    }
+    };
 
-    handleCloseDeletePayPeriodModal() {
-        const self = this;
-        self.setState({
-            showDeletePayPeriodModal: false,
-            payPeriodId: null,
-            isDeletePayPeriodError: false,
-            deletePayPeriodErrorHeaderTitle: '',
-            deletePayPeriodErrorBodyText: '',
-        });
-    }
+    const handleCloseDeletePayPeriodModal = () => {
+        setShowDeletePayPeriodModal(false);
+        setPayPeriodId(null);
+        setIsDeletePayPeriodError(false);
+        setDeletePayPeriodErrorHeaderTitle('');
+        setDeletePayPeriodErrorBodyText('');
+    };
 
-    handleSubmitDeletePayPeriodModal(e) {
+    const handleSubmitDeletePayPeriodModal = (e) => {
         e.preventDefault();
 
-        const self = this;
         const token = cookie.load('token');
-        const { payPeriodId } = self.state;
         const table = $('.data-table-wrapper').find('table.table-thirteenth-month-pay-periods').DataTable();
 
         axios.delete(`${apiBaseUrl}/thirteenth-month-pay-periods/${payPeriodId}?token=${token}`)
             .then(() => {
                 table.ajax.reload(null, false);
-                self.setState({
-                    showDeletePayPeriodModal: false,
-                    payPeriodId: null,
-                    isDeletePayPeriodError: false,
-                    deletePayPeriodErrorHeaderTitle: '',
-                    deletePayPeriodErrorBodyText: '',
-                });
+                setShowDeletePayPeriodModal(false);
+                setPayPeriodId(null);
+                setIsDeletePayPeriodError(false);
+                setDeletePayPeriodErrorHeaderTitle('');
+                setDeletePayPeriodErrorBodyText('');
+
             })
-            .catch((error) => {
-                self.setState({
-                    isDeletePayPeriodError: true,
-                    deletePayPeriodErrorHeaderTitle: 'Oh snap! Pay period cannot be deleted!',
-                    deletePayPeriodErrorBodyText: `Pay period ${payPeriodId} has active slips processed.`,
-                });
+            .catch(() => {
+                setIsDeletePayPeriodError(true);
+                setDeletePayPeriodErrorHeaderTitle('Oh snap! Pay period cannot be deleted!');
+                setDeletePayPeriodErrorBodyText(`Pay period ${payPeriodId} has active slips processed.`);
             });
-    }
+    };
 
-    render() {
-        const {
-            showDeletePayPeriodModal,
-            payPeriodId,
-            isDeletePayPeriodError,
-            deletePayPeriodErrorHeaderTitle,
-            deletePayPeriodErrorBodyText,
-        } = this.state;
+    useEffect(() => {
+        init();
+    }, []);
 
-        return (
-            <div className="container-fluid my-4">
-                <h1><i className="fa fa-gift"></i> 13<sup>th</sup> Month Pay Periods</h1>
+    return (
+        <div className="container-fluid my-4">
+            <Breadcrumb>
+                <Breadcrumb.Item linkProps={{ to: "/compensation-and-benefits" }} linkAs={Link}>
+                    <i className="fa fa-gift"></i> Compensation and Benefits
+                </Breadcrumb.Item>
+                <Breadcrumb.Item active>
+                    <i className="fa fa-id-card"></i> 13th Month Pay
+                </Breadcrumb.Item>
+            </Breadcrumb>
 
-                <hr className="my-4"/>
-
-                <div className="row">
-                    <div className="col-md-12">
-                        <Card>
-                            <Card.Body>
-                                <div className="row">
-                                    <div className="col-md-3">
-                                        <Card>
-                                            <Card.Header>New Pay Period</Card.Header>
-                                            <Card.Body>
-                                                <Form onSubmit={this.handleSubmitNewPayPeriod}>
-                                                    <Form.Group>
-                                                        <Form.Label>From:</Form.Label>
-                                                        <Form.Control type="month" name="from"></Form.Control>
-                                                        <div className="invalid-feedback"></div>
-                                                    </Form.Group>
-                                                    <Form.Group>
-                                                        <Form.Label>To:</Form.Label>
-                                                        <Form.Control type="month" name="to"></Form.Control>
-                                                        <div className="invalid-feedback"></div>
-                                                    </Form.Group>
-                                                    <hr/>
-                                                    <Button type="submit">Create</Button>
-                                                </Form>
-                                            </Card.Body>
-                                        </Card>
-                                    </div>
-                                    <div className="col-md-9">
-                                        <table ref="payPeriodsList" className="table table-striped table-thirteenth-month-pay-periods" style={{width: 100+'%'}}>
-                                            <thead>
-                                                <tr>
-                                                <th scope="col">From</th>
-                                                <th scope="col">To</th>
-                                                <th scope="col"></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody></tbody>
-                                        </table>
-                                    </div>
+            <div className="row">
+                <div className="col-md-12">
+                    <Card>
+                        <Card.Body>
+                            <div className="row">
+                                <div className="col-md-3">
+                                    <Card>
+                                        <Card.Header>New Pay Period</Card.Header>
+                                        <Card.Body>
+                                            <Form onSubmit={handleSubmitNewPayPeriod}>
+                                                <Form.Group>
+                                                    <Form.Label>From:</Form.Label>
+                                                    <Form.Control type="month" name="from"></Form.Control>
+                                                    <div className="invalid-feedback"></div>
+                                                </Form.Group>
+                                                <Form.Group>
+                                                    <Form.Label>To:</Form.Label>
+                                                    <Form.Control type="month" name="to"></Form.Control>
+                                                    <div className="invalid-feedback"></div>
+                                                </Form.Group>
+                                                <hr/>
+                                                <Button type="submit">Create</Button>
+                                            </Form>
+                                        </Card.Body>
+                                    </Card>
                                 </div>
-                            </Card.Body>
-                        </Card>
-                    </div>
+                                <div className="col-md-9">
+                                    <table className="table table-striped table-thirteenth-month-pay-periods" style={{width: 100+'%'}}>
+                                        <thead>
+                                            <tr>
+                                            <th scope="col">From</th>
+                                            <th scope="col">To</th>
+                                            <th scope="col"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </Card.Body>
+                    </Card>
                 </div>
-
-                <CommonDeleteModal
-                    isShow={showDeletePayPeriodModal}
-                    headerTitle="Delete Pay Period"
-                    bodyText={`Are you sure to delete this pay period?`}
-                    handleClose={this.handleCloseDeletePayPeriodModal}
-                    handleSubmit={this.handleSubmitDeletePayPeriodModal}
-                    isDeleteError={isDeletePayPeriodError}
-                    deleteErrorHeaderTitle={deletePayPeriodErrorHeaderTitle}
-                    deleteErrorBodyText={deletePayPeriodErrorBodyText}/>
             </div>
-        );
-    }
+
+            <CommonDeleteModal
+                isShow={showDeletePayPeriodModal}
+                headerTitle="Delete Pay Period"
+                bodyText={`Are you sure to delete this pay period?`}
+                handleClose={handleCloseDeletePayPeriodModal}
+                handleSubmit={handleSubmitDeletePayPeriodModal}
+                isDeleteError={isDeletePayPeriodError}
+                deleteErrorHeaderTitle={deletePayPeriodErrorHeaderTitle}
+                deleteErrorBodyText={deletePayPeriodErrorBodyText}/>
+        </div>
+    );
 }
+
+export default ThirteenthMonthPayPeriods;

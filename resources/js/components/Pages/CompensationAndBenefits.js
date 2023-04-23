@@ -9,13 +9,13 @@ export default class CompensationAndBenefits extends Component {
                 icon: 'address-card-o',
                 title: 'Pay Periods',
                 description: 'Semi-monthly pay periods.',
-                to: '/pay-periods',
+                to: '/compensation-and-benefits/pay-periods',
             },
             {
                 icon: 'gift',
                 title: '13th Month Pay',
                 description: 'Annual 13th month pay periods.',
-                to: '/thirteenth-month-pay-periods',
+                to: '/compensation-and-benefits/thirteenth-month-pay-periods',
             },
         ];
 

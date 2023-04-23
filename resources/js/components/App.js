@@ -103,10 +103,18 @@ export default function App() {
 
                             {links && links.map((link) => link.to).includes('/compensation-and-benefits') &&
                                 <>
-                                    <Route path={'/pay-periods'} element={<PayPeriods/>}></Route>
-                                    <Route path={'/pay-period-details/:payPeriodId'} element={<PayPeriodDetails/>}></Route>
-                                    <Route path={'/thirteenth-month-pay-periods'} element={<ThirteenthMonthPayPeriods/>}></Route>
-                                    <Route path={'/thirteenth-month-pay-period-details/:thirteenthMonthPayPeriodId'} element={<ThirteenthMonthPayPeriodDetails/>}></Route>
+                                    <Route
+                                        path={'/compensation-and-benefits/pay-periods'}
+                                        element={<PayPeriods/>}></Route>
+                                    <Route
+                                        path={'/compensation-and-benefits/pay-periods/:payPeriodId/details'}
+                                        element={<PayPeriodDetails/>}></Route>
+                                    <Route
+                                        path={'/compensation-and-benefits/thirteenth-month-pay-periods'}
+                                        element={<ThirteenthMonthPayPeriods/>}></Route>
+                                    <Route
+                                        path={'/compensation-and-benefits/thirteenth-month-pay-periods/:thirteenthMonthPayPeriodId/details'}
+                                        element={<ThirteenthMonthPayPeriodDetails/>}></Route>
                                 </>}
 
                             {links && links.map((link) => link.to).includes('/purchase-orders') &&

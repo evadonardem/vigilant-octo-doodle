@@ -65,7 +65,7 @@ const PayPeriods = () => {
         $(document).on('click', '.data-table-wrapper .open', function (e) {
             e.preventDefault();
             const payPeriodId = e.currentTarget.getAttribute('data-pay-period-id');
-            location.href = `${appBaseUrl}/#/pay-period-details/${payPeriodId}`;
+            location.href = `${appBaseUrl}/#/compensation-and-benefits/pay-periods/${payPeriodId}/details`;
         });
 
         $(document).on('click', '.data-table-wrapper .delete', function (e) {

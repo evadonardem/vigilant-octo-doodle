@@ -447,7 +447,7 @@ const PayPeriodDetails = () => {
                 <Breadcrumb.Item linkProps={{ to: "/compensation-and-benefits" }} linkAs={Link}>
                     <i className="fa fa-gift"></i> Compensation and Benefits
                 </Breadcrumb.Item>
-                <Breadcrumb.Item linkProps={{ to: "/pay-periods" }} linkAs={Link}>
+                <Breadcrumb.Item linkProps={{ to: "/compensation-and-benefits/pay-periods" }} linkAs={Link}>
                     <i className="fa fa-address-card-o"></i> Pay Periods
                 </Breadcrumb.Item>
                 <Breadcrumb.Item active>From: {from} To: {to}</Breadcrumb.Item>
