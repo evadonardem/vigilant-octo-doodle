@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Alert, Button, Col, FloatingLabel, Form, Row } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
-import { login } from '../state/authenticate';
-import LoadingInline from './Generic/LoadingInline';
+import { login } from '../../state/authenticate';
+import LoadingInline from '../Generic/LoadingInline';
 
-export default function Login() {
+const Login = () => {
     const { errorMessage, isLoading } = useSelector((state) => state.authenticate);
     const dispatch = useDispatch();
 
@@ -58,3 +58,5 @@ export default function Login() {
         </Row>
     </>;
 }
+
+export default Login;

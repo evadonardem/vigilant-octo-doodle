@@ -104,12 +104,26 @@ class NavigationMenuController extends Controller
 			// 	'to' => '/reports',
 			// 	'is_visible' => $user && $user->hasRole('Super Admin'),
 			// ],
-			// [
-			// 	'label' => 'Trends',
-			// 	'icon' => 'fa fa-signal',
-			// 	'to' => '/trends',
-			// 	'is_visible' => $user && $user->hasRole('Super Admin'),
-			// ],
+			[
+				'label' => 'Trends',
+				'icon' => 'fa fa-signal',
+				'to' => '/trends',
+				'is_visible' => $user && $user->hasRole('Super Admin'),
+                'links' => [
+                    [
+                        'label' => 'Store Trends',
+                        'icon' => 'fa fa-line-chart',
+                        'to' => '/trends-store',
+                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                    ],
+                    [
+                        'label' => 'Item Trends',
+                        'icon' => 'fa fa-bar-chart',
+                        'to' => '/trends-item',
+                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                    ],
+                ],
+			],
 			// [
 			// 	'label' => 'Warehouse',
 			// 	'icon' => 'fa fa-building',

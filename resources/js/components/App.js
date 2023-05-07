@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
-import Login from './Login';
+import Login from './Pages/Login';
 import Layout from './Pages/Layout';
 import Dashboard from './Pages/Dashboard';
 import Logs from './Pages/Logs';
@@ -27,6 +27,9 @@ import PayPeriods from './Pages/CompensationAndBenefits/PayPeriods';
 import PayPeriodDetails from './Pages/CompensationAndBenefits/PayPeriodDetails';
 import ThirteenthMonthPayPeriods from './Pages/CompensationAndBenefits/ThirteenthMonthPayPeriods';
 import ThirteenthMonthPayPeriodDetails from './Pages/CompensationAndBenefits/ThirteenthMonthPayPeriodDetails';
+import Trends from './Pages/Trends';
+import TrendsStore from './Pages/Trends/TrendsStore';
+import TrendsItem from './Pages/Trends/TrendsItem';
 
 export default function App() {
     const dispatch = useDispatch();
@@ -70,9 +73,9 @@ export default function App() {
                                     // case '/reports':
                                     //     routeToComponent = <Reports />;
                                     //     break;
-                                    // case '/trends':
-                                    //     routeToComponent = <Trends />;
-                                    //     break;
+                                    case '/trends':
+                                        routeToComponent = <Trends />;
+                                        break;
                                     // case '/stock-cards':
                                     //     routeToComponent = <StockCards />;
                                     //     break;
@@ -121,6 +124,12 @@ export default function App() {
                                 <>
                                     <Route path={'/purchase-orders/:purchaseOrderId/details'} element={<PurchaseOrderDetails />}></Route>
                                     <Route path={'/purchase-orders/:purchaseOrderId/store-request/:storeId?'} element={<PurchaseOrderStoreRequest />}></Route>
+                                </>}
+
+                            {links && links.map((link) => link.to).includes('/trends') &&
+                                <>
+                                    <Route path={'/trends-store'} element={<TrendsStore/>}></Route>
+                                    <Route path={'/trends-item'} element={<TrendsItem/>}></Route>
                                 </>}
 
                             {links && links.map((link) => link.to).includes('/settings') &&

@@ -33,7 +33,7 @@ import ReportsItemSalesMonitoring from './ReportsItemSalesMonitoring';
 import ReportsSalesInvoiceMonitoring from './ReportsSalesInvoiceMonitoring';
 import ReportsStockCardsMonitoring from './ReportsStockCardsMonitoring';
 import Trends from './Trends';
-import TrendsItem from './TrendsItem';
+import TrendsItem from './Pages/Trends/TrendsItem';
 import TrendsStore from './TrendsStore';
 import StockCardsCreate from './StockCardsCreate';
 import StockCardsShow from './StockCardsShow';
