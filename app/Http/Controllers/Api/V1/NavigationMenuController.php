@@ -14,20 +14,20 @@ class NavigationMenuController extends Controller
      */
     public function index()
     {
-		$user = auth()->user();
+        $user = auth()->user();
 
-		$links = collect([
-			[
-				'label' => 'Dashboard',
-				'icon' => 'fa fa-dashboard',
-				'to' => '/dashboard',
-				'is_visible' => true,
-			],
-			[
-				'label' => 'Logs',
-				'icon' => 'fa fa-clipboard',
-				'to' => '/logs',
-				'is_visible' => true,
+        $links = collect([
+            [
+                'label' => 'Dashboard',
+                'icon' => 'fa fa-dashboard',
+                'to' => '/dashboard',
+                'is_visible' => true,
+            ],
+            [
+                'label' => 'Logs',
+                'icon' => 'fa fa-clipboard',
+                'to' => '/logs',
+                'is_visible' => true,
                 'links' => [
                     [
                         'label' => 'Attendance Logs',
@@ -54,12 +54,12 @@ class NavigationMenuController extends Controller
                         'is_visible' => $user && $user->hasRole('Super Admin'),
                     ],
                 ]
-			],
-			[
-				'label' => 'Compensation and Benefits',
-				'icon' => 'fa fa-gift',
-				'to' => '/compensation-and-benefits',
-				'is_visible' => $user && $user->hasRole('Super Admin'),
+            ],
+            [
+                'label' => 'Compensation and Benefits',
+                'icon' => 'fa fa-gift',
+                'to' => '/compensation-and-benefits',
+                'is_visible' => $user && $user->hasRole('Super Admin'),
                 'links' => [
                     [
                         'label' => 'Pay Periods',
@@ -74,41 +74,41 @@ class NavigationMenuController extends Controller
                         'is_visible' => $user && $user->hasRole('Super Admin'),
                     ],
                 ],
-			],
-			[
-				'label' => 'Purchase Orders',
-				'icon' => 'fa fa-folder',
-				'to' => '/purchase-orders',
-				'is_visible' => $user && (
+            ],
+            [
+                'label' => 'Purchase Orders',
+                'icon' => 'fa fa-folder',
+                'to' => '/purchase-orders',
+                'is_visible' => $user && (
                     $user->hasRole('Super Admin') ||
                     $user->can('Create purchase order') ||
                     $user->can('View purchase order') ||
                     $user->can('Update purchase order')
                 ),
-			],
-			// [
-			// 	'label' => 'Sales Invoices',
-			// 	'icon' => 'fa fa-folder',
-			// 	'to' => '/sales-invoices',
-			// 	'is_visible' => $user && $user->hasRole('Super Admin'),
-			// ],
-			// [
-			// 	'label' => 'Stock Cards',
-			// 	'icon' => 'fa fa-clipboard',
-			// 	'to' => '/stock-cards',
-			// 	'is_visible' => $user && $user->hasRole('Super Admin'),
-			// ],
-			// [
-			// 	'label' => 'Reports',
-			// 	'icon' => 'fa fa-book',
-			// 	'to' => '/reports',
-			// 	'is_visible' => $user && $user->hasRole('Super Admin'),
-			// ],
-			[
-				'label' => 'Trends',
-				'icon' => 'fa fa-signal',
-				'to' => '/trends',
-				'is_visible' => $user && $user->hasRole('Super Admin'),
+            ],
+            // [
+            // 	'label' => 'Sales Invoices',
+            // 	'icon' => 'fa fa-folder',
+            // 	'to' => '/sales-invoices',
+            // 	'is_visible' => $user && $user->hasRole('Super Admin'),
+            // ],
+            // [
+            // 	'label' => 'Stock Cards',
+            // 	'icon' => 'fa fa-clipboard',
+            // 	'to' => '/stock-cards',
+            // 	'is_visible' => $user && $user->hasRole('Super Admin'),
+            // ],
+            [
+                'label' => 'Reports',
+                'icon' => 'fa fa-book',
+                'to' => '/reports',
+                'is_visible' => $user && $user->hasRole('Super Admin'),
+            ],
+            [
+                'label' => 'Trends',
+                'icon' => 'fa fa-signal',
+                'to' => '/trends',
+                'is_visible' => $user && $user->hasRole('Super Admin'),
                 'links' => [
                     [
                         'label' => 'Store Trends',
@@ -123,21 +123,12 @@ class NavigationMenuController extends Controller
                         'is_visible' => $user && $user->hasRole('Super Admin'),
                     ],
                 ],
-			],
-			// [
-			// 	'label' => 'Warehouse',
-			// 	'icon' => 'fa fa-building',
-			// 	'to' => '/warehouse',
-			// 	'is_visible' => $user && $user->hasAnyRole([
-			// 		'Super Admin',
-			// 		'Warehouse Inventory Encoder',
-			// 	]),
-			// ],
-			[
-				'label' => 'Settings',
-				'icon' => 'fa fa-cogs',
-				'to' => '/settings',
-				'is_visible' => $user && (
+            ],
+            [
+                'label' => 'Settings',
+                'icon' => 'fa fa-cogs',
+                'to' => '/settings',
+                'is_visible' => $user && (
                     $user->hasRole('Super Admin') ||
                     $user->can('Create or register new user') ||
                     $user->can('Update existing user') ||
@@ -174,19 +165,19 @@ class NavigationMenuController extends Controller
                         'is_visible' => $user && $user->hasRole('Super Admin'),
                     ],
                 ]
-			],
-		]);
+            ],
+        ]);
 
-		$links = $links->where('is_visible', true)->map(function ($link) {
-			unset($link['is_visible']);
+        $links = $links->where('is_visible', true)->map(function ($link) {
+            unset($link['is_visible']);
             if (isset($link['links']) && !empty($link['links'])) {
                 $link['links'] = collect($link['links'])->where('is_visible', true)->map(function ($link) {
                     unset($link['is_visible']);
                     return $link;
                 })->values()->toArray();
             }
-			return $link;
-		})->values()->toArray();
+            return $link;
+        })->values()->toArray();
 
         $menu = [
             'brand' => config('app.name'),

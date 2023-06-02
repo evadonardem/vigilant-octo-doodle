@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import cookie from 'react-cookies';
-import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
-import CommonDropdownSelectSingleStoreCategory from './CommonDropdownSelectSingleStoreCategory';
-import CommonDropdownSelectSingleStoreLocation from './CommonDropdownSelectSingleStoreLocation';
+import CommonDropdownSelectSingleStore from '../../CommonDropdownSelectSingleStore';
+import CommonDropdownSelectSingleStoreCategory from '../../CommonDropdownSelectSingleStoreCategory';
+import CommonDropdownSelectSingleStoreLocation from '../../CommonDropdownSelectSingleStoreLocation';
 
 const END_POINT = `${apiBaseUrl}/reports/item-sales-monitoring`;
 
-export default class ReportsDeliverySalesMonitoring extends Component {
+export default class ReportsItemSalesMonitoring extends Component {
     constructor(props) {
         super(props);
         this.handleChangeSalesBy = this.handleChangeSalesBy.bind(this);

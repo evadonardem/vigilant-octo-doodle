@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { Breadcrumb, Button, Alert, Card, Form } from 'react-bootstrap';
 import cookie from 'react-cookies';
-import CommonDropdownSelectSingleStoreLocation from './CommonDropdownSelectSingleStoreLocation';
+import CommonDropdownSelectSingleStoreLocation from '../../CommonDropdownSelectSingleStoreLocation';
 
 const END_POINT_AVAILABLE_ITEMS = `${apiBaseUrl}/reports/stock-cards-monitoring-available-items`;
 const END_POINT = `${apiBaseUrl}/reports/stock-cards-monitoring`;
 const DT_SALES_INVOICES_MONITORING = `table-stock-cards-monitoring`;
 
-export default class ReportsSalesInvoiceMonitoring extends Component {
+export default class ReportsStockCardsMonitoring extends Component {
     constructor(props) {
         super(props);
         this.handleSearchSubmit = this.handleSearchSubmit.bind(this);

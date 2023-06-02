@@ -5,7 +5,7 @@ import cookie from 'react-cookies';
 const END_POINT = `${apiBaseUrl}/reports/delivery-trips-summary`;
 const DT_DELIVERY_TRIPS_SUMMARY = `table-delivery-trips-summary`;
 
-export default class ReportsDeliverySalesMonitoring extends Component {
+export default class ReportsDeliveryTripsSummary extends Component {
     constructor(props) {
         super(props);
         this.getExportFilename = this.getExportFilename.bind(this);

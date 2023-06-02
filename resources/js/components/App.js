@@ -30,6 +30,14 @@ import ThirteenthMonthPayPeriodDetails from './Pages/CompensationAndBenefits/Thi
 import Trends from './Pages/Trends';
 import TrendsStore from './Pages/Trends/TrendsStore';
 import TrendsItem from './Pages/Trends/TrendsItem';
+import Reports from './Pages/Reports';
+import ReportsDeliveryReceiptMonitoring from './Pages/Reports/ReportsDeliveryReceiptMonitoring';
+import ReportsDeliverySalesMonitoring from './Pages/Reports/ReportsDeliverySalesMonitoring';
+import ReportsSalesInvoiceMonitoring from './Pages/Reports/ReportsSalesInvoiceMonitoring';
+import ReportsStockCardsMonitoring from './Pages/Reports/ReportsStockCardsMonitoring';
+import ReportsPromodisersSummary from './Pages/Reports/ReportsPromodisersSummary';
+import ReportsItemSalesMonitoring from './Pages/Reports/ReportsItemSalesMonitoring';
+import ReportsDeliveryTripsSummary from './Pages/Reports/ReportsDeliveryTripsSummary';
 
 export default function App() {
     const dispatch = useDispatch();
@@ -70,9 +78,9 @@ export default function App() {
                                     // case '/sales-invoices':
                                     //     routeToComponent = <SalesInvoices />;
                                     //     break;
-                                    // case '/reports':
-                                    //     routeToComponent = <Reports />;
-                                    //     break;
+                                    case '/reports':
+                                        routeToComponent = <Reports />;
+                                        break;
                                     case '/trends':
                                         routeToComponent = <Trends />;
                                         break;
@@ -124,6 +132,17 @@ export default function App() {
                                 <>
                                     <Route path={'/purchase-orders/:purchaseOrderId/details'} element={<PurchaseOrderDetails />}></Route>
                                     <Route path={'/purchase-orders/:purchaseOrderId/store-request/:storeId?'} element={<PurchaseOrderStoreRequest />}></Route>
+                                </>}
+
+                            {links && links.map((link) => link.to).includes('/reports') &&
+                                <>
+                                    <Route path={'/reports-delivery-sales-monitoring'} element={<ReportsDeliverySalesMonitoring/>}></Route>
+                                    <Route path={'/reports-delivery-receipt-monitoring'} element={<ReportsDeliveryReceiptMonitoring/>}></Route>
+                                    <Route path={'/reports-sales-invoice-monitoring'} element={<ReportsSalesInvoiceMonitoring/>}></Route>
+                                    <Route path={'/reports-stock-cards-monitoring'} element={<ReportsStockCardsMonitoring/>}></Route>
+                                    <Route path={'/reports-promodisers-summary'} element={<ReportsPromodisersSummary/>}></Route>
+                                    <Route path={'/reports-item-sales'} element={<ReportsItemSalesMonitoring/>}></Route>
+                                    <Route path={'/reports-delivery-trips-summary'} element={<ReportsDeliveryTripsSummary/>}></Route>
                                 </>}
 
                             {links && links.map((link) => link.to).includes('/trends') &&

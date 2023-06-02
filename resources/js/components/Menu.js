@@ -27,7 +27,7 @@ import ThirteenthMonthPayPeriodDetails from './ThirteenthMonthPayPeriodDetails';
 import UserRateHistory from './UserRateHistory';
 import Reports from './Reports';
 import ReportsDeliverySalesMonitoring from './ReportsDeliverySalesMonitoring';
-import ReportsDeliveryReceiptMonitoring from './ReportsDeliveryReceiptMonitoring';
+import ReportsDeliveryReceiptMonitoring from './Pages/Reports/ReportsDeliveryReceiptMonitoring';
 import ReportsDeliveryTripsSummary from './ReportsDeliveryTripsSummary';
 import ReportsItemSalesMonitoring from './ReportsItemSalesMonitoring';
 import ReportsSalesInvoiceMonitoring from './ReportsSalesInvoiceMonitoring';

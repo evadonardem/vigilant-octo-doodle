@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import Select from 'react-select';
-import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
+import CommonDropdownSelectSingleStore from '../../CommonDropdownSelectSingleStore';
 
 const END_POINT = `${apiBaseUrl}/reports/delivery-sales-monitoring`;
 const DT_DELIVERY_SALES_MONITORING = `table-delivery-sales-monitoring`;

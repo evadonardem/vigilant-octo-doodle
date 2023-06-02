@@ -13,6 +13,7 @@ const Dashboard = () => {
         hasPermission("Create purchase order") ||
         hasPermission("Update purchase order") ||
         hasPermission("View purchase order");
+    const canAccessTrends = isSuperAdmin;
     const canAccessSettings = isSuperAdmin ||
         hasPermission("Create or register new user") ||
         hasPermission("Update existing user") ||
@@ -39,6 +40,14 @@ const Dashboard = () => {
             description: "Manage purchase orders.",
             to: "/purchase-orders",
             isAccessible: canAccessPurchaseOrders,
+        },
+        {
+
+            icon: "signal",
+            title: "Trends",
+            description: "Store and item trends.",
+            to: "/trends",
+            isAccessible: canAccessTrends,
         },
         {
             icon: "cogs",

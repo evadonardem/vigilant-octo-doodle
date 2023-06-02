@@ -3,9 +3,9 @@ import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import date from 'date-and-time';
 import axios from 'axios';
-import CommonDropdownSelectSingleStoreLocation from './CommonDropdownSelectSingleStoreLocation';
-import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
-import CommonDropdownSelectSingleStoreCategory from './CommonDropdownSelectSingleStoreCategory';
+import CommonDropdownSelectSingleStoreLocation from '../../CommonDropdownSelectSingleStoreLocation';
+import CommonDropdownSelectSingleStore from '../../CommonDropdownSelectSingleStore';
+import CommonDropdownSelectSingleStoreCategory from '../../CommonDropdownSelectSingleStoreCategory';
 import { fn } from 'jquery';
 
 const COMMONT_END_POINT_RATINGS = `${apiBaseUrl}/common/ratings`;

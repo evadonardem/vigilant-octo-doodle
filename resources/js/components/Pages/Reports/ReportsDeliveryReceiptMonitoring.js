@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
 import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import cookie from 'react-cookies';
-import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
-import CommonDropdownSelectSingleStoreCategory from './CommonDropdownSelectSingleStoreCategory';
-import CommonDropdownSelectSingleStoreLocation from './CommonDropdownSelectSingleStoreLocation';
+import CommonDropdownSelectSingleStore from '../../CommonDropdownSelectSingleStore';
+import CommonDropdownSelectSingleStoreCategory from '../../CommonDropdownSelectSingleStoreCategory';
+import CommonDropdownSelectSingleStoreLocation from '../../CommonDropdownSelectSingleStoreLocation';
 
-const END_POINT = `${apiBaseUrl}/reports/sales-invoices-monitoring`;
-const DT_SALES_INVOICES_MONITORING = `table-sales-invoices-monitoring`;
-const DT_SALES_INVOICES_MONITORING_INVOICES = `table-sales-invoices-monitoring-invoices`;
-const DT_SALES_INVOICES_MONITORING_INVOICE_ITEMS = `table-sales-invoices-monitoring-invoice-items`;
-const DT_SALES_INVOICES_MONITORING_SUMMARY = `table-sales-invoices-monitoring-summary`;
+const END_POINT = `${apiBaseUrl}/reports/delivery-receipt-monitoring`;
+const DT_DELIVERY_RECEIPT_MONITORING = `table-delivery-receipt-monitoring`;
+const DT_DELIVERY_RECEIPT_MONITORING_DELIVERY_RECEIPTS = `table-delivery-receipt-monitoring-delivery-receipts`;
+const DT_DELIVERY_RECEIPT_MONITORING_DELIVERY_RECEIPT_STORES = `table-delivery-receipt-monitoring-delivery-receipt-stores`;
 
-export default class ReportsSalesInvoiceMonitoring extends Component {
+const DT_DELIVERY_RECEIPT_MONITORING_SUMMARY = `table-delivery-receipt-monitoring-summary`;
+
+export default class ReportsDeliveryReceiptMonitoring extends Component {
     constructor(props) {
         super(props);
         this.handleChangeType = this.handleChangeType.bind(this);
@@ -24,7 +25,6 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
             reportType: 'store',
             searchFilters: null,
             summary: [],
-            token: null,
         };
     }
 
@@ -32,15 +32,8 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
         const self = this;
         const token = cookie.load('token');
         const { booklets, summary } = self.state;
-        const currencyFormat = $.fn.dataTable.render.number(',', '.', 2, 'Php').display;
-        const numberFormat = $.fn.dataTable.render.number(',').display;
 
-        self.setState({
-            ...self.state,
-            token,
-        });
-
-        $(`.${DT_SALES_INVOICES_MONITORING}`).DataTable({
+        $(`.${DT_DELIVERY_RECEIPT_MONITORING}`).DataTable({
             data: booklets,
             buttons: [],
             columns: [
@@ -51,21 +44,21 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                 },
                 { data: 'id' },
                 {
-                    data: 'total_sales',
-                    render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+                    data: 'quantity_original',
+                    render: $.fn.dataTable.render.number(','),
                 },
                 {
-                    data: 'vat_amount',
-                    render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+                    data: 'quantity_actual',
+                    render: $.fn.dataTable.render.number(','),
                 },
                 {
-                    data: 'total_sales_less_vat',
-                    render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+                    data: 'quantity_bad_orders',
+                    render: $.fn.dataTable.render.number(','),
                 },
                 {
-                    data: 'total_amount_due',
-                    render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
-                }
+                    data: 'quantity_returns',
+                    render: $.fn.dataTable.render.number(','),
+                },
             ],
             columnDefs: [
                 {
@@ -82,9 +75,10 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                         : typeof i === 'number' ? i : 0;
                 };
 
+                const numberFormat = $.fn.dataTable.render.number(',').display;
                 const offset = 2;
                 for (let i = 0; i < 4; i++) {
-                    const totalAmount = api
+                    const totalQuantity = api
                         .column(offset + i)
                         .data()
                         .reduce(
@@ -93,7 +87,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                             },
                             0
                         );
-                    $(api.column(offset + i).footer()).html(currencyFormat(totalAmount));
+                    $(api.column(offset + i).footer()).html(numberFormat(totalQuantity));
                 }
             },
             ordering: false,
@@ -105,46 +99,83 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
             return `<div class="card">
                 <div class="card-header">
                     Booklet No. ${d.id}<br/>
-                    <span class="badge badge-secondary">Sales Invoices</span>
+                    <span class="badge badge-secondary">Delivery Receipts</span>
                 </div>
                 <div class="card-body">
-                    <table class="table table-striped ${DT_SALES_INVOICES_MONITORING_INVOICES}" style="width: 100%">
+                    <table class="table table-striped ${DT_DELIVERY_RECEIPT_MONITORING_DELIVERY_RECEIPTS}" style="width: 100%">
                         <thead>
                             <tr>
-								<th scope="col"></th>
-                                <th scope="col">Invoice No.</th>
-                                <th scope="col">Sold To</th>
-                                <th scope="col">From</th>
-                                <th scope="col">To</th>
-                                <th scope="col">Total Sales</th>
-                                <th scope="col">Less VAT</th>
-                                <th scope="col">Amount Net less VAT</th>
-                                <th scope="col">Total Amount Due</th>
+                            <th scope="col"></th>
+                            <th scope="col">Delivery Receipt No.</th>
+                            <th scope="col">Purchase Order</th>
+                            <th scope="col">Qty. (Original)</th>
+                            <th scope="col">Qty. (Actual)</th>
+                            <th scope="col">Qty. (Bad Orders)</th>
+                            <th scope="col">Qty. (Returns)</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
                         <tfoot>
 							<tr>
-								<th scope="col"></th>
-								<th scope="col"></th>
-								<th scope="col"></th>
-								<th scope="col"></th>
-								<th scope="col">Total:</th>
-								<th scope="col"></th>
-								<th scope="col"></th>
-								<th scope="col"></th>
-								<th scope="col"></th>
+							<th scope="col"></th>
+                            <th scope="col"></th>
+                            <th scope="col">Total:</th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
 							</tr>
-						</tfoot>
+                        </tfoot>
                     </table>
                 </div>
             </div>`;
         };
 
+        const formatDeliveryReceiptDetails = (d) => {
+
+            const stores = d.stores.map((store) => {
+                return `<p class="mb-0">${store.code} ${store.name}<br/>
+					${store.category ? `Category: ${store.category.name}` : ''} ${store.location ? `Location: ${store.location.name}` : ''}</p>
+                    <table class="table table-striped ${DT_DELIVERY_RECEIPT_MONITORING_DELIVERY_RECEIPT_STORES}-${store.id}" style="width: 100%">
+                        <thead>
+                            <tr>
+                            <th scope="col">Code</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Qty. (Original)</th>
+                            <th scope="col">Qty. (Actual)</th>
+                            <th scope="col">Qty. (Bad Orders)</th>
+                            <th scope="col">Qty. (Returns)</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot>
+							<tr>
+							<th scope="col"></th>
+                            <th scope="col">Total:</th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+							</tr>
+                        </tfoot>
+                    </table>`;
+            });
+
+            return `<div class="card">
+                <div class="card-header">
+                    Delivery Receipt No. ${d.id}<br/>
+                    <span class="badge badge-secondary">Store Items</span>
+                </div>
+                <div class="card-body">
+                    ${stores.join('')}
+                </div>
+            </div>`;
+        };
+
         // Add event listener for opening and closing details
-        $('tbody', $(`.${DT_SALES_INVOICES_MONITORING}`)).on('click', 'td.booklet-details-control', function () {
+        $('tbody', $(`.${DT_DELIVERY_RECEIPT_MONITORING}`)).on('click', 'td.booklet-details-control', function () {
             var refDataTable = $('.data-table-wrapper')
-                .find(`table.${DT_SALES_INVOICES_MONITORING}`)
+                .find(`table.${DT_DELIVERY_RECEIPT_MONITORING}`)
                 .DataTable();
             var tr = $(this).closest('tr');
             var row = refDataTable.row(tr);
@@ -154,53 +185,46 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                 $(this).find('i').addClass('fa-chevron-circle-down');
                 row.child.hide();
                 tr.removeClass('shown');
-            } else {
+            }
+            else {
                 $(this).find('i').removeClass('fa-chevron-circle-down');
                 $(this).find('i').addClass('fa-chevron-circle-up');
                 row.child(format(row.data())).show();
                 tr.addClass('shown');
                 if (row.child.isShown()) {
                     const data = row.data();
-                    const { invoices } = data;
-
-                    tr.next().find(`table.${DT_SALES_INVOICES_MONITORING_INVOICES}`).DataTable({
-                        data: invoices,
+                    const { deliveryReceipts } = data;
+                    tr.next().find(`table.${DT_DELIVERY_RECEIPT_MONITORING_DELIVERY_RECEIPTS}`).DataTable({
+                        data: deliveryReceipts,
                         buttons: [],
                         columns: [
                             {
-                                className: 'invoice-details-control text-center',
+                                className: 'delivery-receipt-details-control text-center',
                                 data: null,
                                 defaultContent: '<i class="fa fa-lg fa-chevron-circle-down"></i>'
                             },
-                            { data: 'invoice_no' },
+                            { data: 'id' },
+                            { data: 'purchase_order.code' },
                             {
-                                'data': null,
-                                'render': function (data, type, row) {
-                                    return `${row.category.name}`;
-                                }
-                            },
-                            { data: 'from' },
-                            { data: 'to' },
-                            {
-                                data: 'total_sales',
-                                render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+                                data: 'quantity_original',
+                                render: $.fn.dataTable.render.number(','),
                             },
                             {
-                                data: 'vat_amount',
-                                render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+                                data: 'quantity_actual',
+                                render: $.fn.dataTable.render.number(','),
                             },
                             {
-                                data: 'total_sales_less_vat',
-                                render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+                                data: 'quantity_bad_orders',
+                                render: $.fn.dataTable.render.number(','),
                             },
                             {
-                                data: 'total_amount_due',
-                                render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+                                data: 'quantity_returns',
+                                render: $.fn.dataTable.render.number(','),
                             },
                         ],
                         columnDefs: [
                             {
-                                targets: [5, 6, 7, 8],
+                                targets: [3, 4, 5, 6],
                                 className: 'dt-right',
                             },
                         ],
@@ -213,9 +237,10 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                     : typeof i === 'number' ? i : 0;
                             };
 
-                            const offset = 5;
+                            const numberFormat = $.fn.dataTable.render.number(',').display;
+                            const offset = 3;
                             for (let i = 0; i < 4; i++) {
-                                const totalAmount = api
+                                const totalQuantity = api
                                     .column(offset + i)
                                     .data()
                                     .reduce(
@@ -224,151 +249,122 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                         },
                                         0
                                     );
-                                $(api.column(offset + i).footer()).html(currencyFormat(totalAmount));
+                                $(api.column(offset + i).footer()).html(numberFormat(totalQuantity));
                             }
                         },
                         ordering: false,
                         paging: false,
                         searching: false,
                     });
-
-                    const formatInvoiceItems = (d) => {
-                        return `<div class="card">
-							<div class="card-header">
-								Invoice No. ${d.invoice_no}<br/>
-								<span class="badge badge-secondary">Invoice Items: ${d.items.length}</span>
-							</div>
-							<div class="card-body">
-								<table class="table table-striped ${DT_SALES_INVOICES_MONITORING_INVOICE_ITEMS}" style="width: 100%">
-									<thead>
-										<tr>
-											<th scope="col">Store</th>
-											<th scope="col">Location</th>
-											<th scope="col">Item</th>
-											<th scope="col">Quantity</th>
-											<th scope="col">Price</th>
-											<th scope="col">Total Amount</th>
-										</tr>
-									</thead>
-									<tbody></tbody>
-									<tfoot>
-										<tr>
-											<th scope="col"></th>
-											<th scope="col"></th>
-											<th scope="col">Total:</th>
-											<th scope="col"></th>
-											<th scope="col"></th>
-											<th scope="col"></th>
-										</tr>
-									</tfoot>
-								</table>
-							</div>
-						</div>`;
-                    };
-                    $('tbody', $(`.${DT_SALES_INVOICES_MONITORING_INVOICES}`)).on('click', 'td.invoice-details-control', function () {
-                        const refDataTable = $('.data-table-wrapper')
-                            .find(`table.${DT_SALES_INVOICES_MONITORING_INVOICES}`)
-                            .DataTable();
-                        const tr = $(this).closest('tr');
-                        const row = refDataTable.row(tr);
-
-                        if (row.child.isShown()) {
-                            $(this).find('i').removeClass('fa-chevron-circle-up');
-                            $(this).find('i').addClass('fa-chevron-circle-down');
-                            row.child.hide();
-                            tr.removeClass('shown');
-                        } else {
-                            $(this).find('i').removeClass('fa-chevron-circle-down');
-                            $(this).find('i').addClass('fa-chevron-circle-up');
-                            row.child(formatInvoiceItems(row.data())).show();
-                            tr.addClass('shown');
-
+                    tr.next()
+                        .find(`table.${DT_DELIVERY_RECEIPT_MONITORING_DELIVERY_RECEIPTS}`)
+                        .off()
+                        .on('click', 'td.delivery-receipt-details-control', function () {
+                            const refDataTable = $('.data-table-wrapper')
+                                .find(`table.${DT_DELIVERY_RECEIPT_MONITORING_DELIVERY_RECEIPTS}`)
+                                .DataTable();
+                            const tr = $(this).closest('tr');
+                            const row = refDataTable.row(tr);
                             if (row.child.isShown()) {
+                                $(this).find('i').removeClass('fa-chevron-circle-up');
+                                $(this).find('i').addClass('fa-chevron-circle-down');
+                                row.child.hide();
+                                tr.removeClass('shown');
+                            } else {
+                                $(this).find('i').removeClass('fa-chevron-circle-down');
+                                $(this).find('i').addClass('fa-chevron-circle-up');
+                                row.child(formatDeliveryReceiptDetails(row.data())).show();
+                                tr.addClass('shown');
+
                                 const data = row.data();
-                                const { items } = data;
+                                const { stores } = data;
 
-                                tr.next().find(`table.${DT_SALES_INVOICES_MONITORING_INVOICE_ITEMS}`).DataTable({
-                                    data: items,
-                                    buttons: [],
-                                    columns: [
-                                        { data: 'store.name' },
-                                        { data: 'store.location.name' },
-                                        { data: 'item.code' },
-                                        {
-                                            data: 'quantity',
-                                            render: $.fn.dataTable.render.number(','),
-                                        },
-                                        {
-                                            data: 'price',
-                                            render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
-                                        },
-                                        {
-                                            data: 'total_amount',
-                                            render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
-                                        },
-                                    ],
-                                    columnDefs: [
-                                        {
-                                            targets: [3, 4, 5],
-                                            className: 'dt-right',
-                                        },
-                                    ],
-                                    footerCallback: function (row, data, start, end, display) {
-                                        const api = this.api();
+                                stores.map((store) => {
+                                    tr.next().find(`table.${DT_DELIVERY_RECEIPT_MONITORING_DELIVERY_RECEIPT_STORES}-${store.id}`).DataTable({
+                                        data: store.items,
+                                        buttons: [],
+                                        columns: [
+                                            { data: 'code' },
+                                            { data: 'name' },
+                                            {
+                                                data: 'quantity_original',
+                                                render: $.fn.dataTable.render.number(','),
+                                            },
+                                            {
+                                                data: 'quantity_actual',
+                                                render: $.fn.dataTable.render.number(','),
+                                            },
+                                            {
+                                                data: 'quantity_bad_orders',
+                                                render: $.fn.dataTable.render.number(','),
+                                            },
+                                            {
+                                                data: 'quantity_returns',
+                                                render: $.fn.dataTable.render.number(','),
+                                            },
+                                        ],
+                                        columnDefs: [
+                                            {
+                                                targets: [2, 3, 4, 5],
+                                                className: 'dt-right',
+                                            },
+                                        ],
+                                        footerCallback: function (row, data, start, end, display) {
+                                            const api = this.api();
 
-                                        const intVal = function (i) {
-                                            return typeof i === 'string'
-                                                ? i.replace(/[\$,]/g, '') * 1
-                                                : typeof i === 'number' ? i : 0;
-                                        };
+                                            const intVal = function (i) {
+                                                return typeof i === 'string'
+                                                    ? i.replace(/[\$,]/g, '') * 1
+                                                    : typeof i === 'number' ? i : 0;
+                                            };
 
-                                        const offset = 3;
-                                        for (let i = 0; i < 3; i++) {
-                                            const totalAmount = api
-                                                .column(offset + i)
-                                                .data()
-                                                .reduce(
-                                                    function (a, b) {
-                                                        return intVal(a) + intVal(b);
-                                                    },
-                                                    0
-                                                );
-                                            $(api.column(offset + i).footer())
-                                                .html(i == 0 ? numberFormat(totalAmount) : currencyFormat(totalAmount));
-                                        }
-                                    },
-                                    ordering: false,
-                                    paging: false,
-                                    searching: false,
+                                            const numberFormat = $.fn.dataTable.render.number(',').display;
+                                            const offset = 2;
+                                            for (let i = 0; i < 4; i++) {
+                                                const totalQuantity = api
+                                                    .column(offset + i)
+                                                    .data()
+                                                    .reduce(
+                                                        function (a, b) {
+                                                            return intVal(a) + intVal(b);
+                                                        },
+                                                        0
+                                                    );
+                                                $(api.column(offset + i).footer()).html(numberFormat(totalQuantity));
+                                            }
+                                        },
+                                        ordering: false,
+                                        paging: false,
+                                        searching: false,
+                                    });
                                 });
                             }
-                        }
-                    });
+                        });
                 }
             }
         });
 
-        $(`.${DT_SALES_INVOICES_MONITORING_SUMMARY}`).DataTable({
+        $(`.${DT_DELIVERY_RECEIPT_MONITORING_SUMMARY}`).DataTable({
             data: summary,
             buttons: [],
             columns: [
                 { data: 'code' },
                 { data: 'name' },
                 {
-                    data: 'total_sales',
-                    render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+                    data: 'quantity_original',
+                    render: $.fn.dataTable.render.number(','),
                 },
                 {
-                    data: 'vat_amount',
-                    render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+                    data: 'quantity_actual',
+                    render: $.fn.dataTable.render.number(','),
                 },
                 {
-                    data: 'total_sales_less_vat',
-                    render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+                    data: 'quantity_bad_orders',
+                    render: $.fn.dataTable.render.number(','),
                 },
                 {
-                    data: 'total_amount_due',
-                    render: $.fn.dataTable.render.number(',', '.', 2, 'Php'),
+                    data: 'quantity_returns',
+                    render: $.fn.dataTable.render.number(','),
                 },
             ],
             columnDefs: [
@@ -386,9 +382,10 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                         : typeof i === 'number' ? i : 0;
                 };
 
+                const numberFormat = $.fn.dataTable.render.number(',').display;
                 const offset = 2;
                 for (let i = 0; i < 4; i++) {
-                    const totalAmount = api
+                    const totalQuantity = api
                         .column(offset + i)
                         .data()
                         .reduce(
@@ -397,7 +394,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                             },
                             0
                         );
-                    $(api.column(offset + i).footer()).html(currencyFormat(totalAmount));
+                    $(api.column(offset + i).footer()).html(numberFormat(totalQuantity));
                 }
             },
             ordering: false,
@@ -424,10 +421,10 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
         const self = this;
         const token = cookie.load('token');
         const table = $('.data-table-wrapper')
-            .find(`table.${DT_SALES_INVOICES_MONITORING}`)
+            .find(`table.${DT_DELIVERY_RECEIPT_MONITORING}`)
             .DataTable();
         const tableSummary = $('.data-table-wrapper')
-            .find(`table.${DT_SALES_INVOICES_MONITORING_SUMMARY}`)
+            .find(`table.${DT_DELIVERY_RECEIPT_MONITORING_SUMMARY}`)
             .DataTable();
         const data = $(e.currentTarget).serialize();
         const csvFilters = data;
@@ -454,7 +451,8 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
         e.preventDefault();
         const reportType = e.target.getAttribute('data-report-type');
         const self = this;
-        const { csvFilters, token } = self.state;
+        const token = cookie.load('token');
+        const { csvFilters } = self.state;
         axios.get(`${END_POINT}?${csvFilters}&generate=csv&report_type=${reportType}&token=${token}`, {
             responseType: 'arraybuffer',
         })
@@ -474,6 +472,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
 
     render() {
         const {
+            booklets,
             reportType,
             searchFilters,
         } = this.state;
@@ -482,9 +481,10 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
             <div className="container-fluid my-4">
                 <Breadcrumb>
                     <Breadcrumb.Item href="#/reports"><i className="fa fa-book"></i> Reports</Breadcrumb.Item>
-                    <Breadcrumb.Item active>Sales Invoice Monitoring</Breadcrumb.Item>
+                    <Breadcrumb.Item active>Delivery Receipt Monitoring</Breadcrumb.Item>
                 </Breadcrumb>
-                <div className="row my-4">
+
+                <div className="row">
                     <div className="col-md-3">
                         <Card>
                             <Card.Header>
@@ -541,7 +541,7 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                             {
                                 searchFilters &&
                                 <Card.Header>
-                                    <h4>Sales Invoice Monitoring</h4>
+                                    <h4>Delivery Receipt Monitoring</h4>
                                     {searchFilters.by === 'store' && searchFilters.store && `Store: (${searchFilters.store.code}) ${searchFilters.store.name}`}
                                     {searchFilters.by === 'store' && !searchFilters.store && 'All Stores'}
                                     {searchFilters.by === 'category' && searchFilters.category && `Category: ${searchFilters.category.name}`}
@@ -565,26 +565,26 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                                     </Button>
                                                 </div>
                                             </div>
-                                            <table className={`table table-striped ${DT_SALES_INVOICES_MONITORING}`} style={{ width: 100 + '%' }}>
+                                            <table className={`table table-striped ${DT_DELIVERY_RECEIPT_MONITORING}`} style={{ width: 100 + '%' }}>
                                                 <thead>
                                                     <tr>
                                                         <th scope="col"></th>
                                                         <th scope="col">Booklet No.</th>
-                                                        <th scope="col">Total Sales</th>
-                                                        <th scope="col">Less VAT</th>
-                                                        <th scope="col">Amount Net less VAT</th>
-                                                        <th scope="col">Total Amount Due</th>
+                                                        <th scope="col">Qty. (Original)</th>
+                                                        <th scope="col">Qty. (Actual)</th>
+                                                        <th scope="col">Qty. (Bad Orders)</th>
+                                                        <th scope="col">Qty. (Returns)</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody></tbody>
                                                 <tfoot>
                                                     <tr>
-                                                        <th></th>
-                                                        <th>Total:</th>
-                                                        <th>0.00</th>
-                                                        <th>0.00</th>
-                                                        <th>0.00</th>
-                                                        <th>0.00</th>
+                                                        <th scope="col"></th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}>Total:</th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}></th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}></th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}></th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}></th>
                                                     </tr>
                                                 </tfoot>
                                             </table>
@@ -602,15 +602,15 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                                     </Button>
                                                 </div>
                                             </div>
-                                            <table className={`table table-striped ${DT_SALES_INVOICES_MONITORING_SUMMARY}`} style={{ width: 100 + '%' }}>
+                                            <table className={`table table-striped ${DT_DELIVERY_RECEIPT_MONITORING_SUMMARY}`} style={{ width: 100 + '%' }}>
                                                 <thead>
                                                     <tr>
                                                         <th scope="col">Code</th>
                                                         <th scope="col">Name</th>
-                                                        <th scope="col">Total Sales</th>
-                                                        <th scope="col">Less VAT</th>
-                                                        <th scope="col">Amount Net less VAT</th>
-                                                        <th scope="col">Total Amount Due</th>
+                                                        <th scope="col">Qty. (Original)</th>
+                                                        <th scope="col">Qty. (Actual)</th>
+                                                        <th scope="col">Qty. (Bad Orders)</th>
+                                                        <th scope="col">Qty. (Returns)</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody></tbody>
@@ -618,10 +618,10 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                                     <tr>
                                                         <th scope="col"></th>
                                                         <th scope="col" style={{ textAlign: 'right' }}>Total:</th>
-                                                        <th scope="col"></th>
-                                                        <th scope="col"></th>
-                                                        <th scope="col"></th>
-                                                        <th scope="col"></th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}></th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}></th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}></th>
+                                                        <th scope="col" style={{ textAlign: 'right' }}></th>
                                                     </tr>
                                                 </tfoot>
                                             </table>
@@ -629,7 +629,6 @@ export default class ReportsSalesInvoiceMonitoring extends Component {
                                     </Card>
                                 </div>
                                 {!searchFilters &&
-
                                     <p className="text-center">
                                         <i className="fa fa-5x fa-info-circle" /><br />
                                         Start by filtering records to search.
