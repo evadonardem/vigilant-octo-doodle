@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Col, Row } from 'react-bootstrap';
 import Option from '../Generic/Option';
 
@@ -6,60 +6,58 @@ const Reports = () => {
     const options = [
         {
             icon: 'file',
-            title: 'Delivery Sales Monitoring',
-            description: '',
+            title: 'Delivery Sales',
+            description: 'Delivery sales monitoring report.',
             to: '/reports-delivery-sales-monitoring',
         },
         {
             icon: 'file',
-            title: 'Delivery Receipt Monitoring',
-            description: '',
+            title: 'Delivery Receipt',
+            description: 'Delivery receipt monitoring report.',
             to: '/reports-delivery-receipt-monitoring',
         },
         {
             icon: 'file',
-            title: 'Sales Invoice Monitoring',
-            description: '',
+            title: 'Sales Invoice',
+            description: 'Sales invoice monitoring report.',
             to: '/reports-sales-invoice-monitoring',
         },
         {
             icon: 'file',
-            title: 'Stock Cards Monitoring',
-            description: '',
+            title: 'Stock Cards',
+            description: 'Stock cards monitoring report.',
             to: '/reports-stock-cards-monitoring',
         },
         {
             icon: 'id-card',
-            title: 'Promodisers Summary',
-            description: '',
+            title: 'Promodisers',
+            description: 'Promodisers summary report.',
             to: '/reports-promodisers-summary',
         },
         {
             icon: 'file',
-            title: 'Item Sales Monitoring',
-            description: '',
+            title: 'Item Sales',
+            description: 'Item sales monitoring report.',
             to: '/reports-item-sales',
         },
         {
-            icon: 'delivery',
-            title: 'Delivery Trips Summary',
-            description: '',
+            icon: 'truck',
+            title: 'Delivery Trips',
+            description: 'Delivery trips summary report.',
             to: '/reports-delivery-trips-summary',
         },
     ];
 
-    return (
-        <Row>
-            {options
-                .map((option, key) => <Col key={`reports-option-${key}`} md="6">
-                    <Option
-                        icon={option.icon}
-                        title={option.title}
-                        description={option.description}
-                        to={option.to} />
-                </Col>)}
-        </Row>
-    );
+    return <Row>
+        {options
+            .map((option, key) => <Col key={`reports-option-${key}`} md="4">
+                <Option
+                    icon={option.icon}
+                    title={option.title}
+                    description={option.description}
+                    to={option.to} />
+            </Col>)}
+    </Row>;
 }
 
 export default Reports;

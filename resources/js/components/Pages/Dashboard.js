@@ -9,10 +9,12 @@ const Dashboard = () => {
     const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
 
     const isSuperAdmin = hasRole("Super Admin");
+    const canAccessPayPeriods = isSuperAdmin;
     const canAccessPurchaseOrders = isSuperAdmin ||
         hasPermission("Create purchase order") ||
         hasPermission("Update purchase order") ||
         hasPermission("View purchase order");
+    const canAccessReports = isSuperAdmin;
     const canAccessTrends = isSuperAdmin;
     const canAccessSettings = isSuperAdmin ||
         hasPermission("Create or register new user") ||
@@ -29,10 +31,17 @@ const Dashboard = () => {
         },
         {
             icon: "clock-o",
-            title: "Daily Time Record",
+            title: "DTR",
             description: "Consolidated daily time record.",
             to: "/attendance-logs",
             isAccessible: true,
+        },
+        {
+            icon: "gift",
+            title: "Pay Periods",
+            description: "Manage pay periods.",
+            to: "/compensation-and-benefits/pay-periods",
+            isAccessible: canAccessPayPeriods,
         },
         {
             icon: "folder",
@@ -40,6 +49,13 @@ const Dashboard = () => {
             description: "Manage purchase orders.",
             to: "/purchase-orders",
             isAccessible: canAccessPurchaseOrders,
+        },
+        {
+            icon: "file",
+            title: "Reports",
+            description: "Generate reports.",
+            to: "/reports",
+            isAccessible: canAccessReports,
         },
         {
 
@@ -62,7 +78,7 @@ const Dashboard = () => {
         <Row>
             {options
                 .filter((option) => option.isAccessible)
-                .map((option, key) => <Col key={`dashboard-option-${key}`} md="6">
+                .map((option, key) => <Col key={`dashboard-option-${key}`} md="4">
                     {option.isAccessible}
                     <Option
                         icon={option.icon}

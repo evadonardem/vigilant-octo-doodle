@@ -1,4 +1,3 @@
-import { isNaN } from 'lodash';
 import React, { Component } from 'react';
 import { Form } from 'react-bootstrap';
 import cookie from 'react-cookies';

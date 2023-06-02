@@ -38,6 +38,9 @@ import ReportsStockCardsMonitoring from './Pages/Reports/ReportsStockCardsMonito
 import ReportsPromodisersSummary from './Pages/Reports/ReportsPromodisersSummary';
 import ReportsItemSalesMonitoring from './Pages/Reports/ReportsItemSalesMonitoring';
 import ReportsDeliveryTripsSummary from './Pages/Reports/ReportsDeliveryTripsSummary';
+import StockCards from './Pages/StockCards/StockCards';
+import StockCardsCreate from './Pages/StockCards/StockCardsCreate';
+import StockCardsShow from './Pages/StockCards/StockCardsShow';
 
 export default function App() {
     const dispatch = useDispatch();
@@ -78,15 +81,15 @@ export default function App() {
                                     // case '/sales-invoices':
                                     //     routeToComponent = <SalesInvoices />;
                                     //     break;
+                                    case '/stock-cards':
+                                        routeToComponent = <StockCards />;
+                                        break;
                                     case '/reports':
                                         routeToComponent = <Reports />;
                                         break;
                                     case '/trends':
                                         routeToComponent = <Trends />;
                                         break;
-                                    // case '/stock-cards':
-                                    //     routeToComponent = <StockCards />;
-                                    //     break;
                                     // case '/users':
                                     //     routeToComponent = <Users />;
                                     //     break;
@@ -132,6 +135,12 @@ export default function App() {
                                 <>
                                     <Route path={'/purchase-orders/:purchaseOrderId/details'} element={<PurchaseOrderDetails />}></Route>
                                     <Route path={'/purchase-orders/:purchaseOrderId/store-request/:storeId?'} element={<PurchaseOrderStoreRequest />}></Route>
+                                </>}
+
+                            {links && links.map((link) => link.to).includes('/stock-cards') &&
+                                <>
+                                    <Route path={'/stock-cards/create'} element={<StockCardsCreate />}></Route>
+                                    <Route path={'/stock-cards/:stockCardId/details'} element={<StockCardsShow />}></Route>
                                 </>}
 
                             {links && links.map((link) => link.to).includes('/reports') &&

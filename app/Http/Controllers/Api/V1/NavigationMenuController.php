@@ -92,17 +92,61 @@ class NavigationMenuController extends Controller
             // 	'to' => '/sales-invoices',
             // 	'is_visible' => $user && $user->hasRole('Super Admin'),
             // ],
-            // [
-            // 	'label' => 'Stock Cards',
-            // 	'icon' => 'fa fa-clipboard',
-            // 	'to' => '/stock-cards',
-            // 	'is_visible' => $user && $user->hasRole('Super Admin'),
-            // ],
+            [
+                'label' => 'Stock Cards',
+                'icon' => 'fa fa-clipboard',
+                'to' => '/stock-cards',
+                'is_visible' => $user && $user->hasRole('Super Admin'),
+            ],
             [
                 'label' => 'Reports',
                 'icon' => 'fa fa-book',
                 'to' => '/reports',
                 'is_visible' => $user && $user->hasRole('Super Admin'),
+                'links' => [
+                    [
+                        'label' => 'Delivery Sales',
+                        'icon' => 'fa fa-file',
+                        'to' => '/reports-delivery-sales-monitoring',
+                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                    ],
+                    [
+                        'label' => 'Delivery Receipt',
+                        'icon' => 'fa fa-file',
+                        'to' => '/reports-delivery-receipt-monitoring',
+                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                    ],
+                    [
+                        'label' => 'Sales Invoice',
+                        'icon' => 'fa fa-file',
+                        'to' => '/reports-sales-invoice-monitoring',
+                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                    ],
+                    [
+                        'label' => 'Stock Cards',
+                        'icon' => 'fa fa-file',
+                        'to' => '/reports-stock-cards-monitoring',
+                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                    ],
+                    [
+                        'label' => 'Promodisers',
+                        'icon' => 'fa fa-id-card',
+                        'to' => '/reports-promodisers-summary',
+                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                    ],
+                    [
+                        'label' => 'Item Sales',
+                        'icon' => 'fa fa-file',
+                        'to' => '/reports-item-sales',
+                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                    ],
+                    [
+                        'label' => 'Delivery Trips',
+                        'icon' => 'fa fa-truck',
+                        'to' => '/reports-delivery-trips-summary',
+                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                    ],
+                ],
             ],
             [
                 'label' => 'Trends',

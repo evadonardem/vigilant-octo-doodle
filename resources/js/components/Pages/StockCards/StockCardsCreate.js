@@ -3,9 +3,7 @@ import { ButtonGroup } from 'react-bootstrap';
 import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import cookie from 'react-cookies';
-import { v4 as uuidv4 } from 'uuid';
-import CommonDropdownSelectSingleStore from './CommonDropdownSelectSingleStore';
-import { values } from 'lodash';
+import CommonDropdownSelectSingleStore from '../../CommonDropdownSelectSingleStore';
 
 const END_POINT = `${apiBaseUrl}/stock-cards`;
 
@@ -46,7 +44,7 @@ export default class StockCardsCreate extends Component {
         });
     }
 
-    handleChangeStore(e) {    
+    handleChangeStore(e) {
         const self = this;
         self.setState({
             ...self.state,
@@ -83,7 +81,7 @@ export default class StockCardsCreate extends Component {
             .then((response) => {
                 const data = response.data;
                 const { id: stockCardId } = data;
-                location.href = `${appBaseUrl}/#/stock-card-details/${stockCardId}`;
+                location.href = `${appBaseUrl}/#/stock-cards/${stockCardId}/details`;
             })
             .catch((error) => {
                 $('.form-control', form).removeClass('is-invalid');
@@ -98,7 +96,7 @@ export default class StockCardsCreate extends Component {
                             .find('.invalid-feedback')
                             .text(errors[key][0]);
                     }
-               }
+                }
             });
     }
 
@@ -111,7 +109,7 @@ export default class StockCardsCreate extends Component {
             <div className="container-fluid my-4">
                 <Breadcrumb>
                     {
-                        BREADCRUMB_ITEMS.map(({icon, label, link} = item) =>
+                        BREADCRUMB_ITEMS.map(({ icon, label, link } = item) =>
                             <Breadcrumb.Item href={link ?? ''} active={!link}>
                                 <span>
                                     <i className={`fa ${icon}`}></i>&nbsp;
@@ -128,32 +126,32 @@ export default class StockCardsCreate extends Component {
                                 <Card.Header>
                                     <i className="fa fa-info-circle"></i> General Info
                                 </Card.Header>
-                                <Card.Body>                                    
-                                    <div className="row">                                        
+                                <Card.Body>
+                                    <div className="row">
                                         <div className="col-md-6">
-                                            <CommonDropdownSelectSingleStore                                            
+                                            <CommonDropdownSelectSingleStore
                                                 handleChange={this.handleChangeStore}
-                                                selectedStore={selectedStore}/>
+                                                selectedStore={selectedStore} />
                                         </div>
                                     </div>
                                     <div className="row">
                                         <div className="col-md-6">
                                             <Form.Group>
                                                 <Form.Label>From:</Form.Label>
-                                                <Form.Control type="date" name="from" onChange={this.handleChangeDate}/>
+                                                <Form.Control type="date" name="from" onChange={this.handleChangeDate} />
                                                 <div className="invalid-feedback"></div>
                                             </Form.Group>
                                         </div>
                                         <div className="col-md-6">
                                             <Form.Group>
                                                 <Form.Label>To:</Form.Label>
-                                                <Form.Control type="date" name="to" onChange={this.handleChangeDate}/>
+                                                <Form.Control type="date" name="to" onChange={this.handleChangeDate} />
                                                 <div className="invalid-feedback"></div>
                                             </Form.Group>
                                         </div>
                                     </div>
                                 </Card.Body>
-                            </Card>         
+                            </Card>
                         </Card.Body>
                         <Card.Footer>
                             <ButtonGroup className="pull-right">
