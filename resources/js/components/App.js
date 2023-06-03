@@ -41,6 +41,10 @@ import ReportsDeliveryTripsSummary from './Pages/Reports/ReportsDeliveryTripsSum
 import StockCards from './Pages/StockCards/StockCards';
 import StockCardsCreate from './Pages/StockCards/StockCardsCreate';
 import StockCardsShow from './Pages/StockCards/StockCardsShow';
+import SalesInvoices from './Pages/SalesInvoices/SalesInvoices';
+import SalesInvoicesShow from './Pages/SalesInvoices/SalesInvoicesShow';
+import SalesInvoiceStoreItemsShow from './Pages/SalesInvoices/SalesInvoiceStoreItemsShow';
+import SalesInvoicesCreate from './Pages/SalesInvoices/SalesInvoicesCreate';
 
 export default function App() {
     const dispatch = useDispatch();
@@ -48,7 +52,7 @@ export default function App() {
         brand,
         isLoggedIn,
         links,
-    signedInUser
+        signedInUser
     } = useSelector((state) => state.authenticate);
 
     useEffect(() => {
@@ -78,9 +82,9 @@ export default function App() {
                                     case '/purchase-orders':
                                         routeToComponent = <PurchaseOrders />;
                                         break;
-                                    // case '/sales-invoices':
-                                    //     routeToComponent = <SalesInvoices />;
-                                    //     break;
+                                    case '/sales-invoices':
+                                        routeToComponent = <SalesInvoices />;
+                                        break;
                                     case '/stock-cards':
                                         routeToComponent = <StockCards />;
                                         break;
@@ -119,22 +123,29 @@ export default function App() {
                                 <>
                                     <Route
                                         path={'/compensation-and-benefits/pay-periods'}
-                                        element={<PayPeriods/>}></Route>
+                                        element={<PayPeriods />}></Route>
                                     <Route
                                         path={'/compensation-and-benefits/pay-periods/:payPeriodId/details'}
-                                        element={<PayPeriodDetails/>}></Route>
+                                        element={<PayPeriodDetails />}></Route>
                                     <Route
                                         path={'/compensation-and-benefits/thirteenth-month-pay-periods'}
-                                        element={<ThirteenthMonthPayPeriods/>}></Route>
+                                        element={<ThirteenthMonthPayPeriods />}></Route>
                                     <Route
                                         path={'/compensation-and-benefits/thirteenth-month-pay-periods/:thirteenthMonthPayPeriodId/details'}
-                                        element={<ThirteenthMonthPayPeriodDetails/>}></Route>
+                                        element={<ThirteenthMonthPayPeriodDetails />}></Route>
                                 </>}
 
                             {links && links.map((link) => link.to).includes('/purchase-orders') &&
                                 <>
                                     <Route path={'/purchase-orders/:purchaseOrderId/details'} element={<PurchaseOrderDetails />}></Route>
                                     <Route path={'/purchase-orders/:purchaseOrderId/store-request/:storeId?'} element={<PurchaseOrderStoreRequest />}></Route>
+                                </>}
+
+                            {links && links.map((link) => link.to).includes('/sales-invoices') &&
+                                <>
+                                    <Route path={'/sales-invoices/create'} element={<SalesInvoicesCreate />}></Route>
+                                    <Route path={'/sales-invoices/:salesInvoiceId/details'} element={<SalesInvoicesShow />}></Route>
+                                    <Route path={'/sales-invoices/:salesInvoiceId/store-items'} element={<SalesInvoiceStoreItemsShow />}></Route>
                                 </>}
 
                             {links && links.map((link) => link.to).includes('/stock-cards') &&
@@ -145,19 +156,19 @@ export default function App() {
 
                             {links && links.map((link) => link.to).includes('/reports') &&
                                 <>
-                                    <Route path={'/reports-delivery-sales-monitoring'} element={<ReportsDeliverySalesMonitoring/>}></Route>
-                                    <Route path={'/reports-delivery-receipt-monitoring'} element={<ReportsDeliveryReceiptMonitoring/>}></Route>
-                                    <Route path={'/reports-sales-invoice-monitoring'} element={<ReportsSalesInvoiceMonitoring/>}></Route>
-                                    <Route path={'/reports-stock-cards-monitoring'} element={<ReportsStockCardsMonitoring/>}></Route>
-                                    <Route path={'/reports-promodisers-summary'} element={<ReportsPromodisersSummary/>}></Route>
-                                    <Route path={'/reports-item-sales'} element={<ReportsItemSalesMonitoring/>}></Route>
-                                    <Route path={'/reports-delivery-trips-summary'} element={<ReportsDeliveryTripsSummary/>}></Route>
+                                    <Route path={'/reports-delivery-sales-monitoring'} element={<ReportsDeliverySalesMonitoring />}></Route>
+                                    <Route path={'/reports-delivery-receipt-monitoring'} element={<ReportsDeliveryReceiptMonitoring />}></Route>
+                                    <Route path={'/reports-sales-invoice-monitoring'} element={<ReportsSalesInvoiceMonitoring />}></Route>
+                                    <Route path={'/reports-stock-cards-monitoring'} element={<ReportsStockCardsMonitoring />}></Route>
+                                    <Route path={'/reports-promodisers-summary'} element={<ReportsPromodisersSummary />}></Route>
+                                    <Route path={'/reports-item-sales'} element={<ReportsItemSalesMonitoring />}></Route>
+                                    <Route path={'/reports-delivery-trips-summary'} element={<ReportsDeliveryTripsSummary />}></Route>
                                 </>}
 
                             {links && links.map((link) => link.to).includes('/trends') &&
                                 <>
-                                    <Route path={'/trends-store'} element={<TrendsStore/>}></Route>
-                                    <Route path={'/trends-item'} element={<TrendsItem/>}></Route>
+                                    <Route path={'/trends-store'} element={<TrendsStore />}></Route>
+                                    <Route path={'/trends-item'} element={<TrendsItem />}></Route>
                                 </>}
 
                             {links && links.map((link) => link.to).includes('/settings') &&
@@ -170,7 +181,7 @@ export default function App() {
                                     <Route path="/settings/stores-registry" element={<StoresRegistry />}></Route>
                                 </>}
 
-                            { /* fallback route for non-existing routes */ }
+                            { /* fallback route for non-existing routes */}
                             <Route path="*" element={<Navigate to="/dashboard" />}></Route>
                         </Route>
                     </Routes>}

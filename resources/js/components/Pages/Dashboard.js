@@ -14,6 +14,7 @@ const Dashboard = () => {
         hasPermission("Create purchase order") ||
         hasPermission("Update purchase order") ||
         hasPermission("View purchase order");
+    const canAccessSalesInvoices = isSuperAdmin;
     const canAccessReports = isSuperAdmin;
     const canAccessTrends = isSuperAdmin;
     const canAccessSettings = isSuperAdmin ||
@@ -49,6 +50,13 @@ const Dashboard = () => {
             description: "Manage purchase orders.",
             to: "/purchase-orders",
             isAccessible: canAccessPurchaseOrders,
+        },
+        {
+            icon: "folder",
+            title: "Sales Invoices",
+            description: "Manage sales invoices.",
+            to: "/sales-invoices",
+            isAccessible: canAccessSalesInvoices,
         },
         {
             icon: "file",

@@ -107,7 +107,7 @@ const StockCards = () => {
 
     return <>
         <Card className="mt-4">
-            <Card.Header>
+            <Card.Header as="h5">
                 <i className='fa fa-clipboard'></i> Stock Cards
             </Card.Header>
             <Card.Body>

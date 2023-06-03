@@ -86,12 +86,12 @@ class NavigationMenuController extends Controller
                     $user->can('Update purchase order')
                 ),
             ],
-            // [
-            // 	'label' => 'Sales Invoices',
-            // 	'icon' => 'fa fa-folder',
-            // 	'to' => '/sales-invoices',
-            // 	'is_visible' => $user && $user->hasRole('Super Admin'),
-            // ],
+            [
+                'label' => 'Sales Invoices',
+                'icon' => 'fa fa-folder',
+                'to' => '/sales-invoices',
+                'is_visible' => $user && $user->hasRole('Super Admin'),
+            ],
             [
                 'label' => 'Stock Cards',
                 'icon' => 'fa fa-clipboard',
