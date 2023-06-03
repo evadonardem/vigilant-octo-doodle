@@ -1,6 +1,6 @@
-import React from 'react';
 import { Col, Row } from 'react-bootstrap';
 import Option from '../Generic/Option';
+import React from 'react';
 
 const Trends = () => {
     const options = [
@@ -20,7 +20,7 @@ const Trends = () => {
     return (
         <>
             <Row>
-                {options.map(({ icon, title, description, to } = option) =>
+                {options.map(({ icon, title, description, to }) =>
                     <Col key={to} md={6}>
                         <Option icon={icon} title={title} description={description} to={to} />
                     </Col>)}

@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
 import { Button, ButtonGroup, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import cookie from 'react-cookies';
 import CommonDeleteModal from '../../CommonDeleteModal';
+import React, { useEffect, useState } from 'react';
+import cookie from 'react-cookies';
 
 const END_POINT = `${apiBaseUrl}/stock-cards`;
 const STOCK_CARDS_TABLE = 'table-stock-cards';

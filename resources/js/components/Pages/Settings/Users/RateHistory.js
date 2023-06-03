@@ -1,7 +1,7 @@
+import { Badge, Breadcrumb, Button, Card, Form } from 'react-bootstrap';
+import { Link, useParams } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import cookie from 'react-cookies';
-import { Button, Card, Badge, Form, Breadcrumb } from 'react-bootstrap';
-import { Link, useParams } from 'react-router-dom';
 
 const RateHistory = () => {
     const params = useParams();

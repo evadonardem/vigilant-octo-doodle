@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import cookie from 'react-cookies';
 import { Breadcrumb, Card, Form, Table } from 'react-bootstrap';
-import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import CommonDropdownSelectSingleStore from '../../CommonDropdownSelectSingleStore';
 import LoadingInline from '../../Generic/LoadingInline';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import cookie from 'react-cookies';
 
 const END_POINT = `${apiBaseUrl}/stock-cards`;
 
@@ -130,8 +130,8 @@ const StockCardsShow = () => {
                 <>
                     <Breadcrumb>
                         {
-                            BREADCRUMB_ITEMS.map(({ icon, label, link } = item) =>
-                                <Breadcrumb.Item href={link ?? ''} active={!link}>
+                            BREADCRUMB_ITEMS.map(({ icon, label, link }, key) =>
+                                <Breadcrumb.Item key={key} href={link ?? ''} active={!link}>
                                     <span>
                                         <i className={`fa ${icon}`}></i>&nbsp;
                                         {label.replace('{stockCardId}', stockCard.id)}
@@ -185,8 +185,8 @@ const StockCardsShow = () => {
                                     <i className="fa fa-clipboard"></i> Details
                                 </Card.Header>
                                 <Card.Body>
-                                    {stockCardTypes.map((stockCardType) => (
-                                        <Table striped bordered hover responsive>
+                                    {stockCardTypes.map((stockCardType, key) => (
+                                        <Table key={key} striped bordered hover responsive>
                                             <thead>
                                                 <tr>
                                                     <th colSpan={stockCard.items.length}>
@@ -196,14 +196,14 @@ const StockCardsShow = () => {
                                                     </th>
                                                 </tr>
                                                 <tr>
-                                                    {stockCard.items.map((item) => (
-                                                        <th>{item.name}</th>
+                                                    {stockCard.items.map((item, key) => (
+                                                        <th key={key}>{item.name}</th>
                                                     ))}
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr>
-                                                    {stockCard.items.map((item) => {
+                                                    {stockCard.items.map((item, key) => {
                                                         const detail = item.details
                                                             ? item.details.find((detail) => detail.type === stockCardType.code)
                                                             : null;
@@ -211,7 +211,7 @@ const StockCardsShow = () => {
                                                         if (stockCardType.code === 'ending_inventory' && isLoadingStockCardDetails) {
                                                             value = null;
                                                         }
-                                                        return <td>
+                                                        return <td key={key}>
                                                             <Form.Control
                                                                 type="number"
                                                                 data-type={stockCardType.code}

@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
 import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
-import cookie from 'react-cookies';
-import CommonDeleteModal from '../../CommonDeleteModal';
 import { Link } from 'react-router-dom';
+import CommonDeleteModal from '../../CommonDeleteModal';
+import React, { useEffect, useState } from 'react';
+import cookie from 'react-cookies';
 
 const ThirteenthMonthPayPeriods = () => {
 

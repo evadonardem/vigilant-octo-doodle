@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
-import { ButtonGroup } from 'react-bootstrap';
 import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
+import { ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import cookie from 'react-cookies';
 import CommonDropdownSelectSingleStore from '../../CommonDropdownSelectSingleStore';
+import React, { Component } from 'react';
+import cookie from 'react-cookies';
 
 const END_POINT = `${apiBaseUrl}/stock-cards`;
 
@@ -70,6 +70,7 @@ export default class StockCardsCreate extends Component {
     handleCreateStockCardSubmit(e) {
         e.preventDefault();
         const self = this;
+        const form = $(e.currentTarget);
         const { token, selectedStore, from, to } = self.state;
         const data = {
             store_id: selectedStore ? selectedStore.value : null,
@@ -109,8 +110,8 @@ export default class StockCardsCreate extends Component {
             <div className="container-fluid my-4">
                 <Breadcrumb>
                     {
-                        BREADCRUMB_ITEMS.map(({ icon, label, link } = item) =>
-                            <Breadcrumb.Item href={link ?? ''} active={!link}>
+                        BREADCRUMB_ITEMS.map(({ icon, label, link }, key) =>
+                            <Breadcrumb.Item key={key} href={link ?? ''} active={!link}>
                                 <span>
                                     <i className={`fa ${icon}`}></i>&nbsp;
                                     {label}

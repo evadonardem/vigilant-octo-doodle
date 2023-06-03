@@ -1,7 +1,7 @@
-import { Container, Nav, Navbar, NavDropdown, Offcanvas } from "react-bootstrap";
-import { useDispatch } from "react-redux";
+import { Container, Nav, NavDropdown, Navbar, Offcanvas } from "react-bootstrap";
 import { Link, Outlet } from "react-router-dom";
 import { logout } from "../../state/authenticate";
+import { useDispatch } from "react-redux";
 
 const Layout = ({ brand, links, signedInUser } = props) => {
     const dispatch = useDispatch();

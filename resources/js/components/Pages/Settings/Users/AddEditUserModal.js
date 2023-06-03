@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import { Alert, Button, ButtonGroup, Modal, Form } from 'react-bootstrap';
+import { Alert, Button, ButtonGroup, Form, Modal } from 'react-bootstrap';
 import CommonDropdownSelectSingleRoles from '../../../CommonDropdownSelectSingleRoles';
+import React, { Component } from 'react';
 
 export default class AddEditUserModal extends Component {
     constructor(props) {

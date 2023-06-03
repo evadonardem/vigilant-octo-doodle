@@ -1,6 +1,6 @@
-import React from 'react';
 import { Col, Row } from 'react-bootstrap';
 import Option from '../Generic/Option';
+import React from 'react';
 
 const Reports = () => {
     const options = [

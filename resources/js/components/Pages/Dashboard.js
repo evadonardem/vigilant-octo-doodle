@@ -1,7 +1,7 @@
-import React from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
 import Option from '../Generic/Option';
+import React from 'react';
 
 const Dashboard = () => {
     const { roles, permissions } = useSelector((state) => state.authenticate.user);

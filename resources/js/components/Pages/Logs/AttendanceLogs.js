@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import CommonSearchFilters from '../../CommonSearchFilters';
-import AttendanceLogsSearchResult from './AttendanceLogsSearchResult';
 import { Breadcrumb, Col, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import AttendanceLogsSearchResult from './AttendanceLogsSearchResult';
+import CommonSearchFilters from '../../CommonSearchFilters';
+import React, { useState } from 'react';
 
 export default function AttendanceLogs() {
     const { user } = useSelector((state) => state.authenticate);

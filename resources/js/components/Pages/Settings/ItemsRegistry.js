@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
 import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
-import cookie from 'react-cookies';
 import CommonDeleteModal from '../../CommonDeleteModal';
+import React, { Component } from 'react';
+import cookie from 'react-cookies';
 
 const END_POINT = `${apiBaseUrl}/settings/items`;
 

@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import cookie from 'react-cookies';
-import { Button, Card, Form } from 'react-bootstrap';
-import _ from 'chart.js/auto';
 import { Bar, Line } from 'react-chartjs-2';
+import { Button, Card, Form } from 'react-bootstrap';
 import { NumericFormat } from 'react-number-format';
 import CommonDropdownSelectSingleStore from '../../CommonDropdownSelectSingleStore';
 import CommonDropdownSelectSingleStoreCategory from '../../CommonDropdownSelectSingleStoreCategory';
 import CommonDropdownSelectSingleStoreLocation from '../../CommonDropdownSelectSingleStoreLocation';
+import React, { useState } from 'react';
+import cookie from 'react-cookies';
 
 const ChartsTrendsByStore = () => {
     const token = cookie.load('token');
@@ -269,7 +268,7 @@ const ChartsTrendsByStore = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {dataSales.datasets.map(({ label, data } = dataset, i) => <tr key={`sales-tr-${i}`}>
+                                                    {dataSales.datasets.map(({ label, data }, i) => <tr key={`sales-tr-${i}`}>
                                                         <th>{label}</th>
                                                         {data.map((value, j) => <td key={`sales-td-${j}`}>
                                                             <NumericFormat
@@ -307,7 +306,7 @@ const ChartsTrendsByStore = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {dataDeliveries.datasets.map(({ label, data } = dataset, i) => <tr key={`deliveries-tr-${i}`}>
+                                                    {dataDeliveries.datasets.map(({ label, data }, i) => <tr key={`deliveries-tr-${i}`}>
                                                         <th>{label}</th>
                                                         {data.map((value, j) => <td key={`deliveries-td-${j}`}>
                                                             <NumericFormat
@@ -342,7 +341,7 @@ const ChartsTrendsByStore = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {dataReturns.datasets.map(({ label, data } = dataset, i) => <tr key={`returns-tr-${i}`}>
+                                                    {dataReturns.datasets.map(({ label, data }, i) => <tr key={`returns-tr-${i}`}>
                                                         <th>{label}</th>
                                                         {data.map((value, j) => <td key={`returns-td-${j}`}>
                                                             <NumericFormat

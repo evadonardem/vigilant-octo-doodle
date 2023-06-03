@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import cookie from 'react-cookies';
 import { Badge, Breadcrumb, Card, Col, Form, Row } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import cookie from 'react-cookies';
 
 const RolesAndPermissions = () => {
     const params = useParams();

@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import { Breadcrumb, Button, Alert, Card, Form } from 'react-bootstrap';
-import cookie from 'react-cookies';
+import { Alert, Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import CommonDropdownSelectSingleStoreLocation from '../../CommonDropdownSelectSingleStoreLocation';
+import React, { Component } from 'react';
+import cookie from 'react-cookies';
 
 const END_POINT_AVAILABLE_ITEMS = `${apiBaseUrl}/reports/stock-cards-monitoring-available-items`;
 const END_POINT = `${apiBaseUrl}/reports/stock-cards-monitoring`;

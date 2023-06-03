@@ -1,5 +1,5 @@
-import React from 'react';
 import Option from '../Generic/Option';
+import React from 'react';
 
 export default function Settings() {
     const options = [

@@ -1,5 +1,5 @@
+import { Alert, Button, ButtonGroup, Form, Modal } from 'react-bootstrap';
 import React, { Component } from 'react';
-import { Alert, Button, ButtonGroup, Modal, Form } from 'react-bootstrap';
 
 export default class AddEditDeliveryModal extends Component {
     constructor(props) {

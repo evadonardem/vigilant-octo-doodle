@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
 import { Alert, Button, Col, FloatingLabel, Form, Row } from 'react-bootstrap';
-import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../../state/authenticate';
+import { useDispatch, useSelector } from 'react-redux';
 import LoadingInline from '../Generic/LoadingInline';
+import React, { useState } from 'react';
 
 const Login = () => {
     const { errorMessage, isLoading } = useSelector((state) => state.authenticate);

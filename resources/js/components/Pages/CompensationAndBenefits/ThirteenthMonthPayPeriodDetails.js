@@ -1,7 +1,7 @@
-import React, { Component, useEffect, useState } from 'react';
-import { Badge, Breadcrumb, Card } from 'react-bootstrap';
-import cookie from 'react-cookies';
+import { Breadcrumb, Card } from 'react-bootstrap';
 import { Link, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import cookie from 'react-cookies';
 import sanitize from 'sanitize-filename';
 
 const ThirteenthMonthPayPeriodDetails = () => {

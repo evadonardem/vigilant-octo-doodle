@@ -1,10 +1,9 @@
-import React, { Component } from 'react';
 import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
-import cookie from 'react-cookies';
-import { v4 as uuidv4 } from 'uuid';
 import CommonDeleteModal from '../../CommonDeleteModal';
 import CommonDropdownSelectSingleStoreCategory from '../../CommonDropdownSelectSingleStoreCategory';
 import CommonDropdownSelectSingleStoreLocation from '../../CommonDropdownSelectSingleStoreLocation';
+import React, { Component } from 'react';
+import cookie from 'react-cookies';
 
 const END_POINT_STORE_CATEGORIES = `${apiBaseUrl}/settings/store-categories`;
 const DT_STORE_CATEGORIES = 'table-store-categories';

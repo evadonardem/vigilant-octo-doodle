@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
-import cookie from 'react-cookies';
-import { Button, Card, Form } from 'react-bootstrap';
-import _ from 'chart.js/auto';
 import { Bar, Line } from 'react-chartjs-2';
+import { Button, Card, Form } from 'react-bootstrap';
 import { NumericFormat } from 'react-number-format';
 import CommonDropdownSelectSingleItem from '../../CommonDropdownSelectSingleItem';
 import CommonDropdownSelectSingleStore from '../../CommonDropdownSelectSingleStore';
 import CommonDropdownSelectSingleStoreCategory from '../../CommonDropdownSelectSingleStoreCategory';
 import CommonDropdownSelectSingleStoreLocation from '../../CommonDropdownSelectSingleStoreLocation';
+import React, { useState } from 'react';
+import cookie from 'react-cookies';
 
 const ChartsTrendsByItem = () => {
     const token = cookie.load('token');
@@ -213,7 +212,7 @@ const ChartsTrendsByItem = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {dataSales.datasets.map(({ label, data } = dataset, i) => <tr key={`item-trends-sales-tr-${i}`}>
+                                            {dataSales.datasets.map(({ label, data }, i) => <tr key={`item-trends-sales-tr-${i}`}>
                                                 <th>{label}</th>
                                                 {data.map((value, j) => <td key={`item-trends-sales-td-${j}`}>
                                                     <NumericFormat
@@ -252,7 +251,7 @@ const ChartsTrendsByItem = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {dataDeliveries.datasets.map(({ label, data } = dataset, i) => <tr key={`item-trends-deliveries-tr-${i}`}>
+                                            {dataDeliveries.datasets.map(({ label, data }, i) => <tr key={`item-trends-deliveries-tr-${i}`}>
                                                 <th>{label}</th>
                                                 {data.map((value, j) => <td key={`item-trends-deliveries-td-${j}`}>
                                                     <NumericFormat

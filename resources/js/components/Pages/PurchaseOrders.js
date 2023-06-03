@@ -1,12 +1,11 @@
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
 import { Accordion, Breadcrumb, Button, Card, Col, Form, Row } from 'react-bootstrap';
-import cookie from 'react-cookies';
+import { deletePurchaseOrder, storePurchaseOrder } from '../../state/purchaseOrders';
+import { useDispatch, useSelector } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
 import CommonDeleteModal from '../CommonDeleteModal';
 import CommonDropdownSelectSingleLocation from '../CommonDropdownSelectSingleLocation';
-import { useDispatch, useSelector } from 'react-redux';
-import { deletePurchaseOrder, storePurchaseOrder } from '../../state/purchaseOrders';
+import React, { useEffect, useState } from 'react';
+import cookie from 'react-cookies';
 
 const END_POINT = `${apiBaseUrl}/purchase-orders`;
 const PURCHASE_ORDERS_PENDING_TABLE = 'table-purchase-orders-pending';

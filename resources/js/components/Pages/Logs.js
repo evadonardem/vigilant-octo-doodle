@@ -1,6 +1,6 @@
+import { Col, Row } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import Option from "../Generic/Option";
-import { Col, Row } from "react-bootstrap";
 
 const Logs = () => {
     const { roles } = useSelector((state) => state.authenticate.user);

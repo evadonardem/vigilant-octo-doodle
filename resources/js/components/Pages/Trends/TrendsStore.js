@@ -1,6 +1,6 @@
-import React from 'react';
 import { Breadcrumb } from 'react-bootstrap';
 import ChartsTrendsByStore from './ChartsTrendsByStore';
+import React from 'react';
 
 const BREADCRUMB_ITEMS = [
     {
@@ -19,8 +19,8 @@ const TrendsStore = () => {
         <>
             <Breadcrumb>
                 {
-                    BREADCRUMB_ITEMS.map(({ icon, label, link } = item) =>
-                        <Breadcrumb.Item href={link ?? ''} active={!link}>
+                    BREADCRUMB_ITEMS.map(({ icon, label, link }, key) =>
+                        <Breadcrumb.Item key={key} href={link ?? ''} active={!link}>
                             <span>
                                 <i className={`fa ${icon}`}></i>&nbsp;
                                 {label}

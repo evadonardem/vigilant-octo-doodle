@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
 import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import { v4 as uuidv4 } from 'uuid';
-import cookie from 'react-cookies';
 import CommonDeleteModal from '../../CommonDeleteModal';
 import CommonDropdownSelectSingleOvertimeRateTypes from '../../CommonDropdownSelectSingleOvertimeRateTypes';
+import React, { Component } from 'react';
+import cookie from 'react-cookies';
 
 export default class OvertimeRates extends Component {
     constructor(props) {

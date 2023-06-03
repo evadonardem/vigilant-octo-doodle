@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Badge, Breadcrumb, Button, ButtonGroup, Card, Form, FormControl, InputGroup } from 'react-bootstrap';
-import cookie from 'react-cookies';
+import { Breadcrumb, Button, ButtonGroup, Card, Form, FormControl, InputGroup } from 'react-bootstrap';
+import { Link, useParams } from 'react-router-dom';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import PaySlipsPdfDocument from './PaySlipsPdfDocument';
-import { Link, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import cookie from 'react-cookies';
 
 const PayPeriodDetails = () => {
     const params = useParams();

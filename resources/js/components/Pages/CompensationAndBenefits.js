@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import Option from '../Generic/Option';
 import { Col, Row } from 'react-bootstrap';
+import Option from '../Generic/Option';
+import React, { Component } from 'react';
 
 export default class CompensationAndBenefits extends Component {
     render() {

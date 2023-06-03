@@ -1,6 +1,6 @@
-import React from 'react';
-import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
+import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { NumericFormat } from 'react-number-format';
+import React from 'react';
 
 const styles = StyleSheet.create({
     page: {
