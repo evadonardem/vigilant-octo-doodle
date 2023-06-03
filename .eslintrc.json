@@ -8,6 +8,7 @@
         "plugin:react/recommended"
     ],
     "globals": {
+        "_": "readonly",
         "$": "readonly",
         "apiBaseUrl": "readonly",
         "appBaseUrl": "readonly",

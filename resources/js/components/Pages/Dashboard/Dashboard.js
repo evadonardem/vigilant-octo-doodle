@@ -1,6 +1,6 @@
 import { Col, Row } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
-import Option from '../Generic/Option';
+import Option from '../../Generic/Option';
 import React from 'react';
 
 const Dashboard = () => {

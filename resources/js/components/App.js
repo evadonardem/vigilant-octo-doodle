@@ -6,7 +6,7 @@ import { store } from '../state/store';
 import AttendanceLogs from './Pages/Logs/AttendanceLogs';
 import CompensationAndBenefits from './Pages/CompensationAndBenefits';
 import DailyTimeRecord from './Pages/Logs/DailyTimeRecord';
-import Dashboard from './Pages/Dashboard';
+import Dashboard from './Pages/Dashboard/Dashboard';
 import Deliveries from './Pages/Logs/Deliveries';
 import ItemsRegistry from './Pages/Settings/ItemsRegistry';
 import Layout from './Pages/Layout';
@@ -94,9 +94,6 @@ export default function App() {
                                     case '/trends':
                                         routeToComponent = <Trends />;
                                         break;
-                                    // case '/users':
-                                    //     routeToComponent = <Users />;
-                                    //     break;
                                     case '/settings':
                                         routeToComponent = <Settings />;
                                         break;
