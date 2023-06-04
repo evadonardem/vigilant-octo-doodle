@@ -133,7 +133,6 @@ class BiometricUsersController extends Controller
     {
         $attributes = $request->only([
             'biometric_id',
-            'role',
             'name',
         ]);
 
@@ -166,8 +165,6 @@ class BiometricUsersController extends Controller
           'password' => ''
         ]);
 
-        $user->roles()->attach($attributes['role']);
-
         return ($user)
           ? response()->noContent()
           : response()->json('Forbidden', 403);
@@ -187,7 +184,6 @@ class BiometricUsersController extends Controller
 
         $attributes = $request->only([
             'name',
-            'role',
         ]);
 
         if (env('DEVICE_ENABLED')) {
@@ -220,15 +216,6 @@ class BiometricUsersController extends Controller
         }
 
         $storedUser->name = $attributes['name'];
-
-        $currentRole = $storedUser->roles()
-          ->orderBy('user_roles.created_at', 'DESC')
-          ->first();
-
-        if ($currentRole->id !== $attributes['role']) {
-            $storedUser->roles()->attach($attributes['role']);
-        }
-
         $storedUser->save();
 
         return response()->noContent();

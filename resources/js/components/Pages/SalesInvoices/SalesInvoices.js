@@ -1,4 +1,4 @@
-import { Button, Card } from 'react-bootstrap';
+import { Breadcrumb, Button, Card } from 'react-bootstrap';
 import { ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { NumericFormat } from 'react-number-format';
@@ -9,6 +9,18 @@ import cookie from 'react-cookies';
 
 const END_POINT = `${apiBaseUrl}/sales-invoices`;
 const SALES_INVOICES_TABLE = 'table-sales-invoices';
+
+const BREADCRUMB_ITEMS = [
+    {
+        icon: 'fa-dashboard',
+        label: '',
+        link: '#/dashboard'
+    },
+    {
+        icon: '',
+        label: 'Sales Invoices',
+    },
+];
 
 const SalesInvoices = () => {
     const token = cookie.load('token');
@@ -38,7 +50,7 @@ const SalesInvoices = () => {
                 type: 'get',
                 url: `${END_POINT}?filters[status]=1&token=${token}`,
                 dataFilter: (data) => {
-                    let json = jQuery.parseJSON(data);
+                    let json = JSON.parse(data);
                     json.recordsTotal = json.total;
                     json.recordsFiltered = json.total;
                     return JSON.stringify(json);
@@ -115,8 +127,20 @@ const SalesInvoices = () => {
     return (
         <>
             <Card className="my-4">
-                <Card.Header as="h5">
-                    <i className='fa fa-folder'></i> Sales Invoices
+                <Card.Header>
+                    <Breadcrumb>
+                        {
+                            BREADCRUMB_ITEMS.map(({ icon, label, link }, key) =>
+                                <Breadcrumb.Item key={key} href={link ?? ''} active={!link}>
+                                    <span>
+                                        <i className={`fa ${icon}`}></i>
+                                        {label}
+                                    </span>
+                                </Breadcrumb.Item>
+                            )
+                        }
+                    </Breadcrumb>
+                    <h4><i className='fa fa-folder'></i> Sales Invoices</h4>
                 </Card.Header>
                 <Card.Body>
                     <table className={`table table-striped ${SALES_INVOICES_TABLE}`} style={{ width: 100 + '%' }}>

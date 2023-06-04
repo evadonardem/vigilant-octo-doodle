@@ -1,6 +1,7 @@
 import { Badge, Breadcrumb, Card, Col, Form, Row } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import React from 'react';
 import cookie from 'react-cookies';
 
 const RolesAndPermissions = () => {
@@ -38,47 +39,48 @@ const RolesAndPermissions = () => {
         loadRolesAndPermissions();
     }, []);
 
-    return <>
-        <Breadcrumb>
-            <Breadcrumb.Item linkProps={{ to: "/settings" }} linkAs={Link}>
-                <i className="fa fa-cogs"></i> Settings
-            </Breadcrumb.Item>
-            <Breadcrumb.Item linkProps={{ to: "/settings/users" }} linkAs={Link}>
-                <i className="fa fa-users"></i> Users
-            </Breadcrumb.Item>
-            <Breadcrumb.Item active>
-                ({biometricId}) {name}
-            </Breadcrumb.Item>
-            <Breadcrumb.Item active>
-                <i className="fa fa-id-card"></i> Roles and Permissions
-            </Breadcrumb.Item>
-        </Breadcrumb>
-        <Card>
-            <Card.Header>
-                <Badge>{biometricId}</Badge>
-                <h4>{name}</h4>
-            </Card.Header>
-            <Card.Body>
-                <Row>
-                    {userRoles && userRoles.map((role) => <Col key={`role-${role.id}`} md={6}>
-                        <Card>
-                            <Card.Header>{role.name}</Card.Header>
-                            <Card.Body>
-                                {role && role.permissions.map((permission) => <Form.Check
-                                    key={`permission-${permission.id}`}
-                                    type="switch"
-                                    label={permission.name}
-                                    value={permission.name}
-                                    defaultChecked={permission.has_permission}
-                                    onClick={handlePermissionChange} />)}
-                            </Card.Body>
-                        </Card>
-                    </Col>)}
-                </Row>
-            </Card.Body>
-        </Card>
-    </>;
-}
-
+    return (
+        <>
+            <Breadcrumb>
+                <Breadcrumb.Item linkProps={{ to: "/settings" }} linkAs={Link}>
+                    <i className="fa fa-cogs"></i> Settings
+                </Breadcrumb.Item>
+                <Breadcrumb.Item linkProps={{ to: "/settings/users" }} linkAs={Link}>
+                    <i className="fa fa-users"></i> Users
+                </Breadcrumb.Item>
+                <Breadcrumb.Item active>
+                    ({biometricId}) {name}
+                </Breadcrumb.Item>
+                <Breadcrumb.Item active>
+                    <i className="fa fa-id-card"></i> Roles and Permissions
+                </Breadcrumb.Item>
+            </Breadcrumb>
+            <Card>
+                <Card.Header>
+                    <Badge>{biometricId}</Badge>
+                    <h4>{name}</h4>
+                </Card.Header>
+                <Card.Body>
+                    <Row>
+                        {userRoles && userRoles.map((role) => <Col key={`role-${role.id}`} md={6}>
+                            <Card>
+                                <Card.Header>{role.name}</Card.Header>
+                                <Card.Body>
+                                    {role && role.permissions.map((permission) => <Form.Check
+                                        key={`permission-${permission.id}`}
+                                        type="switch"
+                                        label={permission.name}
+                                        value={permission.name}
+                                        defaultChecked={permission.has_permission}
+                                        onClick={handlePermissionChange} />)}
+                                </Card.Body>
+                            </Card>
+                        </Col>)}
+                    </Row>
+                </Card.Body>
+            </Card>
+        </>
+    );
+};
 
 export default RolesAndPermissions;

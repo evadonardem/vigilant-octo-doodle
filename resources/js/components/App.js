@@ -11,7 +11,7 @@ import Deliveries from './Pages/Logs/Deliveries';
 import ItemsRegistry from './Pages/Settings/ItemsRegistry';
 import Layout from './Pages/Layout';
 import Login from './Pages/Login';
-import Logs from './Pages/Logs';
+import Logs from './Pages/Logs/Logs';
 import ManualLogs from './Pages/Logs/ManualLogs';
 import OvertimeRates from './Pages/Settings/OvertimeRates';
 import PayPeriodDetails from './Pages/CompensationAndBenefits/PayPeriodDetails';

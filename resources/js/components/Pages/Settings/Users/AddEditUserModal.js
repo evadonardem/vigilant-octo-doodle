@@ -1,19 +1,9 @@
 import { Alert, Button, ButtonGroup, Form, Modal } from 'react-bootstrap';
-import CommonDropdownSelectSingleRoles from '../../../CommonDropdownSelectSingleRoles';
 import React, { Component } from 'react';
 
 export default class AddEditUserModal extends Component {
     constructor(props) {
         super(props);
-        this.handleChangeRole = this.handleChangeRole.bind(this);
-
-        this.state = {
-            selectedRole: ''
-        }
-    }
-
-    handleChangeRole(e) {
-        this.setState({ selectedRole: e });
     }
 
     render() {
@@ -22,16 +12,12 @@ export default class AddEditUserModal extends Component {
             isEdit,
             userBiometricId,
             userName,
-            userRole,
             handleClose,
             handleSubmit,
             isError,
             errorHeaderTitle,
             errorBodyText
         } = this.props;
-
-        const { selectedRole } = this.state;
-        const currentSelectedRole = selectedRole ? selectedRole : { value: userRole, label: userRole };
 
         return (
             <Modal
@@ -62,7 +48,6 @@ export default class AddEditUserModal extends Component {
                                     <Form.Control type="text" name="name" maxLength="25" defaultValue={userName}></Form.Control>
                                     <div className="invalid-feedback"></div>
                                 </Form.Group>
-                                <CommonDropdownSelectSingleRoles name="role" selectedRole={currentSelectedRole} handleChange={this.handleChangeRole}/>
                             </div>
                         }
                         {

@@ -6,6 +6,29 @@ import React, { useEffect, useState } from 'react';
 import cookie from 'react-cookies';
 
 const END_POINT = `${apiBaseUrl}/sales-invoices`;
+
+const BREADCRUMB_ITEMS = [
+    {
+        icon: 'fa-dashboard',
+        label: '',
+        link: '#/dashboard'
+    },
+    {
+        icon: '',
+        label: 'Sales Invoices',
+        link: '#/sales-invoices'
+    },
+    {
+        icon: '',
+        label: '{salesInvoiceId}',
+        link: '#/sales-invoices/{salesInvoiceId}/details'
+    },
+    {
+        icon: '',
+        label: 'Store Items',
+    },
+];
+
 let ajaxRequest = null;
 
 const SalesInvoiceStoreItemsShow = () => {
@@ -98,20 +121,21 @@ const SalesInvoiceStoreItemsShow = () => {
     return (
         <>
             {salesInvoice &&
-                <Breadcrumb>
-                    <Breadcrumb.Item href="#/sales-invoices">
-                        <i className="fa fa-folder"></i> Sales Invoices
-                    </Breadcrumb.Item>
-                    <Breadcrumb.Item href={`#/sales-invoices/${salesInvoice.id}/details`}>
-                        <i className="fa fa-file"></i> #{salesInvoice.id}
-                    </Breadcrumb.Item>
-                    <Breadcrumb.Item active>Store Items</Breadcrumb.Item>
-                </Breadcrumb>
-            }
-            {salesInvoice &&
                 <Card>
-                    <Card.Header as="h5">
-                        <i className="fa fa-file"></i> #{salesInvoice?.id}
+                    <Card.Header>
+                        <Breadcrumb>
+                            {
+                                BREADCRUMB_ITEMS.map(({ icon, label, link }, key) =>
+                                    <Breadcrumb.Item key={key} href={link ? link.replace('{salesInvoiceId}', salesInvoice.id) : ''} active={!link}>
+                                        <span>
+                                            <i className={`fa ${icon}`}></i>
+                                            {label.replace('{salesInvoiceId}', `Sales Invoice No. ${salesInvoice.id}`)}
+                                        </span>
+                                    </Breadcrumb.Item>
+                                )
+                            }
+                        </Breadcrumb>
+                        <h5><i className="fa fa-file"></i> Sales Invoice No. {salesInvoice.id} Store Items</h5>
                     </Card.Header>
                     <Card.Body>
                         <CommonDropdownSelectSingleStore
