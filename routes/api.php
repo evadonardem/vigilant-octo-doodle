@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\BiometricUsersController;
 use App\Http\Controllers\Api\V1\GrantUserPermissionController;
 use App\Http\Controllers\Api\V1\NavigationMenuController;
 use App\Http\Controllers\Api\V1\RoleController;
@@ -30,6 +31,7 @@ $api->version('v1', function ($api) {
         $api->post('logout', [AuthController::class, 'logout']);
         $api->post('refresh', [AuthController::class, 'refresh']);
         $api->post('me', [AuthController::class, 'me']);
+        $api->post('change-password', [AuthController::class, 'changePassword']);
     });
 
     // Roles and Permissions
@@ -138,6 +140,7 @@ $api->version('v1', function ($api) {
         $api->get('stores/{store}/item-pricing/{effectivityDate}', 'App\Http\Controllers\Api\V1\StoreItemController@itemPricing');
 
         $api->post('users/{user}/grant-permission', [GrantUserPermissionController::class, 'store']);
+        $api->patch('users/{user}/default-password', [BiometricUsersController::class, 'defaultPassword']);
     });
 
     $api->group(['prefix' => 'promodisers', 'middleware' => ['api.auth', 'bindings']], function ($api) {

@@ -10,8 +10,6 @@ use App\Repositories\RoleRepository;
 use App\ZKLib\ZKLibrary;
 use App\Models\User;
 use App\Models\AttendanceLog;
-use App\Models\Rate;
-use App\Models\RateType;
 use Illuminate\Support\Facades\Hash;
 
 class BiometricUsersController extends Controller
@@ -31,19 +29,6 @@ class BiometricUsersController extends Controller
     {
         $users = User::orderBy('name', 'asc')->get();
         $users->each(function ($user) {
-            if ($user->roles->count() > 0) {
-				/**
-				 * @todo will be replaced by user title
-				 */
-                /*$user->role = $user->roles()
-                       ->orderBy('user_roles.created_at', 'desc')
-                       ->first()
-                       ->id;*/
-                $user->role = null;
-            } else {
-                $user->role = null;
-            }
-
             if ($user->rates->count() > 0) {
                 $current_per_hour_rate = $user->rates()
                     ->whereHas('type', function ($q) {
@@ -261,6 +246,18 @@ class BiometricUsersController extends Controller
             '=',
             $storedUser->biometric_id
         )->delete();
+
+        return response()->noContent();
+    }
+
+    public function defaultPassword(Request $request, User $user)
+    {
+        if ($request->user()->cannot('Update existing user')) {
+            abort(403);
+        }
+
+        $user->password = Hash::make($request->input('default_password'));
+        $user->save();
 
         return response()->noContent();
     }

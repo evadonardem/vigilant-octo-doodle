@@ -52,10 +52,12 @@ const Layout = ({ brand, links, signedInUser } = props) => {
                             </Nav>
                             <Nav>
                                 <NavDropdown title={<span><i className="fa fa-user"></i> {signedInUser}</span>}>
-                                    <NavDropdown.Item
-                                        href="#">
-                                        <i className="fa fa-key"> Change password</i>
-                                    </NavDropdown.Item>
+                                    <Link
+                                        className={'dropdown-item'}
+                                        to="/change-password"
+                                        title="Change Password">
+                                        <i className="fa fa-key"> Change Password</i>
+                                    </Link>
                                     <NavDropdown.Item
                                         href="#" onClick={(e) => { e.preventDefault(); dispatch(logout()); }}>
                                         <i className="fa fa-sign-out"> Sign-out</i>

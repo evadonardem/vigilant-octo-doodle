@@ -1,5 +1,4 @@
-import { Breadcrumb, Button, Card } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Button, Card, Toast, ToastContainer } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
 import AddEditUserModal from './Users/AddEditUserModal';
 import CommonDeleteModal from '../../CommonDeleteModal';
@@ -52,6 +51,10 @@ const Users = () => {
     const [errorHeaderTitleAddEditUser, setErrorHeaderTitleAddEditUser] = useState('');
     const [errorBodyTextAddEditUser, setErrorBodyTextAddEditUser] = useState('');
 
+    const [showDefaultPasswordToast, setShowDefaultPasswordToast] = useState(false);
+    const [defaultPasswordToastHeader, setDefaultPasswordToastHeader] = useState('');
+    const [defaultPasswordToastMessage, setDefaultPasswordToastMessage] = useState('');
+
     if (!(allowedToCreateUser || allowedToUpdateUser || allowedToViewUser)) {
         location.href = appBaseUrl;
     }
@@ -65,79 +68,98 @@ const Users = () => {
         exportButtons[1].filename = exportFilename;
         exportButtons[1].title = exportTitle;
 
-        $('table.table-users').DataTable({
-            ajax: apiBaseUrl + '/biometric/users?token=' + token,
-            buttons: exportButtons,
-            columns: [
-                { 'data': 'biometric_id' },
-                { 'data': 'name' },
-                { 'data': 'role' },
-                { 'data': 'current_per_hour_rate_amount' },
-                { 'data': 'current_per_delivery_rate_amount' },
-                {
-                    'data': null,
-                    'render': function (data, type, row) {
-                        const historyBtn = '<a href="#" class="rate-history btn btn-secondary" data-user-id="' + row.id + '"><i class="fa fa-history"></i></a>';
-                        const rolesAndPermissionsBtn = '<a href="#" class="roles-and-permissions btn btn-secondary" data-user-id="' + row.id + '"><i class="fa fa-id-card"></i></a>';
-                        const editBtn = '<a href="#" class="edit btn btn-primary" data-toggle="modal" data-target="#addEditBiometricUserModal" data-user-id="' + row.id + '" data-biometric-id="' + row.biometric_id + '" data-name="' + row.name + '" data-role="' + row.role + '" data-per-hour-rate-amount="' + row.current_per_hour_rate_amount + '" data-per-delivery-rate-amount="' + row.current_per_delivery_rate_amount + '"><i class="fa fa-edit"></i></a>';
-                        const deleteBtn = '<a href="#" class="delete btn btn-warning" data-toggle="modal" data-target="#deleteModal" data-user-id="' + row.id + '" data-biometric-id="' + row.biometric_id + '" data-name="' + row.name + '"><i class="fa fa-trash"></i></a>';
+        if (!$.fn.DataTable.isDataTable('table.table-users')) {
+            $('table.table-users').DataTable({
+                ajax: apiBaseUrl + '/biometric/users?token=' + token,
+                buttons: exportButtons,
+                columns: [
+                    { 'data': 'biometric_id' },
+                    { 'data': 'name' },
+                    { 'data': 'current_per_hour_rate_amount' },
+                    { 'data': 'current_per_delivery_rate_amount' },
+                    {
+                        'data': null,
+                        'render': function (_data, _type, row) {
+                            const historyBtn = '<a href="#" class="rate-history btn btn-secondary" data-user-id="' + row.id + '"><i class="fa fa-history"></i></a>';
+                            const rolesAndPermissionsBtn = '<a href="#" class="roles-and-permissions btn btn-secondary" data-user-id="' + row.id + '"><i class="fa fa-id-card"></i></a>';
+                            const resetPasswordBtn = '<a href="#" class="default-password btn btn-success" data-toggle="modal" data-target="#deleteModal" data-user-id="' + row.id + '" data-biometric-id="' + row.biometric_id + '" data-name="' + row.name + '"><i class="fa fa-key"></i></a>';
+                            const editBtn = '<a href="#" class="edit btn btn-primary" data-toggle="modal" data-target="#addEditBiometricUserModal" data-user-id="' + row.id + '" data-biometric-id="' + row.biometric_id + '" data-name="' + row.name + '" data-role="' + row.role + '" data-per-hour-rate-amount="' + row.current_per_hour_rate_amount + '" data-per-delivery-rate-amount="' + row.current_per_delivery_rate_amount + '"><i class="fa fa-edit"></i></a>';
+                            const deleteBtn = '<a href="#" class="delete btn btn-warning" data-toggle="modal" data-target="#deleteModal" data-user-id="' + row.id + '" data-biometric-id="' + row.biometric_id + '" data-name="' + row.name + '"><i class="fa fa-trash"></i></a>';
 
-                        return `<div class="btn-group">${historyBtn}${rolesAndPermissionsBtn}${editBtn}${deleteBtn}</div>`;
+                            return `<div class="btn-group">${historyBtn}${rolesAndPermissionsBtn}${resetPasswordBtn}${editBtn}${deleteBtn}</div>`;
+                        }
+                    }
+                ],
+                drawCallback: function () {
+                    if (!allowedToManageUserRateHistory) {
+                        $(document).find('.data-table-wrapper .rate-history').remove();
+                    }
+                    if (!allowedToManageUserRolesAndPermissions) {
+                        $(document).find('.data-table-wrapper .roles-and-permissions').remove();
+                    }
+                    if (!allowedToUpdateUser) {
+                        $(document).find('.data-table-wrapper .default-password').remove();
+                        $(document).find('.data-table-wrapper .edit').remove();
+                    }
+                    if (!allowedToDeleteUser) {
+                        $(document).find('.data-table-wrapper .delete').remove();
                     }
                 }
-            ],
-            drawCallback: function () {
-                if (!allowedToManageUserRateHistory) {
-                    $(document).find('.data-table-wrapper .rate-history').remove();
-                }
-                if (!allowedToManageUserRolesAndPermissions) {
-                    $(document).find('.data-table-wrapper .roles-and-permissions').remove();
-                }
-                if (!allowedToUpdateUser) {
-                    $(document).find('.data-table-wrapper .edit').remove();
-                }
-                if (!allowedToDeleteUser) {
-                    $(document).find('.data-table-wrapper .delete').remove();
-                }
-            }
-        });
+            });
 
-        $(document).on('click', '.data-table-wrapper .rate-history', function (e) {
-            e.preventDefault();
-            const userId = e.currentTarget.getAttribute('data-user-id');
-            location.href = `${appBaseUrl}/#/settings-users-rate-history/${userId}`;
-        });
+            $(document).on('click', '.data-table-wrapper .rate-history', function (e) {
+                e.preventDefault();
+                const userId = e.currentTarget.getAttribute('data-user-id');
+                location.href = `${appBaseUrl}/#/settings-users-rate-history/${userId}`;
+            });
 
-        $(document).on('click', '.data-table-wrapper .roles-and-permissions', function (e) {
-            e.preventDefault();
-            const userId = e.currentTarget.getAttribute('data-user-id');
-            location.href = `${appBaseUrl}/#/settings/users/${userId}/roles-and-permissions`;
-        });
+            $(document).on('click', '.data-table-wrapper .roles-and-permissions', function (e) {
+                e.preventDefault();
+                const userId = e.currentTarget.getAttribute('data-user-id');
+                location.href = `${appBaseUrl}/#/settings/users/${userId}/roles-and-permissions`;
+            });
 
-        $(document).on('click', '.data-table-wrapper .edit', function (e) {
-            e.preventDefault();
-            const userId = e.currentTarget.getAttribute('data-user-id');
-            const userBiometricId = e.currentTarget.getAttribute('data-biometric-id');
-            const userName = e.currentTarget.getAttribute('data-name');
-            const userRole = e.currentTarget.getAttribute('data-role');
-            setShowAddEditUserModal(true);
-            setIsEditUser(true);
-            setUserId(userId);
-            setUserBiometricId(userBiometricId);
-            setUserName(userName);
-            setUserRole(userRole);
-        });
+            $(document).on('click', '.data-table-wrapper .default-password', function (e) {
+                e.preventDefault();
+                const userId = e.currentTarget.getAttribute('data-user-id');
+                const userBiometricId = e.currentTarget.getAttribute('data-biometric-id');
+                const userName = e.currentTarget.getAttribute('data-name');
+                const generateRandomString = (length) => Math.random().toString(36).slice(2, length + 2);
+                const defaultPassword = generateRandomString(6);
+                axios.patch(`${apiBaseUrl}/settings/users/${userId}/default-password?token=${token}`, { default_password: defaultPassword })
+                    .then(() => {
+                        setShowDefaultPasswordToast(true);
+                        setDefaultPasswordToastHeader(`(${userBiometricId}) ${userName}`);
+                        setDefaultPasswordToastMessage(`Default Password: ${defaultPassword}`);
+                    })
+                    .catch(() => location.reload());
+            });
 
-        $(document).on('click', '.data-table-wrapper .delete', function (e) {
-            e.preventDefault();
-            const userId = e.currentTarget.getAttribute('data-user-id');
-            const userBiometricId = e.currentTarget.getAttribute('data-biometric-id');
-            const userName = e.currentTarget.getAttribute('data-name');
-            setShowDeleteUserModal(true);
-            setUserId(userId);
-            setUserBiometricId(userBiometricId);
-            setUserName(userName);
-        });
+            $(document).on('click', '.data-table-wrapper .edit', function (e) {
+                e.preventDefault();
+                const userId = e.currentTarget.getAttribute('data-user-id');
+                const userBiometricId = e.currentTarget.getAttribute('data-biometric-id');
+                const userName = e.currentTarget.getAttribute('data-name');
+                const userRole = e.currentTarget.getAttribute('data-role');
+                setShowAddEditUserModal(true);
+                setIsEditUser(true);
+                setUserId(userId);
+                setUserBiometricId(userBiometricId);
+                setUserName(userName);
+                setUserRole(userRole);
+            });
+
+            $(document).on('click', '.data-table-wrapper .delete', function (e) {
+                e.preventDefault();
+                const userId = e.currentTarget.getAttribute('data-user-id');
+                const userBiometricId = e.currentTarget.getAttribute('data-biometric-id');
+                const userName = e.currentTarget.getAttribute('data-name');
+                setShowDeleteUserModal(true);
+                setUserId(userId);
+                setUserBiometricId(userBiometricId);
+                setUserName(userName);
+            });
+        }
     }
 
     const handleShowAddEditUserModal = () => {
@@ -237,7 +259,6 @@ const Users = () => {
                             <tr>
                                 <th scope="col">Biometric ID</th>
                                 <th scope="col">Name</th>
-                                <th scope="col">Current Role</th>
                                 <th scope="col">Current Per Hour Rate</th>
                                 <th scope="col">Current Per Delivery Rate</th>
                                 <th></th>
@@ -276,6 +297,16 @@ const Users = () => {
                 deleteErrorHeaderTitle={deleteUserErrorHeaderTitle}
                 deleteErrorBodyText={deleteUserErrorBodyText} />
 
+            {showDefaultPasswordToast && <ToastContainer className="p-3 position-fixed" position="middle-center">
+                <Toast bg="success" onClose={() => {
+                    setShowDefaultPasswordToast(false);
+                    setDefaultPasswordToastHeader('');
+                    setDefaultPasswordToastMessage('');
+                }}>
+                    <Toast.Header>{defaultPasswordToastHeader}</Toast.Header>
+                    <Toast.Body>{defaultPasswordToastMessage}</Toast.Body>
+                </Toast>
+            </ToastContainer>}
         </>
     );
 }

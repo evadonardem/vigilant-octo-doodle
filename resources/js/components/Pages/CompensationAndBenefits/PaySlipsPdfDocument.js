@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
 });
 
 const PaySlipsPdfDocument = ({ payPeriod } = props) => {
-    const payslips = payPeriod.map((details, index) => {
+    const payslips = payPeriod.map((details) => {
         return <View key={`paylip${details.biometric_id}`} style={styles.payslip} wrap={false}>
             <View style={styles.payslipHeading}>
                 <Text>GIFT OF GRACE FOOD MANUFACTURING CORPORATION</Text>
@@ -43,7 +43,6 @@ const PaySlipsPdfDocument = ({ payPeriod } = props) => {
             <View>
                 <Text>ID NO: {details.biometric_id}</Text>
                 <Text>NAME: {details.biometric_name}</Text>
-                <Text>POSITION: {details.position}</Text>
             </View>
             <View style={{ marginTop: 5 }}>
                 <Text>RATE/HR: {details.effective_per_hour_rate}</Text>

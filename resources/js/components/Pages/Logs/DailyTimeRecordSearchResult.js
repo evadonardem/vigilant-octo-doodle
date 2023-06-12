@@ -9,7 +9,6 @@ export default class DailyTimeRecordSearchResult extends Component {
     }
 
     componentDidMount() {
-        const self = this;
 
         const exportButtons = window.exportButtonsBase;
         exportButtons[0].filename = () => { return this.initExportFilename(); };
@@ -36,7 +35,6 @@ export default class DailyTimeRecordSearchResult extends Component {
                 },
                 { data: 'biometric_id' },
                 { data: 'biometric_name' },
-                { data: 'position' },
                 {
                     className: 'text-right',
                     data: 'meta.duration_total_hours'
@@ -69,20 +67,6 @@ export default class DailyTimeRecordSearchResult extends Component {
         });
 
         const format = (d) => {
-            const header = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px; width: 100%;">' +
-                '<tr>' +
-                '<td>ID:</td>' +
-                '<td>' + d.biometric_id + '</td>' +
-                '<td>NAME:</td>' +
-                '<td>' + d.biometric_name + '</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td>POSITION:</td>' +
-                '<td>' + d.position + '</td>' +
-                '<td>COVERAGE:</td>' +
-                '<td>' + d.meta.from + ' - ' + d.meta.to + '</td>' +
-                '</tr>' +
-                '</table>';
             const entries = `<table class="table">
                 <thead>
                     <th>Day</th>
@@ -130,9 +114,7 @@ export default class DailyTimeRecordSearchResult extends Component {
 
             return `<div class="card">
                 <div class="card-header">
-                    <span class="badge badge-success">${d.biometric_id}</span><br>
-                    ${d.biometric_name}<br>
-                    ${d.position}
+                    <span class="badge bg-primary">${d.biometric_id}</span> ${d.biometric_name}
                 </div>
                 <div class="card-body">
                     ${entries}
@@ -238,7 +220,6 @@ export default class DailyTimeRecordSearchResult extends Component {
                                     <th></th>
                                     <th scope="col">Biometric ID</th>
                                     <th scope="col">Name</th>
-                                    <th scope="col">Position</th>
                                     <th scope="col">Total Hrs. (Reg.)</th>
                                     <th scope="col">Total Amt. (Reg.)</th>
                                     <th scope="col">Total Hrs. (OT)</th>

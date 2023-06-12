@@ -67,7 +67,6 @@ const PayPeriodDetails = () => {
                 },
                 { 'data': 'biometric_id' },
                 { 'data': 'biometric_name' },
-                { 'data': 'position' },
                 { 'data': 'effective_per_hour_rate' },
                 { 'data': 'effective_per_delivery_rate' },
                 {
@@ -112,7 +111,7 @@ const PayPeriodDetails = () => {
                 },
             ],
             columnDefs: [
-                { orderable: false, targets: [0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] }
+                { orderable: false, targets: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] }
             ],
             order: [[2, 'asc']],
             footerCallback: function () {
@@ -125,7 +124,7 @@ const PayPeriodDetails = () => {
                 };
 
                 const totalHoursRegular = api
-                    .column(6)
+                    .column(5)
                     .data()
                     .reduce(
                         function (a, b) {
@@ -135,7 +134,7 @@ const PayPeriodDetails = () => {
                     );
 
                 const totalAmountRegular = api
-                    .column(7)
+                    .column(6)
                     .data()
                     .reduce(
                         function (a, b) {
@@ -145,7 +144,7 @@ const PayPeriodDetails = () => {
                     );
 
                 const totalHoursOvertime = api
-                    .column(8)
+                    .column(7)
                     .data()
                     .reduce(
                         function (a, b) {
@@ -155,7 +154,7 @@ const PayPeriodDetails = () => {
                     );
 
                 const totalAmountOvertime = api
-                    .column(9)
+                    .column(8)
                     .data()
                     .reduce(
                         function (a, b) {
@@ -165,7 +164,7 @@ const PayPeriodDetails = () => {
                     );
 
                 const totalAmountRegularAndOvertime = api
-                    .column(10)
+                    .column(9)
                     .data()
                     .reduce(
                         function (a, b) {
@@ -175,7 +174,7 @@ const PayPeriodDetails = () => {
                     );
 
                 const totalDeliveries = api
-                    .column(11)
+                    .column(10)
                     .data()
                     .reduce(
                         function (a, b) {
@@ -185,7 +184,7 @@ const PayPeriodDetails = () => {
                     );
 
                 const totalDeliveriesAmount = api
-                    .column(12)
+                    .column(11)
                     .data()
                     .reduce(
                         function (a, b) {
@@ -195,7 +194,7 @@ const PayPeriodDetails = () => {
                     );
 
                 const totalGrossAmount = api
-                    .column(13)
+                    .column(12)
                     .data()
                     .reduce(
                         function (a, b) {
@@ -205,7 +204,7 @@ const PayPeriodDetails = () => {
                     );
 
                 const totalDeductions = api
-                    .column(14)
+                    .column(13)
                     .data()
                     .reduce(
                         function (a, b) {
@@ -215,7 +214,7 @@ const PayPeriodDetails = () => {
                     );
 
                 const totalNetAmount = api
-                    .column(15)
+                    .column(14)
                     .data()
                     .reduce(
                         function (a, b) {
@@ -224,16 +223,16 @@ const PayPeriodDetails = () => {
                         0
                     );
 
-                $(api.column(6).footer()).html(totalHoursRegular.toFixed(3));
-                $(api.column(7).footer()).html(totalAmountRegular.toFixed(2));
-                $(api.column(8).footer()).html(totalHoursOvertime.toFixed(3));
-                $(api.column(9).footer()).html(totalAmountOvertime.toFixed(2));
-                $(api.column(10).footer()).html(totalAmountRegularAndOvertime.toFixed(2));
-                $(api.column(11).footer()).html(totalDeliveries.toFixed(0));
-                $(api.column(12).footer()).html(totalDeliveriesAmount.toFixed(2));
-                $(api.column(13).footer()).html(totalGrossAmount.toFixed(2));
-                $(api.column(14).footer()).html(totalDeductions.toFixed(2));
-                $(api.column(15).footer()).html(totalNetAmount.toFixed(2));
+                $(api.column(5).footer()).html(totalHoursRegular.toFixed(3));
+                $(api.column(6).footer()).html(totalAmountRegular.toFixed(2));
+                $(api.column(7).footer()).html(totalHoursOvertime.toFixed(3));
+                $(api.column(8).footer()).html(totalAmountOvertime.toFixed(2));
+                $(api.column(9).footer()).html(totalAmountRegularAndOvertime.toFixed(2));
+                $(api.column(10).footer()).html(totalDeliveries.toFixed(0));
+                $(api.column(11).footer()).html(totalDeliveriesAmount.toFixed(2));
+                $(api.column(12).footer()).html(totalGrossAmount.toFixed(2));
+                $(api.column(13).footer()).html(totalDeductions.toFixed(2));
+                $(api.column(14).footer()).html(totalNetAmount.toFixed(2));
             }
         });
 
@@ -257,9 +256,7 @@ const PayPeriodDetails = () => {
 
             return `<div class="card">
                 <div class="card-header">
-                    <span class="badge badge-success">${d.biometric_id}</span><br>
-                    ${d.biometric_name}<br>
-                    ${d.position}
+                    <span class="badge bg-primary">${d.biometric_id}</span> ${d.biometric_name}
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -517,7 +514,6 @@ const PayPeriodDetails = () => {
                                 <th></th>
                                 <th scope="col">Biometric ID</th>
                                 <th scope="col">Name</th>
-                                <th scope="col">Position</th>
                                 <th scope="col">Effective Rate/Hr.</th>
                                 <th scope="col">Effective Rate/Delivery</th>
                                 <th scope="col">Total Hrs. (Reg.)</th>
@@ -535,7 +531,7 @@ const PayPeriodDetails = () => {
                         <tbody></tbody>
                         <tfoot>
                             <tr>
-                                <th colSpan="5"></th>
+                                <th colSpan="4"></th>
                                 <th>Total:</th>
                                 <th>0.000</th>
                                 <th>0.00</th>

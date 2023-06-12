@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ChangePasswordRequest;
 use Illuminate\Support\Facades\Auth;
 use JWTAuth;
 use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
 use Dingo\Api\Routing\Helpers;
 use App\ZKLib\ZKLibrary;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -79,5 +81,14 @@ class AuthController extends Controller
         $user = $this->auth->user();
 
         return $user;
+    }
+
+    public function changePassword(ChangePasswordRequest $request)
+    {
+        $user = $this->auth->user();
+        $user->password = Hash::make($request->input('new_password'));
+        $user->save();
+
+        return response()->noContent();
     }
 }

@@ -64,7 +64,6 @@ const ThirteenthMonthPayPeriodDetails = () => {
             columns: [
                 { 'data': 'biometric_id' },
                 { 'data': 'biometric_name' },
-                { 'data': 'position' },
                 {
                     className: 'text-right',
                     data: 'meta.duration_total_hours_amount'
@@ -89,7 +88,7 @@ const ThirteenthMonthPayPeriodDetails = () => {
                 },
             ],
             columnDefs: [
-                { orderable: false, targets: [0, 2, 3, 4, 5, 6, 7] }
+                { orderable: false, targets: [0, 1, 2, 3, 4, 5, 6] }
             ],
             order: [[1, 'asc']],
             footerCallback: function (row, data, start, end, display) {
@@ -102,7 +101,7 @@ const ThirteenthMonthPayPeriodDetails = () => {
                 };
 
                 const totalAmountRegular = api
-                    .column(3)
+                    .column(2)
                     .data()
                     .reduce(
                         function (a, b) {
@@ -112,7 +111,7 @@ const ThirteenthMonthPayPeriodDetails = () => {
                     );
 
                 const totalAmountDeliveries = api
-                    .column(4)
+                    .column(3)
                     .data()
                     .reduce(
                         function (a, b) {
@@ -122,7 +121,7 @@ const ThirteenthMonthPayPeriodDetails = () => {
                     );
 
                 const totalGrossAmount = api
-                    .column(5)
+                    .column(4)
                     .data()
                     .reduce(
                         function (a, b) {
@@ -132,7 +131,7 @@ const ThirteenthMonthPayPeriodDetails = () => {
                     );
 
                 const totalThirteenthMonthPay = api
-                    .column(6)
+                    .column(5)
                     .data()
                     .reduce(
                         function (a, b) {
@@ -141,10 +140,10 @@ const ThirteenthMonthPayPeriodDetails = () => {
                         0
                     );
 
-                $(api.column(3).footer()).html(totalAmountRegular.toFixed(2));
-                $(api.column(4).footer()).html(totalAmountDeliveries.toFixed(2));
-                $(api.column(5).footer()).html(totalGrossAmount.toFixed(2));
-                $(api.column(6).footer()).html(totalThirteenthMonthPay.toFixed(2));
+                $(api.column(2).footer()).html(totalAmountRegular.toFixed(2));
+                $(api.column(3).footer()).html(totalAmountDeliveries.toFixed(2));
+                $(api.column(4).footer()).html(totalGrossAmount.toFixed(2));
+                $(api.column(5).footer()).html(totalThirteenthMonthPay.toFixed(2));
             },
         });
 
@@ -183,7 +182,6 @@ const ThirteenthMonthPayPeriodDetails = () => {
                             <tr>
                             <th scope="col">Biometric ID</th>
                             <th scope="col">Name</th>
-                            <th scope="col">Position</th>
                             <th scope="col">Total Amt. (Reg.)</th>
                             <th scope="col">Total Amt. (Deliveries)</th>
                             <th scope="col">Gross Amt. (Reg. + Deliveries)</th>
@@ -194,8 +192,7 @@ const ThirteenthMonthPayPeriodDetails = () => {
                         <tbody></tbody>
                         <tfoot>
                             <tr>
-                                <th colSpan="2"></th>
-                                <th>Total:</th>
+                                <th colSpan="2">Total:</th>
                                 <th>0.00</th>
                                 <th>0.00</th>
                                 <th>0.00</th>

@@ -45,6 +45,7 @@ import Trends from './Pages/Trends';
 import TrendsItem from './Pages/Trends/TrendsItem';
 import TrendsStore from './Pages/Trends/TrendsStore';
 import Users from './Pages/Settings/Users';
+import ChangePassword from './Pages/Profile/ChangePassword';
 
 export default function App() {
     const dispatch = useDispatch();
@@ -195,6 +196,8 @@ export default function App() {
                                     <Route path="/settings/items-registry" element={<ItemsRegistry />}></Route>
                                     <Route path="/settings/stores-registry" element={<StoresRegistry />}></Route>
                                 </>}
+
+                            <Route path="/change-password" element={<ChangePassword />}></Route>
 
                             { /* fallback route for non-existing routes */}
                             <Route path="*" element={<Navigate to="/dashboard" />}></Route>
