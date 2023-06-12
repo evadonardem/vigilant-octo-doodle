@@ -68,6 +68,10 @@ export default function App() {
     const canViewPayPeriod = isSuperAdmin || hasPermission("View pay period");
     const canUpdateSalesInvoice = isSuperAdmin || hasPermission("Update sales invoice");
     const canViewSalesInvoice = isSuperAdmin || hasPermission("View sales invoice");
+    const canCreateStockCard = isSuperAdmin || hasPermission("Create stock card");
+    const canViewStockCard = isSuperAdmin || hasPermission("View stock card");
+    const canGenerateStoreTrend = isSuperAdmin || hasPermission("Generate store trend");
+    const canGenerateItemTrend = isSuperAdmin || hasPermission("Generate item trend");
 
     return (
         <>
@@ -161,8 +165,8 @@ export default function App() {
 
                             {links && links.map((link) => link.to).includes('/stock-cards') &&
                                 <>
-                                    <Route path={'/stock-cards/create'} element={<StockCardsCreate />}></Route>
-                                    <Route path={'/stock-cards/:stockCardId/details'} element={<StockCardsShow />}></Route>
+                                    {canCreateStockCard && <Route path={'/stock-cards/create'} element={<StockCardsCreate />}></Route>}
+                                    {canViewStockCard && <Route path={'/stock-cards/:stockCardId/details'} element={<StockCardsShow />}></Route>}
                                 </>}
 
                             {links && links.map((link) => link.to).includes('/reports') &&
@@ -178,8 +182,8 @@ export default function App() {
 
                             {links && links.map((link) => link.to).includes('/trends') &&
                                 <>
-                                    <Route path={'/trends-store'} element={<TrendsStore />}></Route>
-                                    <Route path={'/trends-item'} element={<TrendsItem />}></Route>
+                                    {canGenerateStoreTrend && <Route path={'/trends-store'} element={<TrendsStore />}></Route>}
+                                    {canGenerateItemTrend && <Route path={'/trends-item'} element={<TrendsItem />}></Route>}
                                 </>}
 
                             {links && links.map((link) => link.to).includes('/settings') &&

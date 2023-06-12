@@ -5,17 +5,24 @@ import LoadingInline from '../../Generic/LoadingInline';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import cookie from 'react-cookies';
+import Directory from '../../Generic/Directory';
+import { useSelector } from 'react-redux';
 
 const END_POINT = `${apiBaseUrl}/stock-cards`;
 
 const BREADCRUMB_ITEMS = [
     {
-        icon: 'fa-clipboard',
+        icon: 'fa-dashboard',
+        label: '',
+        link: '#/dashboard'
+    },
+    {
+        icon: '',
         label: 'Stock Cards',
         link: '#/stock-cards'
     },
     {
-        icon: 'fa-file',
+        icon: '',
         label: 'Stock Card {stockCardId}',
     },
 ];
@@ -23,6 +30,12 @@ const BREADCRUMB_ITEMS = [
 let ajaxRequest;
 
 const StockCardsShow = () => {
+    const { roles, permissions } = useSelector((state) => state.authenticate.user);
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
+    const isSuperAdmin = hasRole("Super Admin");
+    const canUpdateStockCard = isSuperAdmin || hasPermission("Update stock card");
+
     const token = cookie.load('token');
     const params = useParams();
     const { stockCardId } = params;
@@ -122,25 +135,20 @@ const StockCardsShow = () => {
         fetchStockCard();
     }, []);
 
-    console.log('dave', stockCard);
+    const items = stockCard ? BREADCRUMB_ITEMS.map((item) => {
+        item.label = item.label.replace('{stockCardId}', stockCardId);
+        return item;
+    }) : [];
 
     return (
         <>
             {stockCard &&
                 <>
-                    <Breadcrumb>
-                        {
-                            BREADCRUMB_ITEMS.map(({ icon, label, link }, key) =>
-                                <Breadcrumb.Item key={key} href={link ?? ''} active={!link}>
-                                    <span>
-                                        <i className={`fa ${icon}`}></i>&nbsp;
-                                        {label.replace('{stockCardId}', stockCard.id)}
-                                    </span>
-                                </Breadcrumb.Item>
-                            )
-                        }
-                    </Breadcrumb>
-                    <Card>
+                    <Directory items={items} />
+                    <Card className="my-4">
+                        <Card.Header as="h5">
+                            <i className="fa fa-file"></i> Stock Card {stockCardId}
+                        </Card.Header>
                         <Card.Body>
                             <Card>
                                 <Card.Header>
@@ -218,8 +226,8 @@ const StockCardsShow = () => {
                                                                 data-item-id={item.id}
                                                                 defaultValue={value}
                                                                 value={stockCardType.code === 'ending_inventory' ? value : null}
-                                                                readOnly={stockCardType.code === 'ending_inventory'}
-                                                                onBlur={stockCardType.code !== 'ending_inventory'
+                                                                readOnly={stockCardType.code === 'ending_inventory' || !canUpdateStockCard}
+                                                                onBlur={stockCardType.code !== 'ending_inventory' && canUpdateStockCard
                                                                     ? handleChangeQuantity
                                                                     : null} />
                                                         </td>;

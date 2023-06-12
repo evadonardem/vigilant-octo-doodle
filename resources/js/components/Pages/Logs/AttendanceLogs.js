@@ -28,7 +28,7 @@ export default function AttendanceLogs() {
     const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
     const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
     const isSuperAdmin = hasRole("Super Admin");
-    const canAccessOtherUserAttendanceLogs = isSuperAdmin || hasPermission("View manual biometric logs");
+    const canAccessOtherUserAttendanceLogs = isSuperAdmin || hasPermission("View manual biometric logs") || hasPermission("View pay period");
 
     const [biometricId, setBiometricId] = useState(canAccessOtherUserAttendanceLogs ? '' : user.biometric_id);
     const [biometricName, setBiometricName] = useState(canAccessOtherUserAttendanceLogs ? '' : user.name);

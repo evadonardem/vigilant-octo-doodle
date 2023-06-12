@@ -1,15 +1,20 @@
-import { Breadcrumb } from 'react-bootstrap';
 import ChartsTrendsByStore from './ChartsTrendsByStore';
 import React from 'react';
+import Directory from '../../Generic/Directory';
 
 const BREADCRUMB_ITEMS = [
     {
-        icon: 'fa-signal',
+        icon: 'fa-dashboard',
+        label: '',
+        link: '#/dashboard'
+    },
+    {
+        icon: '',
         label: 'Trends',
         link: '#/trends'
     },
     {
-        icon: 'fa-line-chart',
+        icon: '',
         label: 'Store',
     },
 ];
@@ -17,18 +22,7 @@ const BREADCRUMB_ITEMS = [
 const TrendsStore = () => {
     return (
         <>
-            <Breadcrumb>
-                {
-                    BREADCRUMB_ITEMS.map(({ icon, label, link }, key) =>
-                        <Breadcrumb.Item key={key} href={link ?? ''} active={!link}>
-                            <span>
-                                <i className={`fa ${icon}`}></i>&nbsp;
-                                {label}
-                            </span>
-                        </Breadcrumb.Item>
-                    )
-                }
-            </Breadcrumb>
+            <Directory items={BREADCRUMB_ITEMS}/>
             <ChartsTrendsByStore/>
         </>
     );

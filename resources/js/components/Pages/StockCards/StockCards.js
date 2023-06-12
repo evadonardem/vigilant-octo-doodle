@@ -1,8 +1,10 @@
-import { Breadcrumb, Button, ButtonGroup, Card } from 'react-bootstrap';
+import { Button, ButtonGroup, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import CommonDeleteModal from '../../CommonDeleteModal';
 import React, { useEffect, useState } from 'react';
 import cookie from 'react-cookies';
+import Directory from '../../Generic/Directory';
+import { useSelector } from 'react-redux';
 
 const END_POINT = `${apiBaseUrl}/stock-cards`;
 const STOCK_CARDS_TABLE = 'table-stock-cards';
@@ -20,6 +22,13 @@ const BREADCRUMB_ITEMS = [
 ];
 
 const StockCards = () => {
+    const { roles, permissions } = useSelector((state) => state.authenticate.user);
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
+    const isSuperAdmin = hasRole("Super Admin");
+    const canCreateStockCard = isSuperAdmin || hasPermission("Create stock card");
+    const canDeleteStockCard = isSuperAdmin || hasPermission("Delete stock card");
+
     const token = cookie.load('token');
     const [stockCardDeleteModal, setStockCardDeleteModal] = useState({
         show: false,
@@ -94,6 +103,11 @@ const StockCards = () => {
                     }
                 }
             ],
+            drawCallback: function () {
+                if (!canDeleteStockCard) {
+                    $(document).find('.data-table-wrapper .delete').remove();
+                }
+            },
         });
 
         $(document).on('click', '.data-table-wrapper .open', function (e) {
@@ -117,21 +131,10 @@ const StockCards = () => {
     }, []);
 
     return <>
-        <Card className="mt-4">
-            <Card.Header>
-                <Breadcrumb>
-                    {
-                        BREADCRUMB_ITEMS.map(({ icon, label, link }, key) =>
-                            <Breadcrumb.Item key={key} href={link ?? ''} active={!link}>
-                                <span>
-                                    <i className={`fa ${icon}`}></i>
-                                    {label}
-                                </span>
-                            </Breadcrumb.Item>
-                        )
-                    }
-                </Breadcrumb>
-                <h5><i className='fa fa-clipboard'></i> Stock Cards</h5>
+        <Directory items={BREADCRUMB_ITEMS}/>
+        <Card className="my-4">
+            <Card.Header as="h5">
+                <i className='fa fa-clipboard'></i> Stock Cards
             </Card.Header>
             <Card.Body>
                 <table className={`table table-striped ${STOCK_CARDS_TABLE}`} style={{ width: 100 + '%' }}>
@@ -147,7 +150,7 @@ const StockCards = () => {
                     <tbody></tbody>
                 </table>
             </Card.Body>
-            <Card.Footer>
+            {canCreateStockCard && <Card.Footer>
                 <div className="row">
                     <div className="col-md-12">
                         <ButtonGroup>
@@ -159,7 +162,7 @@ const StockCards = () => {
                         </ButtonGroup>
                     </div>
                 </div>
-            </Card.Footer>
+            </Card.Footer>}
         </Card>
         <CommonDeleteModal
             isShow={stockCardDeleteModal.show}

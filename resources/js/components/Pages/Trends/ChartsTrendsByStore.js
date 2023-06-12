@@ -1,3 +1,4 @@
+import _chart from 'chart.js/auto';
 import { Bar, Line } from 'react-chartjs-2';
 import { Button, Card, Form } from 'react-bootstrap';
 import { NumericFormat } from 'react-number-format';
@@ -225,17 +226,11 @@ const ChartsTrendsByStore = () => {
 
     return (
         <>
-            <Card key={`store-trends`}>
+            <Card key={`store-trends`} className="my-4">
+                <Card.Header as="h5">
+                    <i className="fa fa-line-chart"></i> Store Trends
+                </Card.Header>
                 <Card.Body>
-                    <h1 className="display-3"><i className="fa fa-line-chart"></i> Store Trends</h1>
-                    <p className="lead">
-                        {!dataSales &&
-                            'Generate sales, deliveries, and returns trend by store, category, or location.'}
-                        {dataSales &&
-                            `From: ${from} To: ${to} | ${selectedEntities.length > 0
-                                ? selectedEntities.join(',')
-                                : `All ${by}`}`}
-                    </p>
                     {(dataSales || dataDeliveries || dataReturns) &&
                         <>
                             <div className="row">
@@ -247,6 +242,7 @@ const ChartsTrendsByStore = () => {
                                         onClick={handleBack}>Back</Button>
                                 </div>
                             </div>
+                            <p>From: {from} To: {to} | {selectedEntities.length > 0 ? selectedEntities.join(', ') : `All ${by}`}</p>
                             {dataSales &&
                                 <>
                                     <Card className="mb-4">
@@ -360,6 +356,9 @@ const ChartsTrendsByStore = () => {
                         <>
                             <Form onSubmit={handleGenerateChart}>
                                 <Card>
+                                    <Card.Header>
+                                        Generate sales, deliveries, and returns trend by store, category, or location.
+                                    </Card.Header>
                                     <Card.Body>
                                         <Form.Group>
                                             <Form.Label>Chart type:</Form.Label>

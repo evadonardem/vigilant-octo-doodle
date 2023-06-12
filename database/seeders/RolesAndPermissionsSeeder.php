@@ -52,6 +52,16 @@ class RolesAndPermissionsSeeder extends Seeder
                 'Delete sales invoice',
                 'View sales invoice',
             ],
+            'Manage Stock Card' => [
+                'Create stock card',
+                'Update stock card',
+                'Delete stock card',
+                'View stock card',
+            ],
+            'Manage Trend' => [
+                'Generate store trend',
+                'Generate item trend',
+            ],
             'Manage Users Registry' => [
                 'Create or register new user',
                 'Update existing user',

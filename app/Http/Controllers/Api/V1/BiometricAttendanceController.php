@@ -84,7 +84,6 @@ class BiometricAttendanceController extends Controller
         $logsQry = AttendanceLog::whereBetween('biometric_timestamp', [$startDate, $endDate]);
 
         if ($this->canAccessOtherUserAttendanceLogs) {
-			Log::debug('Filtering attendance logs as super admin.');
 			if ($biometricIds) {
 				$biometricIdsChunks = array_chunk($biometricIds, 10);
 				$logsQry->where(function ($query) use ($biometricIdsChunks) {
@@ -98,7 +97,6 @@ class BiometricAttendanceController extends Controller
 				$logsQry->where('biometric_name', 'like', '%' . $name . '%');
 			}
 		} else {
-			Log::debug('Filtering attendance logs as standard user.');
 			$logsQry->where('biometric_id', $this->currentUser->biometric_id);
 		}
 

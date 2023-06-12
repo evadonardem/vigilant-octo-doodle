@@ -1,3 +1,4 @@
+import _chart from 'chart.js/auto';
 import { Bar, Line } from 'react-chartjs-2';
 import { Button, Card, Form } from 'react-bootstrap';
 import { NumericFormat } from 'react-number-format';
@@ -168,20 +169,12 @@ const ChartsTrendsByItem = () => {
 
     return (
         <>
-            <Card key={`item-trends`}>
+            <Card key={`item-trends`} className="my-4">
+                <Card.Header as="h5">
+                    <i className="fa fa-bar-chart"></i> Item Trends
+                </Card.Header>
                 <Card.Body>
-                    <h1 className="display-3"><i className="fa fa-bar-chart"></i> Item Trends</h1>
-                    <p className="lead">
-                        {!dataSales &&
-                            'Generate item sales by store, category, or location.'}
-                        {dataSales &&
-                            `From: ${from} To: ${to} | ${selectedItems && selectedItems.length > 0
-                                ? selectedItems.map((item) => item.label).join(',')
-                                : 'All Items'} | ${selectedEntities.length > 0
-                                    ? selectedEntities.join(',')
-                                    : `All ${by}`}`}
-                    </p>
-                    {(dataSales || dataDeliveries) &&
+                    {(dataSales || dataDeliveries) && <>
                         <div className="row">
                             <div className="col-md-12">
                                 <Button
@@ -190,86 +183,85 @@ const ChartsTrendsByItem = () => {
                                     variant="secondary"
                                     onClick={handleBack}>Back</Button>
                             </div>
-                        </div>}
-                    {dataSales &&
-                        <>
-                            <Card className="mb-4">
-                                <Card.Header>
-                                    <i className="fa fa-money"></i> Sales
-                                </Card.Header>
-                                <Card.Body>
-                                    {chartType === 'line' &&
-                                        <Line data={dataSales} />}
-                                    {chartType === 'bar' &&
-                                        <Bar data={dataSales} />}
-                                </Card.Body>
-                                <Card.Footer>
-                                    <table className="table table-striped my-4" style={{ width: 100 + '%' }}>
-                                        <thead>
-                                            <tr>
-                                                <th></th>
-                                                {dataSales.labels.map((label, i) => <th key={`item-trends-sales-th-${i}`}>{label}</th>)}
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {dataSales.datasets.map(({ label, data }, i) => <tr key={`item-trends-sales-tr-${i}`}>
-                                                <th>{label}</th>
-                                                {data.map((value, j) => <td key={`item-trends-sales-td-${j}`}>
-                                                    <NumericFormat
-                                                        value={value}
-                                                        displayType="text"
-                                                        prefix="Php"
-                                                        decimalScale="2"
-                                                        fixedDecimalScale
-                                                        thousandSeparator />
-                                                </td>)}
-                                            </tr>)}
-                                        </tbody>
-                                    </table>
-                                </Card.Footer>
-                            </Card>
-                        </>}
-
-                    {dataDeliveries &&
-                        <>
-                            <Card className="mb-4">
-                                <Card.Header>
-                                    <i className="fa fa-truck"></i> Deliveries
-                                </Card.Header>
-                                <Card.Body>
-                                    {chartType === 'line' &&
-                                        <Line data={dataDeliveries} />}
-                                    {chartType === 'bar' &&
-                                        <Bar data={dataDeliveries} />}
-                                </Card.Body>
-                                <Card.Footer>
-                                    <table className="table table-striped my-4" style={{ width: 100 + '%' }}>
-                                        <thead>
-                                            <tr>
-                                                <th></th>
-                                                {dataDeliveries.labels.map((label, i) => <th key={`item-trends-deliveries-th-${i}`}>{label}</th>)}
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {dataDeliveries.datasets.map(({ label, data }, i) => <tr key={`item-trends-deliveries-tr-${i}`}>
-                                                <th>{label}</th>
-                                                {data.map((value, j) => <td key={`item-trends-deliveries-td-${j}`}>
-                                                    <NumericFormat
-                                                        value={value}
-                                                        displayType="text"
-                                                        thousandSeparator />
-                                                </td>)}
-                                            </tr>)}
-                                        </tbody>
-                                    </table>
-                                </Card.Footer>
-                            </Card>
-                        </>}
-
+                        </div>
+                        <p>From: {from} To: {to} | {selectedItems && selectedItems.length > 0
+                            ? selectedItems.map((item) => item.label).join(', ') : 'All Items'} | {selectedEntities.length > 0
+                                ? selectedEntities.join(', ') : `All ${by}`}</p>
+                        {dataSales && <Card className="mb-4">
+                            <Card.Header>
+                                <i className="fa fa-money"></i> Sales
+                            </Card.Header>
+                            <Card.Body>
+                                {chartType === 'line' &&
+                                    <Line data={dataSales} />}
+                                {chartType === 'bar' &&
+                                    <Bar data={dataSales} />}
+                            </Card.Body>
+                            <Card.Footer>
+                                <table className="table table-striped my-4" style={{ width: 100 + '%' }}>
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            {dataSales.labels.map((label, i) => <th key={`item-trends-sales-th-${i}`}>{label}</th>)}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {dataSales.datasets.map(({ label, data }, i) => <tr key={`item-trends-sales-tr-${i}`}>
+                                            <th>{label}</th>
+                                            {data.map((value, j) => <td key={`item-trends-sales-td-${j}`}>
+                                                <NumericFormat
+                                                    value={value}
+                                                    displayType="text"
+                                                    prefix="Php"
+                                                    decimalScale="2"
+                                                    fixedDecimalScale
+                                                    thousandSeparator />
+                                            </td>)}
+                                        </tr>)}
+                                    </tbody>
+                                </table>
+                            </Card.Footer>
+                        </Card>}
+                        {dataDeliveries && <Card className="mb-4">
+                            <Card.Header>
+                                <i className="fa fa-truck"></i> Deliveries
+                            </Card.Header>
+                            <Card.Body>
+                                {chartType === 'line' &&
+                                    <Line data={dataDeliveries} />}
+                                {chartType === 'bar' &&
+                                    <Bar data={dataDeliveries} />}
+                            </Card.Body>
+                            <Card.Footer>
+                                <table className="table table-striped my-4" style={{ width: 100 + '%' }}>
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            {dataDeliveries.labels.map((label, i) => <th key={`item-trends-deliveries-th-${i}`}>{label}</th>)}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {dataDeliveries.datasets.map(({ label, data }, i) => <tr key={`item-trends-deliveries-tr-${i}`}>
+                                            <th>{label}</th>
+                                            {data.map((value, j) => <td key={`item-trends-deliveries-td-${j}`}>
+                                                <NumericFormat
+                                                    value={value}
+                                                    displayType="text"
+                                                    thousandSeparator />
+                                            </td>)}
+                                        </tr>)}
+                                    </tbody>
+                                </table>
+                            </Card.Footer>
+                        </Card>}
+                    </>}
                     {!(dataSales || dataDeliveries) &&
                         <>
                             <Form onSubmit={handleGenerateChart}>
                                 <Card>
+                                    <Card.Header>
+                                        Generate item sales by store, category, or location.
+                                    </Card.Header>
                                     <Card.Body>
                                         <Form.Group>
                                             <Form.Label>Chart type:</Form.Label>

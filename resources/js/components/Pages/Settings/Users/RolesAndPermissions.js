@@ -3,6 +3,33 @@ import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import React from 'react';
 import cookie from 'react-cookies';
+import Directory from "../../../Generic/Directory";
+
+const BREADCRUMB_ITEMS = [
+    {
+        icon: 'fa-dashboard',
+        label: '',
+        link: '#/dashboard'
+    },
+    {
+        icon: '',
+        label: 'Settings',
+        link: '#/settings'
+    },
+    {
+        icon: '',
+        label: 'Users',
+        link: '#/settings/users'
+    },
+    {
+        icon: '',
+        label: '{user}',
+    },
+    {
+        icon: '',
+        label: 'Roles And Permissions',
+    },
+];
 
 const RolesAndPermissions = () => {
     const params = useParams();
@@ -39,26 +66,17 @@ const RolesAndPermissions = () => {
         loadRolesAndPermissions();
     }, []);
 
+    const items = userRoles ? BREADCRUMB_ITEMS.map((item) => {
+        item.label = item.label.replace('{user}', `(${biometricId}) ${name}`);
+        return item;
+    }) : [];
+
     return (
         <>
-            <Breadcrumb>
-                <Breadcrumb.Item linkProps={{ to: "/settings" }} linkAs={Link}>
-                    <i className="fa fa-cogs"></i> Settings
-                </Breadcrumb.Item>
-                <Breadcrumb.Item linkProps={{ to: "/settings/users" }} linkAs={Link}>
-                    <i className="fa fa-users"></i> Users
-                </Breadcrumb.Item>
-                <Breadcrumb.Item active>
-                    ({biometricId}) {name}
-                </Breadcrumb.Item>
-                <Breadcrumb.Item active>
-                    <i className="fa fa-id-card"></i> Roles and Permissions
-                </Breadcrumb.Item>
-            </Breadcrumb>
+            <Directory items={items}/>
             <Card className="my-4">
-                <Card.Header>
-                    <Badge>{biometricId}</Badge>
-                    <h4>{name}</h4>
+                <Card.Header as="h5">
+                    <Badge><i className="fa fa-id-card"></i> {biometricId}</Badge> {name} (Roles And Permissions)
                 </Card.Header>
                 <Card.Body>
                     <Row>

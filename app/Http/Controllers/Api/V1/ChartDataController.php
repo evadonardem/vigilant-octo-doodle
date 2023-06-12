@@ -20,6 +20,10 @@ class ChartDataController extends Controller
      */
     public function salesByStore(GetChartDataRequest $request)
     {
+        if ($request->user()->cannot('Generate store trend')) {
+            abort(403);
+        }
+
         $attributes = $request->only(['from', 'to', 'stores']);
         $attributes['from'] = Carbon::parse($attributes['from'])->startOfMonth();
         $attributes['to'] = Carbon::parse($attributes['to'])->endOfMonth();
@@ -125,6 +129,10 @@ class ChartDataController extends Controller
      */
     public function salesByCategory(GetChartDataRequest $request)
     {
+        if ($request->user()->cannot('Generate store trend')) {
+            abort(403);
+        }
+
         $attributes = $request->only(['from', 'to', 'categories']);
         $attributes['from'] = Carbon::parse($attributes['from'])->startOfMonth();
         $attributes['to'] = Carbon::parse($attributes['to'])->endOfMonth();
@@ -223,6 +231,10 @@ class ChartDataController extends Controller
      */
     public function salesByLocation(GetChartDataRequest $request)
     {
+        if ($request->user()->cannot('Generate store trend')) {
+            abort(403);
+        }
+
         $attributes = $request->only(['from', 'to', 'locations']);
         $attributes['from'] = Carbon::parse($attributes['from'])->startOfMonth();
         $attributes['to'] = Carbon::parse($attributes['to'])->endOfMonth();
@@ -327,6 +339,10 @@ class ChartDataController extends Controller
      */
     public function purchaseOrders(GetChartDataRequest $request, string $type)
     {
+        if (!($request->user()->can('Generate store trend') || $request->user()->can('Generate item trend'))) {
+            abort(403);
+        }
+
         $attributes = $request->only(['from', 'to', 'stores', 'categories', 'locations']);
         $attributes['from'] = Carbon::parse($attributes['from'])->startOfMonth();
         $attributes['to'] = Carbon::parse($attributes['to'])->endOfMonth();
@@ -476,6 +492,10 @@ class ChartDataController extends Controller
      */
     public function itemSales(GetChartDataRequest $request)
     {
+        if ($request->user()->cannot('Generate item trend')) {
+            abort(403);
+        }
+
         $attributes = $request->only(['from', 'to', 'items', 'stores', 'categories', 'locations']);
         $attributes['from'] = Carbon::parse($attributes['from'])->startOfMonth();
         $attributes['to'] = Carbon::parse($attributes['to'])->endOfMonth();

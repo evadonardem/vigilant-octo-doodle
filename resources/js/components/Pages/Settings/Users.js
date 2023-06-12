@@ -5,6 +5,24 @@ import AddEditUserModal from './Users/AddEditUserModal';
 import CommonDeleteModal from '../../CommonDeleteModal';
 import React, { useEffect, useState } from 'react';
 import cookie from 'react-cookies';
+import Directory from '../../Generic/Directory';
+
+const BREADCRUMB_ITEMS = [
+    {
+        icon: 'fa-dashboard',
+        label: '',
+        link: '#/dashboard'
+    },
+    {
+        icon: '',
+        label: 'Settings',
+        link: '#/settings'
+    },
+    {
+        icon: '',
+        label: 'Users',
+    },
+];
 
 const Users = () => {
     const { roles, permissions } = useSelector((state) => state.authenticate.user);
@@ -84,19 +102,19 @@ const Users = () => {
             }
         });
 
-        $(document).on('click', '.data-table-wrapper .rate-history', function(e) {
+        $(document).on('click', '.data-table-wrapper .rate-history', function (e) {
             e.preventDefault();
             const userId = e.currentTarget.getAttribute('data-user-id');
             location.href = `${appBaseUrl}/#/settings-users-rate-history/${userId}`;
         });
 
-        $(document).on('click', '.data-table-wrapper .roles-and-permissions', function(e) {
+        $(document).on('click', '.data-table-wrapper .roles-and-permissions', function (e) {
             e.preventDefault();
             const userId = e.currentTarget.getAttribute('data-user-id');
             location.href = `${appBaseUrl}/#/settings/users/${userId}/roles-and-permissions`;
         });
 
-        $(document).on('click', '.data-table-wrapper .edit', function(e) {
+        $(document).on('click', '.data-table-wrapper .edit', function (e) {
             e.preventDefault();
             const userId = e.currentTarget.getAttribute('data-user-id');
             const userBiometricId = e.currentTarget.getAttribute('data-biometric-id');
@@ -110,7 +128,7 @@ const Users = () => {
             setUserRole(userRole);
         });
 
-        $(document).on('click', '.data-table-wrapper .delete', function(e) {
+        $(document).on('click', '.data-table-wrapper .delete', function (e) {
             e.preventDefault();
             const userId = e.currentTarget.getAttribute('data-user-id');
             const userBiometricId = e.currentTarget.getAttribute('data-biometric-id');
@@ -208,42 +226,33 @@ const Users = () => {
 
     return (
         <>
-            <Breadcrumb>
-                <Breadcrumb.Item linkProps={{ to: "/settings" }} linkAs={Link}>
-                    <i className="fa fa-cogs"></i> Settings
-                </Breadcrumb.Item>
-                <Breadcrumb.Item active>
+            <Directory items={BREADCRUMB_ITEMS} />
+            <Card className="my-4">
+                <Card.Header as="h5">
                     <i className="fa fa-users"></i> Users
-                </Breadcrumb.Item>
-            </Breadcrumb>
-
-            <div className="row">
-                <div className="col-md-12">
-                    <Card>
-                        {allowedToCreateUser &&
-                            <Card.Header>
-                                <Button variant='primary' onClick={handleShowAddEditUserModal}>
-                                    <i className="fa fa-plus"></i> Add New User
-                                </Button>
-                            </Card.Header>}
-                        <Card.Body>
-                            <table className="table table-striped table-users" style={{ width: 100 + '%' }}>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Biometric ID</th>
-                                        <th scope="col">Name</th>
-                                        <th scope="col">Current Role</th>
-                                        <th scope="col">Current Per Hour Rate</th>
-                                        <th scope="col">Current Per Delivery Rate</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </Card.Body>
-                    </Card>
-                </div>
-            </div>
+                </Card.Header>
+                <Card.Body>
+                    <table className="table table-striped table-users" style={{ width: 100 + '%' }}>
+                        <thead>
+                            <tr>
+                                <th scope="col">Biometric ID</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Current Role</th>
+                                <th scope="col">Current Per Hour Rate</th>
+                                <th scope="col">Current Per Delivery Rate</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </Card.Body>
+                {allowedToCreateUser &&
+                    <Card.Footer>
+                        <Button variant='primary' onClick={handleShowAddEditUserModal}>
+                            <i className="fa fa-plus"></i> Add New User
+                        </Button>
+                    </Card.Footer>}
+            </Card>
 
             <AddEditUserModal
                 isShow={showAddEditUserModal}

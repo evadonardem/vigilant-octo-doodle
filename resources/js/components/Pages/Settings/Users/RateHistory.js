@@ -2,6 +2,33 @@ import { Badge, Breadcrumb, Button, Card, Form } from 'react-bootstrap';
 import { Link, useParams } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import cookie from 'react-cookies';
+import Directory from '../../../Generic/Directory';
+
+const BREADCRUMB_ITEMS = [
+    {
+        icon: 'fa-dashboard',
+        label: '',
+        link: '#/dashboard'
+    },
+    {
+        icon: '',
+        label: 'Settings',
+        link: '#/settings'
+    },
+    {
+        icon: '',
+        label: 'Users',
+        link: '#/settings/users'
+    },
+    {
+        icon: '',
+        label: '{user}',
+    },
+    {
+        icon: '',
+        label: 'Rate History',
+    },
+];
 
 const RateHistory = () => {
     const params = useParams();
@@ -109,27 +136,17 @@ const RateHistory = () => {
         loadRateHistory();
     }, []);
 
+    const items = biometricId && name ? BREADCRUMB_ITEMS.map((item) => {
+        item.label = item.label.replace('{user}', `(${biometricId}) ${name}`);
+        return item;
+    }) : [];
+
     return (
         <>
-            <Breadcrumb>
-                <Breadcrumb.Item linkProps={{ to: "/settings" }} linkAs={Link}>
-                    <i className="fa fa-cogs"></i> Settings
-                </Breadcrumb.Item>
-                <Breadcrumb.Item linkProps={{ to: "/settings/users" }} linkAs={Link}>
-                    <i className="fa fa-users"></i> Users
-                </Breadcrumb.Item>
-                <Breadcrumb.Item active>
-                    ({biometricId}) {name}
-                </Breadcrumb.Item>
-                <Breadcrumb.Item active>
-                    <i className="fa fa-history"></i> Rate History
-                </Breadcrumb.Item>
-            </Breadcrumb>
-
-            <Card>
-                <Card.Header>
-                    <p><Badge variant="primary">{biometricId}</Badge></p>
-                    <h4>{name}</h4>
+            <Directory items={items}/>
+            <Card className="my-4">
+                <Card.Header as="h5">
+                    <Badge><i className="fa fa-id-card"></i> {biometricId}</Badge> {name} (Rate History)
                 </Card.Header>
                 <Card.Body>
                     <div className="row">

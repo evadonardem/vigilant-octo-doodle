@@ -93,9 +93,7 @@ class NavigationMenuController extends Controller
                 'to' => '/purchase-orders',
                 'is_visible' => $user && (
                     $user->hasRole('Super Admin') ||
-                    $user->can('Create purchase order') ||
-                    $user->can('View purchase order') ||
-                    $user->can('Update purchase order')
+                    $user->can('View purchase order')
                 ),
             ],
             [
@@ -111,7 +109,10 @@ class NavigationMenuController extends Controller
                 'label' => 'Stock Cards',
                 'icon' => 'fa fa-clipboard',
                 'to' => '/stock-cards',
-                'is_visible' => $user && $user->hasRole('Super Admin'),
+                'is_visible' => $user && (
+                    $user->hasRole('Super Admin') ||
+                    $user->can('View stock card')
+                ),
             ],
             [
                 'label' => 'Reports',
@@ -167,19 +168,29 @@ class NavigationMenuController extends Controller
                 'label' => 'Trends',
                 'icon' => 'fa fa-signal',
                 'to' => '/trends',
-                'is_visible' => $user && $user->hasRole('Super Admin'),
+                'is_visible' => $user && (
+                    $user->hasRole('Super Admin') ||
+                    $user->can('Generate store trend') ||
+                    $user->can('Generate item trend')
+                ),
                 'links' => [
                     [
                         'label' => 'Store Trends',
                         'icon' => 'fa fa-line-chart',
                         'to' => '/trends-store',
-                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                        'is_visible' => $user && (
+                            $user->hasRole('Super Admin') ||
+                            $user->can('Generate store trend')
+                        ),
                     ],
                     [
                         'label' => 'Item Trends',
                         'icon' => 'fa fa-bar-chart',
                         'to' => '/trends-item',
-                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                        'is_visible' => $user && (
+                            $user->hasRole('Super Admin') ||
+                            $user->can('Generate item trend')
+                        ),
                     ],
                 ],
             ],
@@ -189,8 +200,6 @@ class NavigationMenuController extends Controller
                 'to' => '/settings',
                 'is_visible' => $user && (
                     $user->hasRole('Super Admin') ||
-                    $user->can('Create or register new user') ||
-                    $user->can('Update existing user') ||
                     $user->can('View registered user')
                 ),
                 'links' => [
@@ -200,8 +209,6 @@ class NavigationMenuController extends Controller
                         'to' => '/settings/users',
                         'is_visible' => $user && (
                             $user->hasRole('Super Admin') ||
-                            $user->can('Create or register new user') ||
-                            $user->can('Update existing user') ||
                             $user->can('View registered user')
                         ),
                     ],
