@@ -24,6 +24,10 @@ class PayPeriodController extends Controller
      */
     public function index(Request $request)
     {
+        if ($request->user()->cannot('View pay period')) {
+            abort(403);
+        }
+
         $start = $request->input('start') ?? 0;
         $perPage = $request->input('length') ?? 10;
         $page = ($start/$perPage) + 1;
@@ -47,6 +51,10 @@ class PayPeriodController extends Controller
      */
     public function show(Request $request, $payPeriodId)
     {
+        if ($request->user()->cannot('View pay period')) {
+            abort(403);
+        }
+
         $payPeriod = PayPeriod::findOrFail($payPeriodId);
         $payPeriod->commonDeductions;
 
@@ -61,6 +69,10 @@ class PayPeriodController extends Controller
      */
     public function showPayPeriodDetails(Request $request, $payPeriodId)
     {
+        if ($request->user()->cannot('View pay period')) {
+            abort(403);
+        }
+
         $payPeriod = PayPeriod::findOrFail($payPeriodId);
         $payPeriod->commonDeductions;
 
@@ -107,6 +119,10 @@ class PayPeriodController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->user()->cannot('Create pay period')) {
+            abort(403);
+        }
+
         $attributes = $request->only([
             'from',
             'to',
@@ -130,6 +146,10 @@ class PayPeriodController extends Controller
      */
     public function storeCommonDeductions(Request $request, $payPeriodId)
     {
+        if ($request->user()->cannot('Create pay period')) {
+            abort(403);
+        }
+
         $payPeriod = PayPeriod::findOrFail($payPeriodId);
         $deductionTypes = DeductionType::all();
         $onlyAttributes = [];
@@ -180,6 +200,10 @@ class PayPeriodController extends Controller
      */
     public function updateUserPayPeriodDeductions(Request $request)
     {
+        if ($request->user()->cannot('Update pay period')) {
+            abort(403);
+        }
+
         $attributes = $request->only(['biometric_id', 'pay_period_id']);
         $user = User::where('biometric_id', $attributes['biometric_id'])->first();
         $payPeriodDeductions = $user->payPeriodDeductions()
@@ -208,8 +232,12 @@ class PayPeriodController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+        if ($request->user()->cannot('Delete pay period')) {
+            abort(403);
+        }
+
         PayPeriod::findOrFail($id)->delete();
 
         return response()->noContent();

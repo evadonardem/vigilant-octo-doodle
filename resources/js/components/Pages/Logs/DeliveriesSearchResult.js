@@ -1,173 +1,66 @@
 import { Card } from 'react-bootstrap';
 import AddEditDeliveryModal from './AddEditDeliveryModal';
 import CommonDeleteModal from '../../CommonDeleteModal';
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import cookie from 'react-cookies';
 import sanitize from 'sanitize-filename';
+import { useSelector } from 'react-redux';
 
-export default class DeliveriesSearchResult extends Component {
-    constructor(props) {
-        super(props);
+const DeliveriesSearchResult = ({ biometricId, biometricName, startDate, endDate }) => {
+    const token = cookie.load('token');
+    const [userBiometricId, setUserBiometricId] = useState(biometricId);
+    const [userName, setUserName] = useState(biometricName);
+    const [deliveryId, setDeliveryId] = useState(null);
+    const [deliveryDate, setDeliveryDate] = useState(null);
+    const [noOfDeliveries, setNoOfDeliveries] = useState(null);
+    const [remarks, setRemarks] = useState(null);
+    const [showAddEditDeliveryModal, setShowAddEditDeliveryModal] = useState(false);
+    const [isErrorAddEditDelivery, setIsErrorAddEditDelivery] = useState(false);
+    const [errorHeaderTitleAddEditDelivery, setErrorHeaderTitleAddEditDelivery] = useState('');
+    const [errorBodyTextAddEditDelivery, setErrorBodyTextAddEditDelivery] = useState('');
+    const [isEditDelivery, setIsEditDelivery] = useState(false);
+    const [showDeleteDeliveryModal, setShowDeleteDeliveryModal] = useState(false);
+    const [isDeleteUserError, setIsDeleteUserError] = useState(false);
+    const [deleteUserErrorHeaderTitle, setDeleteUserErrorHeaderTitle] = useState('');
+    const [deleteUserErrorBodyText, setDeleteUserErrorBodyText] = useState('');
 
-        this.handleShowAddEditDeliveryModal = this.handleShowAddEditDeliveryModal.bind(this);
-        this.handleCloseAddEditDeliveryModal = this.handleCloseAddEditDeliveryModal.bind(this);
-        this.handleSubmitAddEditDeliveryModal = this.handleSubmitAddEditDeliveryModal.bind(this);
+    const { roles, permissions } = useSelector((state) => state.authenticate.user);
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
 
-        this.handleCloseDeleteDeliveryModal = this.handleCloseDeleteDeliveryModal.bind(this);
-        this.handleSubmitDeleteDeliveryModal = this.handleSubmitDeleteDeliveryModal.bind(this)
+    const allowedToUpdateManualDeliveryLogs = hasRole('Super Admin') || hasPermission("Update manual delivery logs");
+    const allowedToDeleteManualDeliveryLogs = hasRole('Super Admin') || hasPermission("Delete manual delivery logs");
 
-        this.state = {
-            userBiometricId: null,
-            userName: '',
-            deliveryId: null,
-            deliveryDate: null,
-            noOfDeliveries: null,
-            remarks: null,
-        };
-
-        this.state = {
-            showDeleteDeliveryModal: false,
-            isDeleteUserError: false,
-            deleteUserErrorHeaderTitle: '',
-            deleteUserErrorBodyText: '',
-        };
-    }
-
-    componentDidMount() {
-        const self = this;
-
-        const exportButtons = window.exportButtonsBase;
-        exportButtons[0].filename = () => { return this.initExportFilename(); };
-        exportButtons[1].filename = () => { return this.initExportFilename(); };
-        exportButtons[1].title = () => { return this.initExportTitle(); };
-
-        const dataTable = $(this.refs.deliveriesSearcherResult).DataTable({
-            ajax: {
-                error: function (xhr, error, code) {
-                    if (code === 'Unauthorized') {
-                        location.reload();
-                    }
-                    dataTable.clear().draw();
-                }
-            },
-            searching: false,
-            buttons: exportButtons,
-            columns: [
-                { 'data': 'user.biometric_id' },
-                { 'data': 'user.name' },
-                { 'data': 'delivery_date' },
-                { 'data': 'no_of_deliveries' },
-                { 'data': 'remarks' },
-                {
-                    'data': null,
-                    'render': function (data, type, row) {
-                        const editBtn = '<a href="#" class="edit btn btn-primary" data-toggle="modal" data-target="#AddEditDeliveryModal" data-delivery-id="' + row.id + '" data-biometric-id="' + row.user.biometric_id + '" data-name="' + row.user.name + '" data-delivery-date="' + row.delivery_date + '" data-no-of-deliveries="' + row.no_of_deliveries + '" data-remarks="' + row.remarks + '"><i class="fa fa-edit"></i></a>';
-                        const deleteBtn = '<a href="#" class="delete btn btn-warning" data-toggle="modal" data-target="#deleteModal" data-delivery-id="' + row.id + '" data-biometric-id="' + row.user.biometric_id + '" data-name="' + row.user.name + '" data-delivery-date="' + row.delivery_date + '"><i class="fa fa-trash"></i></a>';
-
-                        return `${editBtn}&nbsp;${deleteBtn}`;
-                    }
-                }
-            ],
-            columnDefs: [
-                { 'orderable': false, 'targets': [0, 1] }
-            ],
-            order: [[2, 'asc']]
-        });
-
-        $(document).on('click', '.data-table-wrapper .edit', function (e) {
-            const userBiometricId = e.currentTarget.getAttribute('data-biometric-id');
-            const userName = e.currentTarget.getAttribute('data-name');
-            const deliveryId = e.currentTarget.getAttribute('data-delivery-id');
-            const deliveryDate = e.currentTarget.getAttribute('data-delivery-date');
-            const noOfDeliveries = e.currentTarget.getAttribute('data-no-of-deliveries');
-            const remarks = e.currentTarget.getAttribute('data-remarks');
-
-            self.setState({
-                showAddEditDeliveryModal: true,
-                isEditDelivery: true,
-                userBiometricId,
-                userName,
-                deliveryId,
-                deliveryDate,
-                noOfDeliveries,
-                remarks,
-            });
-        });
-
-        $(document).on('click', '.data-table-wrapper .delete', function (e) {
-            const userBiometricId = e.currentTarget.getAttribute('data-biometric-id');
-            const userName = e.currentTarget.getAttribute('data-name');
-            const deliveryId = e.currentTarget.getAttribute('data-delivery-id');
-            const deliveryDate = e.currentTarget.getAttribute('data-delivery-date');
-            self.setState({
-                showDeleteDeliveryModal: true,
-                userBiometricId,
-                userName,
-                deliveryId,
-                deliveryDate,
-            });
-        });
-    }
-
-    componentWillUnmount() {
-        $('.data-table-wrapper')
-            .find('table.table-deliveries')
-            .DataTable()
-            .destroy(true);
-    }
-
-    initExportTitle() {
-        const {
-            biometricId,
-            biometricName,
-            startDate,
-            endDate
-        } = this.props;
-
+    const initExportTitle = () => {
         const user = `User: ${biometricId ? `${biometricId} ${biometricName}` : 'All'}`;
         const label = `${user}${user ? ' ' : ''}From: ${startDate} To: ${endDate}`;
 
         return `Deliveries ${label}`;
     }
 
-    initExportFilename() {
-        return sanitize(this.initExportTitle());
-    }
+    const initExportFilename = () => {
+        return sanitize(initExportTitle());
+    };
 
-    handleShowAddEditDeliveryModal() {
-        const self = this;
-        self.setState({
-            showAddEditDeliveryModal: true
-        });
-    }
+    const handleCloseAddEditDeliveryModal = () => {
+        setShowAddEditDeliveryModal(false);
+        setIsErrorAddEditDelivery(false);
+        setErrorHeaderTitleAddEditDelivery('');
+        setErrorBodyTextAddEditDelivery('');
+        setIsEditDelivery(false);
+        setUserBiometricId(null);
+        setUserName(null);
+        setDeliveryId(null);
+        setDeliveryDate(null);
+        setNoOfDeliveries(null);
+        setRemarks(null);
+    };
 
-    handleCloseAddEditDeliveryModal() {
-        const self = this;
-        self.setState({
-            showAddEditDeliveryModal: false,
-            isEditDelivery: false,
-            userBiometricId: null,
-            userName: '',
-            deliveryId: null,
-            deliveryDate: null,
-            noOfDeliveries: null,
-            remarks: null,
-        });
-    }
-
-    handleSubmitAddEditDeliveryModal(e) {
+    const handleSubmitAddEditDeliveryModal = (e) => {
         e.preventDefault();
-
-        const self = this;
-        const token = cookie.load('token');
-        const { deliveryId } = self.state;
-
-        window.console.log(deliveryId);
-
-        const table = $('.data-table-wrapper').find('table.table-users').DataTable();
+        const table = $('.data-table-wrapper').find('table.table-deliveries').DataTable();
         const form = e.currentTarget;
         const data = $(form).serialize();
-        const modal = $('#addEditDeliveryModal');
         const action = deliveryId ? 'patch' : 'post';
         const actionEndPoint = apiBaseUrl + '/deliveries' + (deliveryId
             ? '/' + deliveryId
@@ -175,177 +68,209 @@ export default class DeliveriesSearchResult extends Component {
         ) + '?token=' + token;
 
         axios[action](actionEndPoint, data)
-            .then((response) => {
+            .then(() => {
                 table.ajax.reload(null, false);
-                self.setState({
-                    showAddEditDeliveryModal: false,
-                    isEditDelivery: false,
-                    userBiometricId: null,
-                    userName: '',
-                    deliveryId: null,
-                    deliveryDate: null,
-                    noOfDeliveries: null,
-                    remarks: null,
-                });
+                setShowAddEditDeliveryModal(false);
+                setIsEditDelivery(false);
+                setUserBiometricId(null);
+                setUserName(null);
+                setDeliveryId(null);
+                setDeliveryDate(null);
+                setNoOfDeliveries(null);
+                setRemarks(null);
             })
-            .catch((error) => {
-                if (error.response) {
-                    const { response } = error;
-                    const { data } = response;
-                    const { errors } = data;
-                    for (const key in errors) {
-                        $('[name=' + key + ']', modal)
-                            .addClass('is-invalid')
-                            .closest('.form-group')
-                            .find('.invalid-feedback')
-                            .text(errors[key][0]);
-                    }
-                }
+            .catch(() => {
+                setIsErrorAddEditDelivery(true);
+                setErrorHeaderTitleAddEditDelivery('Oh snap! Delivery cannot be updated!');
+                setErrorBodyTextAddEditDelivery(`Failed to update ${userBiometricId}-${userName} delivery Id: ${deliveryId} on ${deliveryDate}.`);
             });
-    }
+    };
 
-    handleCloseDeleteDeliveryModal() {
-        const self = this;
-        self.setState({
-            userBiometricId: null,
-            userName: '',
-            deliveryId: null,
-            deliveryDate: null,
-            noOfDeliveries: null,
-            remarks: null,
-            showDeleteDeliveryModal: false,
-            isDeleteUserError: false,
-            deleteUserErrorHeaderTitle: '',
-            deleteUserErrorBodyText: '',
-        });
-    }
+    const handleCloseDeleteDeliveryModal = () => {
+        setUserBiometricId(null);
+        setUserName('');
+        setDeliveryId(null);
+        setDeliveryDate(null);
+        setNoOfDeliveries(null);
+        setRemarks(null);
+        setShowDeleteDeliveryModal(false);
+        setIsDeleteUserError(false);
+        setDeleteUserErrorHeaderTitle('');
+        setDeleteUserErrorBodyText('');
+    };
 
-    handleSubmitDeleteDeliveryModal() {
-        const self = this;
-        const token = cookie.load('token');
-        const { userBiometricId, userName, deliveryId, deliveryDate } = self.state;
-        const table = $('.data-table-wrapper').find('table.table-users').DataTable();
+    const handleSubmitDeleteDeliveryModal = () => {
+        const table = $('.data-table-wrapper').find('table.table-deliveries').DataTable();
 
         axios.delete(apiBaseUrl + '/deliveries/' + deliveryId + '?token=' + token)
-            .then((response) => {
+            .then(() => {
                 table.ajax.reload(null, false);
-                self.setState({
-                    showDeleteDeliveryModal: false,
-                });
+                setShowDeleteDeliveryModal(false);
             })
-            .catch((error) => {
-                self.setState({
-                    isDeleteUserError: true,
-                    deleteUserErrorHeaderTitle: 'Oh snap! Delivery cannot be deleted!',
-                    deleteUserErrorBodyText: `Failed to delete ${userBiometricId}-${userName} delivery Id: ${deliveryId} on ${deliveryDate}.`,
-                });
+            .catch(() => {
+                setIsDeleteUserError(true);
+                setDeleteUserErrorHeaderTitle('Oh snap! Delivery cannot be deleted!');
+                setDeleteUserErrorBodyText(`Failed to delete ${userBiometricId}-${userName} delivery Id: ${deliveryId} on ${deliveryDate}.`);
             });
-    }
+    };
 
-    render() {
-        const {
-            biometricId,
-            biometricName,
-            startDate,
-            endDate
-        } = this.props;
+    const init = (currStartDate, currEndDate) => {
+        if (currStartDate && currEndDate) {
+            if ($.fn.DataTable.isDataTable('.table-deliveries')) {
+                $('.data-table-wrapper')
+                    .find('table.table-deliveries')
+                    .DataTable()
+                    .destroy();
+            }
 
-        const {
-            userBiometricId,
-            userName,
-            deliveryId,
-            deliveryDate,
-            noOfDeliveries,
-            remarks,
-        } = this.state;
+            const exportButtons = window.exportButtonsBase;
+            exportButtons[0].filename = () => { return initExportFilename(); };
+            exportButtons[1].filename = () => { return initExportFilename(); };
+            exportButtons[1].title = () => { return initExportTitle(); };
 
-        const {
-            showAddEditDeliveryModal,
-            isEditDelivery,
-            isErrorAddEditDelivery,
-            errorHeaderTitleAddEditDelivery,
-            errorBodyTextAddEditDelivery,
-        } = this.state;
+            const dataTable = $('.table-deliveries').DataTable({
+                ajax: {
+                    error: function (xhr, error, code) {
+                        if (code === 'Unauthorized') {
+                            location.reload();
+                        }
+                        dataTable.clear().draw();
+                    }
+                },
+                searching: false,
+                buttons: exportButtons,
+                columns: [
+                    { 'data': 'user.biometric_id' },
+                    { 'data': 'user.name' },
+                    { 'data': 'delivery_date' },
+                    { 'data': 'no_of_deliveries' },
+                    { 'data': 'remarks' },
+                    {
+                        'data': null,
+                        'render': function (_data, _type, row) {
+                            const editBtn = '<a href="#" class="edit btn btn-primary" data-toggle="modal" data-target="#AddEditDeliveryModal" data-delivery-id="' + row.id + '" data-biometric-id="' + row.user.biometric_id + '" data-name="' + row.user.name + '" data-delivery-date="' + row.delivery_date + '" data-no-of-deliveries="' + row.no_of_deliveries + '" data-remarks="' + row.remarks + '"><i class="fa fa-edit"></i></a>';
+                            const deleteBtn = '<a href="#" class="delete btn btn-warning" data-toggle="modal" data-target="#deleteModal" data-delivery-id="' + row.id + '" data-biometric-id="' + row.user.biometric_id + '" data-name="' + row.user.name + '" data-delivery-date="' + row.delivery_date + '"><i class="fa fa-trash"></i></a>';
 
-        const {
-            showDeleteDeliveryModal,
-            isDeleteUserError,
-            deleteUserErrorHeaderTitle,
-            deleteUserErrorBodyText,
-        } = this.state;
+                            return `<div class="btn-group">${editBtn}${deleteBtn}</div>`;
+                        }
+                    }
+                ],
+                columnDefs: [
+                    { 'orderable': false, 'targets': [0, 1, 5] }
+                ],
+                drawCallback: () => {
+                    if (!allowedToUpdateManualDeliveryLogs) {
+                        $(document).find('.data-table-wrapper .edit').remove();
+                    }
+                    if (!allowedToDeleteManualDeliveryLogs) {
+                        $(document).find('.data-table-wrapper .delete').remove();
+                    }
+                },
+                order: [[2, 'asc']]
+            });
 
-        const dataTable = $('.data-table-wrapper')
-            .find('table.table-deliveries')
-            .DataTable();
+            $(document).on('click', '.data-table-wrapper .edit', function (e) {
+                e.preventDefault();
+                const userBiometricId = e.currentTarget.getAttribute('data-biometric-id');
+                const userName = e.currentTarget.getAttribute('data-name');
+                const deliveryId = e.currentTarget.getAttribute('data-delivery-id');
+                const deliveryDate = e.currentTarget.getAttribute('data-delivery-date');
+                const noOfDeliveries = e.currentTarget.getAttribute('data-no-of-deliveries');
+                const remarks = e.currentTarget.getAttribute('data-remarks');
 
-        if (startDate && endDate) {
-            const filters = 'start_date=' + startDate + '&end_date=' + endDate + (biometricId ? '&biometric_id=' + biometricId : '');
-            const token = cookie.load('token');
+                setShowAddEditDeliveryModal(true);
+                setIsEditDelivery(true);
+                setUserBiometricId(userBiometricId);
+                setUserName(userName);
+                setDeliveryId(deliveryId);
+                setDeliveryDate(deliveryDate);
+                setNoOfDeliveries(noOfDeliveries);
+                setRemarks(remarks);
+            });
+
+            $(document).on('click', '.data-table-wrapper .delete', function (e) {
+                e.preventDefault();
+                const userBiometricId = e.currentTarget.getAttribute('data-biometric-id');
+                const userName = e.currentTarget.getAttribute('data-name');
+                const deliveryId = e.currentTarget.getAttribute('data-delivery-id');
+                const deliveryDate = e.currentTarget.getAttribute('data-delivery-date');
+                setShowDeleteDeliveryModal(true);
+                setUserBiometricId(userBiometricId);
+                setUserName(userName);
+                setDeliveryId(deliveryId);
+                setDeliveryDate(deliveryDate);
+            });
+
+            const filters = 'start_date=' + currStartDate + '&end_date=' + currEndDate + (biometricId ? '&biometric_id=' + biometricId : '');
             dataTable.ajax.url(apiBaseUrl + '/deliveries?token=' + token + '&' + filters);
             dataTable.ajax.reload();
-        } else {
-            dataTable.clear().draw();
         }
+    };
 
-        const hideTable = !startDate || !endDate;
+    useEffect(() => {
+        init(startDate, endDate);
+    }, [startDate, endDate]);
 
-        return (
-            <div>
-                {
-                    (!startDate || !endDate) &&
-                    <p className="text-center">
-                        <i className="fa fa-5x fa-info-circle" /><br />
-                        Start by filtering records to search.
-                    </p>
-                }
+    const hideTable = !startDate || !endDate;
 
-                <Card style={{ display: (hideTable ? 'none' : '') }}>
-                    <Card.Header>
-                        <h4><i className="fa fa-search" /> Search Result</h4>
-                        User: {biometricId ? `${biometricId} ${biometricName}` : 'All'} From: {startDate} To: {endDate}
-                    </Card.Header>
-                    <Card.Body>
-                        <table ref="deliveriesSearcherResult" className="table table-striped table-deliveries" style={{ width: 100 + '%' }}>
-                            <thead>
-                                <tr>
-                                    <th scope="col">Biometric ID</th>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Date</th>
-                                    <th scope="col">No. of Deliveries</th>
-                                    <th scope="col">Remarks</th>
-                                    <th scope="col"></th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </Card.Body>
-                </Card>
+    return (
+        <div>
+            {
+                (!startDate || !endDate) &&
+                <p className="text-center">
+                    <i className="fa fa-5x fa-info-circle" /><br />
+                    Start by filtering records to search.
+                </p>
+            }
 
-                <AddEditDeliveryModal
-                    isShow={showAddEditDeliveryModal}
-                    isEdit={isEditDelivery}
-                    userBiometricId={userBiometricId}
-                    userName={userName}
-                    deliveryId={deliveryId}
-                    deliveryDate={deliveryDate}
-                    noOfDeliveries={noOfDeliveries}
-                    remarks={remarks}
-                    handleClose={this.handleCloseAddEditDeliveryModal}
-                    handleSubmit={this.handleSubmitAddEditDeliveryModal}
-                    isError={isErrorAddEditDelivery}
-                    errorHeaderTitle={errorHeaderTitleAddEditDelivery}
-                    errorBodyText={errorBodyTextAddEditDelivery} />
+            <Card style={{ display: (hideTable ? 'none' : '') }}>
+                <Card.Header>
+                    <h4><i className="fa fa-search" /> Search Result</h4>
+                    User: {biometricId ? `${biometricId} ${biometricName}` : 'All'} From: {startDate} To: {endDate}
+                </Card.Header>
+                <Card.Body>
+                    <table className="table table-striped table-deliveries" style={{ width: 100 + '%' }}>
+                        <thead>
+                            <tr>
+                                <th scope="col">Biometric ID</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">No. of Deliveries</th>
+                                <th scope="col">Remarks</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </Card.Body>
+            </Card>
 
-                <CommonDeleteModal
-                    isShow={showDeleteDeliveryModal}
-                    headerTitle={`Delete Delivery [ID: ${deliveryId}]`}
-                    bodyText={`Are you sure to delete ${userBiometricId}-${userName} delivery on ${deliveryDate}?`}
-                    handleClose={this.handleCloseDeleteDeliveryModal}
-                    handleSubmit={this.handleSubmitDeleteDeliveryModal}
-                    isDeleteError={isDeleteUserError}
-                    deleteErrorHeaderTitle={deleteUserErrorHeaderTitle}
-                    deleteErrorBodyText={deleteUserErrorBodyText} />
-            </div>
-        );
-    }
-}
+            <AddEditDeliveryModal
+                isShow={showAddEditDeliveryModal}
+                isEdit={isEditDelivery}
+                userBiometricId={userBiometricId}
+                userName={userName}
+                deliveryId={deliveryId}
+                deliveryDate={deliveryDate}
+                noOfDeliveries={noOfDeliveries}
+                remarks={remarks}
+                handleClose={handleCloseAddEditDeliveryModal}
+                handleSubmit={handleSubmitAddEditDeliveryModal}
+                isError={isErrorAddEditDelivery}
+                errorHeaderTitle={errorHeaderTitleAddEditDelivery}
+                errorBodyText={errorBodyTextAddEditDelivery} />
+
+            <CommonDeleteModal
+                isShow={showDeleteDeliveryModal}
+                headerTitle={`Delete Delivery [ID: ${deliveryId}]`}
+                bodyText={`Are you sure to delete ${userBiometricId}-${userName} delivery on ${deliveryDate}?`}
+                handleClose={handleCloseDeleteDeliveryModal}
+                handleSubmit={handleSubmitDeleteDeliveryModal}
+                isDeleteError={isDeleteUserError}
+                deleteErrorHeaderTitle={deleteUserErrorHeaderTitle}
+                deleteErrorBodyText={deleteUserErrorBodyText} />
+        </div>
+    );
+};
+
+export default DeliveriesSearchResult;

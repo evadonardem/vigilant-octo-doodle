@@ -19,7 +19,10 @@ class SalesInvoiceItemController extends Controller
      */
     public function index(Request $request, SalesInvoice $salesInvoice)
     {
-        $search = $request->input('search') ?? [];
+        if ($request->user()->cannot('View sales invoice')) {
+            abort(403);
+        }
+
         $start = $request->input('start') ?? 0;
         $perPage = $request->input('length') ?? 10;
         $page = ($start/$perPage) + 1;
@@ -29,16 +32,6 @@ class SalesInvoiceItemController extends Controller
         });
 
         $salesInvoiceItems = SalesInvoiceItem::where('sales_invoice_id', $salesInvoice->id);
-
-        if ($search && !empty($search['value'])) {
-            $searchTerm = $search['value'];
-            // $salesInvoiceItems = $salesInvoiceItems->where(function ($query) use ($searchTerm) {
-            //     $query
-            //         ->orWhere('code', 'like', '%' . $searchTerm . '%')
-            //         ->orWhere('location', 'like', '%' . $searchTerm . '%');
-            // });
-        }
-
         $salesInvoiceItems = $salesInvoiceItems->paginate($perPage);
 
         return response()->json($salesInvoiceItems);
@@ -46,6 +39,10 @@ class SalesInvoiceItemController extends Controller
 
     public function indexStoreItems(Request $request, SalesInvoice $salesInvoice, Store $store)
     {
+        if ($request->user()->cannot('Update sales invoice')) {
+            abort(403);
+        }
+
         $storeItems = Item::orderBy('name', 'asc')
             ->whereHas('stores', function ($query) use ($store) {
                 $query->where('stores.id', $store->id);
@@ -74,6 +71,10 @@ class SalesInvoiceItemController extends Controller
      */
     public function store(Request $request, SalesInvoice $salesInvoice)
     {
+        if ($request->user()->cannot('Update sales invoice')) {
+            abort(403);
+        }
+
         $attributes = $request->only(['store_id', 'item_id', 'quantity']);
         $attributes['sales_invoice_id'] = $salesInvoice->id;
 
@@ -105,8 +106,12 @@ class SalesInvoiceItemController extends Controller
      * @param  \App\Models\SalesInvoiceItem  $salesInvoiceItem
      * @return \Illuminate\Http\Response
      */
-    public function destroy(SalesInvoice $salesInvoice, SalesInvoiceItem $salesInvoiceItem)
+    public function destroy(Request $request, SalesInvoice $salesInvoice, SalesInvoiceItem $salesInvoiceItem)
     {
+        if ($request->user()->cannot('Update sales invoice')) {
+            abort(403);
+        }
+
         if ($salesInvoiceItem->sales_invoice_id == $salesInvoice->id) {
             $salesInvoiceItem->delete();
         }

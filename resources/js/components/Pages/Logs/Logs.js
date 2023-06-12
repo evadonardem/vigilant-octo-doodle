@@ -1,7 +1,8 @@
-import { Breadcrumb, Card, Col, Row } from "react-bootstrap";
+import { Card, Col, Row } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import Option from "../../Generic/Option";
 import React from 'react';
+import Directory from "../../Generic/Directory";
 
 const BREADCRUMB_ITEMS = [
     {
@@ -16,9 +17,12 @@ const BREADCRUMB_ITEMS = [
 ];
 
 const Logs = () => {
-    const { roles } = useSelector((state) => state.authenticate.user);
+    const { roles, permissions } = useSelector((state) => state.authenticate.user);
     const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
-    let allowedAccess = hasRole("Super Admin");
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
+    const isSuperAdmin = hasRole("Super Admin");
+    const canAccessDeliveryLogs = isSuperAdmin || hasPermission("View manual delivery logs");
+    const canAccessManualLogs = isSuperAdmin || hasPermission("Create manual delivery logs");
 
     let options = [
         {
@@ -30,7 +34,7 @@ const Logs = () => {
         },
         {
             icon: 'clock-o',
-            title: 'Daily Time Record',
+            title: 'DTR',
             description: 'Consolidated daily time record.',
             to: '/daily-time-record',
             isVisible: true,
@@ -40,36 +44,25 @@ const Logs = () => {
             title: 'Delivery Logs',
             description: 'Manually entered delivery logs.',
             to: '/deliveries',
-            isVisible: allowedAccess,
+            isVisible: canAccessDeliveryLogs,
         },
         {
             icon: 'calendar-plus-o',
             title: 'Manual Logs',
             description: 'Register override time log or delivery log.',
             to: '/manual-logs',
-            isVisible: allowedAccess,
+            isVisible: canAccessManualLogs,
         },
     ];
 
     return (
         <>
+            <Directory items={BREADCRUMB_ITEMS}/>
             <Card className="my-4">
-                <Card.Header as="h5">
-                    <i className="fa fa-clipboard"></i> Logs
+                <Card.Header>
+                    <h5><i className="fa fa-clipboard"></i> Logs</h5>
                 </Card.Header>
                 <Card.Body>
-                    <Breadcrumb>
-                        {
-                            BREADCRUMB_ITEMS.map(({ icon, label, link }, key) =>
-                                <Breadcrumb.Item key={key} href={link ?? ''} active={!link}>
-                                    <span>
-                                        <i className={`fa ${icon}`}></i>
-                                        {label}
-                                    </span>
-                                </Breadcrumb.Item>
-                            )
-                        }
-                    </Breadcrumb>
                     <Row>
                         {options
                             .filter(({ isVisible }) => isVisible)

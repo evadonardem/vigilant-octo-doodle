@@ -4,8 +4,38 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import PaySlipsPdfDocument from './PaySlipsPdfDocument';
 import React, { useEffect, useState } from 'react';
 import cookie from 'react-cookies';
+import Directory from '../../Generic/Directory';
+import { useSelector } from 'react-redux';
+
+const BREADCRUMB_ITEMS = [
+    {
+        icon: 'fa-dashboard',
+        label: '',
+        link: '#/dashboard'
+    },
+    {
+        icon: '',
+        label: 'Compensation and Benefits',
+        link: '#/compensation-and-benefits'
+    },
+    {
+        icon: '',
+        label: 'Pay Periods',
+        link: '#/compensation-and-benefits/pay-periods'
+    },
+    {
+        icon: '',
+        label: 'From: {from} To: {to}',
+    },
+];
 
 const PayPeriodDetails = () => {
+    const { roles, permissions } = useSelector((state) => state.authenticate.user);
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
+    const isSuperAdmin = hasRole("Super Admin");
+    const canUpdatePayPeriod = isSuperAdmin || hasPermission("Update pay period");
+
     const params = useParams();
     const { payPeriodId } = params;
     const [id, setId] = useState(null);
@@ -217,6 +247,7 @@ const PayPeriodDetails = () => {
                     </div>
                     <input
                         type="number"
+                        ${!canUpdatePayPeriod ? 'disabled' : ''}
                         name="amount_${deduction.id}"
                         class="form-control text-right"
                         placeholder="Amount"
@@ -322,9 +353,11 @@ const PayPeriodDetails = () => {
                                         </div>
                                         <input type="hidden" name="biometric_id" value="${d.biometric_id}">
                                         <input type="hidden" name="pay_period_id" value="${payPeriodId}">
-                                        <button
+                                        ${canUpdatePayPeriod ? `<button
                                             type="submit"
-                                            class="form-control btn-primary">Update Deductions</button>
+                                            class="form-control btn-primary">
+                                                Update Deductions
+                                        </button>` : ''}
                                     </form>
                                 </div>
                             </div>
@@ -441,21 +474,17 @@ const PayPeriodDetails = () => {
         init();
     }, []);
 
+    const items = from && to ? BREADCRUMB_ITEMS.map((item) => {
+        item.label = item.label.replace('{from}', from).replace('{to}', to);
+        return item;
+    }) : [];
+
     return (
         <>
-            <Breadcrumb>
-                <Breadcrumb.Item linkProps={{ to: "/compensation-and-benefits" }} linkAs={Link}>
-                    <i className="fa fa-gift"></i> Compensation and Benefits
-                </Breadcrumb.Item>
-                <Breadcrumb.Item linkProps={{ to: "/compensation-and-benefits/pay-periods" }} linkAs={Link}>
-                    <i className="fa fa-address-card-o"></i> Pay Periods
-                </Breadcrumb.Item>
-                <Breadcrumb.Item active>From: {from} To: {to}</Breadcrumb.Item>
-            </Breadcrumb>
-
+            <Directory items={items} />
             {
                 commonDeductions.length === 0 &&
-                <Card>
+                <Card className="my-4">
                     <Card.Header>
                         <i className="fa fa-cogs"></i>&nbsp;
                         Setup Common Deductions
@@ -475,7 +504,10 @@ const PayPeriodDetails = () => {
                     </Card.Body>
                 </Card>
             }
-            <Card className={`${commonDeductions.length > 0 ? 'visible' : 'invisible'} mb-4`}>
+            <Card className={`${commonDeductions.length > 0 ? 'visible' : 'invisible'} my-4`}>
+                <Card.Header as="h5">
+                    <i className="fa fa-id-card"></i> Pay Period (From: {from} To: {to})
+                </Card.Header>
                 <Card.Body>
                     <table
                         className="table table-striped table-pay-period-summary"

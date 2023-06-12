@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Card } from 'react-bootstrap';
+import { Breadcrumb, Button, ButtonGroup, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import CommonDeleteModal from '../../CommonDeleteModal';
 import React, { useEffect, useState } from 'react';
@@ -7,6 +7,17 @@ import cookie from 'react-cookies';
 const END_POINT = `${apiBaseUrl}/stock-cards`;
 const STOCK_CARDS_TABLE = 'table-stock-cards';
 
+const BREADCRUMB_ITEMS = [
+    {
+        icon: 'fa-dashboard',
+        label: '',
+        link: '#/dashboard'
+    },
+    {
+        icon: '',
+        label: 'Stock Cards',
+    },
+];
 
 const StockCards = () => {
     const token = cookie.load('token');
@@ -107,8 +118,20 @@ const StockCards = () => {
 
     return <>
         <Card className="mt-4">
-            <Card.Header as="h5">
-                <i className='fa fa-clipboard'></i> Stock Cards
+            <Card.Header>
+                <Breadcrumb>
+                    {
+                        BREADCRUMB_ITEMS.map(({ icon, label, link }, key) =>
+                            <Breadcrumb.Item key={key} href={link ?? ''} active={!link}>
+                                <span>
+                                    <i className={`fa ${icon}`}></i>
+                                    {label}
+                                </span>
+                            </Breadcrumb.Item>
+                        )
+                    }
+                </Breadcrumb>
+                <h5><i className='fa fa-clipboard'></i> Stock Cards</h5>
             </Card.Header>
             <Card.Body>
                 <table className={`table table-striped ${STOCK_CARDS_TABLE}`} style={{ width: 100 + '%' }}>

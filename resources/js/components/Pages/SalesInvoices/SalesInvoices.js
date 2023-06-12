@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, Card } from 'react-bootstrap';
+import { Button, Card } from 'react-bootstrap';
 import { ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { NumericFormat } from 'react-number-format';
@@ -6,6 +6,8 @@ import { createRoot } from 'react-dom/client';
 import CommonDeleteModal from '../../CommonDeleteModal';
 import React, { useEffect, useState } from 'react';
 import cookie from 'react-cookies';
+import Directory from '../../Generic/Directory';
+import { useSelector } from 'react-redux';
 
 const END_POINT = `${apiBaseUrl}/sales-invoices`;
 const SALES_INVOICES_TABLE = 'table-sales-invoices';
@@ -23,6 +25,14 @@ const BREADCRUMB_ITEMS = [
 ];
 
 const SalesInvoices = () => {
+    const { roles, permissions } = useSelector((state) => state.authenticate.user);
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
+    const isSuperAdmin = hasRole("Super Admin");
+    const canCreateSalesInvoice = isSuperAdmin || hasPermission("Create sales invoice");
+    const canDeleteSalesInvoice = isSuperAdmin || hasPermission("Delete sales invoice");
+    const canViewSalesInvoice = isSuperAdmin || hasPermission("View sales invoice");
+
     const token = cookie.load('token');
     const [showDeleteSalesInvoiceModal, setShowDeleteSalesInvoiceModal] = useState(false);
     const [salesInvoiceId, setSalesInvoiceId] = useState(null);
@@ -59,6 +69,9 @@ const SalesInvoices = () => {
                     const { data } = response;
                     return data;
                 },
+                error: function (_xhr, _error, _code) {
+                    location.href = `${appBaseUrl}`;
+                }
             },
             buttons: [],
             ordering: false,
@@ -104,6 +117,14 @@ const SalesInvoices = () => {
                     className: "text-right",
                 },
             ],
+            drawCallback: function () {
+                if (!canViewSalesInvoice) {
+                    $(document).find('.data-table-wrapper .open').remove();
+                }
+                if (!canDeleteSalesInvoice) {
+                    $(document).find('.data-table-wrapper .delete').remove();
+                }
+            },
         });
 
         $(document).on('click', '.data-table-wrapper .open', function (e) {
@@ -126,21 +147,10 @@ const SalesInvoices = () => {
 
     return (
         <>
+            <Directory items={BREADCRUMB_ITEMS} />
             <Card className="my-4">
-                <Card.Header>
-                    <Breadcrumb>
-                        {
-                            BREADCRUMB_ITEMS.map(({ icon, label, link }, key) =>
-                                <Breadcrumb.Item key={key} href={link ?? ''} active={!link}>
-                                    <span>
-                                        <i className={`fa ${icon}`}></i>
-                                        {label}
-                                    </span>
-                                </Breadcrumb.Item>
-                            )
-                        }
-                    </Breadcrumb>
-                    <h4><i className='fa fa-folder'></i> Sales Invoices</h4>
+                <Card.Header as="h5">
+                    <i className='fa fa-folder'></i> Sales Invoices
                 </Card.Header>
                 <Card.Body>
                     <table className={`table table-striped ${SALES_INVOICES_TABLE}`} style={{ width: 100 + '%' }}>
@@ -162,7 +172,7 @@ const SalesInvoices = () => {
                         <tbody></tbody>
                     </table>
                 </Card.Body>
-                <Card.Footer>
+                {canCreateSalesInvoice && <Card.Footer>
                     <div className="row">
                         <div className="col-md-12">
                             <ButtonGroup>
@@ -174,7 +184,8 @@ const SalesInvoices = () => {
                             </ButtonGroup>
                         </div>
                     </div>
-                </Card.Footer>
+                </Card.Footer>}
+
             </Card>
             <CommonDeleteModal
                 isShow={showDeleteSalesInvoiceModal}

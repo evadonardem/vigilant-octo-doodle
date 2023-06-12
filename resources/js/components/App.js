@@ -52,12 +52,22 @@ export default function App() {
         brand,
         isLoggedIn,
         links,
-        signedInUser
+        signedInUser,
+        user,
     } = useSelector((state) => state.authenticate);
 
     useEffect(() => {
         dispatch(authorize());
     }, []);
+
+    const { roles, permissions } = user ?? {};
+    const hasRole = (name) => roles ? !!_.find(roles, (role) => role.name === name) : false;
+    const hasPermission = (name) => permissions ? !!_.find(permissions, (permission) => permission.name === name) : false;
+    const isSuperAdmin = hasRole("Super Admin");
+    const canViewManualDeliveryLogs = isSuperAdmin || hasPermission("View manual delivery logs");
+    const canViewPayPeriod = isSuperAdmin || hasPermission("View pay period");
+    const canUpdateSalesInvoice = isSuperAdmin || hasPermission("Update sales invoice");
+    const canViewSalesInvoice = isSuperAdmin || hasPermission("View sales invoice");
 
     return (
         <>
@@ -112,18 +122,20 @@ export default function App() {
                                 <>
                                     <Route path={'/daily-time-record'} element={<DailyTimeRecord />}></Route>
                                     <Route path={'/attendance-logs'} element={<AttendanceLogs />}></Route>
-                                    <Route path={'/deliveries'} element={<Deliveries />}></Route>
+                                    {canViewManualDeliveryLogs && <Route path={'/deliveries'} element={<Deliveries />}></Route>}
                                     <Route path={'/manual-logs'} element={<ManualLogs />}></Route>
                                 </>}
 
                             {links && links.map((link) => link.to).includes('/compensation-and-benefits') &&
                                 <>
-                                    <Route
-                                        path={'/compensation-and-benefits/pay-periods'}
-                                        element={<PayPeriods />}></Route>
-                                    <Route
-                                        path={'/compensation-and-benefits/pay-periods/:payPeriodId/details'}
-                                        element={<PayPeriodDetails />}></Route>
+                                    {canViewPayPeriod && <>
+                                        <Route
+                                            path={'/compensation-and-benefits/pay-periods'}
+                                            element={<PayPeriods />}></Route>
+                                        <Route
+                                            path={'/compensation-and-benefits/pay-periods/:payPeriodId/details'}
+                                            element={<PayPeriodDetails />}></Route>
+                                    </>}
                                     <Route
                                         path={'/compensation-and-benefits/thirteenth-month-pay-periods'}
                                         element={<ThirteenthMonthPayPeriods />}></Route>
@@ -140,9 +152,11 @@ export default function App() {
 
                             {links && links.map((link) => link.to).includes('/sales-invoices') &&
                                 <>
-                                    <Route path={'/sales-invoices/create'} element={<SalesInvoicesCreate />}></Route>
-                                    <Route path={'/sales-invoices/:salesInvoiceId/details'} element={<SalesInvoicesShow />}></Route>
-                                    <Route path={'/sales-invoices/:salesInvoiceId/store-items'} element={<SalesInvoiceStoreItemsShow />}></Route>
+                                    {canViewSalesInvoice && <>
+                                        <Route path={'/sales-invoices/create'} element={<SalesInvoicesCreate />}></Route>
+                                        <Route path={'/sales-invoices/:salesInvoiceId/details'} element={<SalesInvoicesShow />}></Route>
+                                        {canUpdateSalesInvoice && <Route path={'/sales-invoices/:salesInvoiceId/store-items'} element={<SalesInvoiceStoreItemsShow />}></Route>}
+                                    </>}
                                 </>}
 
                             {links && links.map((link) => link.to).includes('/stock-cards') &&

@@ -1,20 +1,26 @@
-import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
+import { Button, Card, Form } from 'react-bootstrap';
 import { ButtonGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import CommonDropdownSelectSingleStoreCategory from '../../CommonDropdownSelectSingleStoreCategory';
 import React from 'react';
 import cookie from 'react-cookies';
+import Directory from '../../Generic/Directory';
 
 const END_POINT = `${apiBaseUrl}/sales-invoices`;
 
 const BREADCRUMB_ITEMS = [
     {
-        icon: 'fa-folder',
+        icon: 'fa-dashboard',
+        label: '',
+        link: '#/dashboard'
+    },
+    {
+        icon: '',
         label: 'Sales Invoices',
         link: '#/sales-invoices'
     },
     {
-        icon: 'fa-file',
+        icon: '',
         label: 'Create Sales Invoice',
     },
 ];
@@ -36,37 +42,28 @@ const SalesInvoicesCreate = () => {
             })
             .catch((error) => {
                 $('.form-control', form).removeClass('is-invalid');
-                if (error.response) {
+                if (error.response && error.response.status === 422) {
                     const { response } = error;
                     const { data } = response;
                     const { errors } = data;
                     for (const key in errors) {
                         $('[name=' + key + ']', form)
                             .addClass('is-invalid')
-                            .closest('.form-group')
+                            .closest('div')
                             .find('.invalid-feedback')
                             .text(errors[key][0]);
                     }
+                } else {
+                    location.href = `${appBaseUrl}`;
                 }
             });
     }
 
     return (
         <>
-            <Breadcrumb>
-                {
-                    BREADCRUMB_ITEMS.map(({ icon, label, link }, key) =>
-                        <Breadcrumb.Item key={key} href={link ?? ''} active={!link}>
-                            <span>
-                                <i className={`fa ${icon}`}></i>&nbsp;
-                                {label}
-                            </span>
-                        </Breadcrumb.Item>
-                    )
-                }
-            </Breadcrumb>
+            <Directory items={BREADCRUMB_ITEMS}/>
             <Form onSubmit={handleCreateInvoiceSubmit}>
-                <Card>
+                <Card className="my-4">
                     <Card.Header as="h5">
                         <i className="fa fa-file"></i> Create Sales Invoice
                     </Card.Header>

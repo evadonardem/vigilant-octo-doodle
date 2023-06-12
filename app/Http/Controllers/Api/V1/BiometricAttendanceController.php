@@ -24,7 +24,9 @@ class BiometricAttendanceController extends Controller
     {
 		$user = request()->user();
 		$this->currentUser = $user;
-		$this->isSuperAdmin = $user?->hasRole('Super Admin');
+		$this->canAccessOtherUserAttendanceLogs = $user?->hasRole('Super Admin') ||
+            $user?->can('View manual biometric logs') ||
+            $user?->can('View pay period');
 	}
 
     /**
@@ -81,7 +83,7 @@ class BiometricAttendanceController extends Controller
 
         $logsQry = AttendanceLog::whereBetween('biometric_timestamp', [$startDate, $endDate]);
 
-        if ($this->isSuperAdmin) {
+        if ($this->canAccessOtherUserAttendanceLogs) {
 			Log::debug('Filtering attendance logs as super admin.');
 			if ($biometricIds) {
 				$biometricIdsChunks = array_chunk($biometricIds, 10);

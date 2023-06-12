@@ -3,6 +3,29 @@ import { Link, useParams } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import cookie from 'react-cookies';
 import sanitize from 'sanitize-filename';
+import Directory from '../../Generic/Directory';
+
+const BREADCRUMB_ITEMS = [
+    {
+        icon: 'fa-dashboard',
+        label: '',
+        link: '#/dashboard'
+    },
+    {
+        icon: '',
+        label: 'Compensation and Benefits',
+        link: '#/compensation-and-benefits'
+    },
+    {
+        icon: '',
+        label: '13th Month Pay',
+        link: '#/compensation-and-benefits/thirteenth-month-pay-periods'
+    },
+    {
+        icon: '',
+        label: 'From: {from} To: {to}',
+    },
+];
 
 const ThirteenthMonthPayPeriodDetails = () => {
     const params = useParams();
@@ -140,19 +163,18 @@ const ThirteenthMonthPayPeriodDetails = () => {
         init();
     }, []);
 
+    const items = from && to ? BREADCRUMB_ITEMS.map((item) => {
+        item.label = item.label.replace('{from}', from).replace('{to}', to);
+        return item;
+    }) : [];
+
     return (
         <>
-            <Breadcrumb>
-                <Breadcrumb.Item linkProps={{ to: "/compensation-and-benefits" }} linkAs={Link}>
-                    <i className="fa fa-gift"></i> Compensation and Benefits
-                </Breadcrumb.Item>
-                <Breadcrumb.Item linkProps={{ to: "/compensation-and-benefits/thirteenth-month-pay-periods" }} linkAs={Link}>
-                    <i className="fa fa-id-card"></i> 13th Month Pay
-                </Breadcrumb.Item>
-                <Breadcrumb.Item active>From: {from} To: {to}</Breadcrumb.Item>
-            </Breadcrumb>
-
-            <Card>
+            <Directory items={items}/>
+            <Card className="my-4">
+                <Card.Header as="h5">
+                    <i className="fa fa-id-card"></i> 13th Month Pay (From: {from} To: {to})
+                </Card.Header>
                 <Card.Body>
                     <table
                         className="table table-striped table-pay-period-summary"

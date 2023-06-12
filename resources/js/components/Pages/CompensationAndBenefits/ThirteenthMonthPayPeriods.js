@@ -1,8 +1,26 @@
-import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
+import { Breadcrumb, Button, Card, Col, Form, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import CommonDeleteModal from '../../CommonDeleteModal';
 import React, { useEffect, useState } from 'react';
 import cookie from 'react-cookies';
+import Directory from '../../Generic/Directory';
+
+const BREADCRUMB_ITEMS = [
+    {
+        icon: 'fa-dashboard',
+        label: '',
+        link: '#/dashboard'
+    },
+    {
+        icon: '',
+        label: 'Compensation and Benefits',
+        link: '#/compensation-and-benefits'
+    },
+    {
+        icon: '',
+        label: '13th Month Pay',
+    },
+];
 
 const ThirteenthMonthPayPeriods = () => {
 
@@ -57,13 +75,13 @@ const ThirteenthMonthPayPeriods = () => {
             ]
         });
 
-        $(document).on('click', '.data-table-wrapper .open', function(e) {
+        $(document).on('click', '.data-table-wrapper .open', function (e) {
             e.preventDefault();
             const payPeriodId = e.currentTarget.getAttribute('data-pay-period-id');
             location.href = `${appBaseUrl}/#/compensation-and-benefits/thirteenth-month-pay-periods/${payPeriodId}/details`;
         });
 
-        $(document).on('click', '.data-table-wrapper .delete', function(e) {
+        $(document).on('click', '.data-table-wrapper .delete', function (e) {
             e.preventDefault();
             const payPeriodId = e.currentTarget.getAttribute('data-pay-period-id');
             setShowDeletePayPeriodModal(true);
@@ -92,11 +110,11 @@ const ThirteenthMonthPayPeriods = () => {
                     for (const key in errors) {
                         $('[name=' + key + ']', modal)
                             .addClass('is-invalid')
-                            .closest('.form-group')
+                            .closest('div')
                             .find('.invalid-feedback')
                             .text(errors[key][0]);
                     }
-               }
+                }
             });
     };
 
@@ -136,60 +154,50 @@ const ThirteenthMonthPayPeriods = () => {
     }, []);
 
     return (
-        <div className="container-fluid my-4">
-            <Breadcrumb>
-                <Breadcrumb.Item linkProps={{ to: "/compensation-and-benefits" }} linkAs={Link}>
-                    <i className="fa fa-gift"></i> Compensation and Benefits
-                </Breadcrumb.Item>
-                <Breadcrumb.Item active>
+        <>
+            <Directory items={BREADCRUMB_ITEMS} />
+            <Card className="my-4">
+                <Card.Header as="h5">
                     <i className="fa fa-id-card"></i> 13th Month Pay
-                </Breadcrumb.Item>
-            </Breadcrumb>
-
-            <div className="row">
-                <div className="col-md-12">
-                    <Card>
-                        <Card.Body>
-                            <div className="row">
-                                <div className="col-md-3">
-                                    <Card>
-                                        <Card.Header>New Pay Period</Card.Header>
-                                        <Card.Body>
-                                            <Form onSubmit={handleSubmitNewPayPeriod}>
-                                                <Form.Group>
-                                                    <Form.Label>From:</Form.Label>
-                                                    <Form.Control type="month" name="from"></Form.Control>
-                                                    <div className="invalid-feedback"></div>
-                                                </Form.Group>
-                                                <Form.Group>
-                                                    <Form.Label>To:</Form.Label>
-                                                    <Form.Control type="month" name="to"></Form.Control>
-                                                    <div className="invalid-feedback"></div>
-                                                </Form.Group>
-                                                <hr/>
-                                                <Button type="submit">Create</Button>
-                                            </Form>
-                                        </Card.Body>
-                                    </Card>
-                                </div>
-                                <div className="col-md-9">
-                                    <table className="table table-striped table-thirteenth-month-pay-periods" style={{width: 100+'%'}}>
-                                        <thead>
-                                            <tr>
-                                            <th scope="col">From</th>
-                                            <th scope="col">To</th>
-                                            <th scope="col"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </Card.Body>
-                    </Card>
-                </div>
-            </div>
-
+                </Card.Header>
+                <Card.Body>
+                    <Row>
+                        <Col md={3}>
+                            <Card>
+                                <Card.Header>New Pay Period</Card.Header>
+                                <Card.Body>
+                                    <Form onSubmit={handleSubmitNewPayPeriod}>
+                                        <Form.Group className="mb-4">
+                                            <Form.Label>From:</Form.Label>
+                                            <Form.Control type="month" name="from"></Form.Control>
+                                            <div className="invalid-feedback"></div>
+                                        </Form.Group>
+                                        <Form.Group className="mb-4">
+                                            <Form.Label>To:</Form.Label>
+                                            <Form.Control type="month" name="to"></Form.Control>
+                                            <div className="invalid-feedback"></div>
+                                        </Form.Group>
+                                        <hr />
+                                        <Button type="submit" className="pull-right">Create</Button>
+                                    </Form>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                        <Col md={9}>
+                            <table className="table table-striped table-thirteenth-month-pay-periods" style={{ width: 100 + '%' }}>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">From</th>
+                                        <th scope="col">To</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </Col>
+                    </Row>
+                </Card.Body>
+            </Card>
             <CommonDeleteModal
                 isShow={showDeletePayPeriodModal}
                 headerTitle="Delete Pay Period"
@@ -198,8 +206,8 @@ const ThirteenthMonthPayPeriods = () => {
                 handleSubmit={handleSubmitDeletePayPeriodModal}
                 isDeleteError={isDeletePayPeriodError}
                 deleteErrorHeaderTitle={deletePayPeriodErrorHeaderTitle}
-                deleteErrorBodyText={deletePayPeriodErrorBodyText}/>
-        </div>
+                deleteErrorBodyText={deletePayPeriodErrorBodyText} />
+        </>
     );
 }
 

@@ -9,12 +9,17 @@ const END_POINT = `${apiBaseUrl}/stock-cards`;
 
 const BREADCRUMB_ITEMS = [
     {
-        icon: 'fa-clipboard',
+        icon: 'fa-dashboard',
+        label: '',
+        link: '#/dashboard'
+    },
+    {
+        icon: '',
         label: 'Stock Cards',
         link: '#/stock-cards'
     },
     {
-        icon: 'fa-file',
+        icon: '',
         label: 'Create Stock Card',
     },
 ];
@@ -107,21 +112,21 @@ export default class StockCardsCreate extends Component {
         } = this.state;
 
         return (
-            <div className="container-fluid my-4">
-                <Breadcrumb>
-                    {
-                        BREADCRUMB_ITEMS.map(({ icon, label, link }, key) =>
-                            <Breadcrumb.Item key={key} href={link ?? ''} active={!link}>
-                                <span>
-                                    <i className={`fa ${icon}`}></i>&nbsp;
-                                    {label}
-                                </span>
-                            </Breadcrumb.Item>
-                        )
-                    }
-                </Breadcrumb>
+            <>
                 <Form onSubmit={this.handleCreateStockCardSubmit}>
-                    <Card>
+                    <Card className="my-4">
+                        <Card.Header>
+                            <Breadcrumb>
+                                {
+                                    BREADCRUMB_ITEMS.map(({ icon, label, link }, key) =>
+                                        <Breadcrumb.Item key={key} href={link ?? ''} active={!link}>
+                                            <i className={`fa ${icon}`}></i> {label}
+                                        </Breadcrumb.Item>
+                                    )
+                                }
+                            </Breadcrumb>
+                            <h5><i className="fa fa-file"></i> Create Stock Card</h5>
+                        </Card.Header>
                         <Card.Body>
                             <Card>
                                 <Card.Header>
@@ -162,7 +167,7 @@ export default class StockCardsCreate extends Component {
                         </Card.Footer>
                     </Card>
                 </Form>
-            </div>
+            </>
         );
     }
 }

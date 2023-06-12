@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
+import { Button, Card, Form } from 'react-bootstrap';
 import { Link, useParams } from 'react-router-dom';
 import { NumericFormat } from 'react-number-format';
 import { createRoot } from 'react-dom/client';
@@ -7,6 +7,8 @@ import CommonDropdownSelectSingleStoreCategory from '../../CommonDropdownSelectS
 import Loader from '../../Generic/Loader';
 import React, { useEffect, useState } from 'react';
 import cookie from 'react-cookies';
+import { useSelector } from 'react-redux';
+import Directory from '../../Generic/Directory';
 
 const END_POINT = `${apiBaseUrl}/sales-invoices`;
 const SALES_INVOICE_ITEMS_TABLE = 'table-sales-invoice-items';
@@ -29,6 +31,12 @@ const BREADCRUMB_ITEMS = [
 ];
 
 const SalesInvoicesShow = () => {
+    const { roles, permissions } = useSelector((state) => state.authenticate.user);
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
+    const isSuperAdmin = hasRole("Super Admin");
+    const canUpdateSalesInvoice = isSuperAdmin || hasPermission("Update sales invoice");
+
     const token = cookie.load('token');
     const params = useParams();
     const { salesInvoiceId } = params;
@@ -141,6 +149,11 @@ const SalesInvoicesShow = () => {
                         className: "text-right",
                     },
                 ],
+                drawCallback: function () {
+                    if (!canUpdateSalesInvoice) {
+                        $(document).find('.data-table-wrapper .delete').remove();
+                    }
+                },
             });
 
             $(document).on('click', '.data-table-wrapper .delete', function (e) {
@@ -179,26 +192,20 @@ const SalesInvoicesShow = () => {
 
     const { showConfirmation } = deleteSalesInvoiceItem;
 
+    const items = salesInvoice ? BREADCRUMB_ITEMS.map((item) => {
+        item.label = item.label.replace('{salesInvoiceId}', `Sales Invoice No. ${salesInvoice.id}`);
+        return item;
+    }) : [];
+
     return (
         <>
             {!salesInvoice && <Loader />}
 
-            {salesInvoice && <>
+            {items && salesInvoice && <>
+                <Directory items={items}/>
                 <Card className="my-4">
-                    <Card.Header>
-                        <Breadcrumb>
-                            {
-                                BREADCRUMB_ITEMS.map(({ icon, label, link }, key) =>
-                                    <Breadcrumb.Item key={key} href={link ?? ''} active={!link}>
-                                        <span>
-                                            <i className={`fa ${icon}`}></i>
-                                            {label.replace('{salesInvoiceId}', `Sales Invoice No. ${salesInvoice.id}`)}
-                                        </span>
-                                    </Breadcrumb.Item>
-                                )
-                            }
-                        </Breadcrumb>
-                        <h5><i className="fa fa-file"></i> Sales Invoice No. {salesInvoice.id}</h5>
+                    <Card.Header as="h5">
+                        <i className="fa fa-file"></i> Sales Invoice No. {salesInvoice.id}
                     </Card.Header>
                     <Card.Body>
                         <Card>
@@ -281,11 +288,11 @@ const SalesInvoicesShow = () => {
                                 <i className="fa fa-list"></i> Items
                             </Card.Header>
                             <Card.Body>
-                                <Link to={`/sales-invoices/${salesInvoice.id}/store-items`}>
+                                {canUpdateSalesInvoice && <Link to={`/sales-invoices/${salesInvoice.id}/store-items`}>
                                     <Button>
                                         <i className='fa fa-plus-circle'></i> Store Items
                                     </Button>
-                                </Link>
+                                </Link>}
                                 <table className={`table table-striped ${SALES_INVOICE_ITEMS_TABLE}`} style={{ width: 100 + '%' }}>
                                     <thead>
                                         <tr>

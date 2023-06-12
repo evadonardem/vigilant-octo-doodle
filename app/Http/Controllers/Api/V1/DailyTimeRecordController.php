@@ -234,9 +234,9 @@ class DailyTimeRecordController extends Controller
                         'biometric_id' => $biometricId,
                         'biometric_name' => $details['name'],
                         /**
-                         * @todo double check usage
+                         * @todo will be replaced by user title
                          */
-                        'position' => $details['position'],
+                        'position' => '',
                         'effective_per_hour_rate' => 0,
                         'effective_per_delivery_rate' => $deliveryDetails->effective_per_delivery_rate,
                         'logs' => [

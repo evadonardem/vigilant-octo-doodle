@@ -45,13 +45,19 @@ class NavigationMenuController extends Controller
                         'label' => 'Delivery Logs',
                         'icon' => 'fa fa-truck',
                         'to' => '/deliveries',
-                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                        'is_visible' => $user && (
+                            $user->hasRole('Super Admin') ||
+                            $user->can('View manual delivery logs')
+                        ),
                     ],
                     [
                         'label' => 'Manual Logs',
                         'icon' => 'fa fa-calendar-plus-o',
                         'to' => '/manual-logs',
-                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                        'is_visible' => $user && (
+                            $user->hasRole('Super Admin') ||
+                            $user->can('Create manual delivery logs')
+                        ),
                     ],
                 ]
             ],
@@ -59,13 +65,19 @@ class NavigationMenuController extends Controller
                 'label' => 'Compensation and Benefits',
                 'icon' => 'fa fa-gift',
                 'to' => '/compensation-and-benefits',
-                'is_visible' => $user && $user->hasRole('Super Admin'),
+                'is_visible' => $user && (
+                    $user->hasRole('Super Admin') ||
+                    $user->can('View pay period')
+                ),
                 'links' => [
                     [
                         'label' => 'Pay Periods',
                         'icon' => 'fa fa-id-card',
                         'to' => '/compensation-and-benefits/pay-periods',
-                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                        'is_visible' => $user && (
+                            $user->hasRole('Super Admin') ||
+                            $user->can('View pay period')
+                        ),
                     ],
                     [
                         'label' => '13th Month Pay',
@@ -90,7 +102,10 @@ class NavigationMenuController extends Controller
                 'label' => 'Sales Invoices',
                 'icon' => 'fa fa-folder',
                 'to' => '/sales-invoices',
-                'is_visible' => $user && $user->hasRole('Super Admin'),
+                'is_visible' => $user && (
+                    $user->hasRole('Super Admin') ||
+                    $user->can('View sales invoice')
+                ),
             ],
             [
                 'label' => 'Stock Cards',

@@ -1,4 +1,4 @@
-import { Accordion, Breadcrumb, Button, Card, Col, Form, Row } from 'react-bootstrap';
+import { Accordion, Badge, Breadcrumb, Button, Card, Col, Form, Row } from 'react-bootstrap';
 import { deletePurchaseOrder, storePurchaseOrder } from '../../state/purchaseOrders';
 import { useDispatch, useSelector } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
@@ -6,12 +6,25 @@ import CommonDeleteModal from '../CommonDeleteModal';
 import CommonDropdownSelectSingleLocation from '../CommonDropdownSelectSingleLocation';
 import React, { useEffect, useState } from 'react';
 import cookie from 'react-cookies';
+import Directory from '../Generic/Directory';
 
 const END_POINT = `${apiBaseUrl}/purchase-orders`;
 const PURCHASE_ORDERS_PENDING_TABLE = 'table-purchase-orders-pending';
 const PURCHASE_ORDERS_APPROVED_TABLE = 'table-purchase-orders-approved';
 const PURCHASE_ORDERS_CLOSED_FOLDERS_TABLE = 'table-purchase-orders-closed-folders';
 const PURCHASE_ORDERS_CLOSED_TABLE = 'table-purchase-orders-closed';
+
+const BREADCRUMB_ITEMS = [
+    {
+        icon: 'fa-dashboard',
+        label: '',
+        link: '#/dashboard'
+    },
+    {
+        icon: '',
+        label: 'Purchase Orders',
+    },
+];
 
 const PurchaseOrders = () => {
     const dispatch = useDispatch();
@@ -302,20 +315,74 @@ const PurchaseOrders = () => {
     }, []);
 
     return (
-        <div className="container-fluid my-4">
-            <Breadcrumb>
-                <Breadcrumb.Item active><span><i className="fa fa-folder"></i> Purchase Orders</span></Breadcrumb.Item>
-            </Breadcrumb>
-
-            <Accordion activeKey={purchaseOrdersTabSelected} onSelect={handleTabSelected}>
-                <Accordion.Item eventKey="pending">
-                    <Accordion.Header>Pending Purchase Orders</Accordion.Header>
-                    <Accordion.Body>
-                        <Card border="warning" className="mt-4">
-                            <Card.Body>
-                                <Row>
-                                    <Col md={allowedToCreatePurchaseOrder ? 9 : 12}>
-                                        <table className={`table table-striped ${PURCHASE_ORDERS_PENDING_TABLE}`} style={{ width: 100 + '%' }}>
+        <>
+            <Directory items={BREADCRUMB_ITEMS}/>
+            <Card className="my-4">
+                <Card.Header as="h5">
+                    <i className="fa fa-folder"></i> Purchase Orders
+                </Card.Header>
+                <Card.Body>
+                    <Accordion activeKey={purchaseOrdersTabSelected} onSelect={handleTabSelected}>
+                        <Accordion.Item eventKey="pending">
+                            <Accordion.Header><h5><Badge bg="warning">Pending</Badge></h5></Accordion.Header>
+                            <Accordion.Body className="bg-warning">
+                                <Card border="warning" className="mt-4">
+                                    <Card.Body>
+                                        <Row>
+                                            <Col md={allowedToCreatePurchaseOrder ? 9 : 12}>
+                                                <table className={`table table-striped ${PURCHASE_ORDERS_PENDING_TABLE}`} style={{ width: 100 + '%' }}>
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Code</th>
+                                                            <th scope="col">Location</th>
+                                                            <th scope="col">From</th>
+                                                            <th scope="col">To</th>
+                                                            <th scope="col">Trips</th>
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </Col>
+                                            {allowedToCreatePurchaseOrder &&
+                                                <Col md={3}>
+                                                    <Card>
+                                                        <Card.Header>New Purchase Order</Card.Header>
+                                                        <Card.Body>
+                                                            <Form noValidate onSubmit={handleSubmitNewPurchaseOrder}>
+                                                                <CommonDropdownSelectSingleLocation
+                                                                    key={updateAvailableLocations}
+                                                                    label="Location:"
+                                                                    name="location"
+                                                                    handleChange={null}
+                                                                    handleInputChange={null} />
+                                                                <Form.Group>
+                                                                    <Form.Label>From:</Form.Label>
+                                                                    <Form.Control type="date" name="from" onChange={clearValidation}></Form.Control>
+                                                                    <Form.Control.Feedback type="invalid"></Form.Control.Feedback>
+                                                                </Form.Group>
+                                                                <Form.Group>
+                                                                    <Form.Label>To:</Form.Label>
+                                                                    <Form.Control type="date" name="to" onChange={clearValidation}></Form.Control>
+                                                                    <Form.Control.Feedback type="invalid"></Form.Control.Feedback>
+                                                                </Form.Group>
+                                                                <hr />
+                                                                <Button type="submit">Create</Button>
+                                                            </Form>
+                                                        </Card.Body>
+                                                    </Card>
+                                                </Col>}
+                                        </Row>
+                                    </Card.Body>
+                                </Card>
+                            </Accordion.Body>
+                        </Accordion.Item>
+                        <Accordion.Item eventKey="approved">
+                            <Accordion.Header><h5><Badge bg="success">Approved</Badge></h5></Accordion.Header>
+                            <Accordion.Body className="bg-success">
+                                <Card border="success" className="mt-4">
+                                    <Card.Body>
+                                        <table className={`table table-striped ${PURCHASE_ORDERS_APPROVED_TABLE}`} style={{ width: 100 + '%' }}>
                                             <thead>
                                                 <tr>
                                                     <th scope="col">Code</th>
@@ -328,113 +395,63 @@ const PurchaseOrders = () => {
                                             </thead>
                                             <tbody></tbody>
                                         </table>
-                                    </Col>
-                                    {allowedToCreatePurchaseOrder &&
-                                        <Col md={3}>
-                                            <Card>
-                                                <Card.Header>New Purchase Order</Card.Header>
-                                                <Card.Body>
-                                                    <Form noValidate onSubmit={handleSubmitNewPurchaseOrder}>
-                                                        <CommonDropdownSelectSingleLocation
-                                                            key={updateAvailableLocations}
-                                                            label="Location:"
-                                                            name="location"
-                                                            handleChange={null}
-                                                            handleInputChange={null} />
-                                                        <Form.Group>
-                                                            <Form.Label>From:</Form.Label>
-                                                            <Form.Control type="date" name="from" onChange={clearValidation}></Form.Control>
-                                                            <Form.Control.Feedback type="invalid"></Form.Control.Feedback>
-                                                        </Form.Group>
-                                                        <Form.Group>
-                                                            <Form.Label>To:</Form.Label>
-                                                            <Form.Control type="date" name="to" onChange={clearValidation}></Form.Control>
-                                                            <Form.Control.Feedback type="invalid"></Form.Control.Feedback>
-                                                        </Form.Group>
-                                                        <hr />
-                                                        <Button type="submit">Create</Button>
-                                                    </Form>
-                                                </Card.Body>
-                                            </Card>
-                                        </Col>}
-                                </Row>
-                            </Card.Body>
-                        </Card>
-                    </Accordion.Body>
-                </Accordion.Item>
-                <Accordion.Item eventKey="approved">
-                    <Accordion.Header>Approved Purchase Orders</Accordion.Header>
-                    <Accordion.Body>
-                        <Card border="success" className="mt-4">
-                            <Card.Body>
-                                <table className={`table table-striped ${PURCHASE_ORDERS_APPROVED_TABLE}`} style={{ width: 100 + '%' }}>
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Code</th>
-                                            <th scope="col">Location</th>
-                                            <th scope="col">From</th>
-                                            <th scope="col">To</th>
-                                            <th scope="col">Trips</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </Card.Body>
-                        </Card>
-                    </Accordion.Body>
-                </Accordion.Item>
-                <Accordion.Item eventKey="closed">
-                    <Accordion.Header>Closed Purchase Orders</Accordion.Header>
-                    <Accordion.Body>
-                        <Card border="danger" className="mt-4">
-                            <Card.Body>
-                                <div className="row">
-                                    <div className="col-md-4">
-                                        <Card>
-                                            <Card.Body>
-                                                <table className={`table table-striped ${PURCHASE_ORDERS_CLOSED_FOLDERS_TABLE}`} style={{ width: 100 + '%' }}>
-                                                    <thead>
-                                                        <tr>
-                                                            <th scope="col">Folder</th>
-                                                            <th></th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody></tbody>
-                                                </table>
-                                            </Card.Body>
-                                        </Card>
-                                    </div>
-                                    <div className="col-md-8">
-                                        <h4 className="my-4">
-                                            <i className="fa fa-folder-open"></i>&nbsp;
-                                            {purchaseOrdersClosed.folder.length > 0
-                                                ? purchaseOrdersClosed.folder
-                                                : 'Select available folder'}
-                                        </h4>
-                                        <div style={{ display: purchaseOrdersClosed.folder.length > 0 ? 'block' : 'none' }}>
-                                            <hr />
-                                            <table className={`table table-striped ${PURCHASE_ORDERS_CLOSED_TABLE}`} style={{ width: 100 + '%' }}>
-                                                <thead>
-                                                    <tr>
-                                                        <th scope="col">Code</th>
-                                                        <th scope="col">Location</th>
-                                                        <th scope="col">From</th>
-                                                        <th scope="col">To</th>
-                                                        <th scope="col">Trips</th>
-                                                        <th></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody></tbody>
-                                            </table>
+                                    </Card.Body>
+                                </Card>
+                            </Accordion.Body>
+                        </Accordion.Item>
+                        <Accordion.Item eventKey="closed">
+                            <Accordion.Header><h5><Badge bg="danger">Closed</Badge></h5></Accordion.Header>
+                            <Accordion.Body className="bg-danger">
+                                <Card border="danger" className="mt-4">
+                                    <Card.Body>
+                                        <div className="row">
+                                            <div className="col-md-4">
+                                                <Card>
+                                                    <Card.Body>
+                                                        <table className={`table table-striped ${PURCHASE_ORDERS_CLOSED_FOLDERS_TABLE}`} style={{ width: 100 + '%' }}>
+                                                            <thead>
+                                                                <tr>
+                                                                    <th scope="col">Folder</th>
+                                                                    <th></th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody></tbody>
+                                                        </table>
+                                                    </Card.Body>
+                                                </Card>
+                                            </div>
+                                            <div className="col-md-8">
+                                                <h4 className="my-4">
+                                                    <i className="fa fa-folder-open"></i>&nbsp;
+                                                    {purchaseOrdersClosed.folder.length > 0
+                                                        ? purchaseOrdersClosed.folder
+                                                        : 'Select available folder'}
+                                                </h4>
+                                                <div style={{ display: purchaseOrdersClosed.folder.length > 0 ? 'block' : 'none' }}>
+                                                    <hr />
+                                                    <table className={`table table-striped ${PURCHASE_ORDERS_CLOSED_TABLE}`} style={{ width: 100 + '%' }}>
+                                                        <thead>
+                                                            <tr>
+                                                                <th scope="col">Code</th>
+                                                                <th scope="col">Location</th>
+                                                                <th scope="col">From</th>
+                                                                <th scope="col">To</th>
+                                                                <th scope="col">Trips</th>
+                                                                <th></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody></tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                            </Card.Body>
-                        </Card>
-                    </Accordion.Body>
-                </Accordion.Item>
-            </Accordion>
+                                    </Card.Body>
+                                </Card>
+                            </Accordion.Body>
+                        </Accordion.Item>
+                    </Accordion>
+                </Card.Body>
+            </Card>
 
             <CommonDeleteModal
                 isShow={confirmDeletePurchaseOrder.showModal}
@@ -442,7 +459,7 @@ const PurchaseOrders = () => {
                 bodyText={`Are you sure to delete this purchase order?`}
                 handleClose={handleCloseDeletePurchaseOrderModal}
                 handleSubmit={handleSubmitDeletePurchaseOrderModal} />
-        </div>
+        </>
     );
 }
 

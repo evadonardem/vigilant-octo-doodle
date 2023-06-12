@@ -3,8 +3,34 @@ import { Link } from 'react-router-dom';
 import CommonDeleteModal from '../../CommonDeleteModal';
 import React, { useEffect, useState } from 'react';
 import cookie from 'react-cookies';
+import Directory from '../../Generic/Directory';
+import { useSelector } from 'react-redux';
+
+const BREADCRUMB_ITEMS = [
+    {
+        icon: 'fa-dashboard',
+        label: '',
+        link: '#/dashboard'
+    },
+    {
+        icon: '',
+        label: 'Compensation and Benefits',
+        link: '#/compensation-and-benefits'
+    },
+    {
+        icon: '',
+        label: 'Pay Periods',
+    },
+];
 
 const PayPeriods = () => {
+    const { roles, permissions } = useSelector((state) => state.authenticate.user);
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
+    const isSuperAdmin = hasRole("Super Admin");
+    const canCreatePayPeriod = isSuperAdmin || hasPermission("Create pay period");
+    const canDeletePayPeriod = isSuperAdmin || hasPermission("Delete pay period");
+
     const [showDeletePayPeriodModal, setShowDeletePayPeriodModal] = useState(false);
     const [payPeriodId, setPayPeriodId] = useState(null);
     const [isDeletePayPeriodError, setIsDeletePayPeriodError] = useState(false);
@@ -59,7 +85,12 @@ const PayPeriods = () => {
                         return `<div class="btn-group">${openBtn}${deleteBtn}</div>`;
                     }
                 }
-            ]
+            ],
+            drawCallback: function () {
+                if (!canDeletePayPeriod) {
+                    $(document).find('.data-table-wrapper .delete').remove();
+                }
+            },
         });
 
         $(document).on('click', '.data-table-wrapper .open', function (e) {
@@ -97,7 +128,7 @@ const PayPeriods = () => {
                     for (const key in errors) {
                         $('[name=' + key + ']', modal)
                             .addClass('is-invalid')
-                            .closest('.form-group')
+                            .closest('div')
                             .find('.invalid-feedback')
                             .text(errors[key][0]);
                     }
@@ -141,68 +172,58 @@ const PayPeriods = () => {
 
     return (
         <>
-            <Breadcrumb>
-                <Breadcrumb.Item linkProps={{ to: "/compensation-and-benefits" }} linkAs={Link}>
-                    <i className="fa fa-gift"></i> Compensation and Benefits
-                </Breadcrumb.Item>
-                <Breadcrumb.Item active>
+            <Directory items={BREADCRUMB_ITEMS} />
+            <Card className="my-4">
+                <Card.Header as="h5">
                     <i className="fa fa-address-card-o"></i> Pay Periods
-                </Breadcrumb.Item>
-            </Breadcrumb>
-
-            <Row>
-                <Col md={12}>
-                    <Card>
-                        <Card.Body>
-                            <div className="row">
-                                <div className="col-md-3">
-                                    <Card>
-                                        <Card.Header>New Pay Period</Card.Header>
-                                        <Card.Body>
-                                            <Form onSubmit={handleSubmitNewPayPeriod}>
-                                                <Form.Group>
-                                                    <Form.Label>From:</Form.Label>
-                                                    <Form.Control type="date" name="from"></Form.Control>
-                                                    <div className="invalid-feedback"></div>
-                                                </Form.Group>
-                                                <Form.Group>
-                                                    <Form.Label>To:</Form.Label>
-                                                    <Form.Control type="date" name="to"></Form.Control>
-                                                    <div className="invalid-feedback"></div>
-                                                </Form.Group>
-                                                <Form.Group>
-                                                    <Form.Check
-                                                        type="checkbox"
-                                                        defaultChecked={true}
-                                                        name="include_deliveries_from_purchase_orders"
-                                                        label="Include deliveries from purchase orders" />
-                                                    <div className="invalid-feedback"></div>
-                                                </Form.Group>
-                                                <hr />
-                                                <Button type="submit">Create</Button>
-                                            </Form>
-                                        </Card.Body>
-                                    </Card>
-                                </div>
-                                <div className="col-md-9">
-                                    <table className="table table-striped table-pay-periods" style={{ width: 100 + '%' }}>
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">From</th>
-                                                <th scope="col">To</th>
-                                                <th scope="col">Include deliveries from purchase orders</th>
-                                                <th scope="col"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
-
+                </Card.Header>
+                <Card.Body>
+                    <Row>
+                        {canCreatePayPeriod && <Col md={3}>
+                            <Card>
+                                <Card.Header>New Pay Period</Card.Header>
+                                <Card.Body>
+                                    <Form onSubmit={handleSubmitNewPayPeriod}>
+                                        <Form.Group className="mb-4">
+                                            <Form.Label>From:</Form.Label>
+                                            <Form.Control type="date" name="from"></Form.Control>
+                                            <div className="invalid-feedback"></div>
+                                        </Form.Group>
+                                        <Form.Group className="mb-4">
+                                            <Form.Label>To:</Form.Label>
+                                            <Form.Control type="date" name="to"></Form.Control>
+                                            <div className="invalid-feedback"></div>
+                                        </Form.Group>
+                                        <Form.Group className="mb-4">
+                                            <Form.Check
+                                                type="checkbox"
+                                                defaultChecked={true}
+                                                name="include_deliveries_from_purchase_orders"
+                                                label="Include deliveries from purchase orders" />
+                                            <div className="invalid-feedback"></div>
+                                        </Form.Group>
+                                        <hr />
+                                        <Button type="submit" className="pull-right">Create</Button>
+                                    </Form>
+                                </Card.Body>
+                            </Card>
+                        </Col>}
+                        <Col md={canCreatePayPeriod ? 9 : 12}>
+                            <table className="table table-striped table-pay-periods" style={{ width: 100 + '%' }}>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">From</th>
+                                        <th scope="col">To</th>
+                                        <th scope="col">Include deliveries from purchase orders</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </Col>
+                    </Row>
+                </Card.Body>
+            </Card>
             <CommonDeleteModal
                 isShow={showDeletePayPeriodModal}
                 headerTitle="Delete Pay Period"

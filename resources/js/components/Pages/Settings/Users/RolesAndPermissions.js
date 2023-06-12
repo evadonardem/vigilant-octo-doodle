@@ -55,7 +55,7 @@ const RolesAndPermissions = () => {
                     <i className="fa fa-id-card"></i> Roles and Permissions
                 </Breadcrumb.Item>
             </Breadcrumb>
-            <Card>
+            <Card className="my-4">
                 <Card.Header>
                     <Badge>{biometricId}</Badge>
                     <h4>{name}</h4>
@@ -63,7 +63,7 @@ const RolesAndPermissions = () => {
                 <Card.Body>
                     <Row>
                         {userRoles && userRoles.map((role) => <Col key={`role-${role.id}`} md={6}>
-                            <Card>
+                            <Card className="mb-4">
                                 <Card.Header>{role.name}</Card.Header>
                                 <Card.Body>
                                     {role && role.permissions.map((permission) => <Form.Check

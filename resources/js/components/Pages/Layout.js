@@ -10,7 +10,7 @@ const Layout = ({ brand, links, signedInUser } = props) => {
 
     return (
         <>
-            <Navbar bg="primary" variant="dark" expand={false} className="mb-3">
+            <Navbar bg="primary" variant="dark" expand={false}>
                 <Container fluid>
                     <Navbar.Brand href="#">{brand && brand}</Navbar.Brand>
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />

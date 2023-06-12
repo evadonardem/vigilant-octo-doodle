@@ -1,9 +1,10 @@
-import { Breadcrumb, Button, Card, Form } from 'react-bootstrap';
+import { Breadcrumb, Button, Card, Form, Row } from 'react-bootstrap';
 import { Link, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import CommonDropdownSelectSingleStore from '../../CommonDropdownSelectSingleStore';
 import React, { useEffect, useState } from 'react';
 import cookie from 'react-cookies';
+import Directory from '../../Generic/Directory';
 
 const END_POINT = `${apiBaseUrl}/sales-invoices`;
 
@@ -118,24 +119,18 @@ const SalesInvoiceStoreItemsShow = () => {
         init();
     }, []);
 
+    const items = salesInvoice ? BREADCRUMB_ITEMS.map((item) => {
+        item.label = item.label.replace('{salesInvoiceId}', `Sales Invoice No. ${salesInvoice.id}`);
+        return item;
+    }) : [];
+
     return (
         <>
-            {salesInvoice &&
-                <Card>
-                    <Card.Header>
-                        <Breadcrumb>
-                            {
-                                BREADCRUMB_ITEMS.map(({ icon, label, link }, key) =>
-                                    <Breadcrumb.Item key={key} href={link ? link.replace('{salesInvoiceId}', salesInvoice.id) : ''} active={!link}>
-                                        <span>
-                                            <i className={`fa ${icon}`}></i>
-                                            {label.replace('{salesInvoiceId}', `Sales Invoice No. ${salesInvoice.id}`)}
-                                        </span>
-                                    </Breadcrumb.Item>
-                                )
-                            }
-                        </Breadcrumb>
-                        <h5><i className="fa fa-file"></i> Sales Invoice No. {salesInvoice.id} Store Items</h5>
+            {salesInvoice && <>
+                <Directory items={items} />
+                <Card className="my-4">
+                    <Card.Header as="h5">
+                        <i className="fa fa-file"></i> Sales Invoice No. {salesInvoice.id} Store Items
                     </Card.Header>
                     <Card.Body>
                         <CommonDropdownSelectSingleStore
@@ -144,10 +139,10 @@ const SalesInvoiceStoreItemsShow = () => {
                             selectedItem={selectedStore}
                             handleChange={handleChangeSelectSingleStore} />
                         {storeItems.length > 0 &&
-                            <div className="row">
+                            <Row className="mt-4">
                                 {
                                     storeItems.map((item, key) => <div key={key} className="col-md-6">
-                                        <Card>
+                                        <Card className="mb-4">
                                             <Card.Body>
                                                 <Form.Label>{item.name} Qty. (Original):</Form.Label>
                                                 <Form.Control
@@ -159,7 +154,7 @@ const SalesInvoiceStoreItemsShow = () => {
                                         </Card>
                                     </div>)
                                 }
-                            </div>
+                            </Row>
                         }
                     </Card.Body>
                     <Card.Footer>
@@ -170,7 +165,7 @@ const SalesInvoiceStoreItemsShow = () => {
                         </div>
                     </Card.Footer>
                 </Card>
-            }
+            </>}
         </>
     );
 }

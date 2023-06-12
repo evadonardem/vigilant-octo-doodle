@@ -22,17 +22,35 @@ class RolesAndPermissionsSeeder extends Seeder
         // Roles and permissions master list
         $rolesAndPermissions = collect([
             'Super Admin' => [],
+            'Manage Manual Biometric Logs' => [
+                'Create manual biometric logs',
+                'Update manual biometric logs',
+                'Delete manual biometric logs',
+                'View manual biometric logs',
+            ],
+            'Manage Delivery Logs' => [
+                'Create manual delivery logs',
+                'Update manual delivery logs',
+                'Delete manual delivery logs',
+                'View manual delivery logs',
+            ],
+            'Manage Pay Period' => [
+                'Create pay period',
+                'Update pay period',
+                'Delete pay period',
+                'View pay period',
+            ],
             'Manage Purchase Order' => [
                 'Create purchase order',
                 'Update purchase order',
                 'Delete purchase order',
                 'View purchase order',
             ],
-            'Manage Warehouse Inventory' => [
-                'Create warehouse inventory',
-                'Update warehouse inventory',
-                'Delete warehouse inventory',
-                'View warehouse inventory',
+            'Manage Sales Invoice' => [
+                'Create sales invoice',
+                'Update sales invoice',
+                'Delete sales invoice',
+                'View sales invoice',
             ],
             'Manage Users Registry' => [
                 'Create or register new user',
