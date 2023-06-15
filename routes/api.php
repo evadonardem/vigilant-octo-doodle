@@ -126,7 +126,7 @@ $api->version('v1', function ($api) {
         $api->get('attendance-logs', 'App\Http\Controllers\Api\V1\BiometricAttendanceController@index');
     });
 
-    $api->group(['prefix' => 'settings', 'middleware' =>['api.auth', 'bindings']], function ($api) {
+    $api->group(['prefix' => 'settings', 'middleware' => ['api.auth', 'bindings']], function ($api) {
         $api->resource('deduction-types', 'App\Http\Controllers\Api\V1\DeductionTypesController');
         $api->resource('overtime-rates', 'App\Http\Controllers\Api\V1\OvertimeRateController');
         $api->get('overtime-rate-types', 'App\Http\Controllers\Api\V1\OvertimeRateTypeController@index');
@@ -148,7 +148,7 @@ $api->version('v1', function ($api) {
         $api->post('/{promodiser}/payments', 'App\Http\Controllers\Api\V1\PromodiserPaymentController@store');
     });
 
-    $api->group(['prefix' => 'reports', 'middleware' =>['api.auth', 'bindings']], function ($api) {
+    $api->group(['prefix' => 'reports', 'middleware' => ['api.auth', 'bindings']], function ($api) {
         $api->get('delivery-sales-monitoring', 'App\Http\Controllers\Api\V1\DeliverySalesMonitoringController@index');
         $api->get('delivery-receipt-monitoring', 'App\Http\Controllers\Api\V1\DeliveryReceiptMonitoringController@index');
         $api->get('sales-invoices-monitoring', 'App\Http\Controllers\Api\V1\SalesInvoiceMonitoringController@index');

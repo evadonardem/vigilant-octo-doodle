@@ -1,4 +1,4 @@
-import { Col, Row } from 'react-bootstrap';
+import { Card, Col, Row } from 'react-bootstrap';
 import Option from '../Generic/Option';
 import React from 'react';
 
@@ -48,16 +48,25 @@ const Reports = () => {
         },
     ];
 
-    return <Row>
-        {options
-            .map((option, key) => <Col key={`reports-option-${key}`} md="4">
-                <Option
-                    icon={option.icon}
-                    title={option.title}
-                    description={option.description}
-                    to={option.to} />
-            </Col>)}
-    </Row>;
+    return (
+        <Card className="my-4">
+            <Card.Header as="h5">
+                <i className="fa fa-book"></i> Reports
+            </Card.Header>
+            <Card.Body>
+            <Row>
+            {options
+                .map((option, key) => <Col key={`reports-option-${key}`} md="4">
+                    <Option
+                        icon={option.icon}
+                        title={option.title}
+                        description={option.description}
+                        to={option.to} />
+                </Col>)}
+        </Row>
+            </Card.Body>
+        </Card>
+    );
 }
 
 export default Reports;

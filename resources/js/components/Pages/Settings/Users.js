@@ -24,17 +24,18 @@ const BREADCRUMB_ITEMS = [
 ];
 
 const Users = () => {
-    const { roles, permissions } = useSelector((state) => state.authenticate.user);
+    const { user: currentUser } = useSelector((state) => state.authenticate);
+    const { roles, permissions } = currentUser;
     const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
     const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
+    const isSuperAdmin = hasRole('Super Admin');
+    const allowedToCreateUser = isSuperAdmin || hasPermission("Create or register new user");
+    const allowedToUpdateUser = isSuperAdmin || hasPermission("Update existing user");
+    const allowedToDeleteUser = isSuperAdmin || hasPermission("Delete or unregister user");
+    const allowedToViewUser = isSuperAdmin || hasPermission("View registered user");
 
-    const allowedToCreateUser = hasRole('Super Admin') || hasPermission("Create or register new user");
-    const allowedToUpdateUser = hasRole('Super Admin') || hasPermission("Update existing user");
-    const allowedToDeleteUser = hasRole('Super Admin') || hasPermission("Delete or unregister user");
-    const allowedToViewUser = hasRole('Super Admin') || hasPermission("View registered user");
-
-    const allowedToManageUserRateHistory = hasRole('Super Admin');
-    const allowedToManageUserRolesAndPermissions = hasRole('Super Admin');
+    const allowedToManageUserRateHistory = isSuperAdmin;
+    const allowedToManageUserRolesAndPermissions = isSuperAdmin;
 
     const [showAddEditUserModal, setShowAddEditUserModal] = useState(false);
     const [isEditUser, setIsEditUser] = useState(false);
@@ -104,6 +105,20 @@ const Users = () => {
                     if (!allowedToDeleteUser) {
                         $(document).find('.data-table-wrapper .delete').remove();
                     }
+
+                    $(document).find('.data-table-wrapper .default-password').each((_index, element) => {
+                        const userId = $(element).data('user-id');
+                        if (currentUser.id === userId) {
+                            $(element).remove();
+                        }
+                    });
+
+                    $(document).find('.data-table-wrapper .delete').each((_index, element) => {
+                        const userId = $(element).data('user-id');
+                        if (currentUser.id === userId) {
+                            $(element).remove();
+                        }
+                    });
                 }
             });
 

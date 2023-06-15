@@ -121,6 +121,9 @@ const SalesInvoiceStoreItemsShow = () => {
 
     const items = salesInvoice ? BREADCRUMB_ITEMS.map((item) => {
         item.label = item.label.replace('{salesInvoiceId}', `Sales Invoice No. ${salesInvoice.id}`);
+        if (item.link) {
+            item.link = item.link.replace('{salesInvoiceId', salesInvoice.id);
+        }
         return item;
     }) : [];
 
