@@ -44,7 +44,7 @@ export default class SettingsUserRoles extends Component {
             buttons: exportButtons,
             columns: [
                 { 'data': 'id'},
-                { 'data': 'description' },
+                { 'data': 'name' },
                 {
                     'data': null,
                     'render': function(data, type, row) {
@@ -219,8 +219,8 @@ export default class SettingsUserRoles extends Component {
                                 <table ref="userRolesList" className="table table-striped table-user-roles">
                                     <thead>
                                         <tr>
-                                            <th scope="col">Role</th>
-                                            <th scope="col">Description</th>
+                                            <th scope="col">ID</th>
+                                            <th scope="col">Name</th>
                                             <th scope="col"></th>
                                         </tr>
                                     </thead>

@@ -9,13 +9,13 @@
     "license": "MIT",
     "require": {
         "php": "^8.0.0",
-        "dingo/api": "^3.0",
+        "api-ecosystem-for-laravel/dingo-api": "^3.1",
         "fideloper/proxy": "^4.0",
         "friendsofphp/php-cs-fixer": "^3.1",
         "laravel/framework": "^8.0",
         "laravel/tinker": "^2.0",
-        "phing/phing": "^2.16",
-        "tymon/jwt-auth": "^1.0"
+        "php-open-source-saver/jwt-auth": "*",
+        "spatie/laravel-permission": "^5.5"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",
@@ -23,6 +23,7 @@
         "fakerphp/faker": "^1.0",
         "mockery/mockery": "^1.0",
         "nunomaduro/collision": "^5.0",
+        "phing/phing": "^2.16",
         "phpunit/phpunit": "^9.0"
     },
     "config": {

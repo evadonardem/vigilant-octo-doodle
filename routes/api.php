@@ -1,5 +1,12 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\BiometricUsersController;
+use App\Http\Controllers\Api\V1\GrantUserPermissionController;
+use App\Http\Controllers\Api\V1\NavigationMenuController;
+use App\Http\Controllers\Api\V1\RoleController;
+use App\Http\Controllers\Api\V1\UserPermissionController;
+use App\Http\Controllers\Api\V1\UserRoleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,20 +22,27 @@
 $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', function ($api) {
-    $api->get('/', function () {
-        return 'TAD API';
-    });
+    // Ping
+    $api->get('/', fn () => config('app.name'));
 
-    $api->post('login', 'App\Http\Controllers\Api\V1\AuthController@login');
-
-    $api->group(['prefix' => 'navigation-menu', 'middleware' => 'api.auth'], function ($api) {
-        $api->get('/', 'App\Http\Controllers\Api\V1\NavigationMenuController@index');
-    });
-
+    // Authentication
+    $api->post('login', [AuthController::class, 'login']);
     $api->group(['middleware' => 'api.auth'], function ($api) {
-        $api->post('logout', 'App\Http\Controllers\Api\V1\AuthController@logout');
-        $api->post('refresh', 'App\Http\Controllers\Api\V1\AuthController@refresh');
-        $api->post('me', 'App\Http\Controllers\Api\V1\AuthController@me');
+        $api->post('logout', [AuthController::class, 'logout']);
+        $api->post('refresh', [AuthController::class, 'refresh']);
+        $api->post('me', [AuthController::class, 'me']);
+        $api->post('change-password', [AuthController::class, 'changePassword']);
+    });
+
+    // Roles and Permissions
+    $api->group(['prefix' => 'user', 'middleware' => ['api.auth', 'bindings']], function ($api) {
+        $api->get('/roles', [UserRoleController::class, 'index']);
+        $api->get('/permissions', [UserPermissionController::class, 'index']);
+    });
+
+    // Navigation Menu
+    $api->group(['prefix' => 'navigation-menu', 'middleware' => 'api.auth'], function ($api) {
+        $api->get('/', [NavigationMenuController::class, 'index']);
     });
 
     $api->group(['middleware' => ['api.auth', 'bindings']], function ($api) {
@@ -104,7 +118,7 @@ $api->version('v1', function ($api) {
         );
     });
 
-    $api->group(['prefix' => 'biometric', 'middleware' => 'api.auth'], function ($api) {
+    $api->group(['prefix' => 'biometric', 'middleware' => ['api.auth']], function ($api) {
         $api->get('info', 'App\Http\Controllers\Api\V1\BiometricInfoController@index');
         $api->resource('users', 'App\Http\Controllers\Api\V1\BiometricUsersController');
         $api->get('users/{userId}/rates', 'App\Http\Controllers\Api\V1\RateController@index');
@@ -112,8 +126,7 @@ $api->version('v1', function ($api) {
         $api->get('attendance-logs', 'App\Http\Controllers\Api\V1\BiometricAttendanceController@index');
     });
 
-    $api->group(['prefix' => 'settings', 'middleware' =>['api.auth', 'bindings']], function ($api) {
-        $api->resource('roles', 'App\Http\Controllers\Api\V1\RolesController');
+    $api->group(['prefix' => 'settings', 'middleware' => ['api.auth', 'bindings']], function ($api) {
         $api->resource('deduction-types', 'App\Http\Controllers\Api\V1\DeductionTypesController');
         $api->resource('overtime-rates', 'App\Http\Controllers\Api\V1\OvertimeRateController');
         $api->get('overtime-rate-types', 'App\Http\Controllers\Api\V1\OvertimeRateTypeController@index');
@@ -125,6 +138,9 @@ $api->version('v1', function ($api) {
         $api->resource('stores/{store}/promodisers/{promodiser}/job-contracts', 'App\Http\Controllers\Api\V1\StorePromodiserJobContractController');
         $api->resource('stores/{store}/items', 'App\Http\Controllers\Api\V1\StoreItemController');
         $api->get('stores/{store}/item-pricing/{effectivityDate}', 'App\Http\Controllers\Api\V1\StoreItemController@itemPricing');
+
+        $api->post('users/{user}/grant-permission', [GrantUserPermissionController::class, 'store']);
+        $api->patch('users/{user}/default-password', [BiometricUsersController::class, 'defaultPassword']);
     });
 
     $api->group(['prefix' => 'promodisers', 'middleware' => ['api.auth', 'bindings']], function ($api) {
@@ -132,7 +148,7 @@ $api->version('v1', function ($api) {
         $api->post('/{promodiser}/payments', 'App\Http\Controllers\Api\V1\PromodiserPaymentController@store');
     });
 
-    $api->group(['prefix' => 'reports', 'middleware' =>['api.auth', 'bindings']], function ($api) {
+    $api->group(['prefix' => 'reports', 'middleware' => ['api.auth', 'bindings']], function ($api) {
         $api->get('delivery-sales-monitoring', 'App\Http\Controllers\Api\V1\DeliverySalesMonitoringController@index');
         $api->get('delivery-receipt-monitoring', 'App\Http\Controllers\Api\V1\DeliveryReceiptMonitoringController@index');
         $api->get('sales-invoices-monitoring', 'App\Http\Controllers\Api\V1\SalesInvoiceMonitoringController@index');

@@ -27,7 +27,6 @@ class StoreUserRequest extends FormRequest
     {
         $rules = [
             'name' => 'required|string|max:25',
-            'role' => 'required|string',
         ];
 
         if (!$request->isMethod('patch')) {

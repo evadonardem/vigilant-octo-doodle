@@ -16,8 +16,12 @@ class StockCardDetailController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(StockCard $stockCard)
+    public function index(Request $request, StockCard $stockCard)
     {
+        if ($request->user()->cannot('View stock card')) {
+            abort(403);
+        }
+
         $itemIds = $stockCard->store->items->pluck('id')->unique();
         $stockCardDetails = $stockCard->details()
             ->orderBy('created_at', 'desc')
@@ -56,6 +60,10 @@ class StockCardDetailController extends Controller
      */
     public function store(Request $request, StockCard $stockCard)
     {
+        if ($request->user()->cannot('Update stock card')) {
+            abort(403);
+        }
+
         $attributes = $request->only(['type', 'item_id', 'quantity']);
         $attributes['quantity'] = is_numeric($attributes['quantity']) ? +$attributes['quantity'] : null;
 

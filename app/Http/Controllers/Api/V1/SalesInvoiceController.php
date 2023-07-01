@@ -17,6 +17,10 @@ class SalesInvoiceController extends Controller
      */
     public function index(Request $request)
     {
+        if ($request->user()->cannot('View sales invoice')) {
+            abort(403);
+        }
+
         $search = $request->input('search') ?? [];
         $start = $request->input('start') ?? 0;
         $perPage = $request->input('length') ?? 10;
@@ -56,6 +60,10 @@ class SalesInvoiceController extends Controller
      */
     public function store(StoreSalesInvoiceRequest $request)
     {
+        if ($request->user()->cannot('Create sales invoice')) {
+            abort(403);
+        }
+
         $attributes = $request->only([
             'booklet_no',
             'invoice_no',
@@ -76,8 +84,12 @@ class SalesInvoiceController extends Controller
      * @param  \App\Models\SalesInvoice  $salesInvoice
      * @return \Illuminate\Http\Response
      */
-    public function show(SalesInvoice $salesInvoice)
+    public function show(Request $request, SalesInvoice $salesInvoice)
     {
+        if ($request->user()->cannot('View sales invoice')) {
+            abort(403);
+        }
+
         $salesInvoice->loadMissing('category');
         $salesInvoice->total_sales = $salesInvoice->items->sum('total_amount');
 
@@ -90,8 +102,12 @@ class SalesInvoiceController extends Controller
      * @param  \App\Models\SalesInvoice  $salesInvoice
      * @return \Illuminate\Http\Response
      */
-    public function destroy(SalesInvoice $salesInvoice)
+    public function destroy(Request $request, SalesInvoice $salesInvoice)
     {
+        if ($request->user()->cannot('Delete sales invoice')) {
+            abort(403);
+        }
+
         $salesInvoice->delete();
 
         return response()->noContent();

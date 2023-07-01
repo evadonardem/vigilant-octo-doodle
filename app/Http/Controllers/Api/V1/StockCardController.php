@@ -10,7 +10,6 @@ use App\Models\StockCard;
 use Dingo\Api\Routing\Helpers;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Log;
 
 class StockCardController extends Controller
 {
@@ -23,6 +22,10 @@ class StockCardController extends Controller
      */
     public function index(Request $request)
     {
+        if ($request->user()->cannot('View stock card')) {
+            abort(403);
+        }
+
         $stockCardsQuery = StockCard::orderBy('from', 'desc')
             ->orderBy('to', 'desc')
             ->orderBy('id', 'desc')
@@ -49,6 +52,10 @@ class StockCardController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->user()->cannot('Create stock card')) {
+            abort(403);
+        }
+
         $attributes = $request->only(['store_id', 'from', 'to']);
 
         $stockCard = StockCard::create($attributes);
@@ -145,8 +152,12 @@ class StockCardController extends Controller
      * @param  \App\Models\StockCard  $stockCard
      * @return \Illuminate\Http\Response
      */
-    public function show(StockCard $stockCard)
+    public function show(Request $request, StockCard $stockCard)
     {
+        if ($request->user()->cannot('View stock card')) {
+            abort(403);
+        }
+
         $stockCard->loadMissing('store.items');
         $itemIds = $stockCard->store->items->pluck('id')->unique()->toArray();
         $stockCard->items = $itemIds
@@ -157,25 +168,17 @@ class StockCardController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\StockCard  $stockCard
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, StockCard $stockCard)
-    {
-        //
-    }
-
-    /**
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\StockCard  $stockCard
      * @return \Illuminate\Http\Response
      */
-    public function destroy(StockCard $stockCard)
+    public function destroy(Request $request, StockCard $stockCard)
     {
+        if ($request->user()->cannot('Delete stock card')) {
+            abort(403);
+        }
+
         $stockCard->delete();
 
         return response()->noContent();

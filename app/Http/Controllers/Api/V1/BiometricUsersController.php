@@ -5,16 +5,20 @@ namespace App\Http\Controllers\Api\V1;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
+use App\Http\Resources\UserResource;
+use App\Repositories\RoleRepository;
 use App\ZKLib\ZKLibrary;
 use App\Models\User;
 use App\Models\AttendanceLog;
-use App\Models\Rate;
-use App\Models\RateType;
 use Illuminate\Support\Facades\Hash;
 
 class BiometricUsersController extends Controller
 {
     private $zk = null;
+
+    public function __construct(
+        protected RoleRepository $roleRepository
+    ) {}
 
     /**
      * Display a listing of the resource.
@@ -25,15 +29,6 @@ class BiometricUsersController extends Controller
     {
         $users = User::orderBy('name', 'asc')->get();
         $users->each(function ($user) {
-            if ($user->roles->count() > 0) {
-                $user->role = $user->roles()
-                       ->orderBy('user_roles.created_at', 'desc')
-                       ->first()
-                       ->id;
-            } else {
-                $user->role = null;
-            }
-
             if ($user->rates->count() > 0) {
                 $current_per_hour_rate = $user->rates()
                     ->whereHas('type', function ($q) {
@@ -92,7 +87,25 @@ class BiometricUsersController extends Controller
     {
         $user = User::findOrFail($id);
 
-        return response()->json(['data' => $user]);
+        if ($request->user()->hasRole('Super Admin') && $request->input('include.roles_and_permissions')) {
+            $roles = $this->roleRepository->getAllRoles()->map(function ($role) use ($user) {
+                return [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                    'has_role' => $role->users->contains('id', $user->id),
+                    'permissions' => $role->permissions->map(function ($permission) use ($user) {
+                        return [
+                            'id' => $permission->id,
+                            'name' => $permission->name,
+                            'has_permission' => $permission->users->contains('id', $user->id),
+                        ];
+                    }),
+                ];
+            });
+            $request->merge(['roles' => $roles]);
+        }
+
+        return new UserResource($user);
     }
 
     /**
@@ -105,7 +118,6 @@ class BiometricUsersController extends Controller
     {
         $attributes = $request->only([
             'biometric_id',
-            'role',
             'name',
         ]);
 
@@ -138,8 +150,6 @@ class BiometricUsersController extends Controller
           'password' => ''
         ]);
 
-        $user->roles()->attach($attributes['role']);
-
         return ($user)
           ? response()->noContent()
           : response()->json('Forbidden', 403);
@@ -159,7 +169,6 @@ class BiometricUsersController extends Controller
 
         $attributes = $request->only([
             'name',
-            'role',
         ]);
 
         if (env('DEVICE_ENABLED')) {
@@ -192,15 +201,6 @@ class BiometricUsersController extends Controller
         }
 
         $storedUser->name = $attributes['name'];
-
-        $currentRole = $storedUser->roles()
-          ->orderBy('user_roles.created_at', 'DESC')
-          ->first();
-
-        if ($currentRole->id !== $attributes['role']) {
-            $storedUser->roles()->attach($attributes['role']);
-        }
-
         $storedUser->save();
 
         return response()->noContent();
@@ -246,6 +246,18 @@ class BiometricUsersController extends Controller
             '=',
             $storedUser->biometric_id
         )->delete();
+
+        return response()->noContent();
+    }
+
+    public function defaultPassword(Request $request, User $user)
+    {
+        if ($request->user()->cannot('Update existing user')) {
+            abort(403);
+        }
+
+        $user->password = Hash::make($request->input('default_password'));
+        $user->save();
 
         return response()->noContent();
     }

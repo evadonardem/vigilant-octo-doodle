@@ -651,7 +651,7 @@ export default class SettingStoreDetails extends Component {
                                                 <div className="invalid-feedback"></div>
                                             </Form.Group>
                                             <hr/>
-                                            <Button type="submit" block>Add</Button>
+                                            <Button type="submit">Add</Button>
                                         </Form>
                                     </Card.Body>
                                 </Card>
@@ -678,10 +678,10 @@ export default class SettingStoreDetails extends Component {
                                     <Card.Footer>
                                         <Link to={`/settings-store-item-pricing/${store.id}`}>
                                             <Button type='button'><i className='fa fa-refresh'></i> Update Item Pricing</Button>
-                                        </Link>                                        
+                                        </Link>
                                     </Card.Footer>
                                 </Card>
-                            </div>                            
+                            </div>
                         </div>
                     </Card.Body>
                 </Card>

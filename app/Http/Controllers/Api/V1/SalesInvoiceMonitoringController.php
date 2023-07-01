@@ -9,7 +9,6 @@ use App\Models\Location;
 use App\Models\SalesInvoice;
 use App\Models\Store;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
 use stdClass;
 
 class SalesInvoiceMonitoringController extends Controller
@@ -31,13 +30,13 @@ class SalesInvoiceMonitoringController extends Controller
 
         $storeId = null;
         $searchStore = null;
-        
+
         $categoryId = null;
         $searchCategory = null;
-        
+
         $locationId = null;
         $searchLocation = null;
-        
+
         if ($filterBy === 'store' && $request->input('store_id')) {
 			$storeId = $request->input('store_id');
 			$searchStore = Store::findOrFail($storeId);
@@ -114,7 +113,7 @@ class SalesInvoiceMonitoringController extends Controller
 		}
 
         $salesInvoices = $salesInvoicesQuery->get();
-        
+
         foreach ($salesInvoices as $salesInvoice) {
             $salesInvoice->total_sales = $salesInvoice->items->sum('total_amount');
         }
@@ -136,7 +135,7 @@ class SalesInvoiceMonitoringController extends Controller
                 $booklets->push($newBooklet);
             }
         }
-        		
+
         $booklets->each(function ($booklet) {
             $booklet->invoices = $booklet->invoices->sortBy('invoice_no')->values();
             $booklet->total_sales = $booklet->invoices->sum('total_sales');
@@ -147,7 +146,7 @@ class SalesInvoiceMonitoringController extends Controller
 
         $booklets = $booklets->sortBy('id')->values();
         $summary = $this->initSummary($salesInvoiceItems);
-        
+
         if (!$isGenerateCsvReport) {
 			return response()->json([
 				'data' => $booklets,
@@ -164,9 +163,9 @@ class SalesInvoiceMonitoringController extends Controller
 				]
 			]);
 		}
-		
+
 		$filename = Str::slug('SIR ' . $reportType . ' ' . $filenameSegment . ' ' . $request->input('from') . ' to ' . $request->input('to')) . '.csv';
-		
+
 		$headers = [
 			'Content-type' => 'text/csv',
 			'Content-Disposition' => "attachment; filename=$filename",
@@ -174,7 +173,7 @@ class SalesInvoiceMonitoringController extends Controller
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
             'Expires' => "0",
 		];
-		
+
 		if ($reportType === 'summary') {
 			$columns = [
 				'Code',
@@ -249,13 +248,13 @@ class SalesInvoiceMonitoringController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
-    
+
     private function initSummary($salesInvoiceItems)
     {
 		$summary = $salesInvoiceItems->map(function ($salesInvoiceItem) {
 			return $salesInvoiceItem->item;
 		})->unique()->values()->keyBy('id');
-		
+
 		$salesInvoiceItemsGroupByItem = $salesInvoiceItems->groupBy('item_id');
 		foreach ($salesInvoiceItemsGroupByItem as $key => $value) {
 			$summations = collect();
@@ -264,13 +263,13 @@ class SalesInvoiceMonitoringController extends Controller
 				$salesInvoice->total_sales = $salesInvoiceItemsByInvoice->sum('total_amount');
 				$summations->push((object)$salesInvoice->only(['total_sales', 'vat_amount', 'total_sales_less_vat', 'total_amount_due']));
 			});
-			
+
 			$summary[$key]->total_sales = $summations->sum('total_sales');
 			$summary[$key]->vat_amount = $summations->sum('vat_amount');
 			$summary[$key]->total_sales_less_vat = $summations->sum('total_sales_less_vat');
 			$summary[$key]->total_amount_due = $summations->sum('total_amount_due');
 		}
-		
+
 		return $summary->values();
 	}
 }

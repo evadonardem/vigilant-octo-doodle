@@ -23,7 +23,6 @@ mix.webpackConfig({
    .react()
    .sass('resources/sass/app.scss', 'public/css')
    .styles([
-      'node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css',
-      'node_modules/datatables.net-rowreorder-bs4/css/rowReorder.bootstrap4.min.css',
+      'node_modules/datatables.net-bs5/css/dataTables.bootstrap5.min.css',
+      'node_modules/datatables.net-rowreorder-bs5/css/rowReorder.bootstrap5.min.css',
    ], 'public/css/all.css');
-   

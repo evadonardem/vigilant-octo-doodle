@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Http\Request;
-use Illuminate\Pagination\Paginator;
 use App\Http\Controllers\Controller;
 use App\Models\Delivery;
 use Carbon\Carbon;
@@ -12,6 +11,10 @@ class DeliveryController extends Controller
 {
     public function index(Request $request)
     {
+        if ($request->user()->cannot('View manual delivery logs')) {
+            return abort(403);
+        }
+
         // filtering parameters
         $biometricIds = $request->input('biometric_id')
             ? explode(',', $request->input('biometric_id'))
@@ -43,6 +46,10 @@ class DeliveryController extends Controller
 
     public function update(Request $request, $id)
     {
+        if ($request->user()->cannot('Update manual delivery logs')) {
+            return abort(403);
+        }
+
         $delivery = Delivery::findOrFail($id);
         $delivery->no_of_deliveries = $request->input('no_of_deliveries');
         $delivery->remarks = $request->input('remarks');
@@ -53,6 +60,10 @@ class DeliveryController extends Controller
 
     public function destroy(Request $request, $id)
     {
+        if ($request->user()->cannot('Delete manual delivery logs')) {
+            return abort(403);
+        }
+
         $delivery = Delivery::findOrFail($id);
         $delivery->delete();
 

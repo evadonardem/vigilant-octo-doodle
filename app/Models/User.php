@@ -6,17 +6,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Tymon\JWTAuth\Contracts\JWTSubject;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 use App\Models\AttendanceLog;
 use App\Models\Delivery;
 use App\Models\PayPeriodDeduction;
 use App\Models\Role;
 use App\Models\Rate;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements JWTSubject
 {
     use Notifiable;
     use HasFactory;
+    use HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -44,16 +46,6 @@ class User extends Authenticatable implements JWTSubject
     public function deliveries()
     {
         return $this->hasMany(Delivery::class, 'user_id', 'id');
-    }
-
-    public function roles()
-    {
-        return $this->belongsToMany(
-            Role::class,
-            'user_roles',
-            'user_id',
-            'role_id'
-        )->withTimestamps();
     }
 
     public function attendanceLogs()

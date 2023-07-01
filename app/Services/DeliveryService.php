@@ -37,10 +37,7 @@ class DeliveryService
                     'coverage_date' => $purchaseOrder->to,
                     'purchase_order_code' => $purchaseOrder->code,
                     'no_of_deliveries' => $purchaseOrder->trips,
-                    'assigned_staff' => $purchaseOrder->assignedStaff->map(function ($staff) {
-                        $staff->position = $staff->roles()->orderBy('created_at', 'desc')->first()->id;
-                        return $staff;
-                    }),
+                    'assigned_staff' => $purchaseOrder->assignedStaff,
                 ];
             });
 
