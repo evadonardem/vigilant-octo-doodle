@@ -1,10 +1,33 @@
-import { Badge, Breadcrumb, Button, Card, Form } from 'react-bootstrap';
+import { Badge, Button, Card, Form } from 'react-bootstrap';
 import { Link, useParams } from 'react-router-dom';
 import { fetchPurchaseOrderStoreRequest, updatePurchaseOrderStoreRequest } from '../../../state/purchaseOrderStoreRequest';
 import { useDispatch, useSelector } from 'react-redux';
 import CommonDropdownSelectSingleStore from '../../CommonDropdownSelectSingleStore';
+import Directory from '../../Generic/Directory';
 import Loader from '../../Generic/Loader';
 import React, { useEffect, useState } from 'react';
+
+const BREADCRUMB_ITEMS = [
+    {
+        icon: 'fa-dashboard',
+        label: '',
+        link: '#/dashboard',
+    },
+    {
+        icon: '',
+        label: 'Purchase Orders',
+        link: '#/purchase-orders',
+    },
+    {
+        icon: '',
+        label: '{purchaseOrderCode}',
+        link: '#/purchase-orders/{purchaseOrderId}/details',
+    },
+    {
+        icon: '',
+        label: 'Store Request',
+    },
+];
 
 const PurchaseOrderStoreRequest = () => {
     const dispatch = useDispatch();
@@ -75,17 +98,21 @@ const PurchaseOrderStoreRequest = () => {
         }
     }
 
+    const items = purchaseOrder ? BREADCRUMB_ITEMS.map((item) => {
+        item.label = item.label.replace('{purchaseOrderCode}', purchaseOrder.code);
+        if (item.link) {
+            item.link = item.link.replace('{purchaseOrderId}', purchaseOrder.id);
+        }
+        return item;
+    }) : [];
+
     return (
         <>
             {purchaseOrder &&
-                <Breadcrumb>
-                    <Breadcrumb.Item href="#/purchase-orders"><i className="fa fa-folder"></i> Purchase Orders</Breadcrumb.Item>
-                    <Breadcrumb.Item href={`#/purchase-orders/${purchaseOrder.id}/details`}>{purchaseOrder.code}</Breadcrumb.Item>
-                    <Breadcrumb.Item active>Store Request</Breadcrumb.Item>
-                </Breadcrumb>
+                <Directory items={items}/>
             }
             {purchaseOrder && (+purchaseOrder.status.id === 1 || +purchaseOrder.status.id === 2) &&
-                <Card>
+                <Card className="my-4">
                     <Card.Header>
                         <p>
                             <Badge variant='primary'>PO: {purchaseOrder.code}</Badge>&nbsp;
@@ -106,8 +133,8 @@ const PurchaseOrderStoreRequest = () => {
                             <div className="row">
                                 <hr className="mt-4" />
                                 {
-                                    storeItems.map((item, key) => <div className="col-md-6">
-                                        <Card key={key} className="my-2">
+                                    storeItems.map((item, key) => <div className="col-md-6" key={key}>
+                                        <Card className="my-2">
                                             <Card.Body>
                                                 <Form.Label>{item.name} Qty. (Original):</Form.Label>
                                                 <Form.Control

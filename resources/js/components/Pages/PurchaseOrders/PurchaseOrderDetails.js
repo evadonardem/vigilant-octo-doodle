@@ -1,4 +1,4 @@
-import { Alert, Badge, Breadcrumb, Button, ButtonGroup, Card, Form, Toast, ToastContainer } from 'react-bootstrap';
+import { Alert, Badge, Button, ButtonGroup, Card, Form, Toast, ToastContainer } from 'react-bootstrap';
 import { Link, useParams } from 'react-router-dom';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import {
@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import CommonDeleteModal from '../../CommonDeleteModal';
 import CommonDropdownSelectSingleExpenseCode from '../../CommonDropdownSelectSingleExpenseCode';
 import CommonDropdownSelectSingleUsers from '../../CommonDropdownSelectSingleUsers';
+import Directory from '../../Generic/Directory';
 import Loader from '../../Generic/Loader';
 import PurchaseOrderDetailsPdfDocument from './PurchaseOrderDetailsPdfDocument';
 import React, { useEffect, useState } from 'react';
@@ -29,6 +30,23 @@ const PO_STORE_ITEMS_DT = 'table-purchase-order-store-items';
 const PO_ASSIGNED_STAFF_DT = 'table-purchase-order-assigned-staff';
 const PO_EXPENSES_DT = 'table-purchase-order-expenses';
 const END_POINT = `${apiBaseUrl}/purchase-orders`;
+
+const BREADCRUMB_ITEMS = [
+    {
+        icon: 'fa-dashboard',
+        label: '',
+        link: '#/dashboard',
+    },
+    {
+        icon: '',
+        label: 'Purchase Orders',
+        link: '#/purchase-orders',
+    },
+    {
+        icon: '',
+        label: '{purchaseOrderCode}',
+    },
+];
 
 const PurchaseOrderDetails = () => {
     const dispatch = useDispatch();
@@ -92,7 +110,7 @@ const PurchaseOrderDetails = () => {
                 { 'data': 'address_line' },
                 {
                     'data': null,
-                    'render': function (data, type, row) {
+                    'render': function (data, _type, _row) {
                         const { promodisers } = data;
 
                         if (promodisers) {
@@ -109,7 +127,7 @@ const PurchaseOrderDetails = () => {
                 },
                 {
                     'data': null,
-                    'render': function (data, type, row) {
+                    'render': function (data, _type, _row) {
                         if (+data.purchase_order_status.id === 1 || +data.purchase_order_status.id === 2) {
                             const editBtn = `<a
                                 href="#/purchase-orders/${data.pivot.purchase_order_id}/store-request/${data.pivot.store_id}"
@@ -252,7 +270,7 @@ const PurchaseOrderDetails = () => {
                             { 'data': 'effective_price' },
                             {
                                 'data': null,
-                                'render': function (data, type, row) {
+                                'render': function (data, _type, _row) {
                                     if (+data.purchase_order_status.id === 1) {
                                         const input = `<input
                                             type="number"
@@ -271,7 +289,7 @@ const PurchaseOrderDetails = () => {
                             },
                             {
                                 'data': null,
-                                'render': function (data, type, row) {
+                                'render': function (data, _type, _row) {
                                     if (+data.purchase_order_status.id === 2) {
                                         const input = `<input
                                             type="number"
@@ -290,7 +308,7 @@ const PurchaseOrderDetails = () => {
                             },
                             {
                                 'data': null,
-                                'render': function (data, type, row) {
+                                'render': function (data, _type, _row) {
                                     if (+data.purchase_order_status.id === 2) {
                                         const input = `<input
                                             type="number"
@@ -309,7 +327,7 @@ const PurchaseOrderDetails = () => {
                             },
                             {
                                 'data': null,
-                                'render': function (data, type, row) {
+                                'render': function (data, _type, _row) {
                                     if (+data.purchase_order_status.id === 2) {
                                         const input = `<input
                                             type="number"
@@ -328,7 +346,7 @@ const PurchaseOrderDetails = () => {
                             },
                             {
                                 'data': null,
-                                'render': function (data, type, row) {
+                                'render': function (data, _type, _row) {
                                     if (+data.purchase_order_status.id === 2) {
                                         const input = `<input
                                             type="text"
@@ -347,7 +365,7 @@ const PurchaseOrderDetails = () => {
                             },
                             {
                                 'data': null,
-                                'render': function (data, type, row) {
+                                'render': function (data, _type, _row) {
                                     if (+data.purchase_order_status.id === 2) {
                                         const input = `<input
                                             type="text"
@@ -366,7 +384,7 @@ const PurchaseOrderDetails = () => {
                             },
                             {
                                 'data': null,
-                                'render': function (data, type, row) {
+                                'render': function (data, _type, _row) {
                                     if (+data.purchase_order_status.id === 2) {
                                         const input = `<input
                                             type="text"
@@ -385,7 +403,7 @@ const PurchaseOrderDetails = () => {
                             },
                             {
                                 'data': null,
-                                'render': function (data, type, row) {
+                                'render': function (data, _type, _row) {
                                     if (+data.purchase_order_status.id === 1 || +data.purchase_order_status.id === 2) {
                                         const deleteBtn = `<a
                                             href="#"
@@ -413,7 +431,7 @@ const PurchaseOrderDetails = () => {
                         },
                     });
 
-                    $(document).on('change', '.data-table-wrapper .update-po-store-item', function (e) {
+                    $(document).on('change', '.data-table-wrapper .update-po-store-item', function () {
                         const storeId = $(this).data('store-id');
                         const itemId = $(this).data('item-id');
                         const quantityType = $(this).data('type');
@@ -464,11 +482,11 @@ const PurchaseOrderDetails = () => {
             }
         });
 
-        poStoresDataTable.on('row-reorder', (e, diff, edit) => {
+        poStoresDataTable.on('row-reorder', (_e, _diff, _edit) => {
             poStoresDataTable.one('draw', function () {
                 let storesSortOrder = [];
                 poStoresDataTable.rows()
-                    .every(function (rowIdx, tableLoop, rowLoop) {
+                    .every(function (_rowIdx, _tableLoop, _rowLoop) {
                         const rowData = this.data();
                         const { id: store_id, sort_order } = rowData;
                         storesSortOrder.push({
@@ -506,7 +524,7 @@ const PurchaseOrderDetails = () => {
                 { 'data': 'name' },
                 {
                     'data': null,
-                    'render': function (data, type, row) {
+                    'render': function (data, _type, _row) {
                         return `<div class="form-check">
 							<input
 								class="form-check-input include-deliveries-to-pay-periods"
@@ -521,7 +539,7 @@ const PurchaseOrderDetails = () => {
                 },
                 {
                     'data': null,
-                    'render': function (data, type, row) {
+                    'render': function (data, _type, _row) {
                         if (data.can_delete) {
                             const deleteBtn = `<a
                                 href="#"
@@ -595,7 +613,7 @@ const PurchaseOrderDetails = () => {
                 { 'data': 'amount_original' },
                 {
                     'data': null,
-                    'render': function (data, type, row) {
+                    'render': function (data, _type, _row) {
                         if (data.can_update) {
                             const input = `<input
                                 type="number"
@@ -614,7 +632,7 @@ const PurchaseOrderDetails = () => {
                 },
                 {
                     'data': null,
-                    'render': function (data, type, row) {
+                    'render': function (data, _type, _row) {
                         if (data.can_delete) {
                             const deleteBtn = `<a
                                 href="#"
@@ -643,12 +661,12 @@ const PurchaseOrderDetails = () => {
                     $(document).find('.data-table-wrapper .delete-po-expense').remove();
                 }
             },
-            footerCallback: function (row, data, start, end, display) {
+            footerCallback: function (_row, _data, _start, _end, _display) {
                 const api = this.api();
 
                 const intVal = function (i) {
                     return typeof i === 'string'
-                        ? i.replace(/[\$,]/g, '') * 1
+                        ? i.replace(/[$,]/g, '') * 1
                         : typeof i === 'number' ? i : 0;
                 };
 
@@ -762,7 +780,7 @@ const PurchaseOrderDetails = () => {
             });
     }
 
-    const handleCloseDeleteModal = (e) => {
+    const handleCloseDeleteModal = () => {
         setDeleteModal({
             show: false,
             headerTitle: '',
@@ -839,8 +857,10 @@ const PurchaseOrderDetails = () => {
         }
     }
 
-
-    // }
+    const items = purchaseOrder ? BREADCRUMB_ITEMS.map((item) => {
+        item.label = item.label.replace('{purchaseOrderCode}', purchaseOrder.code);
+        return item;
+    }) : [];
 
     return (
         <>
@@ -848,10 +868,7 @@ const PurchaseOrderDetails = () => {
 
             {purchaseOrder && (purchaseOrderAssignedStaff || purchaseOrderExpenses || purchaseOrderExpensesMeta || purchaseOrderStores) &&
                 <>
-                    <Breadcrumb>
-                        <Breadcrumb.Item href="#/purchase-orders"><i className="fa fa-folder"></i> Purchase Orders</Breadcrumb.Item>
-                        <Breadcrumb.Item active>{purchaseOrder.code}</Breadcrumb.Item>
-                    </Breadcrumb>
+                    <Directory items={items} />
                     <Card className="my-4">
                         <Card.Header>
                             <p>
