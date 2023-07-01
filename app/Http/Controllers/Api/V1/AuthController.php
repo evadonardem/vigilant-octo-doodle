@@ -25,38 +25,17 @@ class AuthController extends Controller
             $this->zk->connect();
         }
 
-        $isDeviceUserAdmin = false;
         $credentials = request(['biometric_id', 'password']);
 
-        if ($this->zk) {
-            $deviceUsers = $this->zk->getUser();
-            $deviceUsersAdmin = array_filter(
-                $deviceUsers,
-                function ($deviceUser) use ($credentials) {
-                    return $deviceUser['role_id'] == 14 &&
-                      $deviceUser['biometric_id'] == $credentials['biometric_id'];
-                }
-            );
-
-            $isDeviceUserAdmin = count($deviceUsersAdmin) > 0;
-        } else {
-            $isDeviceUserAdmin = true;
-        }
-
-        if ($isDeviceUserAdmin) {
-            try {
-                if (!$token = JWTAuth::attempt($credentials)) {
-                    return response()->json(['error' => 'Unauthorized'], 401);
-                }
-            } catch (JWTException $e) {
-                return response()->json(['error' => 'Couldn\'t create token'], 500);
+        try {
+            if (!$token = JWTAuth::attempt($credentials)) {
+                return response()->json(['error' => 'Unauthorized'], 401);
             }
-
-
-            return response()->json(compact('token'));
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Couldn\'t create token'], 500);
         }
 
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(compact('token'));
     }
 
     public function logout()
