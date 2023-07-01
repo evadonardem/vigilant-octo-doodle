@@ -69,6 +69,12 @@ const Users = () => {
         exportButtons[1].filename = exportFilename;
         exportButtons[1].title = exportTitle;
 
+        jQuery(document).off('click', '.data-table-wrapper .rate-history');
+        jQuery(document).off('click', '.data-table-wrapper .roles-and-permissions');
+        jQuery(document).off('click', '.data-table-wrapper .default-password');
+        jQuery(document).off('click', '.data-table-wrapper .edit');
+        jQuery(document).off('click', '.data-table-wrapper .delete');
+
         if (!$.fn.DataTable.isDataTable('table.table-users')) {
             $('table.table-users').DataTable({
                 ajax: apiBaseUrl + '/biometric/users?token=' + token,
