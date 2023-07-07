@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class NavigationMenuController extends Controller
@@ -59,7 +58,7 @@ class NavigationMenuController extends Controller
                             $user->can('Create manual delivery logs')
                         ),
                     ],
-                ]
+                ],
             ],
             [
                 'label' => 'Compensation and Benefits',
@@ -113,6 +112,12 @@ class NavigationMenuController extends Controller
                     $user->hasRole('Super Admin') ||
                     $user->can('View stock card')
                 ),
+            ],
+            [
+                'label' => 'Warehouse',
+                'icon' => 'fa fa-building',
+                'to' => '/warehouse',
+                'is_visible' => $user && $user->hasRole('Super Admin'),
             ],
             [
                 'label' => 'Reports',
@@ -230,18 +235,20 @@ class NavigationMenuController extends Controller
                         'to' => '/settings/stores-registry',
                         'is_visible' => $user && $user->hasRole('Super Admin'),
                     ],
-                ]
+                ],
             ],
         ]);
 
         $links = $links->where('is_visible', true)->map(function ($link) {
             unset($link['is_visible']);
-            if (isset($link['links']) && !empty($link['links'])) {
+            if (isset($link['links']) && ! empty($link['links'])) {
                 $link['links'] = collect($link['links'])->where('is_visible', true)->map(function ($link) {
                     unset($link['is_visible']);
+
                     return $link;
                 })->values()->toArray();
             }
+
             return $link;
         })->values()->toArray();
 
