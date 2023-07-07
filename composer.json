@@ -9,10 +9,9 @@
     "license": "MIT",
     "require": {
         "php": "^8.0.0",
-        "api-ecosystem-for-laravel/dingo-api": "^3.1",
-        "fideloper/proxy": "^4.0",
+        "api-ecosystem-for-laravel/dingo-api": "^4.1",
         "friendsofphp/php-cs-fixer": "^3.1",
-        "laravel/framework": "^8.0",
+        "laravel/framework": "^9.0",
         "laravel/tinker": "^2.0",
         "php-open-source-saver/jwt-auth": "*",
         "spatie/laravel-permission": "^5.5"
@@ -23,7 +22,7 @@
         "filp/whoops": "^2.0",
         "laravel/pint": "^1.10",
         "mockery/mockery": "^1.0",
-        "nunomaduro/collision": "^5.0",
+        "nunomaduro/collision": "^6.1",
         "phing/phing": "^2.16",
         "phpunit/phpunit": "^9.0"
     },
