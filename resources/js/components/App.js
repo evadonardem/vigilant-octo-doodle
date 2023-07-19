@@ -46,6 +46,9 @@ import TrendsItem from './Pages/Trends/TrendsItem';
 import TrendsStore from './Pages/Trends/TrendsStore';
 import Users from './Pages/Settings/Users';
 import ChangePassword from './Pages/Profile/ChangePassword';
+import WarehouseMain from './Pages/Warehouse/WarehouseMain';
+import WarehouseConsumableItems from './Pages/Warehouse/WarehouseConsumableItemsMain';
+import WarehouseFinishedGoods from './Pages/Warehouse/WarehouseFinishedGoodsMain';
 
 export default function App() {
     const dispatch = useDispatch();
@@ -73,6 +76,9 @@ export default function App() {
     const canViewStockCard = isSuperAdmin || hasPermission("View stock card");
     const canGenerateStoreTrend = isSuperAdmin || hasPermission("Generate store trend");
     const canGenerateItemTrend = isSuperAdmin || hasPermission("Generate item trend");
+
+    const canViewWarehouseConsumableItems = isSuperAdmin;
+    const canViewWarehouseFinishedGoods = isSuperAdmin;
 
     return (
         <>
@@ -102,6 +108,9 @@ export default function App() {
                                         break;
                                     case '/stock-cards':
                                         routeToComponent = <StockCards />;
+                                        break;
+                                    case '/warehouse':
+                                        routeToComponent = <WarehouseMain />;
                                         break;
                                     case '/reports':
                                         routeToComponent = <Reports />;
@@ -185,6 +194,12 @@ export default function App() {
                                 <>
                                     {canGenerateStoreTrend && <Route path={'/trends-store'} element={<TrendsStore />}></Route>}
                                     {canGenerateItemTrend && <Route path={'/trends-item'} element={<TrendsItem />}></Route>}
+                                </>}
+
+                            {links && links.map((link) => link.to).includes('/warehouse') &&
+                                <>
+                                    {canViewWarehouseConsumableItems && <Route path={'/warehouse/consumable-items'} element={<WarehouseConsumableItems />}></Route>}
+                                    {canViewWarehouseFinishedGoods && <Route path={'/warehouse/finished-goods'} element={<WarehouseFinishedGoods />}></Route>}
                                 </>}
 
                             {links && links.map((link) => link.to).includes('/settings') &&
