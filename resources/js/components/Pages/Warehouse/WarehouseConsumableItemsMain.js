@@ -1,5 +1,6 @@
-import { Card } from "react-bootstrap";
+import { Button, Card, Modal } from "react-bootstrap";
 import Directory from "../../Generic/Directory";
+import { useState } from "react";
 
 const BREADCRUMB_ITEMS = [
     {
@@ -19,6 +20,11 @@ const BREADCRUMB_ITEMS = [
 ];
 
 const WarehouseConsumableItems = () => {
+    const [showSettingsModal, setShowSettingsModal] = useState(false);
+    const handleClickSettings = () => {
+        setShowSettingsModal(!showSettingsModal);
+    };
+
     return (
         <>
             <Directory items={BREADCRUMB_ITEMS} />
@@ -27,9 +33,23 @@ const WarehouseConsumableItems = () => {
                     <i className="fa fa-building"></i> Consumable Items
                 </Card.Header>
                 <Card.Body>
-
+                    <Button type="button" onClick={handleClickSettings}>Settings</Button>
                 </Card.Body>
             </Card>
+
+            <Modal
+                backdrop='static'
+                keyboard={false}
+                onHide={() => setShowSettingsModal(false)}
+                show={showSettingsModal}
+                centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Settings</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+
+                </Modal.Body>
+            </Modal>
         </>
     );
 };
