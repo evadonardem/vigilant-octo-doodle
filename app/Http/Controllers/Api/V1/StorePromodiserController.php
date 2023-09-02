@@ -19,9 +19,8 @@ class StorePromodiserController extends Controller
      */
     public function index(Request $request, Store $store)
     {
-        $start = $request->input('start') ?? 0;
-        $perPage = $request->input('length') ?? 10;
-        $page = ($start/$perPage) + 1;
+        $page = $request->input('page', 1);
+        $perPage = $request->input('per_page', 10);
         $search = $request->input('search') ?? [];
 
         Paginator::currentPageResolver(function () use ($page) {

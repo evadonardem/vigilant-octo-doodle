@@ -41,7 +41,7 @@ export default class CommonDropdownSelectSingleStoreLocation extends Component {
         const { options } = this.state;
 
         return (
-            <Form.Group>
+            <Form.Group className='field'>
                 <Form.Label>{ label ? label : 'Location:' }</Form.Label>
                 <CreatableSelect
                     name={name}

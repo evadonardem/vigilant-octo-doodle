@@ -21,9 +21,8 @@ class StorePromodiserJobContractController extends Controller
      */
     public function index(Request $request, Store $store, Promodiser $promodiser)
     {
-        $start = $request->input('start') ?? 0;
-        $perPage = $request->input('length') ?? 10;
-        $page = ($start/$perPage) + 1;
+        $page = $request->input('page', 1);
+        $perPage = $request->input('per_page', 10);
 
         Paginator::currentPageResolver(function () use ($page) {
             return $page;
@@ -46,9 +45,9 @@ class StorePromodiserJobContractController extends Controller
      */
     public function store(StoreJobContractRequest $request, Store $store, Promodiser $promodiser)
     {
-    	$attributes = $request->input('data.attributes');    				
+    	$attributes = $request->input('data.attributes');
     	$promodiser->jobContracts()->create($attributes);
-    				
+
         return response()->noContent();
     }
 
@@ -81,7 +80,7 @@ class StorePromodiserJobContractController extends Controller
             $jobContract->delete();
             return response()->noContent();
         }
-        
+
         return abort(400);
     }
 }
