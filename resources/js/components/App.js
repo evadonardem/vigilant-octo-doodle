@@ -38,7 +38,6 @@ import Settings from './Pages/Settings';
 import StockCards from './Pages/StockCards/StockCards';
 import StockCardsCreate from './Pages/StockCards/StockCardsCreate';
 import StockCardsShow from './Pages/StockCards/StockCardsShow';
-import StoresRegistry from './Pages/Settings/StoresRegistry';
 import ThirteenthMonthPayPeriodDetails from './Pages/CompensationAndBenefits/ThirteenthMonthPayPeriodDetails';
 import ThirteenthMonthPayPeriods from './Pages/CompensationAndBenefits/ThirteenthMonthPayPeriods';
 import Trends from './Pages/Trends';
@@ -46,6 +45,9 @@ import TrendsItem from './Pages/Trends/TrendsItem';
 import TrendsStore from './Pages/Trends/TrendsStore';
 import Users from './Pages/Settings/Users';
 import ChangePassword from './Pages/Profile/ChangePassword';
+import Stores from './Pages/Settings/Stores';
+import StoreDetails from './Pages/Settings/Stores/Details';
+import StoreItemsPricingLedger from './Pages/Settings/Stores/Details/ItemsPricing';
 
 export default function App() {
     const dispatch = useDispatch();
@@ -194,7 +196,9 @@ export default function App() {
                                     <Route path="/settings/users/:userId/roles-and-permissions" element={<RolesAndPermissions />}></Route>
                                     <Route path="/settings/overtime-rates" element={<OvertimeRates />}></Route>
                                     <Route path="/settings/items-registry" element={<ItemsRegistry />}></Route>
-                                    <Route path="/settings/stores-registry" element={<StoresRegistry />}></Route>
+                                    <Route path="/settings/stores" element={<Stores />}></Route>
+                                    <Route path="/settings/stores/:storeId/details" element={<StoreDetails />}></Route>
+                                    <Route path="/settings/stores/:storeId/items-pricing" element={<StoreItemsPricingLedger />}></Route>
                                 </>}
 
                             <Route path="/change-password" element={<ChangePassword />}></Route>

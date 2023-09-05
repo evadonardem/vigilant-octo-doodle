@@ -33,7 +33,7 @@ export default class CommonDropdownSelectSingleStoreCategory extends Component {
         const { options } = this.state;
 
         return (
-            <Form.Group>
+            <Form.Group className='field'>
                 <Form.Label>{ label ? label : 'Category:' }</Form.Label>
                 <CreatableSelect
                     name={name}
@@ -42,7 +42,7 @@ export default class CommonDropdownSelectSingleStoreCategory extends Component {
                     onInputChange={handleInputChange}
                     value={selectedValue}
                     options={options}
-                    isMulti={isMulti}                    
+                    isMulti={isMulti}
                     isDisabled={readOnly}/>
                 <div className="invalid-feedback"></div>
             </Form.Group>

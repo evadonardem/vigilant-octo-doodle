@@ -18,9 +18,8 @@ class StoreItemController extends Controller
      */
     public function index(Request $request, Store $store)
     {
-        $start = $request->input('start') ?? 0;
-        $perPage = $request->input('length') ?? 10;
-        $page = ($start/$perPage) + 1;
+        $page = $request->input('page', 1);
+        $perPage = $request->input('per_page', 10);
         $search = $request->input('search') ?? [];
 
         Paginator::currentPageResolver(function () use ($page) {
@@ -65,7 +64,7 @@ class StoreItemController extends Controller
     public function store(Request $request, Store $store, Item $item)
     {
         $attributes = $request->only(['item_id', 'effectivity_date', 'amount']);
-        
+
         $storeItemPrice = StoreItemPrice::distinct(['store_id', 'item_id'])
             ->where([
                 'effectivity_date' => $attributes['effectivity_date'],
@@ -73,21 +72,21 @@ class StoreItemController extends Controller
                 'item_id' => $attributes['item_id']
             ])
             ->first();
-        
-        if ($storeItemPrice) {        
+
+        if ($storeItemPrice) {
             if ($attributes['amount'] <= 0) {
                 $storeItemPrice->delete();
             } else {
                 $storeItemPrice->amount = $attributes['amount'];
                 $storeItemPrice->save();
-            }            
+            }
         } else {
             if ($attributes['amount'] > 0) {
                 $store->items()->attach($attributes['item_id'], [
                     'effectivity_date' => $attributes['effectivity_date'],
                     'amount' => $attributes['amount'],
                 ]);
-            }            
+            }
         }
 
         return response()->noContent();
@@ -101,9 +100,8 @@ class StoreItemController extends Controller
      */
     public function show(Request $request, Store $store, Item $item)
     {
-        $start = $request->input('start') ?? 0;
-        $perPage = $request->input('length') ?? 10;
-        $page = ($start/$perPage) + 1;
+        $page = $request->input('page', 1);
+        $perPage = $request->input('per_page', 10);
         $search = $request->input('search') ?? [];
 
         Paginator::currentPageResolver(function () use ($page) {
@@ -137,7 +135,7 @@ class StoreItemController extends Controller
             $itemPrice = $storeItemsPriceByEffectivity->get($item->id);
             $item->amount = $itemPrice ? $itemPrice->amount : 0;
         });
-        
+
         return response()->json(['data' => $items]);
     }
 }

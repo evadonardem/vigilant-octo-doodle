@@ -39,7 +39,7 @@ export default function Settings() {
             icon: "shopping-basket",
             title: "Stores Registry",
             description: 'List of registered stores.',
-            to: "/settings/stores-registry",
+            to: "/settings/stores",
         },
     ];
 

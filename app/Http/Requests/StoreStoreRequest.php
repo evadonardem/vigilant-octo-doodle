@@ -27,6 +27,7 @@ class StoreStoreRequest extends FormRequest
             'code' => 'required|string|max:255|unique:stores,code',
             'name' => 'required|string|max:255',
             'category' => 'required|array',
+            'location' => 'required|array',
             'address_line' => 'required|string|max:255',
         ];
     }

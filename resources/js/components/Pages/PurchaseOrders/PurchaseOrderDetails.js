@@ -57,8 +57,9 @@ const PurchaseOrderDetails = () => {
     const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
     const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
 
-    const allowedToUpdatePurchaseOrder = hasRole('Super Admin') || hasPermission("Update purchase order");
-    const allowedToDeletePurchaseOrder = hasRole('Super Admin') || hasPermission("Delete purchase order");
+    const isSuperAdmin = hasRole('Super Admin');
+    const allowedToUpdatePurchaseOrder = isSuperAdmin || hasPermission("Update purchase order");
+    const allowedToDeletePurchaseOrder = isSuperAdmin || hasPermission("Delete purchase order");
 
     const {
         isLoading,
@@ -878,6 +879,23 @@ const PurchaseOrderDetails = () => {
                                 </Badge>
                             </p>
                             <h4>Purchase Order &raquo; Details</h4>
+
+                            {isSuperAdmin && purchaseOrder && +purchaseOrder.status.id === 3 &&
+                                <>
+                                    <hr/>
+                                    <p>
+                                        <em>
+                                            <Button
+                                                key={`${purchaseOrder.id}-2`}
+                                                onClick={handleClickUpdatePurchaseOrderStatus}
+                                                data-purchase-order-id={purchaseOrder.id}
+                                                data-purchase-order-status-id={2}
+                                                variant="warning">
+                                                <i className='fa fa-undo'></i> Rollback
+                                            </Button> to <strong>approved status</strong> for any corrections.
+                                        </em>
+                                    </p>
+                                </>}
                         </Card.Header>
                         <Card.Body>
                             <Card.Title>
@@ -1073,14 +1091,14 @@ const PurchaseOrderDetails = () => {
                                     )}
                                 </PDFDownloadLink>
                                 {allowedToUpdatePurchaseOrder && purchaseOrder && +purchaseOrder.status.id !== 3 &&
-                                        <Button
-                                            key={`${purchaseOrder.id}-${nextStatusId}`}
-                                            onClick={handleClickUpdatePurchaseOrderStatus}
-                                            data-purchase-order-id={purchaseOrder.id}
-                                            data-purchase-order-status-id={nextStatusId}
-                                            variant={nextStatusButtonVariant}>
-                                            {nextStatus}
-                                        </Button>}
+                                    <Button
+                                        key={`${purchaseOrder.id}-${nextStatusId}`}
+                                        onClick={handleClickUpdatePurchaseOrderStatus}
+                                        data-purchase-order-id={purchaseOrder.id}
+                                        data-purchase-order-status-id={nextStatusId}
+                                        variant={nextStatusButtonVariant}>
+                                        {nextStatus}
+                                    </Button>}
                             </ButtonGroup>
                         </Card.Footer>
                     </Card>
