@@ -19,8 +19,6 @@ export const fetchAllStoreCategories = createAsyncThunk(
             const response = await axios.get(`${END_POINT}?token=${token}`);
             const { data: categories } = response.data;
 
-            console.log('response');
-
             return {
                 isLoading: false,
                 categories,
@@ -38,7 +36,6 @@ export const storeCategoriesSlice = createSlice({
     reducers: { },
     extraReducers: (builder) => {
         builder.addCase(fetchAllStoreCategories.pending, (state) => {
-            console.log('pending', state);
             return {
                 ...state,
                 isLoading: true,
@@ -46,7 +43,6 @@ export const storeCategoriesSlice = createSlice({
             }
         });
         builder.addCase(fetchAllStoreCategories.fulfilled, (state, action) => {
-            console.log('fulfilled', state);
             const {
                 isLoading,
                 categories,

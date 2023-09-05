@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cookie from 'react-cookies';
-import { Badge, Card, Col, Form, Row } from 'react-bootstrap';
+import { Badge, Card, Col, Form, FormGroup, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getStore } from '../../../../../../state/settings/store';
@@ -44,6 +44,8 @@ const StoreItemsPricingLedger = () => {
     const params = useParams();
     const { storeId } = params;
     const [effectivityDate, setEffectivityDate] = useState(null);
+    const [checkedItems, setCheckedItems] = useState([]);
+    const [itemsWithPricing, setItemsWithPricing] = useState([]);
     const [items, setItems] = useState([]);
 
     const init = () => {
@@ -60,6 +62,7 @@ const StoreItemsPricingLedger = () => {
                     const { data: items } = response.data;
                     setEffectivityDate(effectivityDate);
                     setItems(items);
+                    setItemsWithPricing(items.filter(item => item.amount > 0).map((item) => item.code));
                 })
                 .catch(() => {
                     location.href = `${appBaseUrl}`;
@@ -68,6 +71,13 @@ const StoreItemsPricingLedger = () => {
             setEffectivityDate(null);
             setItems([]);
         }
+    };
+
+    const handleClickItems = () => {
+        const checkedItems = $('input[type="checkbox"][name="items"]:checked').map(function () {
+            return $(this).val();
+        }).get();
+        setCheckedItems(checkedItems);
     };
 
     const handleChangeAmount = (e) => {
@@ -112,6 +122,16 @@ const StoreItemsPricingLedger = () => {
         return item;
     }) : BREADCRUMB_ITEMS;
 
+    const Link = ({ id, children, title }) => (
+        <OverlayTrigger overlay={<Tooltip id={id}>
+            Pricing already set for this effectivity date. Any changes
+            will affect any existing records falling under this pricing
+            effectivity date.
+        </Tooltip>}>
+            <a href="#" className='text-warning'>{children}</a>
+        </OverlayTrigger>
+    );
+
     useEffect(() => {
         init();
     }, []);
@@ -124,44 +144,64 @@ const StoreItemsPricingLedger = () => {
                 <i className='fa fa-list' /> Items Pricing
             </Card.Header>
             <Card.Body>
-                <p><Badge variant='primary'>Code: {store.code}</Badge></p>
-                <h4>{store.name} &raquo; Item Pricing</h4>
-                <div className='row'>
-                    <div className='col-md-4'>
-                        <Form.Group className='mb-4'>
-                            <Form.Label>Effectivity Date:</Form.Label>
-                            <Form.Control
-                                type="date"
-                                name="effectivity_date"
-                                onChange={handleChangeEffectivityDate}></Form.Control>
-                            <div className="invalid-feedback"></div>
-                        </Form.Group>
-                    </div>
-                </div>
-                {items &&
-                    <Row>
-                        {items.map((item, i) => <Col key={i} md={4}>
-                            <Card className='mb-4'>
-                                <Card.Header>
-                                    Code: <Badge variant='primary'>{item.code}</Badge><br />
-                                    Name: {item.name}
-                                </Card.Header>
-                                <Card.Body>
-                                    <Form.Group>
-                                        <Form.Label>Amount:</Form.Label>
-                                        <Form.Control
-                                            type="number"
-                                            name="amount"
-                                            value={item.amount}
-                                            style={{ textAlign: 'right' }}
-                                            data-item-id={item.id}
-                                            onChange={handleChangeAmount}></Form.Control>
-                                        <div className="invalid-feedback"></div>
-                                    </Form.Group>
-                                </Card.Body>
-                            </Card>
-                        </Col>)}
-                    </Row>}
+                <Row>
+                    <Col md={3}>
+                        <Card>
+                            <Card.Header>
+                                <p><Badge variant='primary'>Code: {store.code}</Badge></p>
+                                <h4>{store.name}</h4>
+                            </Card.Header>
+                            <Card.Body>
+                                <Form.Group className='mb-4'>
+                                    <Form.Label>Effectivity Date:</Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        name="effectivity_date"
+                                        onChange={handleChangeEffectivityDate}></Form.Control>
+                                    <div className="invalid-feedback"></div>
+                                </Form.Group>
+                                {items && items.length > 0 && <FormGroup>
+                                    <Form.Label>Items to Update Pricing:</Form.Label>
+                                    {items.map((item, i) => <Form.Check
+                                        key={i}
+                                        label={item.name}
+                                        name="items"
+                                        value={item.code}
+                                        onClick={handleClickItems}
+                                        onChange={() => { }} />)}
+                                </FormGroup>}
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                    <Col md={9}>
+                        {items &&
+                            <Row>
+                                {items.filter((item) => checkedItems.includes(item.code)).map((item, i) => <Col key={i} md={4}>
+                                    <Card className='mb-4'>
+                                        <Card.Header>
+                                            Code: <Badge variant='primary'>{item.code}</Badge><br />
+                                            Name: {item.name}
+                                        </Card.Header>
+                                        <Card.Body>
+                                            <Form.Group>
+                                                <Form.Label>Amount: {itemsWithPricing.includes(item.code) > 0 && <Link id={`tooltip-${i}`}>
+                                                        <i className='fa fa-warning'/>
+                                                    </Link>}</Form.Label>
+                                                <Form.Control
+                                                    type="number"
+                                                    name="amount"
+                                                    value={item.amount}
+                                                    style={{ textAlign: 'right' }}
+                                                    data-item-id={item.id}
+                                                    onChange={handleChangeAmount}></Form.Control>
+                                                <div className="invalid-feedback"></div>
+                                            </Form.Group>
+                                        </Card.Body>
+                                    </Card>
+                                </Col>)}
+                            </Row>}
+                    </Col>
+                </Row>
             </Card.Body>
         </Card>
     </>;

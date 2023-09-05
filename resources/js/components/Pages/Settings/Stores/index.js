@@ -62,7 +62,6 @@ const Stores = () => {
 
         } catch (e) {
             const { errors } = e.response.data;
-            console.log(errors)
             if (errors) {
                 for (const key in errors) {
                     $('[name=' + key + ']', form)

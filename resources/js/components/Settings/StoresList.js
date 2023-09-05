@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { Button, ButtonGroup } from 'react-bootstrap';
+import { Badge, Button, ButtonGroup } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import DataTable from "react-data-table-component";
 import ConfirmationModal from '../Common/Modals/ConfirmationModal';
@@ -71,17 +71,18 @@ const StoresList = ({ categoryId }) => {
         },
         {
             name: 'Tags',
-            selector: row => row.tags,
+            cell: ({tags}) => (
+                tags?.map((tag, i) => <Badge key={i}>{tag}</Badge>)
+            ),
         },
         {
-            name: '',
-            button: true,
             cell: row => (
                 <ButtonGroup className='my-2'>
                     <Button variant='secondary' onClick={handleClickStoreDetails(row.id)}><i className='fa fa-folder-open' /></Button>
                     <Button variant='secondary' onClick={handleConfirmDeleteStore(row)}><i className='fa fa-trash' /></Button>
                 </ButtonGroup>
             ),
+            width: '15%',
         }
     ]
     return <>
@@ -89,8 +90,7 @@ const StoresList = ({ categoryId }) => {
             columns={columns}
             progressPending={isLoading}
             data={data}
-            dense
-            pagination />
+            pagination/>
         {showDeleteConfirmation && storeToDelete && <ConfirmationModal
             title="Delete Store"
             body={`Are you sure to delete ${storeToDelete.code} ${storeToDelete.name}?`}

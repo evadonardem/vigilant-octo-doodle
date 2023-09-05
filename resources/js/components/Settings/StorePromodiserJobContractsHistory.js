@@ -112,6 +112,7 @@ const StorePromodiserJobContractsHistory = ({ promodiser }) => {
                 },
             };
         } else {
+            const endDate = formData.get('end_date');
             const remarks = formData.get('remarks');
             payload = {
                 data: {
@@ -120,6 +121,9 @@ const StorePromodiserJobContractsHistory = ({ promodiser }) => {
                         remarks,
                     }
                 }
+            }
+            if (endDate?.length) {
+                payload.data.attributes['end_date'] = endDate;
             }
         }
 
@@ -133,7 +137,6 @@ const StorePromodiserJobContractsHistory = ({ promodiser }) => {
             setContractToEdit(null);
             fetchStorePromodiserJobContractsHistory(page);
         } catch (e) {
-            console.log(e);
             const { errors } = e.response.data;
             if (errors) {
                 for (const key in errors) {
@@ -148,7 +151,7 @@ const StorePromodiserJobContractsHistory = ({ promodiser }) => {
         }
     };
 
-    const handleUpdateContractRemarks = (contract) => () => {
+    const handleEditContract = (contract) => () => {
         setShowAddEditContract(true);
         setContractToEdit(contract);
     };
@@ -179,7 +182,7 @@ const StorePromodiserJobContractsHistory = ({ promodiser }) => {
             width: '25%',
             button: true,
             cell: row => <ButtonGroup className='m-2'>
-                <Button variant='secondary' onClick={handleUpdateContractRemarks(row)}><i className='fa fa-comment' /></Button>
+                <Button variant='secondary' onClick={handleEditContract(row)}><i className='fa fa-edit' /></Button>
                 <Button variant='secondary' onClick={handleShowDeleteContract(row)}><i className='fa fa-trash' /></Button>
             </ButtonGroup>,
         }
@@ -256,16 +259,21 @@ const StorePromodiserJobContractsHistory = ({ promodiser }) => {
                                     <Form.Label>Start Date:</Form.Label>
                                     <p>{contractToEdit.start_date}</p>
                                 </Form.Group>
-                                <Form.Group className='mb-2'>
+                                <Form.Group className='field mb-2'>
                                     <Form.Label>End Date:</Form.Label>
-                                    <p>{contractToEdit.end_date ?? 'TO PRESENT'}</p>
+                                    {contractToEdit.end_date
+                                        ? <p>{contractToEdit.end_date}</p>
+                                        : <>
+                                            <Form.Control type="date" name="end_date"></Form.Control>
+                                            <div className="invalid-feedback"></div>
+                                        </>}
                                 </Form.Group>
                                 <Form.Group className='field mb-2'>
                                     <Form.Label>Remarks:</Form.Label>
                                     <Form.Control as="textarea"
                                         name="remarks"
                                         rows={2}
-                                        defaultValue={contractToEdit.remarks}/>
+                                        defaultValue={contractToEdit.remarks} />
                                     <div className="invalid-feedback"></div>
                                 </Form.Group>
                             </>}

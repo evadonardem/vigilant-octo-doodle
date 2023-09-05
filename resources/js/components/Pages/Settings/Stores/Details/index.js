@@ -215,7 +215,7 @@ const StoreDetails = () => {
             </Card>
         </Form>}
 
-        {!store.isLoading && <Row>
+        {!store.isLoading && <Row className='mb-4'>
             <Col md={6}>
                 <StorePromodisers storeId={store.id}/>
             </Col>
