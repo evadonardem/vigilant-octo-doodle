@@ -2,16 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class NavigationMenuController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         $user = auth()->user();
@@ -45,8 +40,7 @@ class NavigationMenuController extends Controller
                         'label' => 'Delivery Logs',
                         'icon' => 'fa fa-truck',
                         'to' => '/deliveries',
-                        'is_visible' => $user && (
-                            $user->hasRole('Super Admin') ||
+                        'is_visible' => $user && ($user->hasRole('Super Admin') ||
                             $user->can('View manual delivery logs')
                         ),
                     ],
@@ -54,8 +48,7 @@ class NavigationMenuController extends Controller
                         'label' => 'Manual Logs',
                         'icon' => 'fa fa-calendar-plus-o',
                         'to' => '/manual-logs',
-                        'is_visible' => $user && (
-                            $user->hasRole('Super Admin') ||
+                        'is_visible' => $user && ($user->hasRole('Super Admin') ||
                             $user->can('Create manual delivery logs')
                         ),
                     ],
@@ -65,8 +58,7 @@ class NavigationMenuController extends Controller
                 'label' => 'Compensation and Benefits',
                 'icon' => 'fa fa-gift',
                 'to' => '/compensation-and-benefits',
-                'is_visible' => $user && (
-                    $user->hasRole('Super Admin') ||
+                'is_visible' => $user && ($user->hasRole('Super Admin') ||
                     $user->can('View pay period')
                 ),
                 'links' => [
@@ -74,8 +66,7 @@ class NavigationMenuController extends Controller
                         'label' => 'Pay Periods',
                         'icon' => 'fa fa-id-card',
                         'to' => '/compensation-and-benefits/pay-periods',
-                        'is_visible' => $user && (
-                            $user->hasRole('Super Admin') ||
+                        'is_visible' => $user && ($user->hasRole('Super Admin') ||
                             $user->can('View pay period')
                         ),
                     ],
@@ -91,8 +82,7 @@ class NavigationMenuController extends Controller
                 'label' => 'Purchase Orders',
                 'icon' => 'fa fa-folder',
                 'to' => '/purchase-orders',
-                'is_visible' => $user && (
-                    $user->hasRole('Super Admin') ||
+                'is_visible' => $user && ($user->hasRole('Super Admin') ||
                     $user->can('View purchase order')
                 ),
             ],
@@ -100,17 +90,31 @@ class NavigationMenuController extends Controller
                 'label' => 'Sales Invoices',
                 'icon' => 'fa fa-folder',
                 'to' => '/sales-invoices',
-                'is_visible' => $user && (
-                    $user->hasRole('Super Admin') ||
+                'is_visible' => $user && ($user->hasRole('Super Admin') ||
                     $user->can('View sales invoice')
                 ),
+            ],
+            [
+                'label' => 'Payments',
+                'icon' => 'fa fa-money',
+                'to' => '/payments',
+                'is_visible' => $user && ($user->hasRole('Super Admin')
+                ),
+                'links' => [
+                    [
+                        'label' => 'Delivery Receipts Payments',
+                        'icon' => 'fa fa-truck',
+                        'to' => '/payments/delivery-receipts',
+                        'is_visible' => $user && ($user->hasRole('Super Admin')
+                        ),
+                    ],
+                ],
             ],
             [
                 'label' => 'Stock Cards',
                 'icon' => 'fa fa-clipboard',
                 'to' => '/stock-cards',
-                'is_visible' => $user && (
-                    $user->hasRole('Super Admin') ||
+                'is_visible' => $user && ($user->hasRole('Super Admin') ||
                     $user->can('View stock card')
                 ),
             ],
@@ -168,8 +172,7 @@ class NavigationMenuController extends Controller
                 'label' => 'Trends',
                 'icon' => 'fa fa-signal',
                 'to' => '/trends',
-                'is_visible' => $user && (
-                    $user->hasRole('Super Admin') ||
+                'is_visible' => $user && ($user->hasRole('Super Admin') ||
                     $user->can('Generate store trend') ||
                     $user->can('Generate item trend')
                 ),
@@ -178,8 +181,7 @@ class NavigationMenuController extends Controller
                         'label' => 'Store Trends',
                         'icon' => 'fa fa-line-chart',
                         'to' => '/trends-store',
-                        'is_visible' => $user && (
-                            $user->hasRole('Super Admin') ||
+                        'is_visible' => $user && ($user->hasRole('Super Admin') ||
                             $user->can('Generate store trend')
                         ),
                     ],
@@ -187,8 +189,7 @@ class NavigationMenuController extends Controller
                         'label' => 'Item Trends',
                         'icon' => 'fa fa-bar-chart',
                         'to' => '/trends-item',
-                        'is_visible' => $user && (
-                            $user->hasRole('Super Admin') ||
+                        'is_visible' => $user && ($user->hasRole('Super Admin') ||
                             $user->can('Generate item trend')
                         ),
                     ],
@@ -198,8 +199,7 @@ class NavigationMenuController extends Controller
                 'label' => 'Settings',
                 'icon' => 'fa fa-cogs',
                 'to' => '/settings',
-                'is_visible' => $user && (
-                    $user->hasRole('Super Admin') ||
+                'is_visible' => $user && ($user->hasRole('Super Admin') ||
                     $user->can('View registered user')
                 ),
                 'links' => [
@@ -207,8 +207,7 @@ class NavigationMenuController extends Controller
                         'label' => 'Users Registry',
                         'icon' => 'fa fa-users',
                         'to' => '/settings/users',
-                        'is_visible' => $user && (
-                            $user->hasRole('Super Admin') ||
+                        'is_visible' => $user && ($user->hasRole('Super Admin') ||
                             $user->can('View registered user')
                         ),
                     ],

@@ -2,9 +2,10 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BiometricUsersController;
+use App\Http\Controllers\Api\V1\DeliveryReceiptPaymentController;
+use App\Http\Controllers\Api\V1\DropdownPurchaseOrderController;
 use App\Http\Controllers\Api\V1\GrantUserPermissionController;
 use App\Http\Controllers\Api\V1\NavigationMenuController;
-use App\Http\Controllers\Api\V1\RoleController;
 use App\Http\Controllers\Api\V1\UserPermissionController;
 use App\Http\Controllers\Api\V1\UserRoleController;
 
@@ -170,8 +171,34 @@ $api->version('v1', function ($api) {
         });
     });
 
+    $api->group(['prefix' => 'payments', 'middleware' => ['api.auth', 'bindings']], function ($api) {
+        $api->get(
+            '/stores',
+            [DeliveryReceiptPaymentController::class, 'index']
+        );
+    });
+
+    $api->group(['prefix' => 'purchase-order-store-items', 'middleware' => ['api.auth', 'bindings']], function ($api) {
+        $api->post(
+            '/{purchaseOrderStoreItem}/payments',
+            [DeliveryReceiptPaymentController::class, 'store']
+        );
+        $api->delete(
+            '/{purchaseOrderStoreItem}/payments/{deliveryReceiptPayment}',
+            [DeliveryReceiptPaymentController::class, 'destroy']
+        );
+    });
+
     $api->group(['prefix' => 'common', 'middleware' => ['bindings']], function ($api) {
         $api->get('/ratings', 'App\Http\Controllers\Api\V1\RatingController@index');
+    });
+
+    // Dropdown
+    $api->group(['prefix' => 'dropdown', 'middleware' => ['api.auth', 'bindings']], function ($api) {
+        $api->get(
+            '/purchase-orders',
+            [DropdownPurchaseOrderController::class, 'index']
+        );
     });
 
     // Utilities

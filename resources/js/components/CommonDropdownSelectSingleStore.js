@@ -18,7 +18,7 @@ export default class CommonDropdownSelectSingleStore extends Component {
 
         if (token) {
             axios.get(apiBaseUrl + '/settings/stores?all=1' +
-            (category_id !== undefined ? ('&category_id=' + category_id) : '') + '&token=' + token)
+                (category_id !== undefined ? ('&category_id=' + category_id) : '') + '&token=' + token)
                 .then((response) => {
                     const { data: items } = response.data;
                     const options = items.map((item) => { return { value: item.id, label: `${item.code} - ${item.name}` } });
@@ -35,8 +35,8 @@ export default class CommonDropdownSelectSingleStore extends Component {
         const { options } = this.state;
 
         return (
-            <Form.Group>
-                <Form.Label>{ label ? label : 'Store:' }</Form.Label>
+            <Form.Group className='mb-2 field'>
+                <Form.Label>{label ? label : 'Store:'}</Form.Label>
                 {
                     options &&
                     <Select
@@ -46,7 +46,7 @@ export default class CommonDropdownSelectSingleStore extends Component {
                         options={options}
                         value={selectedItem}
                         onChange={handleChange}
-                        isDisabled={readOnly}/>
+                        isDisabled={readOnly} />
                 }
             </Form.Group>
         );
