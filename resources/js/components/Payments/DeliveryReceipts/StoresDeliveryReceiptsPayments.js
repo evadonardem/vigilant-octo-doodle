@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useRef, useState } from 'react';
-import { Button, ButtonGroup, Card, Col, Form, Row } from 'react-bootstrap';
+import { Badge, Button, ButtonGroup, Card, Col, Form, Row } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import DataTable from "react-data-table-component";
 import CommonDropdownSelectSingleStore from '../../CommonDropdownSelectSingleStore';
@@ -131,6 +131,10 @@ const StoresDeliveryReceiptsPayments = () => {
         {
             name: 'Amount',
             cell: row => Number(`${row.amount}`).toFixed(2),
+        },
+        {
+            name: 'Remarks',
+            cell: row => row.remarks,
         },
         {
             cell: row => <ButtonGroup>
@@ -479,13 +483,27 @@ const StoresDeliveryReceiptsPayments = () => {
                     </Card.Header>
                     <Card.Body>
                         {(data.length > 0 && selectedStore) && <>
-                            <p><strong>Store:</strong> {selectedStore.label}</p>
+                            <p><strong>Store:</strong><br />
+                                <Badge>{selectedStore.label}</Badge></p>
                         </>}
                         {(data.length > 0 && selectedCategory) && <>
-                            <p><strong>Category:</strong> {selectedCategory.label}</p>
+                            <p><strong>Category:</strong><br />
+                                <Badge>{selectedCategory.label}</Badge></p>
+                        </>}
+                        {(data.length > 0 && selectedPurchaseOrders && selectedPurchaseOrders.length > 0) && <>
+                            <p><strong>Purchase Orders:</strong><br />
+                                {selectedPurchaseOrders
+                                    .map((selectedPurchaseOrder) => <>
+                                        <Badge>{selectedPurchaseOrder.label}</Badge>&nbsp;
+                                    </>)}</p>
+                        </>}
+                        {(data.length > 0 && (!selectedPurchaseOrders || selectedPurchaseOrders.length === 0)) && <>
+                            <p><strong>Purchase Orders:</strong><br />
+                                <Badge>ALL</Badge></p>
                         </>}
                         {(data.length > 0 && selectedPaymentStatus) && <>
-                            <p><strong>Payment Status:</strong> {selectedPaymentStatus.toUpperCase()}</p>
+                            <p><strong>Payment Status:</strong><br />
+                                <Badge>{selectedPaymentStatus.toUpperCase()}</Badge></p>
                         </>}
                         <DataTable
                             columns={columns}
