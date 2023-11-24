@@ -64,6 +64,11 @@ class StoreRepository
                     $query->whereIn("{$relationTable}.purchase_order_id", $purchaseOrderIds);
                 }
 
+                if ($filters['delivery_receipt_no'] ?? false) {
+                    $deliveryReceiptNo = $filters['delivery_receipt_no'];
+                    $query->where("{$relationTable}.delivery_receipt_no", $deliveryReceiptNo);
+                }
+
                 if ($filters['payment_status'] ?? false) {
                     if ($filters['payment_status'] === 'paid') {
                         $query->havingRaw('payments_sum_amount >= SUM(amount_due)');
@@ -110,6 +115,11 @@ class StoreRepository
                     $purchaseOrderId = $filters['purchase_order_id'];
                     $purchaseOrderIds = is_array($purchaseOrderId) ? $purchaseOrderId : [$purchaseOrderId];
                     $query->whereIn("{$relationTable}.purchase_order_id", $purchaseOrderIds);
+                }
+
+                if ($filters['delivery_receipt_no'] ?? false) {
+                    $deliveryReceiptNo = $filters['delivery_receipt_no'];
+                    $query->where("{$relationTable}.delivery_receipt_no", $deliveryReceiptNo);
                 }
 
                 if ($filters['payment_status'] ?? false) {

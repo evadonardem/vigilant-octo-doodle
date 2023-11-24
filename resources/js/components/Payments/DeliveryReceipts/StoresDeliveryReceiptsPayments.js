@@ -29,6 +29,9 @@ const StoresDeliveryReceiptsPayments = () => {
     const filterByPaymentStatusUnpaid = useRef();
     const [selectedPaymentStatus, setSelectedPaymentStatus] = useState();
 
+    const filterByDeliveryReceiptNo = useRef();
+    const [selectedDeliveryReceiptNo, setSelectedDeliveryReceiptNo] = useState();
+
     const [showStores, setShowStores] = useState(true);
     const [showCategories, setShowCategories] = useState(false);
     const [selectedStore, setSelectedStore] = useState(null);
@@ -304,8 +307,10 @@ const StoresDeliveryReceiptsPayments = () => {
         } else {
             paymentStatus = filterByPaymentStatusUnpaid.current.value;
         }
-
         setSelectedPaymentStatus(paymentStatus);
+
+        const deliveryReceiptNo = filterByDeliveryReceiptNo.current.value;
+        setSelectedDeliveryReceiptNo(deliveryReceiptNo);
 
         updatedFilters.push(`filters[payment_status]=${paymentStatus}`);
 
@@ -320,6 +325,10 @@ const StoresDeliveryReceiptsPayments = () => {
         if (selectedPurchaseOrders) {
             selectedPurchaseOrders.map((selectedPurchaseOrder) =>
                 updatedFilters.push(`filters[purchase_order_id][]=${selectedPurchaseOrder.value}`));
+        }
+
+        if (deliveryReceiptNo) {
+            updatedFilters.push(`filters[delivery_receipt_no]=${deliveryReceiptNo}`);
         }
 
         fetchData(page, updatedFilters);
@@ -427,6 +436,16 @@ const StoresDeliveryReceiptsPayments = () => {
                             }}
                             selectedItem={selectedPurchaseOrders} />}
 
+                        {(selectedStore || selectedCategory) && <Form.Group className='mb-2 field'>
+                            <Form.Label>Delivery Receipt No.: </Form.Label>
+                            <Form.Control
+                                ref={filterByDeliveryReceiptNo}
+                                type="text"
+                                name="delivery_receipt_no"
+                                onChange={(e) => { setData([]); }}></Form.Control>
+                            <div className="invalid-feedback"></div>
+                        </Form.Group>}
+
                         <Form.Group className='mb-2 field'>
                             <Form.Label>Payment Status: </Form.Label><br />
                             <Form.Check
@@ -500,6 +519,10 @@ const StoresDeliveryReceiptsPayments = () => {
                         {(data.length > 0 && (!selectedPurchaseOrders || selectedPurchaseOrders.length === 0)) && <>
                             <p><strong>Purchase Orders:</strong><br />
                                 <Badge>ALL</Badge></p>
+                        </>}
+                        {(data.length > 0 && selectedDeliveryReceiptNo) && <>
+                            <p><strong>Delivery Receipt No.:</strong><br />
+                                <Badge>{selectedDeliveryReceiptNo}</Badge></p>
                         </>}
                         {(data.length > 0 && selectedPaymentStatus) && <>
                             <p><strong>Payment Status:</strong><br />
