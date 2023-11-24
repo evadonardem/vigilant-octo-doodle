@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Store extends Model
 {
@@ -22,12 +25,12 @@ class Store extends Model
         'tags' => 'array',
     ];
 
-    public function promodisers()
+    public function promodisers(): HasMany
     {
         return $this->hasMany(Promodiser::class);
     }
 
-    public function items()
+    public function items(): BelongsToMany
     {
         return $this->belongsToMany(Item::class, 'store_item_prices')
             ->withPivot('effectivity_date', 'amount')
@@ -35,13 +38,18 @@ class Store extends Model
             ->withTimestamps();
     }
 
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
-    public function location()
+    public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
+    }
+
+    public function purchaseOrderItems(): HasMany
+    {
+        return $this->hasMany(PurchaseOrderStoreItem::class);
     }
 }

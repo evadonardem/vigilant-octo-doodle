@@ -48,6 +48,8 @@ import ChangePassword from './Pages/Profile/ChangePassword';
 import Stores from './Pages/Settings/Stores';
 import StoreDetails from './Pages/Settings/Stores/Details';
 import StoreItemsPricingLedger from './Pages/Settings/Stores/Details/ItemsPricing';
+import PaymentsDashboard from './Pages/Payments/PaymentsDashboard';
+import PaymentsDeliveryReceiptsPage from './Pages/Payments/PaymentsDeliveryReceiptsPage';
 
 export default function App() {
     const dispatch = useDispatch();
@@ -101,6 +103,9 @@ export default function App() {
                                         break;
                                     case '/sales-invoices':
                                         routeToComponent = <SalesInvoices />;
+                                        break;
+                                    case '/payments':
+                                        routeToComponent = <PaymentsDashboard />;
                                         break;
                                     case '/stock-cards':
                                         routeToComponent = <StockCards />;
@@ -164,6 +169,11 @@ export default function App() {
                                         <Route path={'/sales-invoices/:salesInvoiceId/details'} element={<SalesInvoicesShow />}></Route>
                                         {canUpdateSalesInvoice && <Route path={'/sales-invoices/:salesInvoiceId/store-items'} element={<SalesInvoiceStoreItemsShow />}></Route>}
                                     </>}
+                                </>}
+
+                            {links && links.map((link) => link.to).includes('/payments') &&
+                                <>
+                                    <Route path={'/payments/delivery-receipts'} element={<PaymentsDeliveryReceiptsPage />}></Route>
                                 </>}
 
                             {links && links.map((link) => link.to).includes('/stock-cards') &&
