@@ -199,6 +199,41 @@ const StoresDeliveryReceiptsPayments = () => {
         </Card>
     </div>;
 
+    const columnsStoreDeliveryReceipts = [
+        {
+            name: 'Delivery Receipt No.',
+            cell: row => row.delivery_receipt_no,
+        },
+        {
+            name: 'Total Amount Due',
+            cell: row => row.delivery_receipt_no,
+        },
+        {
+            name: 'Total Payments',
+            cell: row => row.delivery_receipt_no,
+        },
+        {
+            name: 'Total Balance',
+            cell: row => row.delivery_receipt_no,
+        },
+    ];
+
+    const ExpandedComponentStoreDeliveryReceipts = ({ data: store }) => {
+        return <div className="m-4">
+            <Card>
+                <Card.Header>
+                    Delivery Receipts
+                </Card.Header>
+                <Card.Body>
+                    <DataTable
+                        columns={columnsStoreDeliveryReceipts}
+                        data={store.delivery_receipt_nos}/>
+                </Card.Body>
+            </Card>
+        </div>;
+    };
+
+
     const columnsPurchaseOrderStoreItems = [
         {
             name: 'Purchase Order',
@@ -223,7 +258,7 @@ const StoresDeliveryReceiptsPayments = () => {
         },
         {
             name: 'Amount Due',
-            cell: row => Number(`${row.amount_due}`).toFixed(2),
+            cell: row => Number(`${row.amount_due ?? 0}`).toFixed(2),
         },
         {
             name: 'Payments',
@@ -232,7 +267,7 @@ const StoresDeliveryReceiptsPayments = () => {
         {
             name: 'Balance',
             cell: row => {
-                const amountDue = Number(`${row.amount_due}`);
+                const amountDue = Number(`${row.amount_due ?? 0}`);
                 const payments = Number(Number(`${row.payments_sum_amount ?? 0}`));
                 return Number(amountDue - payments).toFixed(2);
             },
@@ -530,7 +565,7 @@ const StoresDeliveryReceiptsPayments = () => {
                         </>}
                         <DataTable
                             columns={columns}
-                            expandableRowsComponent={ExpandedComponentPurchaseOrderStoreItems}
+                            expandableRowsComponent={ExpandedComponentStoreDeliveryReceipts}
                             expandableRowExpanded={rowPreExpanded}
                             progressPending={isLoading}
                             data={data}

@@ -11,7 +11,7 @@ class DeliveryReceiptPayment extends Model
 
     protected $fillable = [
         'payment_date',
-        'purchase_order_store_item_id',
+        'delivery_receipt_no',
         'amount',
         'remarks',
     ];

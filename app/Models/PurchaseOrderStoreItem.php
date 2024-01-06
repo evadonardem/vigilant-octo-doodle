@@ -39,7 +39,11 @@ class PurchaseOrderStoreItem extends Model
     public function payments(): HasMany
     {
         return $this
-            ->hasMany(DeliveryReceiptPayment::class, 'purchase_order_store_item_id')
+            ->hasMany(
+                DeliveryReceiptPayment::class,
+                'delivery_receipt_no',
+                'delivery_receipt_no'
+            )
             ->orderBy('payment_date', 'desc');
     }
 }

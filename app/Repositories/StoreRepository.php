@@ -71,10 +71,10 @@ class StoreRepository
 
                 if ($filters['payment_status'] ?? false) {
                     if ($filters['payment_status'] === 'paid') {
-                        $query->havingRaw('payments_sum_amount >= SUM(amount_due)');
+                        $query->havingRaw('payments_sum_amount >= SUM(COALESCE(amount_due, 0))');
                     } else {
                         if ($filters['payment_status'] === 'unpaid') {
-                            $query->havingRaw('(payments_sum_amount IS NULL OR payments_sum_amount < SUM(amount_due))');
+                            $query->havingRaw('(payments_sum_amount IS NULL OR payments_sum_amount < SUM(COALESCE(amount_due, 0)))');
                         }
                     }
                 }
@@ -147,6 +147,14 @@ class StoreRepository
             }
         }
 
-        return $storesQuery->paginate($perPage);
+        $stores = $storesQuery->paginate($perPage);
+
+        $stores->map(function ($store) {
+            $store->delivery_receipts = $store
+                ->purchaseOrderItems
+                ->groupBy('delivery_receipt_no');
+        });
+
+        return $stores;
     }
 }
