@@ -14,6 +14,6 @@ class GrantSuperAdminSeeder extends Seeder
      */
     public function run()
     {
-        User::find(2)->assignRole('Super Admin');
+        User::find(1)->assignRole('Super Admin');
     }
 }
