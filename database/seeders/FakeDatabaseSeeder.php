@@ -15,5 +15,6 @@ class FakeDatabaseSeeder extends Seeder
     {
         $this->call(FakeUsersTableSeeder::class);
         $this->call(FakeAttendanceLogsTableSeeder::class);
+        $this->call(FakeEnvironmentSeeder::class);
     }
 }
