@@ -14,9 +14,11 @@ class UpdateDeliveryReceiptPaymentsTable extends Migration
     public function up()
     {
         Schema::table('delivery_receipt_payments', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('purchase_order_store_item_id');
-            $table->string('delivery_receipt_no')->after('payment_date');
-            $table->index('delivery_receipt_no');
+            if (Schema::hasColumn('delivery_receipt_payments', 'purchase_order_store_item_id')) {
+                $table->dropConstrainedForeignId('purchase_order_store_item_id');
+            }
+            $table->foreignId('store_id')->after('id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+            $table->string('delivery_receipt_no')->index()->after('store_id');
         });
     }
 
@@ -27,12 +29,15 @@ class UpdateDeliveryReceiptPaymentsTable extends Migration
      */
     public function down()
     {
-        if (!Schema::hasColumn('delivery_receipt_payments', 'purchase_order_store_item_id')) {
+        if (! Schema::hasColumn('delivery_receipt_payments', 'purchase_order_store_item_id')) {
             Schema::table('delivery_receipt_payments', function (Blueprint $table) {
-                $table->foreignId('purchase_order_store_item_id')
-                    ->constrained()
-                    ->cascadeOnUpdate()
-                    ->cascadeOnDelete();
+                $table->foreignId('purchase_order_store_item_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+            });
+        }
+
+        if (Schema::hasColumn('delivery_receipt_payments', 'store_id')) {
+            Schema::table('delivery_receipt_payments', function (Blueprint $table) {
+                $table->dropConstrainedForeignId('store_id');
             });
         }
 

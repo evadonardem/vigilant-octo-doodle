@@ -178,13 +178,13 @@ $api->version('v1', function ($api) {
         );
     });
 
-    $api->group(['prefix' => 'purchase-order-store-items', 'middleware' => ['api.auth', 'bindings']], function ($api) {
+    $api->group(['prefix' => 'stores', 'middleware' => ['api.auth', 'bindings']], function ($api) {
         $api->post(
-            '/{purchaseOrderStoreItem}/payments',
+            '/{store}/delivery-receipt-payments',
             [DeliveryReceiptPaymentController::class, 'store']
         );
         $api->delete(
-            '/{purchaseOrderStoreItem}/payments/{deliveryReceiptPayment}',
+            '/{store}/delivery-receipt-payments/{deliveryReceiptPayment}',
             [DeliveryReceiptPaymentController::class, 'destroy']
         );
     });

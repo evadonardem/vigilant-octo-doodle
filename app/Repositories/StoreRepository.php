@@ -5,11 +5,13 @@ namespace App\Repositories;
 use App\Models\PurchaseOrder;
 use App\Models\Store;
 use App\Models\StoreItemPrice;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class StoreRepository
 {
     public function __construct(
+        protected DeliveryReceiptPaymentRepository $deliveryReceiptPaymentRepository,
         protected Store $store,
         protected PurchaseOrder $purchaseOrder,
         protected StoreItemPrice $storeItemPrice
@@ -26,6 +28,11 @@ class StoreRepository
         $storesQuery = $this->store
             ->newQuery()
             ->with('category')
+            ->with('deliveryReceiptPayments', function (HasMany $query) use ($filters) {
+                if ($filters['delivery_receipt_no'] ?? false) {
+                    $query->where('delivery_receipt_no', $filters['delivery_receipt_no']);
+                }
+            })
             ->with('purchaseOrderItems', function ($query) use ($filters, $purchaseOrderTable, $storeItemPriceTable) {
                 $relationTable = $query->getModel()->getTable();
                 $query
@@ -42,8 +49,6 @@ class StoreRepository
                         ORDER BY {$storeItemPriceTable}.effectivity_date DESC
                         LIMIT 1", 'amount_due')
                     ->with('item')
-                    ->with('payments')
-                    ->withSum('payments', 'amount')
                     ->join(
                         $purchaseOrderTable,
                         "{$relationTable}.purchase_order_id",
@@ -58,25 +63,9 @@ class StoreRepository
                         "{$relationTable}.item_id",
                     ]);
 
-                if ($filters['purchase_order_id'] ?? false) {
-                    $purchaseOrderId = $filters['purchase_order_id'];
-                    $purchaseOrderIds = is_array($purchaseOrderId) ? $purchaseOrderId : [$purchaseOrderId];
-                    $query->whereIn("{$relationTable}.purchase_order_id", $purchaseOrderIds);
-                }
-
                 if ($filters['delivery_receipt_no'] ?? false) {
                     $deliveryReceiptNo = $filters['delivery_receipt_no'];
                     $query->where("{$relationTable}.delivery_receipt_no", $deliveryReceiptNo);
-                }
-
-                if ($filters['payment_status'] ?? false) {
-                    if ($filters['payment_status'] === 'paid') {
-                        $query->havingRaw('payments_sum_amount >= SUM(COALESCE(amount_due, 0))');
-                    } else {
-                        if ($filters['payment_status'] === 'unpaid') {
-                            $query->havingRaw('(payments_sum_amount IS NULL OR payments_sum_amount < SUM(COALESCE(amount_due, 0)))');
-                        }
-                    }
                 }
             })
             ->whereHas('purchaseOrderItems', function ($query) use ($filters, $purchaseOrderTable, $storeItemPriceTable) {
@@ -95,8 +84,6 @@ class StoreRepository
                         ORDER BY {$storeItemPriceTable}.effectivity_date DESC
                         LIMIT 1", 'amount_due')
                     ->with('item')
-                    ->with('payments')
-                    ->withSum('payments', 'amount')
                     ->join(
                         $purchaseOrderTable,
                         "{$relationTable}.purchase_order_id",
@@ -111,27 +98,10 @@ class StoreRepository
                         "{$relationTable}.item_id",
                     ]);
 
-                if ($filters['purchase_order_id'] ?? false) {
-                    $purchaseOrderId = $filters['purchase_order_id'];
-                    $purchaseOrderIds = is_array($purchaseOrderId) ? $purchaseOrderId : [$purchaseOrderId];
-                    $query->whereIn("{$relationTable}.purchase_order_id", $purchaseOrderIds);
-                }
-
                 if ($filters['delivery_receipt_no'] ?? false) {
                     $deliveryReceiptNo = $filters['delivery_receipt_no'];
                     $query->where("{$relationTable}.delivery_receipt_no", $deliveryReceiptNo);
                 }
-
-                if ($filters['payment_status'] ?? false) {
-                    if ($filters['payment_status'] === 'paid') {
-                        $query->havingRaw('payments_sum_amount >= SUM(amount_due)');
-                    } else {
-                        if ($filters['payment_status'] === 'unpaid') {
-                            $query->havingRaw('(payments_sum_amount IS NULL OR payments_sum_amount < SUM(amount_due))');
-                        }
-                    }
-                }
-
             });
 
         if ($filters['store_id'] ?? false) {
@@ -149,10 +119,59 @@ class StoreRepository
 
         $stores = $storesQuery->paginate($perPage);
 
-        $stores->map(function ($store) {
-            $store->delivery_receipts = $store
-                ->purchaseOrderItems
+        $stores->map(function ($store) use ($filters) {
+            $purchaseOrderItemsGroupByDeliveryReceipt = $store->purchaseOrderItems
                 ->groupBy('delivery_receipt_no');
+
+            $deliveryReceiptNos = array_keys($purchaseOrderItemsGroupByDeliveryReceipt->toArray());
+            $paymentsByDeliveryReceipt = $store->deliveryReceiptPayments->groupBy('delivery_receipt_no');
+
+            $deliveryReceiptsPayments = collect();
+            foreach ($deliveryReceiptNos as $deliveryReceiptNo) {
+                $deliveryRecetipNoPayments = $paymentsByDeliveryReceipt->get($deliveryReceiptNo);
+                $purchaseOrderItemsByDeliveryReceipt =
+                    $purchaseOrderItemsGroupByDeliveryReceipt->get($deliveryReceiptNo);
+                $deliveryReceiptTotalAmountDue =
+                    $purchaseOrderItemsByDeliveryReceipt->sum('amount_due');
+                $deliveryReceiptTotalPayments = $deliveryRecetipNoPayments?->sum('amount') ?? 0;
+                $deliveryReceiptTotalBalance = $deliveryReceiptTotalAmountDue - $deliveryReceiptTotalPayments;
+
+                if ($filters['payment_status'] ?? false) {
+                    if (
+                        $filters['payment_status'] === 'paid' &&
+                        $deliveryReceiptTotalBalance > 0
+                    ) {
+                        continue;
+                    }
+
+                    if (
+                        $filters['payment_status'] === 'unpaid' &&
+                        $deliveryReceiptTotalBalance <= 0
+                    ) {
+                        continue;
+                    }
+                }
+
+                $deliveryReceipt = collect([
+                    'store_id' => $store->id,
+                    'delivery_receipt_no' => $deliveryReceiptNo,
+                    'payments' => $deliveryRecetipNoPayments ?? [],
+                    'total_amount_due' => $deliveryReceiptTotalAmountDue,
+                    'total_payments' => $deliveryReceiptTotalPayments,
+                    'total_balance' => $deliveryReceiptTotalBalance,
+                    'purchase_order_items' => $purchaseOrderItemsByDeliveryReceipt,
+                ]);
+
+                $deliveryReceiptsPayments->push($deliveryReceipt);
+            }
+
+            $store->delivery_receipt_nos = $deliveryReceiptsPayments;
+            $store->delivery_receipt_total_amount_due = $deliveryReceiptsPayments->sum('total_amount_due');
+            $store->delivery_receipt_total_payments = $deliveryReceiptsPayments->sum('total_payments');
+            $store->delivery_receipt_total_balance = $deliveryReceiptsPayments->sum('total_balance');
+
+            $store->unsetRelation('deliveryReceiptPayments');
+            $store->unsetRelation('purchaseOrderItems');
         });
 
         return $stores;

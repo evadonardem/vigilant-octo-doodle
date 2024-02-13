@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreDeliveryReceiptPaymentRequest;
 use App\Models\DeliveryReceiptPayment;
-use App\Models\PurchaseOrderStoreItem;
+use App\Models\Store;
 use App\Repositories\StoreRepository;
 use App\Services\DeliveryReceiptPaymentService;
 use Illuminate\Pagination\Paginator;
@@ -33,20 +33,20 @@ class DeliveryReceiptPaymentController extends Controller
 
     public function store(
         StoreDeliveryReceiptPaymentRequest $request,
-        PurchaseOrderStoreItem $purchaseOrderStoreItem
+        Store $store
     ) {
-        $paymentDetails = $request->only(['payment_date', 'amount', 'remarks']);
+        $paymentDetails = $request->only(['delivery_receipt_no', 'payment_date', 'amount', 'remarks']);
 
-        return $this->deliveryReceiptPaymentService->createPayment($purchaseOrderStoreItem, $paymentDetails)
+        return $this->deliveryReceiptPaymentService->createPayment($store, $paymentDetails)
             ? response()->noContent()
             : abort(400);
     }
 
     public function destroy(
-        PurchaseOrderStoreItem $purchaseOrderStoreItem,
+        Store $store,
         DeliveryReceiptPayment $deliveryReceiptPayment
     ) {
-        if ($purchaseOrderStoreItem->id !== $deliveryReceiptPayment->purchase_order_store_item_id) {
+        if ($store->id !== $deliveryReceiptPayment->store_id) {
             abort(400);
         }
 

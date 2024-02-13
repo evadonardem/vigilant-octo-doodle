@@ -6,10 +6,9 @@ import DataTable from "react-data-table-component";
 import CommonDropdownSelectSingleStore from '../../CommonDropdownSelectSingleStore';
 import CommonDropdownSelectSingleStoreCategory from '../../CommonDropdownSelectSingleStoreCategory';
 import ConfirmationModal from '../../Common/Modals/ConfirmationModal';
-import PurchaseOrdersDropdown from '../../Common/Dropdowns/PurchaseOrdersDropdown';
 
 const ENDPOINT = `${apiBaseUrl}/payments/stores`;
-const ENDPOINT_PURCHASE_ORDER_STORE_ITEM_PAYMENTS = `${apiBaseUrl}/purchase-order-store-items/{purchaseOrderStoreItemId}/payments`;
+const ENDPOINT_STORE_DELIVERY_RECEIPT_PAYMENTS = `${apiBaseUrl}/stores/{storeId}/delivery-receipt-payments`;
 
 const StoresDeliveryReceiptsPayments = () => {
     const token = cookie.load('token');
@@ -27,16 +26,13 @@ const StoresDeliveryReceiptsPayments = () => {
     const filterByPaymentStatusAll = useRef();
     const filterByPaymentStatusPaid = useRef();
     const filterByPaymentStatusUnpaid = useRef();
-    const [selectedPaymentStatus, setSelectedPaymentStatus] = useState();
 
     const filterByDeliveryReceiptNo = useRef();
-    const [selectedDeliveryReceiptNo, setSelectedDeliveryReceiptNo] = useState();
 
     const [showStores, setShowStores] = useState(true);
     const [showCategories, setShowCategories] = useState(false);
     const [selectedStore, setSelectedStore] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [selectedPurchaseOrders, setSelectedPurchaseOrders] = useState(null);
     const [filters, setFilters] = useState([]);
 
     const [showConfirmDeletePayment, setShowConfirmDeletePayment] = useState(false);
@@ -70,29 +66,31 @@ const StoresDeliveryReceiptsPayments = () => {
     };
 
     const handlePerRowExpandToggled = (expanded, row) => {
+        const referenceId = row.id ?? `${row.store_id}-${row.delivery_receipt_no}`;
         if (expanded) {
-            expandedRows.push(row.id);
+            expandedRows.push(referenceId);
             setExpandedRows(expandedRows);
         } else {
-            const index = expandedRows.indexOf(row.id);
+            const index = expandedRows.indexOf(referenceId);
             expandedRows.splice(index, 1);
             setExpandedRows(expandedRows);
         }
     };
 
-    const handleAddPayment = async (e, purchaseOrderItem) => {
+    const handleAddPayment = async (e, deliveryReceipt) => {
         e.preventDefault();
-        const form = document.getElementById(`add-payment-${purchaseOrderItem.id}-form`);
+        const form = document.getElementById(`add-payment-${deliveryReceipt.store_id}-${deliveryReceipt.delivery_receipt_no}-form`);
         const formData = new FormData(form);
-        const paymentDate = formData.get(`payment_date_${purchaseOrderItem.id}`);
-        const amount = formData.get(`amount_${purchaseOrderItem.id}`);
-        const remarks = formData.get(`remarks_${purchaseOrderItem.id}`);
+        const paymentDate = formData.get(`payment_date_${deliveryReceipt.store_id}_${deliveryReceipt.delivery_receipt_no}`);
+        const amount = formData.get(`amount_${deliveryReceipt.store_id}_${deliveryReceipt.delivery_receipt_no}`);
+        const remarks = formData.get(`remarks_${deliveryReceipt.store_id}_${deliveryReceipt.delivery_receipt_no}`);
 
-        const endpoint = ENDPOINT_PURCHASE_ORDER_STORE_ITEM_PAYMENTS
-            .replace('{purchaseOrderStoreItemId}', purchaseOrderItem.id);
+        const endpoint = ENDPOINT_STORE_DELIVERY_RECEIPT_PAYMENTS
+            .replace('{storeId}', deliveryReceipt.store_id);
 
         try {
             await axios.post(`${endpoint}?token=${token}`, {
+                'delivery_receipt_no': deliveryReceipt.delivery_receipt_no,
                 'payment_date': paymentDate,
                 amount,
                 remarks,
@@ -103,7 +101,7 @@ const StoresDeliveryReceiptsPayments = () => {
             const { errors } = e.response.data;
             if (errors) {
                 for (const key in errors) {
-                    $('[name=' + key + '_' + purchaseOrderItem.id + ']', form)
+                    $('[name=' + key + '_' + deliveryReceipt.store_id + '_' + deliveryReceipt.delivery_receipt_no + ']', form)
                         .addClass('is-invalid')
                         .closest('.field')
                         .find('.invalid-feedback')
@@ -116,9 +114,9 @@ const StoresDeliveryReceiptsPayments = () => {
 
     const handleDeletePayment = async (e) => {
         e.preventDefault();
-        const form = document.getElementById(`add-payment-${paymentToDelete.purchase_order_store_item_id}-form`);
-        const endpoint = ENDPOINT_PURCHASE_ORDER_STORE_ITEM_PAYMENTS
-            .replace('{purchaseOrderStoreItemId}', paymentToDelete.purchase_order_store_item_id);
+        const form = document.getElementById(`add-payment-${paymentToDelete.store_id}-${paymentToDelete.delivery_receipt_no}-form`);
+        const endpoint = ENDPOINT_STORE_DELIVERY_RECEIPT_PAYMENTS
+            .replace('{storeId}', paymentToDelete.store_id);
 
         await axios.delete(`${endpoint}/${paymentToDelete.id}?token=${token}`);
         form.reset();
@@ -126,7 +124,7 @@ const StoresDeliveryReceiptsPayments = () => {
         setShowConfirmDeletePayment(false);
     };
 
-    const columnsPurchaseOrderStoreItemPayments = [
+    const columnsStoreDeliveryReceiptPayments = [
         {
             name: 'Payment Date',
             cell: row => `${row.payment_date}`,
@@ -150,8 +148,24 @@ const StoresDeliveryReceiptsPayments = () => {
             </ButtonGroup>,
         }
     ];
-    const ExpandedComponentPurchaseOrderStoreItemPayments = ({ data: purchaseOrderItem }) => <div className="m-4">
-        <Card>
+
+    const columnsStoreDeliveryReceiptPurchaseOrderItems = [
+        {
+            name: 'Purchase Order',
+            cell: row => row.purchase_order_code,
+        },
+        {
+            name: 'Item',
+            cell: row => `(${row.item.code}) ${row.item.name}`,
+        },
+        {
+            name: 'Amount Due',
+            cell: row => Number(row.amount_due ?? 0),
+        },
+    ];
+
+    const ExpandedComponentDeliveryReceiptPayments = ({ data: deliveryReceipt }) => <div className="m-4">
+        <Card className='mb-2'>
             <Card.Header>
                 Payments
             </Card.Header>
@@ -159,28 +173,28 @@ const StoresDeliveryReceiptsPayments = () => {
                 <Row>
                     <Col md={8}>
                         <DataTable
-                            columns={columnsPurchaseOrderStoreItemPayments}
-                            data={purchaseOrderItem.payments} />
+                            columns={columnsStoreDeliveryReceiptPayments}
+                            data={deliveryReceipt.payments} />
                     </Col>
                     <Col md={4}>
                         <Form
-                            id={`add-payment-${purchaseOrderItem.id}-form`}
-                            onSubmit={(e) => handleAddPayment(e, purchaseOrderItem)}>
+                            id={`add-payment-${deliveryReceipt.store_id}-${deliveryReceipt.delivery_receipt_no}-form`}
+                            onSubmit={(e) => handleAddPayment(e, deliveryReceipt)}>
                             <Card>
                                 <Card.Body>
                                     <Form.Group className='mb-2 field'>
                                         <Form.Label>Payment Date: </Form.Label>
-                                        <Form.Control type="date" name={`payment_date_${purchaseOrderItem.id}`} />
+                                        <Form.Control type="date" name={`payment_date_${deliveryReceipt.store_id}_${deliveryReceipt.delivery_receipt_no}`} />
                                         <Form.Control.Feedback type="invalid" />
                                     </Form.Group>
                                     <Form.Group className='mb-2 field'>
                                         <Form.Label>Amount: </Form.Label>
-                                        <Form.Control type="number" step="any" name={`amount_${purchaseOrderItem.id}`} />
+                                        <Form.Control type="number" step="any" name={`amount_${deliveryReceipt.store_id}_${deliveryReceipt.delivery_receipt_no}`} />
                                         <Form.Control.Feedback type="invalid" />
                                     </Form.Group>
                                     <Form.Group className='mb-2 field'>
                                         <Form.Label>Remarks: </Form.Label>
-                                        <Form.Control as="textarea" name={`remarks_${purchaseOrderItem.id}`} />
+                                        <Form.Control as="textarea" name={`remarks_${deliveryReceipt.store_id}_${deliveryReceipt.delivery_receipt_no}`} />
                                         <Form.Control.Feedback type="invalid" />
                                     </Form.Group>
                                 </Card.Body>
@@ -197,6 +211,14 @@ const StoresDeliveryReceiptsPayments = () => {
                 </Row>
             </Card.Body>
         </Card>
+        <Card className='mb-2'>
+            <Card.Header>Related Purchase Order Items</Card.Header>
+            <Card.Body>
+                <DataTable
+                    columns={columnsStoreDeliveryReceiptPurchaseOrderItems}
+                    data={deliveryReceipt.purchase_order_items} />
+            </Card.Body>
+        </Card>
     </div>;
 
     const columnsStoreDeliveryReceipts = [
@@ -206,79 +228,23 @@ const StoresDeliveryReceiptsPayments = () => {
         },
         {
             name: 'Total Amount Due',
-            cell: row => row.delivery_receipt_no,
+            cell: row => Number(row.total_amount_due ?? 0).toFixed(2),
         },
         {
             name: 'Total Payments',
-            cell: row => row.delivery_receipt_no,
+            cell: row => Number(row.total_payments ?? 0).toFixed(2),
         },
         {
             name: 'Total Balance',
-            cell: row => row.delivery_receipt_no,
+            cell: row => Number(row.total_balance ?? 0).toFixed(2),
         },
     ];
 
-    const ExpandedComponentStoreDeliveryReceipts = ({ data: store }) => {
-        return <div className="m-4">
-            <Card>
-                <Card.Header>
-                    Delivery Receipts
-                </Card.Header>
-                <Card.Body>
-                    <DataTable
-                        columns={columnsStoreDeliveryReceipts}
-                        data={store.delivery_receipt_nos}/>
-                </Card.Body>
-            </Card>
-        </div>;
-    };
-
-
-    const columnsPurchaseOrderStoreItems = [
-        {
-            name: 'Purchase Order',
-            cell: row => <a
-                href={`#/purchase-orders/${row.purchase_order_id}/details`}
-                target="_blank"
-                rel="noopener noreferrer">
-                {row.purchase_order_code}
-            </a>,
-        },
-        {
-            name: 'Item',
-            cell: row => `(${row.item.code}) ${row.item.name}`,
-        },
-        {
-            name: 'Delivery Receipt No.',
-            cell: row => `${row.delivery_receipt_no}`,
-        },
-        {
-            name: 'Booklet No.',
-            cell: row => `${row.booklet_no}`,
-        },
-        {
-            name: 'Amount Due',
-            cell: row => Number(`${row.amount_due ?? 0}`).toFixed(2),
-        },
-        {
-            name: 'Payments',
-            cell: row => Number(`${row.payments_sum_amount ?? 0}`).toFixed(2),
-        },
-        {
-            name: 'Balance',
-            cell: row => {
-                const amountDue = Number(`${row.amount_due ?? 0}`);
-                const payments = Number(Number(`${row.payments_sum_amount ?? 0}`));
-                return Number(amountDue - payments).toFixed(2);
-            },
-        },
-    ];
-
-    const conditionalRowStylesPurchaseOrderStoreItems = [
+    const conditionalRowStylesDeliveryReceipts = [
         {
             when: row => {
-                const amountDue = Number(`${row.amount_due}`);
-                const payments = Number(Number(`${row.payments_sum_amount ?? 0}`));
+                const amountDue = Number(row.total_amount_due ?? 0);
+                const payments = Number(row.total_payments ?? 0);
                 return (amountDue - payments) <= 0;
             },
             style: {
@@ -288,8 +254,8 @@ const StoresDeliveryReceiptsPayments = () => {
         },
         {
             when: row => {
-                const amountDue = Number(`${row.amount_due}`);
-                const payments = Number(Number(`${row.payments_sum_amount ?? 0}`));
+                const amountDue = Number(row.total_amount_due ?? 0);
+                const payments = Number(row.total_payments ?? 0);
                 return (amountDue - payments) > 0;
             },
             style: {
@@ -299,7 +265,7 @@ const StoresDeliveryReceiptsPayments = () => {
         },
         {
             when: row => {
-                const payments = Number(Number(`${row.payments_sum_amount ?? 0}`));
+                const payments = Number(row.total_payments ?? 0);
                 return payments === 0;
             },
             style: {
@@ -309,23 +275,44 @@ const StoresDeliveryReceiptsPayments = () => {
         },
     ];
 
-    const ExpandedComponentPurchaseOrderStoreItems = ({ data: store }) => <div className="m-4">
-        <Card>
-            <Card.Header>
-                Purchase Order Item Payments
-            </Card.Header>
-            <Card.Body>
-                <DataTable
-                    columns={columnsPurchaseOrderStoreItems}
-                    conditionalRowStyles={conditionalRowStylesPurchaseOrderStoreItems}
-                    data={store.purchase_order_items}
-                    expandableRowsComponent={ExpandedComponentPurchaseOrderStoreItemPayments}
-                    expandableRowExpanded={rowPreExpanded}
-                    onRowExpandToggled={handlePerRowExpandToggled}
-                    expandableRows />
-            </Card.Body>
-        </Card>
-    </div>;
+    const ExpandedComponentStoreDeliveryReceipts = ({ data: store }) => {
+        const deliveryReceiptNos = store.delivery_receipt_nos;
+        return <div className="m-4">
+            <Card>
+                <Card.Header>
+                    <i className='fa fa-receipt'></i>Delivery Receipts
+                </Card.Header>
+                <Card.Body>
+                    <DataTable
+                        columns={columnsStoreDeliveryReceipts}
+                        data={deliveryReceiptNos}
+                        conditionalRowStyles={conditionalRowStylesDeliveryReceipts}
+                        expandableRowsComponent={ExpandedComponentDeliveryReceiptPayments}
+                        expandableRowExpanded={rowPreExpanded}
+                        onRowExpandToggled={handlePerRowExpandToggled} 
+                        expandableRows />
+                </Card.Body>
+            </Card>
+        </div>;
+    };
+
+    // const ExpandedComponentPurchaseOrderStoreItems = ({ data: store }) => <div className="m-4">
+    //     <Card>
+    //         <Card.Header>
+    //             Purchase Order Item Payments
+    //         </Card.Header>
+    //         <Card.Body>
+    //             <DataTable
+    //                 columns={columnsPurchaseOrderStoreItems}
+    //                 conditionalRowStyles={conditionalRowStylesPurchaseOrderStoreItems}
+    //                 data={store.purchase_order_items}
+    //                 expandableRowsComponent={ExpandedComponentPurchaseOrderStoreItemPayments}
+    //                 expandableRowExpanded={rowPreExpanded}
+    //                 onRowExpandToggled={handlePerRowExpandToggled}
+    //                 expandableRows />
+    //         </Card.Body>
+    //     </Card>
+    // </div>;
 
     const handleFindDeliveryReceiptPayments = () => {
         let updatedFilters = [];
@@ -342,10 +329,8 @@ const StoresDeliveryReceiptsPayments = () => {
         } else {
             paymentStatus = filterByPaymentStatusUnpaid.current.value;
         }
-        setSelectedPaymentStatus(paymentStatus);
 
         const deliveryReceiptNo = filterByDeliveryReceiptNo.current.value;
-        setSelectedDeliveryReceiptNo(deliveryReceiptNo);
 
         updatedFilters.push(`filters[payment_status]=${paymentStatus}`);
 
@@ -355,11 +340,6 @@ const StoresDeliveryReceiptsPayments = () => {
 
         if (by === 'category' && selectedCategory !== null) {
             updatedFilters.push(`filters[${by}_id]=${selectedCategory.value}`);
-        }
-
-        if (selectedPurchaseOrders) {
-            selectedPurchaseOrders.map((selectedPurchaseOrder) =>
-                updatedFilters.push(`filters[purchase_order_id][]=${selectedPurchaseOrder.value}`));
         }
 
         if (deliveryReceiptNo) {
@@ -380,39 +360,28 @@ const StoresDeliveryReceiptsPayments = () => {
         },
         {
             name: 'Total Amount Due',
-            cell: row => row
-                .purchase_order_items
-                .reduce((due, item) => due + Number(item.amount_due), 0)
-                .toFixed(2),
+            cell: row => Number(row.delivery_receipt_total_amount_due ?? 0).toFixed(2),
         },
         {
             name: 'Total Payments',
-            cell: row => row
-                .purchase_order_items
-                .reduce((payments, item) => payments + Number(item.payments_sum_amount), 0)
-                .toFixed(2),
+            cell: row => Number(row.delivery_receipt_total_payments ?? 0).toFixed(2),
         },
         {
             name: 'Total Balance',
-            cell: row => {
-                const totalAmountDue = row
-                    .purchase_order_items
-                    .reduce((due, item) => due + Number(item.amount_due), 0);
-                const totalPayments = row
-                    .purchase_order_items
-                    .reduce((payments, item) => payments + Number(item.payments_sum_amount), 0);
-                return Number(totalAmountDue - totalPayments).toFixed(2);
-            },
+            cell: row => Number(row.delivery_receipt_total_balance ?? 0).toFixed(2),
         },
     ];
 
-    const rowPreExpanded = row => expandedRows.includes(row.id);
+    const rowPreExpanded = row => expandedRows.includes(row.id ?? `${row.store_id}-${row.delivery_receipt_no}`);
 
     return <>
         <Row>
             <Col md={3}>
                 <Card>
                     <Card.Body>
+                        <Card.Title className='mb-2'>
+                            <i className='fa fa-book' /> Delivery Receipt Payments
+                        </Card.Title>
                         <Form.Group className='mb-2 field'>
                             <Form.Label>Filter By: </Form.Label><br />
                             <Form.Check
@@ -426,7 +395,6 @@ const StoresDeliveryReceiptsPayments = () => {
                                     setShowStores(true);
                                     setShowCategories(false);
                                     setSelectedCategory(null);
-                                    setSelectedPurchaseOrders(null);
                                     setData([]);
                                 }}
                                 defaultChecked
@@ -442,7 +410,6 @@ const StoresDeliveryReceiptsPayments = () => {
                                     setShowStores(false);
                                     setShowCategories(true);
                                     setSelectedStore(null);
-                                    setSelectedPurchaseOrders(null);
                                     setData([]);
                                 }}
                                 inline />
@@ -450,26 +417,13 @@ const StoresDeliveryReceiptsPayments = () => {
                         {showStores && <CommonDropdownSelectSingleStore
                             handleChange={(e) => {
                                 setSelectedStore(e);
-                                setSelectedPurchaseOrders(null);
                                 setData([]);
                             }} />}
                         {showCategories && <CommonDropdownSelectSingleStoreCategory
                             handleChange={(e) => {
                                 setSelectedCategory(e);
-                                setSelectedPurchaseOrders(null);
                                 setData([]);
                             }} />}
-
-                        {(selectedStore || selectedCategory) && <PurchaseOrdersDropdown
-                            isMulti={true}
-                            purchaseOrderStatusId={3}
-                            categoryId={selectedCategory?.value}
-                            storeId={selectedStore?.value}
-                            handleChange={(e) => {
-                                setSelectedPurchaseOrders(e);
-                                setData([]);
-                            }}
-                            selectedItem={selectedPurchaseOrders} />}
 
                         {(selectedStore || selectedCategory) && <Form.Group className='mb-2 field'>
                             <Form.Label>Delivery Receipt No.: </Form.Label>
@@ -477,7 +431,7 @@ const StoresDeliveryReceiptsPayments = () => {
                                 ref={filterByDeliveryReceiptNo}
                                 type="text"
                                 name="delivery_receipt_no"
-                                onChange={(e) => { setData([]); }}></Form.Control>
+                                onChange={() => { setData([]); }}></Form.Control>
                             <div className="invalid-feedback"></div>
                         </Form.Group>}
 
@@ -532,37 +486,7 @@ const StoresDeliveryReceiptsPayments = () => {
             </Col>
             <Col md={9}>
                 <Card>
-                    <Card.Header>
-                        <i className='fa fa-book' /> Purchase Order Delivery Receipt Payments
-                    </Card.Header>
                     <Card.Body>
-                        {(data.length > 0 && selectedStore) && <>
-                            <p><strong>Store:</strong><br />
-                                <Badge>{selectedStore.label}</Badge></p>
-                        </>}
-                        {(data.length > 0 && selectedCategory) && <>
-                            <p><strong>Category:</strong><br />
-                                <Badge>{selectedCategory.label}</Badge></p>
-                        </>}
-                        {(data.length > 0 && selectedPurchaseOrders && selectedPurchaseOrders.length > 0) && <>
-                            <p><strong>Purchase Orders:</strong><br />
-                                {selectedPurchaseOrders
-                                    .map((selectedPurchaseOrder) => <>
-                                        <Badge>{selectedPurchaseOrder.label}</Badge>&nbsp;
-                                    </>)}</p>
-                        </>}
-                        {(data.length > 0 && (!selectedPurchaseOrders || selectedPurchaseOrders.length === 0)) && <>
-                            <p><strong>Purchase Orders:</strong><br />
-                                <Badge>ALL</Badge></p>
-                        </>}
-                        {(data.length > 0 && selectedDeliveryReceiptNo) && <>
-                            <p><strong>Delivery Receipt No.:</strong><br />
-                                <Badge>{selectedDeliveryReceiptNo}</Badge></p>
-                        </>}
-                        {(data.length > 0 && selectedPaymentStatus) && <>
-                            <p><strong>Payment Status:</strong><br />
-                                <Badge>{selectedPaymentStatus.toUpperCase()}</Badge></p>
-                        </>}
                         <DataTable
                             columns={columns}
                             expandableRowsComponent={ExpandedComponentStoreDeliveryReceipts}

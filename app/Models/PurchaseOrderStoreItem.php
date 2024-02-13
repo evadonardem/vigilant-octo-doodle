@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PurchaseOrderStoreItem extends Model
 {
@@ -34,16 +33,5 @@ class PurchaseOrderStoreItem extends Model
     public function item(): BelongsTo
     {
         return $this->belongsTo(Item::class, 'item_id');
-    }
-
-    public function payments(): HasMany
-    {
-        return $this
-            ->hasMany(
-                DeliveryReceiptPayment::class,
-                'delivery_receipt_no',
-                'delivery_receipt_no'
-            )
-            ->orderBy('payment_date', 'desc');
     }
 }
