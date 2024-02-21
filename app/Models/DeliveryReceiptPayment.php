@@ -10,8 +10,9 @@ class DeliveryReceiptPayment extends Model
     use HasFactory;
 
     protected $fillable = [
+        'store_id',
+        'delivery_receipt_no',
         'payment_date',
-        'purchase_order_store_item_id',
         'amount',
         'remarks',
     ];

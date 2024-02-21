@@ -9,6 +9,7 @@ class StoreDeliveryReceiptPaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'delivery_receipt_no' => 'required',
             'payment_date' => 'required|date',
             'amount' => 'required|numeric',
             'remarks' => 'required',
