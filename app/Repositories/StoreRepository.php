@@ -67,41 +67,6 @@ class StoreRepository
                     $deliveryReceiptNo = $filters['delivery_receipt_no'];
                     $query->where("{$relationTable}.delivery_receipt_no", $deliveryReceiptNo);
                 }
-            })
-            ->whereHas('purchaseOrderItems', function ($query) use ($filters, $purchaseOrderTable, $storeItemPriceTable) {
-                $relationTable = $query->getModel()->getTable();
-                $query
-                    ->select([
-                        "{$relationTable}.*",
-                        "{$purchaseOrderTable}.code AS purchase_order_code",
-                    ])
-                    ->selectSub("SELECT
-                            amount * {$relationTable}.quantity_actual
-                        FROM {$storeItemPriceTable}
-                        WHERE {$storeItemPriceTable}.store_id = {$relationTable}.store_id
-                            AND {$storeItemPriceTable}.item_id = {$relationTable}.item_id
-                            AND {$storeItemPriceTable}.effectivity_date <= {$purchaseOrderTable}.to
-                        ORDER BY {$storeItemPriceTable}.effectivity_date DESC
-                        LIMIT 1", 'amount_due')
-                    ->with('item')
-                    ->join(
-                        $purchaseOrderTable,
-                        "{$relationTable}.purchase_order_id",
-                        "{$purchaseOrderTable}.id"
-                    )
-                    ->where([
-                        "{$purchaseOrderTable}.purchase_order_status_id" => 3,
-                    ])
-                    ->groupBy([
-                        "{$relationTable}.purchase_order_id",
-                        "{$relationTable}.store_id",
-                        "{$relationTable}.item_id",
-                    ]);
-
-                if ($filters['delivery_receipt_no'] ?? false) {
-                    $deliveryReceiptNo = $filters['delivery_receipt_no'];
-                    $query->where("{$relationTable}.delivery_receipt_no", $deliveryReceiptNo);
-                }
             });
 
         if ($filters['store_id'] ?? false) {
