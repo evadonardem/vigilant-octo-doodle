@@ -85,27 +85,27 @@ object-assign
  * © SpryMedia Ltd - datatables.net/license
  */
 
-/*! Buttons for DataTables 2.4.2
+/*! Buttons for DataTables 3.0.0
  * © SpryMedia Ltd - datatables.net/license
  */
 
-/*! DataTables 1.13.10
- * ©2008-2024 SpryMedia Ltd - datatables.net/license
+/*! DataTables 2.0.0
+ * © SpryMedia Ltd - datatables.net/license
  */
 
 /*! DataTables Bootstrap 5 integration
  * 2020 SpryMedia Ltd - datatables.net/license
  */
 
-/*! FixedColumns 4.3.0
+/*! FixedColumns 5.0.0
      * © SpryMedia Ltd - datatables.net/license
      */
 
-/*! FixedColumns 4.3.0
+/*! FixedColumns 5.0.0
  * © SpryMedia Ltd - datatables.net/license
  */
 
-/*! Responsive 2.5.0
+/*! Responsive 3.0.0
  * © SpryMedia Ltd - datatables.net/license
  */
 
