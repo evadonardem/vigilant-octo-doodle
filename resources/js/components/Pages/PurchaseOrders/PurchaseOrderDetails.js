@@ -241,7 +241,6 @@ const PurchaseOrderDetails = () => {
                 $(this).find('i').addClass('fa-chevron-circle-up');
                 row.child(format(row.data())).show();
                 tr.addClass('shown');
-
                 if (row.child.isShown()) {
                     tr.next().find(`table.${PO_STORE_ITEMS_DT}`).DataTable({
                         ajax: {
@@ -480,6 +479,16 @@ const PurchaseOrderDetails = () => {
                         });
                     });
                 }
+            }
+
+            let rowReorderEnabled = true;
+            poStoresDataTable.rows().every(function () {
+                rowReorderEnabled = rowReorderEnabled && !this.child.isShown();
+            });
+            if (rowReorderEnabled) {
+                poStoresDataTable.rowReorder.enable();
+            } else {
+                poStoresDataTable.rowReorder.disable();
             }
         });
 

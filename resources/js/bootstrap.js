@@ -11,12 +11,25 @@ try {
     window.$ = window.jQuery = require('jquery');
 
     require('bootstrap');
+    require('datatables.net');
+    //require('datatables.net-dt');
     require('datatables.net-bs5');
-    require('datatables.net-responsive-bs5');
+    require('datatables.net-autofill-bs5');
     require('datatables.net-buttons-bs5');
-    require('datatables.net-buttons/js/buttons.html5.js');
+    require('datatables.net-colreorder-bs5');
     require('datatables.net-fixedcolumns-bs5');
+    require('datatables.net-fixedheader-bs5');
+    require('datatables.net-keytable-bs5');
+    require('datatables.net-rowgroup-bs5');
     require('datatables.net-rowreorder-bs5');
+    require('datatables.net-responsive-bs5');
+    require('datatables.net-scroller-bs5');
+    require('datatables.net-searchbuilder-bs5');
+    require('datatables.net-searchpanes-bs5');
+    require('datatables.net-select-bs5');
+    require('datatables.net-staterestore-bs5');
+
+    require('datatables.net-buttons/js/buttons.html5.js');
     window.pdfMake = require('pdfmake/build/pdfmake');
     window.pdfFonts = require('pdfmake/build/vfs_fonts');
     window.pdfMake.vfs = window.pdfFonts.pdfMake.vfs;
