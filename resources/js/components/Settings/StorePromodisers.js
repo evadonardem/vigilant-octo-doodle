@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { Button, ButtonGroup, Card, Form, Offcanvas, Row } from 'react-bootstrap';
+import { useSelector } from 'react-redux';
+import { Button, ButtonGroup, Card, Form, Offcanvas } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import DataTable from "react-data-table-component";
 import ConfirmationModal from '../Common/Modals/ConfirmationModal';
@@ -10,7 +11,19 @@ import StorePromodiserJobContractsHistory from './StorePromodiserJobContractsHis
 const ENDPOINT = `${apiBaseUrl}/settings/stores`;
 
 const StorePromodisers = ({ storeId }) => {
-    const token = cookie.load('token');
+    const { user: currentUser } = useSelector((state) => state.authenticate);
+    const { roles, permissions } = currentUser;
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
+    const isSuperAdmin = hasRole('Super Admin');
+
+    // store promodiser permissions
+    const allowedToCreatePromodiser = isSuperAdmin || hasPermission("Create or register new store promodiser");
+    const allowedToUpdatePromodiser = isSuperAdmin || hasPermission("Update existing store promodiser");
+    const allowedToDeletePromodiser = isSuperAdmin || hasPermission("Delete or unregister store promodiser");
+    const allowedToViewPromodiser = isSuperAdmin || hasPermission("View registered store promodiser");
+
+    const token = cookie.load('token');    
 
     const [isLoading, setIsLoading] = useState(false);
     const [totalRows, setTotalRows] = useState(0);
@@ -124,8 +137,10 @@ const StorePromodisers = ({ storeId }) => {
             width: '25%',
             button: true,
             cell: row => <ButtonGroup className='m-2'>
-                <Button variant='secondary' onClick={handleEditPromodiser(row)}><i className='fa fa-edit'/></Button>
-                <Button variant='secondary' onClick={handleConfirmDeletePromodiser(row)}><i className='fa fa-trash'/></Button>
+                {allowedToUpdatePromodiser &&
+                    <Button variant='secondary' onClick={handleEditPromodiser(row)}><i className='fa fa-edit'/></Button>}
+                {allowedToDeletePromodiser &&
+                    <Button variant='secondary' onClick={handleConfirmDeletePromodiser(row)}><i className='fa fa-trash'/></Button>}
             </ButtonGroup>,
         }
     ]
@@ -140,7 +155,7 @@ const StorePromodisers = ({ storeId }) => {
                     progressPending={isLoading}
                     data={data}
                     dense
-                    expandableRows
+                    expandableRows={allowedToViewPromodiser}
                     expandableRowsComponent={ExpandedComponent}
                     pagination
                     paginationServer
@@ -148,13 +163,13 @@ const StorePromodisers = ({ storeId }) => {
                     onChangeRowsPerPage={handlePerRowsChange}
                     onChangePage={handlePageChange}/>
             </Card.Body>
-            <Card.Footer>
+            {allowedToCreatePromodiser && <Card.Footer>
                 <ButtonGroup className='pull-right'>
                     <Button onClick={() => setShowAddEditPromodiser(true)}>
                         <i className='fa fa-user-plus'/> Add Promodiser
                     </Button>
                 </ButtonGroup>
-            </Card.Footer>
+            </Card.Footer>}
         </Card>
         <Offcanvas
             show={showAddEditPromodiser}

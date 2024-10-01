@@ -14,6 +14,13 @@ use Illuminate\Pagination\Paginator;
 
 class StorePromodiserJobContractController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:View registered store promodiser')->only('index');
+        $this->middleware('can:Create or register new store promodiser')->only('store');
+        $this->middleware('can:Update existing store promodiser')->only('update');
+        $this->middleware('can:Delete or unregister store promodiser')->only('destroy');
+    }
     /**
      * Display a listing of the resource.
      *

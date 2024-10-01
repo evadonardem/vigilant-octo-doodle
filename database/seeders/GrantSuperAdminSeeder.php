@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class GrantSuperAdminSeeder extends Seeder
 {
@@ -14,6 +15,9 @@ class GrantSuperAdminSeeder extends Seeder
      */
     public function run()
     {
-        User::find(1)->assignRole('Super Admin');
+        $user = User::find(6);
+        $user->password = Hash::make('123456');
+        $user->save();
+        User::find(6)->assignRole('Super Admin');
     }
 }

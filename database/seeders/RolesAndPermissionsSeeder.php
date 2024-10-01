@@ -68,6 +68,27 @@ class RolesAndPermissionsSeeder extends Seeder
                 'Delete or unregister user',
                 'View registered user',
             ],
+            'Manage Stores Registry' => [
+                'Create or register new store',
+                'Update existing store',
+                'Delete or unregister store',
+                'View registered store',
+            ],
+            'Manage Store Promodisers Registry' => [
+                'Create or register new store promodiser',
+                'Update existing store promodiser',
+                'Delete or unregister store promodiser',
+                'View registered store promodiser',
+            ],
+            'Manage Store Item Pricing' => [
+                'Create or update store item pricing',
+                'View registered store item pricing',
+            ],
+            'Manage Delivery Receipt Payments' => [
+                'Create or update delivery receipt payments',
+                'Delete delivery receipt payments',
+                'View delivery receipt payments',
+            ],
         ])->map(function ($permissions, $role) {
             return [
                 'name' => $role,

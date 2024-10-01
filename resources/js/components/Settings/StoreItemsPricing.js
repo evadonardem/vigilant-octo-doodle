@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Button, ButtonGroup, Card } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import DataTable from "react-data-table-component";
@@ -9,6 +10,15 @@ import StoreItemPricingHistory from './StoreItemPricingHistory';
 const ENDPOINT = `${apiBaseUrl}/settings/stores`;
 
 const StoreItemsPricing = ({ storeId }) => {
+    const { user: currentUser } = useSelector((state) => state.authenticate);
+    const { roles, permissions } = currentUser;
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
+    const isSuperAdmin = hasRole('Super Admin');
+
+    // store item pricing permissions
+    const allowedToCreateOrUpdateStoreItemPricing = isSuperAdmin || hasPermission("Create or update store item pricing");
+
     const token = cookie.load('token');
 
     const [isLoading, setIsLoading] = useState(false);
@@ -87,7 +97,7 @@ const StoreItemsPricing = ({ storeId }) => {
                     onChangeRowsPerPage={handlePerRowsChange}
                     onChangePage={handlePageChange} />
             </Card.Body>
-            <Card.Footer>
+            {allowedToCreateOrUpdateStoreItemPricing && <Card.Footer>
                 <ButtonGroup className='pull-right'>
                     <Link to={`/settings/stores/${storeId}/items-pricing`}>
                         <Button>
@@ -95,7 +105,7 @@ const StoreItemsPricing = ({ storeId }) => {
                         </Button>
                     </Link>
                 </ButtonGroup>
-            </Card.Footer>
+            </Card.Footer>}
         </Card>
     </>;
 };

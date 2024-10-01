@@ -78,6 +78,9 @@ export default function App() {
     const canGenerateStoreTrend = isSuperAdmin || hasPermission("Generate store trend");
     const canGenerateItemTrend = isSuperAdmin || hasPermission("Generate item trend");
 
+    // store item pricing permissions
+    const allowedToCreateOrUpdateStoreItemPricing = isSuperAdmin || hasPermission("Create or update store item pricing");
+
     return (
         <>
             <HashRouter>
@@ -208,7 +211,8 @@ export default function App() {
                                     <Route path="/settings/items-registry" element={<ItemsRegistry />}></Route>
                                     <Route path="/settings/stores" element={<Stores />}></Route>
                                     <Route path="/settings/stores/:storeId/details" element={<StoreDetails />}></Route>
-                                    <Route path="/settings/stores/:storeId/items-pricing" element={<StoreItemsPricingLedger />}></Route>
+                                    {allowedToCreateOrUpdateStoreItemPricing &&
+                                        <Route path="/settings/stores/:storeId/items-pricing" element={<StoreItemsPricingLedger />}></Route>}
                                 </>}
 
                             <Route path="/change-password" element={<ChangePassword />}></Route>

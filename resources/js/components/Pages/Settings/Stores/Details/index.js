@@ -16,6 +16,22 @@ import StoreItemsPricing from '../../../../Settings/StoreItemsPricing';
 const END_POINT = `${apiBaseUrl}/settings/stores`;
 
 const StoreDetails = () => {
+    const { user: currentUser } = useSelector((state) => state.authenticate);
+    const { roles, permissions } = currentUser;
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
+    const isSuperAdmin = hasRole('Super Admin');
+    
+    // store permissions
+    const allowedToUpdateStore = isSuperAdmin || hasPermission("Update existing store");
+    
+    // store promodiser permissions
+    const allowedToViewStorePromodiser = isSuperAdmin || hasPermission("View registered store promodiser");
+
+    // store items pricing permissions
+    const allowedToViewStoreItemPricing = isSuperAdmin || hasPermission("View registered store item pricing");
+
+
     const dispatch = useDispatch();
     const token = cookie.load('token');
     const store = useSelector((state) => state.store);
@@ -132,7 +148,7 @@ const StoreDetails = () => {
     }, []);
 
     return <>
-        {!store.isLoading && <Directory items={BREADCRUMB_ITEMS}/>}
+        {!store.isLoading && <Directory items={BREADCRUMB_ITEMS} />}
         {!store.isLoading && <Form
             key={cancelledUpdateStoreDetails ? uuidv4() : store.id}
             onSubmit={handleSubmitUpdateDetails}>
@@ -196,7 +212,7 @@ const StoreDetails = () => {
                         <div className="invalid-feedback"></div>
                     </Form.Group>
                 </Card.Body>
-                <Card.Footer>
+                {allowedToUpdateStore && <Card.Footer>
                     {updateStoreDetails
                         ? <ButtonGroup className="pull-right">
                             <Button
@@ -211,16 +227,16 @@ const StoreDetails = () => {
                             type="button"
                             className="pull-right"
                             onClick={handleToggleUpdateDetails}>Update Details</Button>}
-                </Card.Footer>
+                </Card.Footer>}
             </Card>
         </Form>}
 
-        {!store.isLoading && <Row className='mb-4'>
-            <Col md={6}>
-                <StorePromodisers storeId={store.id}/>
+        {!store.isLoading && (allowedToViewStorePromodiser || allowedToViewStoreItemPricing) && <Row className='mb-4'>
+            <Col md={!allowedToViewStoreItemPricing ? 12 : 6}>
+                {allowedToViewStorePromodiser && <StorePromodisers storeId={store.id} />}
             </Col>
-            <Col md={6}>
-                <StoreItemsPricing storeId={store.id}/>
+            <Col md={!allowedToViewStorePromodiser ? 12 : 6}>
+                {allowedToViewStoreItemPricing && <StoreItemsPricing storeId={store.id} />}
             </Col>
         </Row>}
     </>;

@@ -26,6 +26,13 @@ const BREADCRUMB_ITEMS = [
 ];
 
 const Stores = () => {
+    const { user: currentUser } = useSelector((state) => state.authenticate);
+    const { roles, permissions } = currentUser;
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
+    const isSuperAdmin = hasRole('Super Admin');
+    const allowedToCreateStore = isSuperAdmin || hasPermission("Create or register new store");
+
     const dispatch = useDispatch();
     const {
         categories,
@@ -108,13 +115,13 @@ const Stores = () => {
                     </Accordion.Item>)}
                 </Accordion>
             </Card.Body>
-            <Card.Footer>
+            {allowedToCreateStore && <Card.Footer>
                 <ButtonGroup className='pull-right'>
                     <Button onClick={() => setShowAddStore(true)}>Add New Store</Button>
                 </ButtonGroup>
-            </Card.Footer>
+            </Card.Footer>}
         </Card>
-        <Offcanvas
+        {allowedToCreateStore && <Offcanvas
             show={showAddStore}
             onHide={() => setShowAddStore(false)}
             placement='end'>
@@ -155,7 +162,7 @@ const Stores = () => {
                     </Card>
                 </Form>
             </Offcanvas.Body>
-        </Offcanvas>
+        </Offcanvas>}
     </>;
 };
 
