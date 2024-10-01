@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useRef, useState } from 'react';
-import { Badge, Button, ButtonGroup, Card, Col, Form, Row } from 'react-bootstrap';
+import { useSelector } from 'react-redux';
+import { Button, ButtonGroup, Card, Col, Form, Row } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import DataTable from "react-data-table-component";
 import CommonDropdownSelectSingleStore from '../../CommonDropdownSelectSingleStore';
@@ -11,6 +12,16 @@ const ENDPOINT = `${apiBaseUrl}/payments/stores`;
 const ENDPOINT_STORE_DELIVERY_RECEIPT_PAYMENTS = `${apiBaseUrl}/stores/{storeId}/delivery-receipt-payments`;
 
 const StoresDeliveryReceiptsPayments = () => {
+    const { user: currentUser } = useSelector((state) => state.authenticate);
+    const { roles, permissions } = currentUser;
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
+    const isSuperAdmin = hasRole('Super Admin');
+
+    // delivery receipt payments permissions
+    const allowedToCreateOrUpdateDeliveryReceiptPayments = isSuperAdmin || hasPermission("Create or update delivery receipt payments");
+    const allowedToDeleteDeliveryReceiptPayments = isSuperAdmin || hasPermission("Delete delivery receipt payments");
+
     const token = cookie.load('token');
 
     const [isLoading, setIsLoading] = useState(false);
@@ -139,12 +150,12 @@ const StoresDeliveryReceiptsPayments = () => {
         },
         {
             cell: row => <ButtonGroup>
-                <Button onClick={() => {
+                {allowedToDeleteDeliveryReceiptPayments && <Button onClick={() => {
                     setShowConfirmDeletePayment(true);
                     setPaymentToDelete(row);
                 }}>
                     <i className='fa fa-trash' />
-                </Button>
+                </Button>}
             </ButtonGroup>,
         }
     ];
@@ -171,12 +182,12 @@ const StoresDeliveryReceiptsPayments = () => {
             </Card.Header>
             <Card.Body>
                 <Row>
-                    <Col md={8}>
+                    <Col md={!allowedToCreateOrUpdateDeliveryReceiptPayments ? 12 : 8}>
                         <DataTable
                             columns={columnsStoreDeliveryReceiptPayments}
                             data={deliveryReceipt.payments} />
                     </Col>
-                    <Col md={4}>
+                    {allowedToCreateOrUpdateDeliveryReceiptPayments && <Col md={4}>
                         <Form
                             id={`add-payment-${deliveryReceipt.store_id}-${deliveryReceipt.delivery_receipt_no}-form`}
                             onSubmit={(e) => handleAddPayment(e, deliveryReceipt)}>
@@ -207,7 +218,7 @@ const StoresDeliveryReceiptsPayments = () => {
                                 </Card.Footer>
                             </Card>
                         </Form>
-                    </Col>
+                    </Col>}
                 </Row>
             </Card.Body>
         </Card>

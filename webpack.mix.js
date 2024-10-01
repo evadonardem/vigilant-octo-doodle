@@ -40,4 +40,5 @@ mix.webpackConfig({
       'node_modules/datatables.net-searchpanes-bs5/css/searchPanes.bootstrap5.min.css',
       'node_modules/datatables.net-select-bs5/css/select.bootstrap5.min.css',
       'node_modules/datatables.net-staterestore-bs5/css/stateRestore.bootstrap5.min.css',
-   ], 'public/css/all.css');
+   ], 'public/css/all.css')
+   .version();

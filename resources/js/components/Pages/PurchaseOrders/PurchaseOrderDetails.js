@@ -424,8 +424,10 @@ const PurchaseOrderDetails = () => {
                             },
                         ],
                         drawCallback: () => {
-                            if (!allowedToDeletePurchaseOrder) {
+                            if (!allowedToUpdatePurchaseOrder) {
                                 $(document).find('.data-table-wrapper .update-po-store-item').prop('readonly', true);
+                            }
+                            if (!allowedToDeletePurchaseOrder) {
                                 $(document).find('.data-table-wrapper .delete-po-store-item').remove();
                             }
                         },

@@ -14,9 +14,15 @@ use Illuminate\Support\Facades\DB;
 
 class StoreController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:Create or register new store')->only('store');
+        $this->middleware('can:Update existing store')->only('update');
+        $this->middleware('can:Delete or unregister store')->only('destroy');
+    }
+
     /**
      * Display a listing of the resource.
-     *
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)

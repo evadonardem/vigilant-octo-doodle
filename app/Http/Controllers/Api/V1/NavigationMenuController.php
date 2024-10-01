@@ -3,14 +3,23 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Services\NavigationMenuService;
+use Illuminate\Foundation\Auth\User;
 
 class NavigationMenuController extends Controller
 {
+    protected User $user;
+    protected bool $isSuperAdmin;
+
+    public function __construct(
+        protected NavigationMenuService $navigationMenuService
+    ) {
+        $this->user = auth()->user();
+        $this->isSuperAdmin = $this->user->hasRole('Super Admin');
+    }
 
     public function index()
     {
-        $user = auth()->user();
-
         $links = collect([
             [
                 'label' => 'Dashboard',
@@ -40,17 +49,15 @@ class NavigationMenuController extends Controller
                         'label' => 'Delivery Logs',
                         'icon' => 'fa fa-truck',
                         'to' => '/deliveries',
-                        'is_visible' => $user && ($user->hasRole('Super Admin') ||
-                            $user->can('View manual delivery logs')
-                        ),
+                        'is_visible' => $this->isSuperAdmin ||
+                            $this->user->can('View manual delivery logs'),
                     ],
                     [
                         'label' => 'Manual Logs',
                         'icon' => 'fa fa-calendar-plus-o',
                         'to' => '/manual-logs',
-                        'is_visible' => $user && ($user->hasRole('Super Admin') ||
-                            $user->can('Create manual delivery logs')
-                        ),
+                        'is_visible' => $this->isSuperAdmin ||
+                            $this->user->can('Create manual delivery logs'),
                     ],
                 ]
             ],
@@ -58,23 +65,20 @@ class NavigationMenuController extends Controller
                 'label' => 'Compensation and Benefits',
                 'icon' => 'fa fa-gift',
                 'to' => '/compensation-and-benefits',
-                'is_visible' => $user && ($user->hasRole('Super Admin') ||
-                    $user->can('View pay period')
-                ),
+                'is_visible' => $this->isSuperAdmin || $this->user->can('View pay period'),
                 'links' => [
                     [
                         'label' => 'Pay Periods',
                         'icon' => 'fa fa-id-card',
                         'to' => '/compensation-and-benefits/pay-periods',
-                        'is_visible' => $user && ($user->hasRole('Super Admin') ||
-                            $user->can('View pay period')
-                        ),
+                        'is_visible' => $this->isSuperAdmin ||
+                            $this->user->can('View pay period'),
                     ],
                     [
                         'label' => '13th Month Pay',
                         'icon' => 'fa fa-id-card',
                         'to' => '/compensation-and-benefits/thirteenth-month-pay-periods',
-                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                        'is_visible' => $this->isSuperAdmin,
                     ],
                 ],
             ],
@@ -82,31 +86,25 @@ class NavigationMenuController extends Controller
                 'label' => 'Purchase Orders',
                 'icon' => 'fa fa-folder',
                 'to' => '/purchase-orders',
-                'is_visible' => $user && ($user->hasRole('Super Admin') ||
-                    $user->can('View purchase order')
-                ),
+                'is_visible' => $this->isSuperAdmin || $this->user->can('View purchase order'),
             ],
             [
                 'label' => 'Sales Invoices',
                 'icon' => 'fa fa-folder',
                 'to' => '/sales-invoices',
-                'is_visible' => $user && ($user->hasRole('Super Admin') ||
-                    $user->can('View sales invoice')
-                ),
+                'is_visible' => $this->isSuperAdmin ||$this->user->can('View sales invoice'),
             ],
             [
                 'label' => 'Payments',
                 'icon' => 'fa fa-money',
                 'to' => '/payments',
-                'is_visible' => $user && ($user->hasRole('Super Admin')
-                ),
+                'is_visible' => $this->navigationMenuService->isVisible('payments'),
                 'links' => [
                     [
                         'label' => 'Delivery Receipts Payments',
                         'icon' => 'fa fa-truck',
                         'to' => '/payments/delivery-receipts',
-                        'is_visible' => $user && ($user->hasRole('Super Admin')
-                        ),
+                        'is_visible' => $this->navigationMenuService->isVisible('payments/delivery-receipts'),
                     ],
                 ],
             ],
@@ -114,57 +112,56 @@ class NavigationMenuController extends Controller
                 'label' => 'Stock Cards',
                 'icon' => 'fa fa-clipboard',
                 'to' => '/stock-cards',
-                'is_visible' => $user && ($user->hasRole('Super Admin') ||
-                    $user->can('View stock card')
-                ),
+                'is_visible' => $this->isSuperAdmin ||
+                    $this->user->can('View stock card'),
             ],
             [
                 'label' => 'Reports',
                 'icon' => 'fa fa-book',
                 'to' => '/reports',
-                'is_visible' => $user && $user->hasRole('Super Admin'),
+                'is_visible' => $this->isSuperAdmin,
                 'links' => [
                     [
                         'label' => 'Delivery Sales',
                         'icon' => 'fa fa-file',
                         'to' => '/reports-delivery-sales-monitoring',
-                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                        'is_visible' => $this->isSuperAdmin,
                     ],
                     [
                         'label' => 'Delivery Receipt',
                         'icon' => 'fa fa-file',
                         'to' => '/reports-delivery-receipt-monitoring',
-                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                        'is_visible' => $this->isSuperAdmin,
                     ],
                     [
                         'label' => 'Sales Invoice',
                         'icon' => 'fa fa-file',
                         'to' => '/reports-sales-invoice-monitoring',
-                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                        'is_visible' => $this->isSuperAdmin,
                     ],
                     [
                         'label' => 'Stock Cards',
                         'icon' => 'fa fa-file',
                         'to' => '/reports-stock-cards-monitoring',
-                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                        'is_visible' => $this->isSuperAdmin,
                     ],
                     [
                         'label' => 'Promodisers',
                         'icon' => 'fa fa-id-card',
                         'to' => '/reports-promodisers-summary',
-                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                        'is_visible' => $this->isSuperAdmin,
                     ],
                     [
                         'label' => 'Item Sales',
                         'icon' => 'fa fa-file',
                         'to' => '/reports-item-sales',
-                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                        'is_visible' => $this->isSuperAdmin,
                     ],
                     [
                         'label' => 'Delivery Trips',
                         'icon' => 'fa fa-truck',
                         'to' => '/reports-delivery-trips-summary',
-                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                        'is_visible' => $this->isSuperAdmin,
                     ],
                 ],
             ],
@@ -172,26 +169,23 @@ class NavigationMenuController extends Controller
                 'label' => 'Trends',
                 'icon' => 'fa fa-signal',
                 'to' => '/trends',
-                'is_visible' => $user && ($user->hasRole('Super Admin') ||
-                    $user->can('Generate store trend') ||
-                    $user->can('Generate item trend')
-                ),
+                'is_visible' => $this->isSuperAdmin ||
+                    $this->user->can('Generate store trend') ||
+                    $this->user->can('Generate item trend'),
                 'links' => [
                     [
                         'label' => 'Store Trends',
                         'icon' => 'fa fa-line-chart',
                         'to' => '/trends-store',
-                        'is_visible' => $user && ($user->hasRole('Super Admin') ||
-                            $user->can('Generate store trend')
-                        ),
+                        'is_visible' => $this->isSuperAdmin ||
+                            $this->user->can('Generate store trend'),
                     ],
                     [
                         'label' => 'Item Trends',
                         'icon' => 'fa fa-bar-chart',
                         'to' => '/trends-item',
-                        'is_visible' => $user && ($user->hasRole('Super Admin') ||
-                            $user->can('Generate item trend')
-                        ),
+                        'is_visible' => $this->isSuperAdmin ||
+                            $this->user->can('Generate item trend'),
                     ],
                 ],
             ],
@@ -199,35 +193,32 @@ class NavigationMenuController extends Controller
                 'label' => 'Settings',
                 'icon' => 'fa fa-cogs',
                 'to' => '/settings',
-                'is_visible' => $user && ($user->hasRole('Super Admin') ||
-                    $user->can('View registered user')
-                ),
+                'is_visible' => $this->navigationMenuService->isVisible('settings'),
                 'links' => [
                     [
                         'label' => 'Users Registry',
                         'icon' => 'fa fa-users',
                         'to' => '/settings/users',
-                        'is_visible' => $user && ($user->hasRole('Super Admin') ||
-                            $user->can('View registered user')
-                        ),
+                        'is_visible' => $this->isSuperAdmin ||
+                            $this->user->can('View registered user'),
                     ],
                     [
                         'label' => 'Overtime Rates',
                         'icon' => 'fa fa-calendar',
                         'to' => '/settings/overtime-rates',
-                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                        'is_visible' => $this->isSuperAdmin,
                     ],
                     [
                         'label' => 'Items Registry',
                         'icon' => 'fa fa-list',
                         'to' => '/settings/items-registry',
-                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                        'is_visible' => $this->isSuperAdmin,
                     ],
                     [
                         'label' => 'Stores Registry',
                         'icon' => 'fa fa-shopping-basket',
-                        'to' => '/settings/stores-registry',
-                        'is_visible' => $user && $user->hasRole('Super Admin'),
+                        'to' => '/settings/stores',
+                        'is_visible' => $this->navigationMenuService->isVisible('settings/stores'),
                     ],
                 ]
             ],

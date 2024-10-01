@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Badge, Button, ButtonGroup, Card, Form, Offcanvas } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import DataTable from "react-data-table-component";
@@ -12,6 +13,17 @@ const ENDPOINT_JOB_CONTRACTS =
     `${apiBaseUrl}/settings/stores/{storeId}/promodisers/{promodiserId}/job-contracts`;
 
 const StorePromodiserJobContractsHistory = ({ promodiser }) => {
+    const { user: currentUser } = useSelector((state) => state.authenticate);
+    const { roles, permissions } = currentUser;
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
+    const isSuperAdmin = hasRole('Super Admin');
+
+    // store promodiser permissions
+    const allowedToCreatePromodiser = isSuperAdmin || hasPermission("Create or register new store promodiser");
+    const allowedToUpdatePromodiser = isSuperAdmin || hasPermission("Update existing store promodiser");
+    const allowedToDeletePromodiser = isSuperAdmin || hasPermission("Delete or unregister store promodiser");
+
     const token = cookie.load('token');
 
     const [isLoading, setIsLoading] = useState(false);
@@ -182,8 +194,10 @@ const StorePromodiserJobContractsHistory = ({ promodiser }) => {
             width: '25%',
             button: true,
             cell: row => <ButtonGroup className='m-2'>
-                <Button variant='secondary' onClick={handleEditContract(row)}><i className='fa fa-edit' /></Button>
-                <Button variant='secondary' onClick={handleShowDeleteContract(row)}><i className='fa fa-trash' /></Button>
+                {allowedToUpdatePromodiser &&
+                    <Button variant='secondary' onClick={handleEditContract(row)}><i className='fa fa-edit' /></Button>}
+                {allowedToDeletePromodiser &&
+                    <Button variant='secondary' onClick={handleShowDeleteContract(row)}><i className='fa fa-trash' /></Button>}
             </ButtonGroup>,
         }
     ]
@@ -203,11 +217,11 @@ const StorePromodiserJobContractsHistory = ({ promodiser }) => {
                     pagination
                     paginationServer />
             </Card.Body>
-            <Card.Footer>
+            {allowedToCreatePromodiser && <Card.Footer>
                 <ButtonGroup className='pull-right'>
                     <Button onClick={() => setShowAddEditContract(true)}><i className='fa fa-file' /> Add Contract</Button>
                 </ButtonGroup>
-            </Card.Footer>
+            </Card.Footer>}
         </Card>
         <Offcanvas
             show={showAddEditContract}

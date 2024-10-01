@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Badge, Button, ButtonGroup } from 'react-bootstrap';
 import cookie from 'react-cookies';
 import DataTable from "react-data-table-component";
@@ -9,6 +10,13 @@ import ErrorToast from '../Common/Toasts/ErrorToast';
 const ENDPOINT = `${apiBaseUrl}/settings/stores`;
 
 const StoresList = ({ categoryId }) => {
+    const { user: currentUser } = useSelector((state) => state.authenticate);
+    const { roles, permissions } = currentUser;
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
+    const isSuperAdmin = hasRole('Super Admin');
+    const allowedToDeleteStore = isSuperAdmin || hasPermission("Delete or unregister store");
+
     const token = cookie.load('token');
     const [isLoading, setIsLoading] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -78,8 +86,16 @@ const StoresList = ({ categoryId }) => {
         {
             cell: row => (
                 <ButtonGroup className='my-2'>
-                    <Button variant='secondary' onClick={handleClickStoreDetails(row.id)}><i className='fa fa-folder-open' /></Button>
-                    <Button variant='secondary' onClick={handleConfirmDeleteStore(row)}><i className='fa fa-trash' /></Button>
+                    <Button
+                        variant='secondary'
+                        onClick={handleClickStoreDetails(row.id)}>
+                            <i className='fa fa-folder-open' />
+                    </Button>
+                    {allowedToDeleteStore && <Button
+                        variant='secondary'
+                        onClick={handleConfirmDeleteStore(row)}>
+                            <i className='fa fa-trash' />
+                    </Button>}
                 </ButtonGroup>
             ),
             width: '15%',

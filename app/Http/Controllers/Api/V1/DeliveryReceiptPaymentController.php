@@ -16,6 +16,9 @@ class DeliveryReceiptPaymentController extends Controller
         protected DeliveryReceiptPaymentService $deliveryReceiptPaymentService,
         protected StoreRepository $storeRepository
     ) {
+        $this->middleware('can:View delivery receipt payments')->only('index');
+        $this->middleware('can:Create or update delivery receipt payments')->only('store');
+        $this->middleware('can:Delete delivery receipt payments')->only('destroy');
     }
 
     public function index()

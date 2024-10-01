@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\DeliveryReceiptPaymentController;
 use App\Http\Controllers\Api\V1\DropdownPurchaseOrderController;
 use App\Http\Controllers\Api\V1\GrantUserPermissionController;
 use App\Http\Controllers\Api\V1\NavigationMenuController;
+use App\Http\Controllers\Api\V1\StoreController;
 use App\Http\Controllers\Api\V1\UserPermissionController;
 use App\Http\Controllers\Api\V1\UserRoleController;
 
@@ -132,7 +133,7 @@ $api->version('v1', function ($api) {
         $api->resource('overtime-rates', 'App\Http\Controllers\Api\V1\OvertimeRateController');
         $api->get('overtime-rate-types', 'App\Http\Controllers\Api\V1\OvertimeRateTypeController@index');
         $api->resource('items', 'App\Http\Controllers\Api\V1\ItemController');
-        $api->resource('stores', 'App\Http\Controllers\Api\V1\StoreController');
+        $api->resource('stores', StoreController::class);
         $api->get('store-categories', 'App\Http\Controllers\Api\V1\StoreController@indexStoreCategories');
         $api->get('store-locations', 'App\Http\Controllers\Api\V1\StoreController@indexStoreLocations');
         $api->resource('stores/{store}/promodisers', 'App\Http\Controllers\Api\V1\StorePromodiserController');

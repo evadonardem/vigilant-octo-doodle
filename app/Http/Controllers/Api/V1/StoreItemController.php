@@ -11,6 +11,12 @@ use Illuminate\Pagination\Paginator;
 
 class StoreItemController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:View registered store item pricing')->only(['index', 'show']);
+        $this->middleware('can:Create or update store item pricing')->only(['itemPricing','store']);
+    }
+
     /**
      * Display a listing of the resource.
      *
