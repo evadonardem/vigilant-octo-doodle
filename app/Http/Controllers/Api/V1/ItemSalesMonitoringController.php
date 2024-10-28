@@ -10,16 +10,14 @@ use App\Models\SalesInvoice;
 use App\Models\Store;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
-use stdClass;
 
 class ItemSalesMonitoringController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+	public function __construct()
+	{
+		$this->middleware('can:Generate item sales monitoring report')->only('index');
+	}
+
     public function index(Request $request)
     {
 		$from = Carbon::createFromFormat('Y-m', $request->input('from'))->firstOfMonth();

@@ -2,6 +2,7 @@ import { Card, Col, Row } from 'react-bootstrap';
 import Option from '../Generic/Option';
 import React from 'react';
 import Directory from '../Generic/Directory';
+import { useSelector } from 'react-redux';
 
 const BREADCRUMB_ITEMS = [
     {
@@ -16,32 +17,47 @@ const BREADCRUMB_ITEMS = [
 ];
 
 export default function Settings() {
-    const options = [
-        {
-            icon: "users",
-            title: "Users Registry",
-            description: 'List of registered users.',
-            to: "/settings/users",
-        },
-        {
-            icon: "calendar",
-            title: "Overtime Rates",
-            description: 'Overtime rates matrix.',
-            to: "/settings/overtime-rates",
-        },
-        {
-            icon: "list",
-            title: "Items Registry",
-            description: 'List of registered items.',
-            to: "/settings/items-registry",
-        },
-        {
-            icon: "shopping-basket",
-            title: "Stores Registry",
-            description: 'List of registered stores.',
-            to: "/settings/stores",
-        },
-    ];
+    const { user: currentUser } = useSelector((state) => state.authenticate);
+    const { roles, permissions } = currentUser;
+    const hasRole = (name) => !!_.find(roles, (role) => role.name === name);
+    const hasPermission = (name) => !!_.find(permissions, (permission) => permission.name === name);
+    const isSuperAdmin = hasRole('Super Admin');
+
+    // settings permissions
+    const allowedToViewUsersRegistry = isSuperAdmin || hasPermission("View registered user");
+    const allowedToViewOvertimeRates = isSuperAdmin;
+    const allowedToViewItemsRegistry = isSuperAdmin;
+    const allowedToViewStoresRegistry = isSuperAdmin || hasPermission("View registered store");
+
+    const options = [];
+
+    allowedToViewUsersRegistry && options.push({
+        icon: "list",
+        title: "Users",
+        description: 'List of registered users.',
+        to: "/settings/users",
+    });
+
+    allowedToViewOvertimeRates && options.push({
+        icon: "clock-o",
+        title: "Overtime Rates",
+        description: 'Overtime rates matrix.',
+        to: "/settings/overtime-rates",
+    });
+
+    allowedToViewItemsRegistry && options.push({
+        icon: "list",
+        title: "Items Registry",
+        description: 'List of registered items.',
+        to: "/settings/items-registry",
+    });
+
+    allowedToViewStoresRegistry && options.push({
+        icon: "shopping-basket",
+        title: "Stores",
+        description: 'List of registered stores.',
+        to: "/settings/stores",
+    });
 
     return (
         <>

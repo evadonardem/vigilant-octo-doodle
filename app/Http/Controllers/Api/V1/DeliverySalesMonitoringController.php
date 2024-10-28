@@ -13,11 +13,11 @@ use stdClass;
 
 class DeliverySalesMonitoringController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function __construct()
+    {
+        $this->middleware('can:Generate delivery sales monitoring report')->only('index');
+    }
+
     public function index(Request $request)
     {
 		$isGenerateCsvReport = $request->has('generate') && $request->input('generate') === 'csv';

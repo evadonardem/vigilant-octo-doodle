@@ -13,7 +13,9 @@ class PromodisersSummaryController extends Controller
 {
     public function __construct(
         private PromodiserService $service
-    ) {}
+    ) {
+        $this->middleware('can:Generate promodisers summary report')->only('index');
+    }
 
     /**
      * Display a listing of the resource.
