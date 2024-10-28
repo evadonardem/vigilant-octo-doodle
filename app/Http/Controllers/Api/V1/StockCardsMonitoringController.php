@@ -11,11 +11,11 @@ use stdClass;
 
 class StockCardsMonitoringController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function __construct()
+    {
+        $this->middleware('can:Generate stock cards monitoring report')->only(['index', 'availableItems']);
+    }
+
     public function index(GetReportStockCardsMonitoringRequest $request)
     {
         $from = $request->input('from');

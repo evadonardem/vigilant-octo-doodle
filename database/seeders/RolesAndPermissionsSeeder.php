@@ -89,6 +89,15 @@ class RolesAndPermissionsSeeder extends Seeder
                 'Delete delivery receipt payments',
                 'View delivery receipt payments',
             ],
+            'Manage Reports' => [
+                'Generate delivery sales monitoring report',
+                'Generate delivery receipt monitoring report',
+                'Generate sales invoice monitoring report',
+                'Generate stock cards monitoring report',
+                'Generate promodisers summary report',
+                'Generate item sales monitoring report',
+                'Generate delivery trips summary report',
+            ],
         ])->map(function ($permissions, $role) {
             return [
                 'name' => $role,

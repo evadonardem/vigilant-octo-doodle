@@ -13,11 +13,11 @@ use stdClass;
 
 class SalesInvoiceMonitoringController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+	public function __construct()
+	{
+		$this->middleware('can:Generate sales invoice monitoring report')->only('index');		
+	}
+
     public function index(Request $request)
     {
 		$filterBy = $request->has('by') ? $request->input('by') : 'store';

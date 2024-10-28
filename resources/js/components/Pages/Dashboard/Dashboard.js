@@ -15,9 +15,18 @@ const Dashboard = () => {
     const canAccessPurchaseOrders = isSuperAdmin || hasPermission("View purchase order");
     const canAccessSalesInvoices = isSuperAdmin || hasPermission("View sales invoice");
     const canAccessStockCards = isSuperAdmin || hasPermission("View stock card");
-    const canAccessReports = isSuperAdmin;
+    const canAccessReports = isSuperAdmin
+        || hasPermission("Generate delivery sales monitoring report")
+        || hasPermission("Generate delivery receipt monitoring report")
+        || hasPermission("Generate sales invoice monitoring report")
+        || hasPermission("Generate stock cards monitoring report")
+        || hasPermission("Generate promodisers summary report")
+        || hasPermission("Generate item sales monitoring report")
+        || hasPermission("Generate delivery trips summary report");
     const canAccessTrends = isSuperAdmin || hasPermission("Generate store trend") || hasPermission("Generate item trend");
-    const canAccessSettings = isSuperAdmin || hasPermission("View registered user");
+    const canAccessSettings = isSuperAdmin
+        || hasPermission("View registered user")
+        || hasPermission("View registered store");
 
     const options = [
         {

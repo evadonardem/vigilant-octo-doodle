@@ -78,6 +78,15 @@ export default function App() {
     const canGenerateStoreTrend = isSuperAdmin || hasPermission("Generate store trend");
     const canGenerateItemTrend = isSuperAdmin || hasPermission("Generate item trend");
 
+    // reports permissions
+    const allowedToGenerateDeliverySalesMonitoringReport = isSuperAdmin || hasPermission("Generate delivery sales monitoring report");
+    const allowedToGenerateDeliveryReceiptMonitoringReport = isSuperAdmin || hasPermission("Generate delivery receipt monitoring report");
+    const allowedToGenerateSalesInvoiceMonitoringReport = isSuperAdmin || hasPermission("Generate sales invoice monitoring report");
+    const allowedToGenerateStockCardsMonitoringReport = isSuperAdmin || hasPermission("Generate stock cards monitoring report");
+    const allowedToGeneratePromodisersSummaryReport = isSuperAdmin || hasPermission("Generate promodisers summary report");
+    const allowedToGenerateItemSalesMonitoringReport = isSuperAdmin || hasPermission("Generate item sales monitoring report");
+    const allowedToGenerateDeliveryTripsSummaryReport = isSuperAdmin || hasPermission("Generate delivery trips summary report");
+
     // store item pricing permissions
     const allowedToCreateOrUpdateStoreItemPricing = isSuperAdmin || hasPermission("Create or update store item pricing");
 
@@ -187,13 +196,20 @@ export default function App() {
 
                             {links && links.map((link) => link.to).includes('/reports') &&
                                 <>
-                                    <Route path={'/reports-delivery-sales-monitoring'} element={<ReportsDeliverySalesMonitoring />}></Route>
-                                    <Route path={'/reports-delivery-receipt-monitoring'} element={<ReportsDeliveryReceiptMonitoring />}></Route>
-                                    <Route path={'/reports-sales-invoice-monitoring'} element={<ReportsSalesInvoiceMonitoring />}></Route>
-                                    <Route path={'/reports-stock-cards-monitoring'} element={<ReportsStockCardsMonitoring />}></Route>
-                                    <Route path={'/reports-promodisers-summary'} element={<ReportsPromodisersSummary />}></Route>
-                                    <Route path={'/reports-item-sales'} element={<ReportsItemSalesMonitoring />}></Route>
-                                    <Route path={'/reports-delivery-trips-summary'} element={<ReportsDeliveryTripsSummary />}></Route>
+                                    {allowedToGenerateDeliverySalesMonitoringReport &&
+                                        <Route path={'/reports-delivery-sales-monitoring'} element={<ReportsDeliverySalesMonitoring />}></Route>}
+                                    {allowedToGenerateDeliveryReceiptMonitoringReport &&
+                                        <Route path={'/reports-delivery-receipt-monitoring'} element={<ReportsDeliveryReceiptMonitoring />}></Route>}
+                                    {allowedToGenerateSalesInvoiceMonitoringReport &&
+                                        <Route path={'/reports-sales-invoice-monitoring'} element={<ReportsSalesInvoiceMonitoring />}></Route>}
+                                    {allowedToGenerateStockCardsMonitoringReport &&
+                                        <Route path={'/reports-stock-cards-monitoring'} element={<ReportsStockCardsMonitoring />}></Route>}
+                                    {allowedToGeneratePromodisersSummaryReport &&
+                                        <Route path={'/reports-promodisers-summary'} element={<ReportsPromodisersSummary />}></Route>}
+                                    {allowedToGenerateItemSalesMonitoringReport &&
+                                        <Route path={'/reports-item-sales'} element={<ReportsItemSalesMonitoring />}></Route>}
+                                    {allowedToGenerateDeliveryTripsSummaryReport &&
+                                        <Route path={'/reports-delivery-trips-summary'} element={<ReportsDeliveryTripsSummary />}></Route>}
                                 </>}
 
                             {links && links.map((link) => link.to).includes('/trends') &&

@@ -2,10 +2,17 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BiometricUsersController;
+use App\Http\Controllers\Api\V1\DeliveryReceiptMonitoringController;
 use App\Http\Controllers\Api\V1\DeliveryReceiptPaymentController;
+use App\Http\Controllers\Api\V1\DeliverySalesMonitoringController;
+use App\Http\Controllers\Api\V1\DeliveryTripsController;
 use App\Http\Controllers\Api\V1\DropdownPurchaseOrderController;
 use App\Http\Controllers\Api\V1\GrantUserPermissionController;
+use App\Http\Controllers\Api\V1\ItemSalesMonitoringController;
 use App\Http\Controllers\Api\V1\NavigationMenuController;
+use App\Http\Controllers\Api\V1\PromodisersSummaryController;
+use App\Http\Controllers\Api\V1\SalesInvoiceMonitoringController;
+use App\Http\Controllers\Api\V1\StockCardsMonitoringController;
 use App\Http\Controllers\Api\V1\StoreController;
 use App\Http\Controllers\Api\V1\UserPermissionController;
 use App\Http\Controllers\Api\V1\UserRoleController;
@@ -151,14 +158,38 @@ $api->version('v1', function ($api) {
     });
 
     $api->group(['prefix' => 'reports', 'middleware' => ['api.auth', 'bindings']], function ($api) {
-        $api->get('delivery-sales-monitoring', 'App\Http\Controllers\Api\V1\DeliverySalesMonitoringController@index');
-        $api->get('delivery-receipt-monitoring', 'App\Http\Controllers\Api\V1\DeliveryReceiptMonitoringController@index');
-        $api->get('sales-invoices-monitoring', 'App\Http\Controllers\Api\V1\SalesInvoiceMonitoringController@index');
-        $api->get('stock-cards-monitoring', 'App\Http\Controllers\Api\V1\StockCardsMonitoringController@index');
-        $api->get('stock-cards-monitoring-available-items', 'App\Http\Controllers\Api\V1\StockCardsMonitoringController@availableItems');
-        $api->get('promodisers-summary', 'App\Http\Controllers\Api\V1\PromodisersSummaryController@index');
-        $api->get('item-sales-monitoring', 'App\Http\Controllers\Api\V1\ItemSalesMonitoringController@index');
-        $api->get('delivery-trips-summary', 'App\Http\Controllers\Api\V1\DeliveryTripsController@index');
+        $api->get(
+            'delivery-sales-monitoring',
+            [DeliverySalesMonitoringController::class, 'index']
+        );
+        $api->get(
+            'delivery-receipt-monitoring',
+            [DeliveryReceiptMonitoringController::class, 'index']
+        );
+        $api->get(
+            'sales-invoices-monitoring',
+            [SalesInvoiceMonitoringController::class, 'index']
+        );
+        $api->get(
+            'stock-cards-monitoring',
+            [StockCardsMonitoringController::class, 'index']
+        );
+        $api->get(
+            'stock-cards-monitoring-available-items',
+            [StockCardsMonitoringController::class, 'availableItems']
+        );
+        $api->get(
+            'promodisers-summary',
+            [PromodisersSummaryController::class, 'index']
+        );
+        $api->get(
+            'item-sales-monitoring',
+            [ItemSalesMonitoringController::class, 'index']
+        );
+        $api->get(
+            'delivery-trips-summary',
+            [DeliveryTripsController::class, 'index']
+        );
     });
 
     $api->group(['prefix' => 'stock-cards', 'middleware' => ['api.auth', 'bindings']], function ($api) {

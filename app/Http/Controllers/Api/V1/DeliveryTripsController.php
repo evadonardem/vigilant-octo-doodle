@@ -6,15 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\GetDeliveryTripsRequest;
 use App\Services\DeliveryService;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class DeliveryTripsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function __construct()
+    {
+        $this->middleware('can:Generate delivery trips summary report')->only('index');
+    }
+
     public function index(GetDeliveryTripsRequest $request)
     {
         $attributes = $request->only(['from', 'to']);
