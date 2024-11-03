@@ -110,7 +110,7 @@ const Stores = () => {
                         <Accordion.Header>{category.name}</Accordion.Header>
                         <Accordion.Body>
                             {expandedAccordion === i &&
-                                <StoresList categoryId={category.id} />}
+                                <StoresList categoryId={category.id} categoryName={category.name} />}
                         </Accordion.Body>
                     </Accordion.Item>)}
                 </Accordion>

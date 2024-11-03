@@ -24,7 +24,7 @@ object-assign
  */
 
 /*!
- * Chart.js v4.4.4
+ * Chart.js v4.4.6
  * https://www.chartjs.org
  * (c) 2024 Chart.js Contributors
  * Released under the MIT License
@@ -109,7 +109,7 @@ object-assign
  * © SpryMedia Ltd - datatables.net/license
  */
 
-/*! DataTables 2.1.7
+/*! DataTables 2.1.8
  * © SpryMedia Ltd - datatables.net/license
  */
 
@@ -117,11 +117,11 @@ object-assign
  * © SpryMedia Ltd - datatables.net/license
  */
 
-/*! FixedColumns 5.0.2
+/*! FixedColumns 5.0.4
      * © SpryMedia Ltd - datatables.net/license
      */
 
-/*! FixedColumns 5.0.2
+/*! FixedColumns 5.0.4
  * © SpryMedia Ltd - datatables.net/license
  */
 
@@ -149,19 +149,19 @@ object-assign
  * © SpryMedia Ltd - datatables.net/license
  */
 
-/*! SearchBuilder 1.8.0
+/*! SearchBuilder 1.8.1
      * ©SpryMedia Ltd - datatables.net/license/mit
      */
 
-/*! SearchBuilder 1.8.0
+/*! SearchBuilder 1.8.1
  * ©SpryMedia Ltd - datatables.net/license/mit
  */
 
-/*! SearchPanes 2.3.2
+/*! SearchPanes 2.3.3
      * © SpryMedia Ltd - datatables.net/license
      */
 
-/*! SearchPanes 2.3.2
+/*! SearchPanes 2.3.3
  * © SpryMedia Ltd - datatables.net/license
  */
 
@@ -181,7 +181,7 @@ object-assign
 
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 
-/*! pdfmake v0.2.13, @license MIT, @link http://pdfmake.org */
+/*! pdfmake v0.2.15, @license MIT, @link http://pdfmake.org */
 
 /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
 
@@ -276,7 +276,7 @@ object-assign
  */
 
 /**
- * @remix-run/router v1.19.2
+ * @remix-run/router v1.20.0
  *
  * Copyright (c) Remix Software Inc.
  *
@@ -287,7 +287,7 @@ object-assign
  */
 
 /**
- * React Router DOM v6.26.2
+ * React Router DOM v6.27.0
  *
  * Copyright (c) Remix Software Inc.
  *
@@ -298,7 +298,7 @@ object-assign
  */
 
 /**
- * React Router v6.26.2
+ * React Router v6.27.0
  *
  * Copyright (c) Remix Software Inc.
  *
