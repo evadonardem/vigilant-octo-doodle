@@ -31,6 +31,9 @@ const StoresDeliveryReceiptsPayments = () => {
     const [data, setData] = useState([]);
     const [expandedRows, setExpandedRows] = useState([]);
 
+    const coverageFrom = useRef();
+    const coverageTo = useRef();
+
     const filterByStore = useRef();
     const filterByCategory = useRef();
 
@@ -40,6 +43,7 @@ const StoresDeliveryReceiptsPayments = () => {
 
     const filterByDeliveryReceiptNo = useRef();
 
+    const [coverageSet, setCoverageSet] = useState(false);
     const [showStores, setShowStores] = useState(true);
     const [showCategories, setShowCategories] = useState(false);
     const [selectedStore, setSelectedStore] = useState(null);
@@ -300,7 +304,7 @@ const StoresDeliveryReceiptsPayments = () => {
                         conditionalRowStyles={conditionalRowStylesDeliveryReceipts}
                         expandableRowsComponent={ExpandedComponentDeliveryReceiptPayments}
                         expandableRowExpanded={rowPreExpanded}
-                        onRowExpandToggled={handlePerRowExpandToggled} 
+                        onRowExpandToggled={handlePerRowExpandToggled}
                         expandableRows />
                 </Card.Body>
             </Card>
@@ -327,6 +331,15 @@ const StoresDeliveryReceiptsPayments = () => {
 
     const handleFindDeliveryReceiptPayments = () => {
         let updatedFilters = [];
+
+        const coverageFromValue = coverageFrom.current.value;
+        const coverageToValue = coverageTo.current.value;
+        if (coverageFromValue) {
+            updatedFilters.push(`filters[coverage_from]=${coverageFromValue}`);
+        }
+        if (coverageToValue) {
+            updatedFilters.push(`filters[coverage_to]=${coverageToValue}`);
+        }
 
         const by = filterByStore.current.checked
             ? filterByStore.current.value
@@ -393,6 +406,33 @@ const StoresDeliveryReceiptsPayments = () => {
                         <Card.Title className='mb-2'>
                             <i className='fa fa-book' /> Delivery Receipt Payments
                         </Card.Title>
+                        <Form.Group className='mb-2 field'>
+                            <Form.Label>Coverage: </Form.Label><br />
+                            <Row>
+                                <Col md={6}>
+                                    <Form.Control
+                                        ref={coverageFrom}
+                                        type="date"
+                                        name="coverage_from"
+                                        onChange={(e) => {
+                                            setCoverageSet(e.target.value && coverageTo.current.value);
+                                        }}
+                                        required
+                                    />
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Control
+                                        ref={coverageTo}
+                                        type="date"
+                                        name="coverage_to"
+                                        onChange={(e) => {
+                                            setCoverageSet(e.target.value && coverageFrom.current.value);
+                                        }}
+                                        required
+                                    />
+                                </Col>
+                            </Row>
+                        </Form.Group>
                         <Form.Group className='mb-2 field'>
                             <Form.Label>Filter By: </Form.Label><br />
                             <Form.Check
@@ -488,7 +528,7 @@ const StoresDeliveryReceiptsPayments = () => {
                         <ButtonGroup className='pull-right'>
                             <Button
                                 onClick={handleFindDeliveryReceiptPayments}
-                                disabled={selectedStore === null && selectedCategory === null}>
+                                disabled={selectedStore === null && selectedCategory === null || !coverageSet}>
                                 <i className='fa fa-search'></i> Find
                             </Button>
                         </ButtonGroup>

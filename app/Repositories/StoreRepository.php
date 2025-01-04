@@ -67,6 +67,71 @@ class StoreRepository
                     $deliveryReceiptNo = $filters['delivery_receipt_no'];
                     $query->where("{$relationTable}.delivery_receipt_no", $deliveryReceiptNo);
                 }
+
+                if (($filters['coverage_from'] ?? false) && ($filters['coverage_to'] ?? false)) {
+                    $query->where("{$purchaseOrderTable}.from", '>=', $filters['coverage_from']);
+                    $query->where("{$purchaseOrderTable}.from", '<=', $filters['coverage_to']);
+                    $query->where("{$purchaseOrderTable}.to", '>=', $filters['coverage_from']);
+                    $query->where("{$purchaseOrderTable}.to", '<=', $filters['coverage_to']);
+                } elseif ($filters['coverage_from'] ?? false) {
+                    $query->where("{$purchaseOrderTable}.from", '>=', $filters['coverage_from']);
+                    $query->where("{$purchaseOrderTable}.to", '>=', $filters['coverage_from']);
+                } else {
+                    if ($filters['coverage_to'] ?? false) {
+                        $query->where("{$purchaseOrderTable}.from", '<=', $filters['coverage_to']);
+                        $query->where("{$purchaseOrderTable}.to", '<=', $filters['coverage_to']);
+                    }
+                }
+            })
+            ->whereHas('purchaseOrderItems', function ($query) use ($filters, $purchaseOrderTable, $storeItemPriceTable) {
+                $relationTable = $query->getModel()->getTable();
+                $query
+                    ->select([
+                        "{$relationTable}.*",
+                        "{$purchaseOrderTable}.code AS purchase_order_code",
+                    ])
+                    ->selectSub("SELECT
+                            amount * {$relationTable}.quantity_actual
+                        FROM {$storeItemPriceTable}
+                        WHERE {$storeItemPriceTable}.store_id = {$relationTable}.store_id
+                            AND {$storeItemPriceTable}.item_id = {$relationTable}.item_id
+                            AND {$storeItemPriceTable}.effectivity_date <= {$purchaseOrderTable}.to
+                        ORDER BY {$storeItemPriceTable}.effectivity_date DESC
+                        LIMIT 1", 'amount_due')
+                    ->with('item')
+                    ->join(
+                        $purchaseOrderTable,
+                        "{$relationTable}.purchase_order_id",
+                        "{$purchaseOrderTable}.id"
+                    )
+                    ->where([
+                        "{$purchaseOrderTable}.purchase_order_status_id" => 3,
+                    ])
+                    ->groupBy([
+                        "{$relationTable}.purchase_order_id",
+                        "{$relationTable}.store_id",
+                        "{$relationTable}.item_id",
+                    ]);
+
+                if ($filters['delivery_receipt_no'] ?? false) {
+                    $deliveryReceiptNo = $filters['delivery_receipt_no'];
+                    $query->where("{$relationTable}.delivery_receipt_no", $deliveryReceiptNo);
+                }
+
+                if (($filters['coverage_from'] ?? false) && ($filters['coverage_to'] ?? false)) {
+                    $query->where("{$purchaseOrderTable}.from", '>=', $filters['coverage_from']);
+                    $query->where("{$purchaseOrderTable}.from", '<=', $filters['coverage_to']);
+                    $query->where("{$purchaseOrderTable}.to", '>=', $filters['coverage_from']);
+                    $query->where("{$purchaseOrderTable}.to", '<=', $filters['coverage_to']);
+                } elseif ($filters['coverage_from'] ?? false) {
+                    $query->where("{$purchaseOrderTable}.from", '>=', $filters['coverage_from']);
+                    $query->where("{$purchaseOrderTable}.to", '>=', $filters['coverage_from']);
+                } else {
+                    if ($filters['coverage_to'] ?? false) {
+                        $query->where("{$purchaseOrderTable}.from", '<=', $filters['coverage_to']);
+                        $query->where("{$purchaseOrderTable}.to", '<=', $filters['coverage_to']);
+                    }
+                }
             });
 
         if ($filters['store_id'] ?? false) {
@@ -92,6 +157,10 @@ class StoreRepository
             $paymentsByDeliveryReceipt = $store->deliveryReceiptPayments->groupBy('delivery_receipt_no');
 
             $deliveryReceiptsPayments = collect();
+            $deliveryReceiptsTotalAmountDue = 0;
+            $deliveryReceiptsTotalPayments = 0;
+            $deliveryReceiptsTotalBalance = 0;
+
             foreach ($deliveryReceiptNos as $deliveryReceiptNo) {
                 $deliveryRecetipNoPayments = $paymentsByDeliveryReceipt->get($deliveryReceiptNo);
                 $purchaseOrderItemsByDeliveryReceipt =
@@ -100,6 +169,10 @@ class StoreRepository
                     $purchaseOrderItemsByDeliveryReceipt->sum('amount_due');
                 $deliveryReceiptTotalPayments = $deliveryRecetipNoPayments?->sum('amount') ?? 0;
                 $deliveryReceiptTotalBalance = $deliveryReceiptTotalAmountDue - $deliveryReceiptTotalPayments;
+
+                $deliveryReceiptsTotalAmountDue += $deliveryReceiptTotalAmountDue;
+                $deliveryReceiptsTotalPayments += $deliveryReceiptTotalPayments;
+                $deliveryReceiptsTotalBalance += $deliveryReceiptTotalBalance;
 
                 if ($filters['payment_status'] ?? false) {
                     if (
@@ -131,9 +204,9 @@ class StoreRepository
             }
 
             $store->delivery_receipt_nos = $deliveryReceiptsPayments;
-            $store->delivery_receipt_total_amount_due = $deliveryReceiptsPayments->sum('total_amount_due');
-            $store->delivery_receipt_total_payments = $deliveryReceiptsPayments->sum('total_payments');
-            $store->delivery_receipt_total_balance = $deliveryReceiptsPayments->sum('total_balance');
+            $store->delivery_receipt_total_amount_due = $deliveryReceiptsTotalAmountDue;
+            $store->delivery_receipt_total_payments = $deliveryReceiptsTotalPayments;
+            $store->delivery_receipt_total_balance = $deliveryReceiptsTotalBalance;
 
             $store->unsetRelation('deliveryReceiptPayments');
             $store->unsetRelation('purchaseOrderItems');
