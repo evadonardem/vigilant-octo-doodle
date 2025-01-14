@@ -5,8 +5,8 @@ namespace App\Repositories;
 use App\Models\PurchaseOrder;
 use App\Models\Store;
 use App\Models\StoreItemPrice;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class StoreRepository
 {
@@ -21,7 +21,7 @@ class StoreRepository
     public function getStoresPayments(
         int $perPage,
         array $filters = []
-    ): LengthAwarePaginator {
+    ): Collection {
         $purchaseOrderTable = $this->purchaseOrder->getTable();
         $storeItemPriceTable = $this->storeItemPrice->getTable();
 
@@ -97,7 +97,7 @@ class StoreRepository
             }
         }
 
-        $stores = $storesQuery->paginate($perPage);
+        $stores = $storesQuery->get();
 
         $stores->map(function ($store) use ($filters) {
             $purchaseOrderItemsGroupByDeliveryReceipt = $store->purchaseOrderItems
@@ -124,16 +124,16 @@ class StoreRepository
                 $deliveryReceiptsTotalPayments += $deliveryReceiptTotalPayments;
                 $deliveryReceiptsTotalBalance += $deliveryReceiptTotalBalance;
 
-                if ($filters['payment_status'] ?? false) {
+                if ($filters['delivery_receipt_payment_status'] ?? false) {
                     if (
-                        $filters['payment_status'] === 'paid' &&
+                        $filters['delivery_receipt_payment_status'] === 'paid' &&
                         $deliveryReceiptTotalBalance > 0
                     ) {
                         continue;
                     }
 
                     if (
-                        $filters['payment_status'] === 'unpaid' &&
+                        $filters['delivery_receipt_payment_status'] === 'unpaid' &&
                         $deliveryReceiptTotalBalance <= 0
                     ) {
                         continue;
@@ -161,6 +161,24 @@ class StoreRepository
             $store->unsetRelation('deliveryReceiptPayments');
             $store->unsetRelation('purchaseOrderItems');
         });
+
+        if ($filters['overall_payment_status'] ?? false) {
+            if ($filters['overall_payment_status'] === 'with_partial_payment') {
+                $stores = $stores->filter(function ($store) {
+                    return $store->delivery_receipt_total_amount_due > 0 &&
+                        $store->delivery_receipt_total_payments > 0 && 
+                        $store->delivery_receipt_total_balance > 0;
+                })->values();
+            }
+            
+            if ($filters['overall_payment_status'] === 'with_full_payment') {
+                $stores = $stores->filter(function ($store) {
+                    return $store->delivery_receipt_total_amount_due > 0 &&
+                        $store->delivery_receipt_total_payments > 0 && 
+                        $store->delivery_receipt_total_balance <= 0;
+                })->values();
+            }
+        }
 
         return $stores;
     }

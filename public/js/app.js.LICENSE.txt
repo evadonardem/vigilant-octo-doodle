@@ -109,7 +109,7 @@ object-assign
  * © SpryMedia Ltd - datatables.net/license
  */
 
-/*! DataTables 2.1.8
+/*! DataTables 2.2.1
  * © SpryMedia Ltd - datatables.net/license
  */
 

@@ -37,11 +37,15 @@ const StoresDeliveryReceiptsPayments = () => {
     const filterByStore = useRef();
     const filterByCategory = useRef();
 
-    const filterByPaymentStatusAll = useRef();
-    const filterByPaymentStatusPaid = useRef();
-    const filterByPaymentStatusUnpaid = useRef();
+    const filterByDeliveryReceiptPaymentStatusAll = useRef();
+    const filterByDeliveryReceiptPaymentStatusPaid = useRef();
+    const filterByDeliveryReceiptPaymentStatusUnpaid = useRef();
 
     const filterByDeliveryReceiptNo = useRef();
+
+    const filterByOverallPaymentStatusAll = useRef();
+    const filterByOverallPaymentStatusWithPartialPayment = useRef();
+    const filterByOverallPaymentStatusWithFullPayment = useRef();
 
     const [coverageSet, setCoverageSet] = useState(false);
     const [showStores, setShowStores] = useState(true);
@@ -56,11 +60,14 @@ const StoresDeliveryReceiptsPayments = () => {
     const fetchData = async (currentPage, filters) => {
         setIsLoading(true);
         const response = await axios.get(`${ENDPOINT}?page=${currentPage}&per_page=${perPage}&${filters.join('&')}&token=${token}`);
-        const { data, total: totalRows } = response.data;
+
+        console.log(response.data);
+
+        const { data } = response;
 
         setFilters(filters);
         setData(data);
-        setTotalRows(totalRows);
+        setTotalRows(data.length);
         setIsLoading(false);
     };
 
@@ -345,18 +352,18 @@ const StoresDeliveryReceiptsPayments = () => {
             ? filterByStore.current.value
             : filterByCategory.current.value;
 
-        let paymentStatus;
-        if (filterByPaymentStatusAll.current.checked) {
-            paymentStatus = filterByPaymentStatusAll.current.value;
-        } else if (filterByPaymentStatusPaid.current.checked) {
-            paymentStatus = filterByPaymentStatusPaid.current.value;
+        let deliveryReceiptPaymentStatus;
+        if (filterByDeliveryReceiptPaymentStatusAll.current.checked) {
+            deliveryReceiptPaymentStatus = filterByDeliveryReceiptPaymentStatusAll.current.value;
+        } else if (filterByDeliveryReceiptPaymentStatusPaid.current.checked) {
+            deliveryReceiptPaymentStatus = filterByDeliveryReceiptPaymentStatusPaid.current.value;
         } else {
-            paymentStatus = filterByPaymentStatusUnpaid.current.value;
+            deliveryReceiptPaymentStatus = filterByDeliveryReceiptPaymentStatusUnpaid.current.value;
         }
 
         const deliveryReceiptNo = filterByDeliveryReceiptNo.current.value;
 
-        updatedFilters.push(`filters[payment_status]=${paymentStatus}`);
+        updatedFilters.push(`filters[delivery_receipt_payment_status]=${deliveryReceiptPaymentStatus}`);
 
         if (by === 'store' && selectedStore !== null) {
             updatedFilters.push(`filters[${by}_id]=${selectedStore.value}`);
@@ -368,6 +375,18 @@ const StoresDeliveryReceiptsPayments = () => {
 
         if (deliveryReceiptNo) {
             updatedFilters.push(`filters[delivery_receipt_no]=${deliveryReceiptNo}`);
+        }
+
+        if (showCategories) {
+            let overallPaymentStatus;
+            if (filterByOverallPaymentStatusAll.current.checked) {
+                overallPaymentStatus = filterByOverallPaymentStatusAll.current.value;
+            } else if (filterByOverallPaymentStatusWithPartialPayment.current.checked) {
+                overallPaymentStatus = filterByOverallPaymentStatusWithPartialPayment.current.value;
+            } else {
+                overallPaymentStatus = filterByOverallPaymentStatusWithFullPayment.current.value;
+            }
+            updatedFilters.push(`filters[overall_payment_status]=${overallPaymentStatus}`);
         }
 
         fetchData(page, updatedFilters);
@@ -487,42 +506,79 @@ const StoresDeliveryReceiptsPayments = () => {
                         </Form.Group>}
 
                         <Form.Group className='mb-2 field'>
-                            <Form.Label>Payment Status: </Form.Label><br />
+                            <Form.Label>Delivery Receipt Payment Status: </Form.Label><br />
                             <Form.Check
-                                ref={filterByPaymentStatusAll}
+                                ref={filterByDeliveryReceiptPaymentStatusAll}
                                 type='radio'
-                                name='payment_status'
+                                name='delivery_receipt_payment_status'
                                 label='All'
                                 value='all'
                                 onClick={(e) => {
-                                    filterByPaymentStatusAll.current = e.target;
+                                    filterByDeliveryReceiptPaymentStatusAll.current = e.target;
                                     setData([]);
                                 }}
                                 defaultChecked
                                 inline />
                             <Form.Check
-                                ref={filterByPaymentStatusUnpaid}
+                                ref={filterByDeliveryReceiptPaymentStatusUnpaid}
                                 type='radio'
-                                name='payment_status'
+                                name='delivery_receipt_payment_status'
                                 label='Unpaid'
                                 value='unpaid'
                                 onClick={(e) => {
-                                    filterByPaymentStatusUnpaid.current = e.target;
+                                    filterByDeliveryReceiptPaymentStatusUnpaid.current = e.target;
                                     setData([]);
                                 }}
                                 inline />
                             <Form.Check
-                                ref={filterByPaymentStatusPaid}
+                                ref={filterByDeliveryReceiptPaymentStatusPaid}
                                 type='radio'
-                                name='payment_status'
+                                name='delivery_receipt_payment_status'
                                 label='Paid'
                                 value='paid'
                                 onClick={(e) => {
-                                    filterByPaymentStatusPaid.current = e.target;
+                                    filterByDeliveryReceiptPaymentStatusPaid.current = e.target;
                                     setData([]);
                                 }}
                                 inline />
                         </Form.Group>
+                        {showCategories && <Form.Group className='mb-2 field'>
+                            <Form.Label>Overall Payment Status: </Form.Label><br />
+                            <Form.Check
+                                ref={filterByOverallPaymentStatusAll}
+                                type='radio'
+                                name='overall_payment_status'
+                                label='All'
+                                value='all'
+                                onClick={(e) => {
+                                    filterByOverallPaymentStatusAll.current = e.target;
+                                    setData([]);
+                                }}
+                                defaultChecked
+                                inline />
+                            <Form.Check
+                                ref={filterByOverallPaymentStatusWithPartialPayment}
+                                type='radio'
+                                name='overall_payment_status'
+                                label='With partial payment'
+                                value='with_partial_payment'
+                                onClick={(e) => {
+                                    filterByOverallPaymentStatusWithPartialPayment.current = e.target;
+                                    setData([]);
+                                }}
+                                inline />
+                            <Form.Check
+                                ref={filterByOverallPaymentStatusWithFullPayment}
+                                type='radio'
+                                name='overall_payment_status'
+                                label='With full payment'
+                                value='with_full_payment'
+                                onClick={(e) => {
+                                    filterByOverallPaymentStatusWithFullPayment.current = e.target;
+                                    setData([]);
+                                }}
+                                inline />
+                        </Form.Group>}
                     </Card.Body>
                     <Card.Footer>
                         <ButtonGroup className='pull-right'>
@@ -544,13 +600,14 @@ const StoresDeliveryReceiptsPayments = () => {
                             expandableRowExpanded={rowPreExpanded}
                             progressPending={isLoading}
                             data={data}
-                            onChangePage={handlePageChange}
-                            onChangeRowsPerPage={handlePerRowsChange}
+                            //onChangePage={handlePageChange}
+                            //onChangeRowsPerPage={handlePerRowsChange}
                             onRowExpandToggled={handlePerRowExpandToggled}
                             paginationTotalRows={totalRows}
                             expandableRows
-                            pagination
-                            paginationServer />
+                        //pagination
+                        //paginationServer
+                        />
                     </Card.Body>
                 </Card>
             </Col>
