@@ -57,6 +57,7 @@
         "jwt-decode": "^3.1.2",
         "laravel-mix-polyfill": "^3.0.1",
         "node-polyfill-webpack-plugin": "^2.0.1",
+        "papaparse": "^5.5.2",
         "pdfmake": "^0.2.14",
         "react-bootstrap": "^2.7.2",
         "react-chartjs-2": "^5.2.0",

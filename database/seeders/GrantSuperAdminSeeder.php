@@ -15,9 +15,9 @@ class GrantSuperAdminSeeder extends Seeder
      */
     public function run()
     {
-        $user = User::find(6);
+        $user = User::find(1);
         $user->password = Hash::make('123456');
         $user->save();
-        User::find(6)->assignRole('Super Admin');
+        User::find(1)->assignRole('Super Admin');
     }
 }

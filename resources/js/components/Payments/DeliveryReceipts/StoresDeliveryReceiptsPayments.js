@@ -7,6 +7,8 @@ import DataTable from "react-data-table-component";
 import CommonDropdownSelectSingleStore from '../../CommonDropdownSelectSingleStore';
 import CommonDropdownSelectSingleStoreCategory from '../../CommonDropdownSelectSingleStoreCategory';
 import ConfirmationModal from '../../Common/Modals/ConfirmationModal';
+import Papa from 'papaparse';
+import { uniq } from 'lodash';
 
 const ENDPOINT = `${apiBaseUrl}/payments/stores`;
 const ENDPOINT_STORE_DELIVERY_RECEIPT_PAYMENTS = `${apiBaseUrl}/stores/{storeId}/delivery-receipt-payments`;
@@ -305,6 +307,49 @@ const StoresDeliveryReceiptsPayments = () => {
                     <i className='fa fa-receipt'></i>Delivery Receipts
                 </Card.Header>
                 <Card.Body>
+                    <Button onClick={() => {
+                        let deliveryReceiptPaymentStatus = '';
+                        if (filterByDeliveryReceiptPaymentStatusAll.current.checked) {
+                            deliveryReceiptPaymentStatus = 'all';
+                        } else if (filterByDeliveryReceiptPaymentStatusPaid.current.checked) {
+                            deliveryReceiptPaymentStatus = 'paid';
+                        } else if (filterByDeliveryReceiptPaymentStatusUnpaid.current.checked) {
+                            deliveryReceiptPaymentStatus = 'unpaid';
+                        } else {
+                            deliveryReceiptPaymentStatus = '';
+                        }
+
+                        const csvFilename = `${store.code}_drp_from_${coverageFrom.current.value}_to_${coverageTo.current.value}_${deliveryReceiptPaymentStatus}`;
+
+                        const dataToCsv = deliveryReceiptNos.map((deliveryReceipt) => {
+                            console.log(store);
+                            console.log(deliveryReceipt);
+                            const purchaseOrderReferences = uniq(deliveryReceipt.purchase_order_items.map((item) => item.purchase_order_code));
+                            return {
+                                'DR#': deliveryReceipt.delivery_receipt_no,
+                                'Total Amt. Due': deliveryReceipt.total_amount_due.toFixed(2),
+                                'Total Payments': deliveryReceipt.total_payments.toFixed(2),
+                                'Total Balance': deliveryReceipt.total_balance.toFixed(2),
+                                'PO Refs': purchaseOrderReferences.join(', '),
+                            };
+                        });
+                        const csv = Papa.unparse(dataToCsv, { download: true });
+                        
+                        // Create a Blob and URL
+                        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                        const url = URL.createObjectURL(blob);
+
+                        // Create a link to download the CSV
+                        const link = document.createElement("a");
+                        link.setAttribute("href", url);
+                        link.setAttribute(
+                            "download",
+                            `${csvFilename}.csv`
+                        );
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }}>CSV</Button>
                     <DataTable
                         columns={columnsStoreDeliveryReceipts}
                         data={deliveryReceiptNos}
@@ -594,6 +639,10 @@ const StoresDeliveryReceiptsPayments = () => {
             <Col md={9}>
                 <Card>
                     <Card.Body>
+                        {!!data.length && <>
+                            <h5>Deliver Receipt Payments</h5>
+                            <p>From: {coverageFrom.current.value} To: {coverageTo.current.value}</p>
+                        </>}
                         <DataTable
                             columns={columns}
                             expandableRowsComponent={ExpandedComponentStoreDeliveryReceipts}
@@ -605,8 +654,8 @@ const StoresDeliveryReceiptsPayments = () => {
                             onRowExpandToggled={handlePerRowExpandToggled}
                             paginationTotalRows={totalRows}
                             expandableRows
-                        //pagination
-                        //paginationServer
+                            //pagination
+                            //paginationServer
                         />
                     </Card.Body>
                 </Card>
