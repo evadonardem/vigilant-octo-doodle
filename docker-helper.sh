@@ -13,6 +13,7 @@ while true; do
   case $option in
     1 )
       docker-compose down && docker-compose up -d
+      docker-compose pull
       docker-compose exec workspace bash -c "composer update -o"
       docker-compose exec workspace bash -c "vendor/bin/phing configure-environment"
       docker-compose exec workspace bash -c "npm update"
@@ -21,6 +22,7 @@ while true; do
       break;;
     2 )
       docker-compose down -v && docker-compose up -d
+      docker-compose pull
       docker-compose exec workspace bash -c "composer update -o"
       docker-compose exec workspace bash -c "vendor/bin/phing configure-environment"
       docker-compose exec workspace bash -c "npm update"
